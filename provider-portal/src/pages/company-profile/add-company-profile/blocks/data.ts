@@ -1,0 +1,87 @@
+export const regions = {
+  NSW: [
+    'Capital Region',
+    'Central Coast',
+    'Central West',
+    'Coffs Harbour - Grafton',
+    'Far West And Orana',
+    'Hunter Valley Exc Newcastle',
+    'Illawarra',
+    'Mid North Coast',
+    'Murray',
+    'Newcastle And Lake Macquarie',
+    'New England And North West',
+    'Richmond - Tweed',
+    'Riverina',
+    'Southern Highlands And Shoalhaven',
+    'Sydney - Baulkham Hills And Hawkesbury',
+    'Sydney - Blacktown',
+    'Sydney - City And Inner South',
+    'Sydney - Eastern Suburbs',
+    'Sydney - Inner South West',
+    'Sydney - Inner West',
+    'Sydney - Northern Beaches',
+    'Sydney - North Sydney And Hornsby',
+    'Sydney - Outer South West',
+    'Sydney - Outer West And Blue Mountains',
+    'Sydney - Parramatta',
+    'Sydney - Ryde',
+    'Sydney - South West',
+    'Sydney - Sutherland'
+  ],
+  QLD: [
+    'Brisbane Inner City',
+    'Sunshine Coast',
+    'Central Queensland',
+    'Toowoomba',
+    'Townsville',
+    'Ipswich',
+    'Cairns',
+    'Wide Bay',
+    'Gold Coast',
+    'Brisbane - North',
+    'Brisbane - South',
+    'Brisbane - West',
+    'Brisbane - East',
+    'Darling Downs - Maranoa',
+    'Logan - Beaudesert',
+    'Mackay - Isaac - Whitsunday',
+    'Moreton Bay - North',
+    'Moreton Bay - South',
+    'Queensland - Outback'
+  ],
+  VIC: [
+    'Ballarat',
+    'Bendigo',
+    'Geelong',
+    'Hume',
+    'Shepparton',
+    'Mornington Peninsula',
+    'North West',
+    'Melbourne - West',
+    'Latrobe - Gippsland',
+    'Melbourne - Inner',
+    'Melbourne - Inner East',
+    'Melbourne - Inner South',
+    'Melbourne - North East',
+    'Melbourne - North West',
+    'Melbourne - Outer East',
+    'Melbourne - South East',
+    'Warrnambool And South West'
+  ]
+};
+
+export const options = [
+  'Group',
+  'Online service',
+  'Telehealth',
+  'We come to you',
+  'You come to us'
+];
+export const options1 = [
+  'Early Childhood (0-7 years)',
+  'Children (8-16 years)',
+  'Young people (17-21 years)',
+  'Adults (22-59 years)',
+  'Mature Age (60+ years)'
+];
