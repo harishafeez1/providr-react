@@ -138,11 +138,11 @@ export const MENU_SIDEBAR: TMenuConfig = [
     children: [
       {
         title: 'Service Requests',
-        path: '/service-request/my-service-request'
+        path: '/service-request'
       },
       {
         title: 'Documents',
-        path: '/account/billing/basic'
+        path: '/documents'
       },
       {
         title: 'My Reviews',
