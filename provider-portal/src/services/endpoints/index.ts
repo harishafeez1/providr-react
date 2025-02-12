@@ -41,4 +41,4 @@ export const GET_ALL_PREMISES_URL = `${API_URL}/premises/all_premises`;
 export const GET_ALL_REVIEWS_URL = `${API_URL}/reviews/all_reviews`;
 
 // All Services Routes
-export const GET_ALL_SERVICES_URL = `${API_URL}/services`;
+export const GET_ALL_SERVICES_URL = `${API_URL}/all_services`;
