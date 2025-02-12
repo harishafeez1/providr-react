@@ -96,18 +96,18 @@ const UsersTable = () => {
     store.dispatch(setRefreshTable(false));
   }, [refreshTable]);
 
-  useEffect(() => {
-    if (currentUser) {
-      const rolesObject = {
-        admin: currentUser.admin,
-        permission_billing: currentUser.permission_billing,
-        permission_editor: currentUser.permission_editor,
-        permission_intake: currentUser.permission_intake,
-        permission_review: currentUser.permission_review
-      };
-      setRoles(rolesObject);
-    }
-  }, [currentUser]);
+  // useEffect(() => {
+  //   if (currentUser) {
+  // const rolesObject = {
+  //   admin: currentUser.admin,
+  //   permission_billing: currentUser.permission_billing,
+  //   permission_editor: currentUser.permission_editor,
+  //   permission_intake: currentUser.permission_intake,
+  //   permission_review: currentUser.permission_review
+  // };
+  // setRoles(rolesObject);
+  //   }
+  // }, [currentUser]);
 
   // const [searchQuery, setSearchQuery] = useState('');
 
