@@ -1,6 +1,6 @@
 import { ReactElement } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
-import { AuthPage, RequireLogout } from '@/auth';
+import { AuthPage, Impersonate, RequireLogout } from '@/auth';
 import { RequireAuth } from '@/auth/RequireAuth';
 import { Demo1Layout } from '@/layouts/demo1';
 import { ErrorsRouting } from '@/errors';
@@ -194,7 +194,7 @@ const AppRoutingSetup = (): ReactElement => {
       <Route element={<RequireLogout />}>
         <Route path="auth/*" element={<AuthPage />} />
       </Route>
-
+      <Route path="/impersonate" element={<Impersonate />} />
       <Route path="*" element={<Navigate to="/error/404" />} />
     </Routes>
   );

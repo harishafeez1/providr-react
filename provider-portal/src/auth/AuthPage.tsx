@@ -11,10 +11,12 @@ import {
 } from './pages/jwt';
 import { AuthBrandedLayout } from '@/layouts/auth-branded';
 import { CheckEmail } from '@/auth/pages/jwt';
+import { Impersonate } from './Impersonate';
 
 const AuthPage = () => (
   <Routes>
     <Route element={<AuthBrandedLayout />}>
+      <Route path="/impersonate" element={<Impersonate />} />
       <Route index element={<Login />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />

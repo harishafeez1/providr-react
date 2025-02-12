@@ -4,3 +4,4 @@ export * from './AuthPage';
 export * from './RequireAuth';
 export * from './RequireLogout';
 export * from './useAuthContext';
+export * from './Impersonate';

@@ -3,7 +3,7 @@ import { type TLanguageCode } from '@/i18n';
 export interface AuthModel {
   message?: string;
   token: string;
-  user: UserModel;
+  user?: UserModel;
 }
 
 export interface ProviderCompany {
