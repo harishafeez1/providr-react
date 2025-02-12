@@ -6,8 +6,6 @@ import {
   ProfileBloggerPage,
   CampaignsCardPage,
   CampaignsListPage,
-  ProjectColumn2Page,
-  ProjectColumn3Page,
   ProfileCompanyPage,
   ProfileCreatorPage,
   ProfileCRMPage,
@@ -104,8 +102,6 @@ const AppRoutingSetup = (): ReactElement => {
           <Route path="/public-profile/profiles/feeds" element={<ProfileFeedsPage />} />
           <Route path="/public-profile/profiles/plain" element={<ProfilePlainPage />} />
           <Route path="/public-profile/profiles/modal" element={<ProfileModalPage />} />
-          <Route path="/public-profile/projects/3-columns" element={<ProjectColumn3Page />} />
-          <Route path="/public-profile/projects/2-columns" element={<ProjectColumn2Page />} />
           <Route path="/public-profile/works" element={<ProfileWorksPage />} />
           <Route path="/public-profile/teams" element={<ProfileTeamsPage />} />
           <Route path="/public-profile/network" element={<ProfileNetworkPage />} />
