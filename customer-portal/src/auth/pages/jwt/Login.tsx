@@ -33,7 +33,7 @@ const Login = () => {
   const { login } = useAuthContext();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || '/';
+  const from = location.state?.from?.pathname || '/service-request';
   const [showPassword, setShowPassword] = useState(false);
   const { currentLayout } = useLayout();
 
@@ -42,7 +42,6 @@ const Login = () => {
     validationSchema: loginSchema,
     onSubmit: async (values, { setStatus, setSubmitting }) => {
       setLoading(true);
-
       try {
         if (!login) {
           throw new Error('JWTProvider is required for this form.');
