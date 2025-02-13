@@ -11,13 +11,13 @@ import {
 
 import * as authHelper from '../_helpers';
 import { type AuthModel, type UserModel } from '@/auth';
-
-const API_URL = import.meta.env.VITE_APP_API_URL;
-export const LOGIN_URL = `${API_URL}/login`;
-export const REGISTER_URL = `${API_URL}/register`;
-export const FORGOT_PASSWORD_URL = `${API_URL}/forgot-password`;
-export const RESET_PASSWORD_URL = `${API_URL}/reset-password`;
-export const GET_USER_URL = `${API_URL}/user`;
+import {
+  FORGOT_PASSWORD_URL,
+  GET_USER_URL,
+  LOGIN_URL,
+  REGISTER_URL,
+  RESET_PASSWORD_URL
+} from '@/services/endpoints';
 
 interface AuthContextProps {
   loading: boolean;
@@ -30,7 +30,13 @@ interface AuthContextProps {
   loginWithGoogle?: () => Promise<void>;
   loginWithFacebook?: () => Promise<void>;
   loginWithGithub?: () => Promise<void>;
-  register: (email: string, password: string, password_confirmation: string) => Promise<void>;
+  register: (
+    first_name: string,
+    last_name: string,
+    email: string,
+    password: string,
+    phone: string
+  ) => Promise<void>;
   requestPasswordResetLink: (email: string) => Promise<void>;
   changePassword: (
     email: string,
@@ -86,12 +92,20 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
     }
   };
 
-  const register = async (email: string, password: string, password_confirmation: string) => {
+  const register = async (
+    first_name: string,
+    last_name: string,
+    email: string,
+    password: string,
+    phone: string
+  ) => {
     try {
       const { data: auth } = await axios.post(REGISTER_URL, {
+        first_name,
+        last_name,
         email,
         password,
-        password_confirmation
+        phone
       });
       saveAuth(auth);
       const { data: user } = await getUser();

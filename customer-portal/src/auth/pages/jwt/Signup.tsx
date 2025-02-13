@@ -14,11 +14,13 @@ const initialValues = {
   email: '',
   password: '',
   changepassword: '',
-  phoneNumber: '',
+  phone: '',
   acceptTerms: false
 };
 
 const signupSchema = Yup.object().shape({
+  first_name: Yup.string().required('First Name is required'),
+  last_name: Yup.string().required('Last Name is required'),
   email: Yup.string()
     .email('Wrong email format')
     .min(3, 'Minimum 3 symbols')
@@ -33,12 +35,14 @@ const signupSchema = Yup.object().shape({
     .max(50, 'Maximum 50 symbols')
     .required('Password confirmation is required')
     .oneOf([Yup.ref('password')], "Password and Confirm Password didn't match"),
-  phoneNumber: Yup.string()
+  phone: Yup.string()
     .matches(/^[0-9]+$/, 'Phone number must be digits only')
     .min(10, 'Minimum 10 digits')
     .max(15, 'Maximum 15 digits')
     .required('Phone number is required'),
-  acceptTerms: Yup.bool().required('You must accept the terms and conditions')
+  acceptTerms: Yup.bool()
+    .oneOf([true], 'You must accept the terms and conditions')
+    .required('You must accept the terms and conditions')
 });
 
 const Signup = () => {
@@ -59,7 +63,13 @@ const Signup = () => {
         if (!register) {
           throw new Error('JWTProvider is required for this form.');
         }
-        await register(values.email, values.password, values.changepassword);
+        await register(
+          values.first_name,
+          values.last_name,
+          values.email,
+          values.password,
+          values.phone
+        );
         navigate(from, { replace: true });
       } catch (error) {
         console.error(error);
@@ -112,8 +122,6 @@ const Signup = () => {
           <span className="text-2xs text-gray-500 font-medium uppercase">Or</span>
           <span className="border-t border-gray-200 w-full"></span>
         </div>
-
-        {formik.status && <Alert variant="danger">{formik.status}</Alert>}
 
         <div className="flex flex-col gap-1">
           <label className="form-label text-gray-900">First Name</label>
@@ -264,19 +272,19 @@ const Signup = () => {
               placeholder="Enter your mobile phone number"
               type="text"
               autoComplete="off"
-              {...formik.getFieldProps('phoneNumber')}
+              {...formik.getFieldProps('phone')}
               className={clsx(
                 'form-control bg-transparent',
-                { 'is-invalid': formik.touched.phoneNumber && formik.errors.phoneNumber },
+                { 'is-invalid': formik.touched.phone && formik.errors.phone },
                 {
-                  'is-valid': formik.touched.phoneNumber && !formik.errors.phoneNumber
+                  'is-valid': formik.touched.phone && !formik.errors.phone
                 }
               )}
             />
           </label>
-          {formik.touched.phoneNumber && formik.errors.phoneNumber && (
+          {formik.touched.phone && formik.errors.phone && (
             <span role="alert" className="text-danger text-xs mt-1">
-              {formik.errors.phoneNumber}
+              {formik.errors.phone}
             </span>
           )}
         </div>
