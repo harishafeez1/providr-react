@@ -17,7 +17,7 @@ const DropdownUser = ({ menuItemRef }: IDropdownUserProps) => {
       <Fragment>
         <div className="flex flex-col">
           <MenuItem>
-            <MenuLink path="/public-profile/profiles/default">
+            <MenuLink path="/settings">
               <MenuIcon className="setting-2">
                 <KeenIcon icon="badge" />
               </MenuIcon>
