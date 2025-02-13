@@ -6,7 +6,7 @@ import { useFormik } from 'formik';
 import { KeenIcon } from '@/components';
 import { toAbsoluteUrl } from '@/utils';
 import { useAuthContext } from '@/auth';
-import { Alert } from '@/components';
+import { useGoogleLogin } from '@react-oauth/google';
 
 const loginSchema = Yup.object().shape({
   email: Yup.string()
@@ -29,7 +29,7 @@ const initialValues = {
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
-  const { login } = useAuthContext();
+  const { login, googleLogin } = useAuthContext();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || '/service-request';
@@ -67,6 +67,23 @@ const Login = () => {
     setShowPassword(!showPassword);
   };
 
+  const gooleLogin = useGoogleLogin({
+    onSuccess: async (code) => {
+      try {
+        await googleLogin(code);
+
+        navigate(from, { replace: true });
+      } catch {
+        // setStatus('The login details are incorrect');
+        // setSubmitting(false);
+      }
+    },
+    flow: 'auth-code',
+    onError: () => {
+      console.log('Login Failed');
+    }
+  });
+
   return (
     <div className="card max-w-[390px] w-full">
       <form
@@ -85,7 +102,7 @@ const Login = () => {
         </div>
 
         <div className="grid grid-cols-1 gap-2.5">
-          <a href="#" className="btn btn-light btn-sm justify-center">
+          <a onClick={() => gooleLogin()} className="btn btn-light btn-sm justify-center">
             <img
               src={toAbsoluteUrl('/media/brand-logos/google.svg')}
               className="size-3.5 shrink-0"

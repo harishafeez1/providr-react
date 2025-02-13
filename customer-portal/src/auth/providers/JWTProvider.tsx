@@ -14,6 +14,7 @@ import { type AuthModel, type UserModel } from '@/auth';
 import {
   FORGOT_PASSWORD_URL,
   GET_USER_URL,
+  GOOGLE_LOGIN_URL,
   LOGIN_URL,
   LOGOUT_URL,
   REGISTER_URL,
@@ -28,6 +29,7 @@ interface AuthContextProps {
   currentUser: UserModel | undefined;
   setCurrentUser: Dispatch<SetStateAction<UserModel | undefined>>;
   login: (email: string, password: string) => Promise<void>;
+  googleLogin: (code: any) => Promise<void>;
   loginWithGoogle?: () => Promise<void>;
   loginWithFacebook?: () => Promise<void>;
   loginWithGithub?: () => Promise<void>;
@@ -141,6 +143,18 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
     return await axios.get<UserModel>(GET_USER_URL);
   };
 
+  const googleLogin = async (code: any) => {
+    try {
+      const { data: auth } = await axios.post(`${GOOGLE_LOGIN_URL}`, code);
+      saveAuth(auth);
+      // const { data: user } = await getUser();
+      setCurrentUser(auth?.user);
+    } catch (error) {
+      saveAuth(undefined);
+      throw new Error(`Login Error ${error}`);
+    }
+  };
+
   const logout = async () => {
     try {
       const response = await axios.post(LOGOUT_URL);
@@ -164,6 +178,7 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
         currentUser,
         setCurrentUser,
         login,
+        googleLogin,
         register,
         requestPasswordResetLink,
         changePassword,
