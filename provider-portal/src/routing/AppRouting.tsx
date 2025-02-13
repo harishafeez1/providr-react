@@ -13,7 +13,7 @@ const AppRouting = (): ReactElement => {
   const path = location.pathname.trim();
 
   useEffect(() => {
-    if (firstLoad) {
+    if (localStorage.getItem('impersonate') !== 'true' && firstLoad) {
       verify().finally(() => {
         setLoading(false);
         setFirstLoad(false);
@@ -22,7 +22,7 @@ const AppRouting = (): ReactElement => {
   });
 
   useEffect(() => {
-    if (!firstLoad) {
+    if (localStorage.getItem('impersonate') !== 'true' && !firstLoad) {
       setProgressBarLoader(true);
       verify()
         .catch(() => {

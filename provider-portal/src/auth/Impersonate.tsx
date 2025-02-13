@@ -22,43 +22,39 @@ function Impersonate() {
   const user_id = getQueryParam('user_id');
 
   useEffect(() => {
-    // const logoutUser = async () => {
-    //   if (!logout) {
-    //     console.error('Impersonate: logout function is null');
-    //     return;
-    //   }
+    localStorage.setItem('impersonate', 'true');
 
-    //   try {
-    //     await logout();
-    //   } catch (error) {
-    //     console.error('Impersonate: error logging out', error);
-    //   } finally {
-    //     removeAuth();
-    //   }
-    // };
+    const handleImpersonation = async () => {
+      delete axios.defaults.headers.common['Authorization'];
 
-    // if (auth?.token) {
-    //   logoutUser();
-    // }
-    if (token && user_id) {
-      saveAuth({
-        token,
-        user: {
-          id: Number(user_id)
+      if (auth?.token) {
+        try {
+          await logout();
+        } catch (error) {
+          console.error('Impersonate: error logging out', error);
         }
-      });
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      axios
-        .get(`${GET_USER_URL}/${user_id}`)
-        .then((response) => {
+      }
+
+      if (token && user_id) {
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        saveAuth({ token, user: { id: Number(user_id) } });
+
+        try {
+          const response = await axios.get(`${GET_USER_URL}/${user_id}`);
           setCurrentUser(response.data);
-        })
-        .then(() => {
-          setTimeout(() => {
-            navigate('/');
-          }, 5000);
-        });
-    }
+          saveAuth({
+            token,
+            user: response.data
+          });
+          localStorage.removeItem('impersonate');
+          navigate('/');
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+        }
+      }
+    };
+
+    handleImpersonation();
   }, []);
 
   return (

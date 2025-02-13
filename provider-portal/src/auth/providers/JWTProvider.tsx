@@ -87,13 +87,13 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
       const services = await getAllServices();
       store.dispatch(setServices(services));
     };
-    if (auth && services.length === 0) {
+    if (localStorage.getItem('impersonate') !== 'true' && services.length === 0) {
       fetchServices();
     }
   }, [currentUser]);
 
   const verify = async () => {
-    if (auth) {
+    if (auth?.token) {
       try {
         const { data: user } = await getUser();
         setCurrentUser(user);
@@ -195,7 +195,12 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
 
   const getUser = async () => {
     try {
-      return await axios.get<UserModel>(`${GET_USER_URL}/${auth?.user?.id}`);
+      const newAuth = authHelper.getAuth();
+      if (newAuth?.user?.id) {
+        return await axios.get<UserModel>(`${GET_USER_URL}/${newAuth?.user?.id}`);
+      } else {
+        throw new Error('User IDs do not match. Cannot fetch user data.');
+      }
     } catch (error) {
       throw new Error(`Get User Error ${error}`);
     }
@@ -224,8 +229,11 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
 
   const logout = async () => {
     try {
+      delete axios.defaults.headers.common['Authorization'];
+
       const response = await axios.post(LOGOUT_URL);
-      if (response.status == 200) {
+      if (response.status === 200) {
+        authHelper.removeAuth();
         saveAuth(undefined);
         setCurrentUser(undefined);
         setCurrentCompany(undefined);

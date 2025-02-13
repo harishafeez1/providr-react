@@ -48,6 +48,10 @@ export function setupAxios(axios: any) {
     (config: { headers: { Authorization: string } }) => {
       const auth = getAuth();
 
+      if (!auth?.token) {
+        return Promise.reject(new Error('No token found. Request canceled.'));
+      }
+
       if (auth?.token) {
         config.headers.Authorization = `Bearer ${auth.token}`;
       }

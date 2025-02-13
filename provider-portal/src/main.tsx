@@ -22,12 +22,12 @@ setupAxios(axios);
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
   <GoogleOAuthProvider clientId={import.meta.env.VITE_APP_GOOGLE_CLIENT_ID}>
-    <React.StrictMode>
-      <Provider store={store}>
-        <ProvidersWrapper>
-          <App />
-        </ProvidersWrapper>
-      </Provider>
-    </React.StrictMode>
+    {/* <React.StrictMode> */}
+    <Provider store={store}>
+      <ProvidersWrapper>
+        <App />
+      </ProvidersWrapper>
+    </Provider>
+    {/* </React.StrictMode> */}
   </GoogleOAuthProvider>
 );
