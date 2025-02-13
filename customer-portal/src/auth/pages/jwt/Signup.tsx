@@ -7,7 +7,6 @@ import * as Yup from 'yup';
 import { useAuthContext } from '../../useAuthContext';
 import { toAbsoluteUrl } from '@/utils';
 import { Alert, KeenIcon } from '@/components';
-import { useLayout } from '@/providers';
 
 const initialValues = {
   email: '',
@@ -42,7 +41,6 @@ const Signup = () => {
   const from = location.state?.from?.pathname || '/';
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { currentLayout } = useLayout();
 
   const formik = useFormik({
     initialValues,
@@ -85,10 +83,7 @@ const Signup = () => {
           <h3 className="text-lg font-semibold text-gray-900 leading-none mb-2.5">Sign up</h3>
           <div className="flex items-center justify-center font-medium">
             <span className="text-2sm text-gray-600 me-1.5">Already have an Account ?</span>
-            <Link
-              to={currentLayout?.name === 'auth-branded' ? '/auth/login' : '/auth/classic/login'}
-              className="text-2sm link"
-            >
+            <Link to={'/login'} className="text-2sm link">
               Sign In
             </Link>
           </div>

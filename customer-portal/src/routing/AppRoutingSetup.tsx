@@ -188,7 +188,7 @@ const AppRoutingSetup = (): ReactElement => {
         </Route>
       </Route>
       <Route path="error/*" element={<ErrorsRouting />} />
-      <Route path="auth/*" element={<AuthPage />} />
+      <Route path="*" element={<AuthPage />} />
       <Route path="*" element={<Navigate to="/error/404" />} />
     </Routes>
   );
