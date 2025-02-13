@@ -77,7 +77,7 @@ const ResetPassword = () => {
           </span>
         </div>
 
-        {hasErrors && <Alert variant="danger">{formik.status}</Alert>}
+        {hasErrors && <Alert variant="danger">This feature is coming soon</Alert>}
 
         {hasErrors === false && (
           <Alert variant="success">
