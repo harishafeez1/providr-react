@@ -6,14 +6,14 @@ import * as Yup from 'yup';
 
 import { useAuthContext } from '../../useAuthContext';
 import { toAbsoluteUrl } from '@/utils';
-import { Alert, KeenIcon } from '@/components';
+import { KeenIcon } from '@/components';
 
 const initialValues = {
   first_name: '',
   last_name: '',
   email: '',
   password: '',
-  changepassword: '',
+  confirmpassword: '',
   phone: '',
   acceptTerms: false
 };
@@ -30,9 +30,7 @@ const signupSchema = Yup.object().shape({
     .min(3, 'Minimum 3 symbols')
     .max(50, 'Maximum 50 symbols')
     .required('Password is required'),
-  changepassword: Yup.string()
-    .min(3, 'Minimum 3 symbols')
-    .max(50, 'Maximum 50 symbols')
+  confirmpassword: Yup.string()
     .required('Password confirmation is required')
     .oneOf([Yup.ref('password')], "Password and Confirm Password didn't match"),
   phone: Yup.string()
@@ -235,14 +233,14 @@ const Signup = () => {
               type={showConfirmPassword ? 'text' : 'password'}
               placeholder="Re-enter Password"
               autoComplete="off"
-              {...formik.getFieldProps('changepassword')}
+              {...formik.getFieldProps('confirmpassword')}
               className={clsx(
                 'form-control bg-transparent',
                 {
-                  'is-invalid': formik.touched.changepassword && formik.errors.changepassword
+                  'is-invalid': formik.touched.confirmpassword && formik.errors.confirmpassword
                 },
                 {
-                  'is-valid': formik.touched.changepassword && !formik.errors.changepassword
+                  'is-valid': formik.touched.confirmpassword && !formik.errors.confirmpassword
                 }
               )}
             />
@@ -257,9 +255,9 @@ const Signup = () => {
               />
             </button>
           </label>
-          {formik.touched.changepassword && formik.errors.changepassword && (
+          {formik.touched.confirmpassword && formik.errors.confirmpassword && (
             <span role="alert" className="text-danger text-xs mt-1">
-              {formik.errors.changepassword}
+              {formik.errors.confirmpassword}
             </span>
           )}
         </div>

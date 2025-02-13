@@ -22,8 +22,8 @@ const loginSchema = Yup.object().shape({
 });
 
 const initialValues = {
-  email: 'demo@keenthemes.com',
-  password: 'demo1234',
+  email: '',
+  password: '',
   remember: false
 };
 
@@ -100,13 +100,11 @@ const Login = () => {
           <span className="border-t border-gray-200 w-full"></span>
         </div>
 
-        {formik.status && <Alert variant="danger">{formik.status}</Alert>}
-
         <div className="flex flex-col gap-1">
           <label className="form-label text-gray-900">Email</label>
           <label className="input">
             <input
-              placeholder="Enter username"
+              placeholder="Enter email"
               autoComplete="off"
               {...formik.getFieldProps('email')}
               className={clsx('form-control', {

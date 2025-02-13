@@ -15,6 +15,7 @@ import {
   FORGOT_PASSWORD_URL,
   GET_USER_URL,
   LOGIN_URL,
+  LOGOUT_URL,
   REGISTER_URL,
   RESET_PASSWORD_URL
 } from '@/services/endpoints';
@@ -84,8 +85,8 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
         password
       });
       saveAuth(auth);
-      const { data: user } = await getUser();
-      setCurrentUser(user);
+      // const { data: user } = await getUser();
+      setCurrentUser(auth?.user);
     } catch (error) {
       saveAuth(undefined);
       throw new Error(`Error ${error}`);
@@ -140,9 +141,17 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
     return await axios.get<UserModel>(GET_USER_URL);
   };
 
-  const logout = () => {
-    saveAuth(undefined);
-    setCurrentUser(undefined);
+  const logout = async () => {
+    try {
+      const response = await axios.post(LOGOUT_URL);
+      if (response.status === 200) {
+        authHelper.removeAuth();
+        saveAuth(undefined);
+        setCurrentUser(undefined);
+      }
+    } catch (err) {
+      throw new Error(`Logout Error ${err}`);
+    }
   };
 
   return (
