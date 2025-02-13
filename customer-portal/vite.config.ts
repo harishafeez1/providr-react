@@ -10,7 +10,7 @@ export default defineConfig({
       plugins: [tailwindcss()]
     }
   },
-  base: '/customer-portal',
+  base: '/',
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
