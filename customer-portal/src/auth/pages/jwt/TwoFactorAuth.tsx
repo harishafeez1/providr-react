@@ -54,7 +54,7 @@ const TwoFactorAuth = () => {
 
         <div className="flex items-center justify-center mb-2">
           <span className="text-xs text-gray-700 me-1.5">Didn’t receive a code? (37s)</span>
-          <Link to="/auth/classic/login" className="text-xs link">
+          <Link to="/login" className="text-xs link">
             Resend
           </Link>
         </div>
@@ -62,7 +62,7 @@ const TwoFactorAuth = () => {
         <button className="btn btn-primary flex justify-center grow">Continue</button>
 
         <Link
-          to="/auth/login"
+          to="/login"
           className="flex items-center justify-center text-sm gap-2 text-gray-700 hover:text-primary"
         >
           <KeenIcon icon="black-left" />
