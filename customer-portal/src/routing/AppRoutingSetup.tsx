@@ -48,7 +48,6 @@ import {
   AccountSecurityLogPage,
   AccountSettingsEnterprisePage,
   AccountSettingsModalPage,
-  AccountSettingsPlainPage,
   AccountSettingsSidebarPage,
   AccountTeamInfoPage,
   AccountTeamMembersPage,
@@ -83,6 +82,7 @@ import {
 } from '@/pages/authentication';
 import { Demo2Layout } from '@/layouts/demo2';
 import { DocumentsTablePage } from '@/pages/documents';
+import { AccountSettingsPlainPage } from '@/pages/settings';
 
 const AppRoutingSetup = (): ReactElement => {
   return (
@@ -92,6 +92,8 @@ const AppRoutingSetup = (): ReactElement => {
           <Route path="/" element={<DefaultPage />} />
           <Route path="/service-request" element={<ServiceRequestsTablePage />} />
           <Route path="/documents" element={<DocumentsTablePage />} />
+          <Route path="/settings" element={<AccountSettingsPlainPage />} />
+
           <Route path="/public-profile/profiles/default" element={<ProfileDefaultPage />} />
           <Route path="/public-profile/profiles/creator" element={<ProfileCreatorPage />} />
           <Route path="/public-profile/profiles/company" element={<ProfileCompanyPage />} />
@@ -117,7 +119,6 @@ const AppRoutingSetup = (): ReactElement => {
             path="/account/home/settings-enterprise"
             element={<AccountSettingsEnterprisePage />}
           />
-          <Route path="/account/home/settings-plain" element={<AccountSettingsPlainPage />} />
           <Route path="/account/home/settings-modal" element={<AccountSettingsModalPage />} />
           <Route path="/account/billing/basic" element={<AccountBasicPage />} />
           <Route path="/account/billing/enterprise" element={<AccountEnterprisePage />} />
