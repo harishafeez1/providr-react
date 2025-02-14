@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 
 import { IServiceRequestsData, ModalFilters } from './';
 import { useAuthContext } from '@/auth';
+import { getServiceRequests } from '@/services/api/service-requests';
 // import { getAllServiceRequests } from '@/services/api';
 
 interface IColumnFilterProps<TData, TValue> {
@@ -67,14 +68,7 @@ const ServiceRequestsTable = () => {
         });
       }
 
-      // const response = await getAllServiceRequests(
-      //   `${currentUser.provider_company_id}?${queryParams.toString()}`
-      // );
-      const response = {
-        current_page: 1,
-        data: [],
-        total: 0
-      };
+      const response = await getServiceRequests(`${queryParams.toString()}`);
 
       return {
         data: response.data,
@@ -97,7 +91,7 @@ const ServiceRequestsTable = () => {
         id: 'matchId',
         header: ({ column }) => (
           <DataGridColumnHeader
-            title="Match ID"
+            title="ID"
             filter={<ColumnInputFilter column={column} />}
             column={column}
             icon={<i className="ki-filled ki-barcode text-lg"></i>}
@@ -123,11 +117,11 @@ const ServiceRequestsTable = () => {
         }
       },
       {
-        accessorFn: (row) => row.customer_id,
-        id: 'participantName',
+        accessorFn: (row) => row.provider_company_id,
+        id: 'company',
         header: ({ column }) => (
           <DataGridColumnHeader
-            title="participant Name"
+            title="Provider"
             column={column}
             icon={<i className="ki-filled ki-user"></i>}
           />
@@ -135,7 +129,7 @@ const ServiceRequestsTable = () => {
         cell: (info) => {
           return (
             <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.customer_id}
+              {info.row.original.provider_company.name}
             </div>
           );
         },
@@ -182,7 +176,7 @@ const ServiceRequestsTable = () => {
         cell: (info) => {
           return (
             <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.service_id}
+              {info.row.original.service.name}
             </div>
           );
         },
@@ -210,28 +204,28 @@ const ServiceRequestsTable = () => {
         meta: {
           headerClassName: 'min-w-[180px]'
         }
-      },
-      {
-        accessorFn: (row) => row.actioned_at,
-        id: 'actioned',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            title="actioned"
-            column={column}
-            icon={<i className="ki-filled ki-user-tick text-lg"></i>}
-          />
-        ),
-        cell: (info) => {
-          return (
-            <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.actioned_at}
-            </div>
-          );
-        },
-        meta: {
-          headerClassName: 'min-w-[180px]'
-        }
       }
+      // {
+      //   accessorFn: (row) => row.actioned_at,
+      //   id: 'actioned',
+      //   header: ({ column }) => (
+      //     <DataGridColumnHeader
+      //       title="actioned"
+      //       column={column}
+      //       icon={<i className="ki-filled ki-user-tick text-lg"></i>}
+      //     />
+      //   ),
+      //   cell: (info) => {
+      //     return (
+      //       <div className="flex items-center text-gray-800 font-normal gap-1.5">
+      //         {info.row.original.actioned_at}
+      //       </div>
+      //     );
+      //   },
+      //   meta: {
+      //     headerClassName: 'min-w-[180px]'
+      //   }
+      // }
     ],
     []
   );

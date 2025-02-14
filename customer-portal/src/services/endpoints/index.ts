@@ -9,3 +9,14 @@ export const USER_PROFILE_UPDATE_URL = `${API_URL}/update_profile`;
 export const FORGOT_PASSWORD_URL = `${API_URL}/forgot`;
 export const RESET_PASSWORD_URL = `${API_URL}/reset`;
 export const LOGOUT_URL = `${API_URL}/logout`;
+
+// Service Request
+export const GET_SERVICE_REQUEST_URL = `${API_URL}/service_requests`;
+
+// Reviews
+export const GET_REVIEWS_URL = `${API_URL}/reviews`;
+
+// Documents
+export const GET_DOCUMENTS_URL = `${API_URL}/all_documents`;
+export const UPLOAD_DOCUMENTS_URL = `${API_URL}/documents`;
+export const DELETE_DOCUMENTS_URL = `${API_URL}/documents`; //id
