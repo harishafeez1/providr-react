@@ -84,10 +84,6 @@ const DocumentsTable = () => {
     }
   };
 
-  const handleDocDownload = async (id: any) => {
-    await downloadDocument(id);
-  };
-
   const handleDocDelete = async (id: any) => {
     const res = await deleteDocument(id);
     if (res) {
@@ -148,7 +144,6 @@ const DocumentsTable = () => {
           headerClassName: 'min-w-[180px]'
         }
       },
-
       {
         accessorFn: (row) => row.actioned_at,
         id: 'actioned',
@@ -162,7 +157,14 @@ const DocumentsTable = () => {
         cell: (info) => {
           return (
             <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              <Button onClick={() => handleDocDownload(info.row.original.id)}>Download</Button>
+              <a
+                className="btn btn-success"
+                href={`${import.meta.env.VITE_APP_AWS_URL}/${info.row.original.document_path}`}
+                target="_blank"
+                download
+              >
+                Download
+              </a>
               <Button variant={'destructive'} onClick={() => handleDocDelete(info.row.original.id)}>
                 Delete
               </Button>
