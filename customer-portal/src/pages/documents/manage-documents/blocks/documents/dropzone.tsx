@@ -3,7 +3,7 @@ import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 
 interface DropzoneProps {
-  onDrop: (acceptedFiles: File[]) => void;
+  onDrop?: (acceptedFiles: File[]) => void;
   onUploadSuccess: () => void;
 }
 interface FileWithPreview extends File {
@@ -23,7 +23,10 @@ const Dropzone: React.FC<DropzoneProps> = ({ onDrop, onUploadSuccess }) => {
           })
         )
       );
-      onDrop(acceptedFiles);
+      if (onDrop){
+
+        onDrop(acceptedFiles);
+      }
     },
     [onDrop]
   );
