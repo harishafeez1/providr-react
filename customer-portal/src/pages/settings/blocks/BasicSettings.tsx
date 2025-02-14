@@ -22,8 +22,6 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
   const [nameInput, setNameInput] = useState('Jason Tatum');
   const [emailInput, setEmailInput] = useState('jason@studio.io');
   const [addressInput, setAddressInput] = useState('Avinguda Imaginària, 789');
-  const [cityInput, setCityInput] = useState('Barcelona');
-  const [postcodeInput, setPostcodeInput] = useState('08012');
 
   return (
     <div className="card pb-2.5">
@@ -58,7 +56,15 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
             onChange={(e) => setNameInput(e.target.value)}
           />
         </div>
-
+        <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
+          <label className="form-label max-w-56">Address</label>
+          <input
+            className="input"
+            type="text"
+            value={addressInput}
+            onChange={(e) => setAddressInput(e.target.value)}
+          />
+        </div>
         <div className="w-full">
           <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
             <label className="form-label flex items-center gap-1 max-w-56">Birth Date</label>
@@ -90,8 +96,53 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
         </div>
 
         <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
-          <label className="form-label max-w-56">Phone number</label>
-          <input type="text" className="input" placeholder="Phone number" />
+          <label className="form-label max-w-56">NDIS number</label>
+          <input type="text" className="input" placeholder="NDIS number" />
+        </div>
+
+        <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
+          <label className="form-label max-w-56">NDIS Type</label>
+          <Select defaultValue="Self-Managed">
+            <SelectTrigger>
+              <SelectValue placeholder="Select" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Self-Managed">Self-Managed</SelectItem>
+              <SelectItem value="Plan Managed">Plan Managed</SelectItem>
+              <SelectItem value="Agency Managed">Agency Managed</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="w-full">
+          <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
+            <label className="form-label flex items-center gap-1 max-w-56">
+              NDIS plan start date
+            </label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  id="date"
+                  className={cn(
+                    'input data-[state=open]:border-primary',
+                    !date && 'text-muted-foreground'
+                  )}
+                >
+                  <KeenIcon icon="calendar" className="-ms-0.5" />
+                  {date ? format(date, 'LLL dd, y') : <span>Pick a date</span>}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  initialFocus
+                  mode="single" // Single date selection
+                  defaultMonth={date}
+                  selected={date}
+                  onSelect={setDate}
+                  numberOfMonths={1}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
 
         <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
@@ -105,53 +156,8 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
         </div>
 
         <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
-          <label className="form-label max-w-56">Address</label>
-          <input
-            className="input"
-            type="text"
-            value={addressInput}
-            onChange={(e) => setAddressInput(e.target.value)}
-          />
-        </div>
-
-        <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
-          <label className="form-label max-w-56">Country</label>
-
-          <Select defaultValue="1">
-            <SelectTrigger>
-              <SelectValue placeholder="Select" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1">Spain</SelectItem>
-              <SelectItem value="2">Option 2</SelectItem>
-              <SelectItem value="3">Option 3</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
-          <label className="form-label max-w-56">State</label>
-          <input type="text" className="input" placeholder="State" />
-        </div>
-
-        <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
-          <label className="form-label max-w-56">City</label>
-          <input
-            className="input"
-            type="text"
-            value={cityInput}
-            onChange={(e) => setCityInput(e.target.value)}
-          />
-        </div>
-
-        <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5 mb-2.5">
-          <label className="form-label max-w-56">Postcode</label>
-          <input
-            className="input"
-            type="text"
-            value={postcodeInput}
-            onChange={(e) => setPostcodeInput(e.target.value)}
-          />
+          <label className="form-label max-w-56">Change Password</label>
+          <input type="password" className="input" placeholder="Password" />
         </div>
 
         <div className="flex justify-end">

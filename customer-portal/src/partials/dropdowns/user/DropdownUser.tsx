@@ -24,6 +24,30 @@ const DropdownUser = ({ menuItemRef }: IDropdownUserProps) => {
               <MenuTitle>Settings</MenuTitle>
             </MenuLink>
           </MenuItem>
+          <MenuItem>
+            <MenuLink path="/service-request">
+              <MenuIcon className="setting-2">
+                <KeenIcon icon="badge" />
+              </MenuIcon>
+              <MenuTitle>Service Requests</MenuTitle>
+            </MenuLink>
+          </MenuItem>
+          <MenuItem>
+            <MenuLink path="/documents">
+              <MenuIcon className="setting-2">
+                <KeenIcon icon="badge" />
+              </MenuIcon>
+              <MenuTitle>Documents</MenuTitle>
+            </MenuLink>
+          </MenuItem>
+          <MenuItem>
+            <MenuLink path="/reviews">
+              <MenuIcon className="setting-2">
+                <KeenIcon icon="badge" />
+              </MenuIcon>
+              <MenuTitle>My Reviews</MenuTitle>
+            </MenuLink>
+          </MenuItem>
         </div>
       </Fragment>
     );

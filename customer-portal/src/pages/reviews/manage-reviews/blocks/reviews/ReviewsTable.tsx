@@ -6,15 +6,15 @@ import { ColumnDef, Column, RowSelectionState } from '@tanstack/react-table';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 
-import { IDocumentsData, ModalFilters } from './';
+import { IReviewsData, ModalFilters } from './';
 import { useAuthContext } from '@/auth';
-// import { getAllDocuments } from '@/services/api';
+// import { getAllReviews } from '@/services/api';
 
 interface IColumnFilterProps<TData, TValue> {
   column: Column<TData, TValue>;
 }
 
-const DocumentsTable = () => {
+const ReviewsTable = () => {
   const { currentUser } = useAuthContext();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -67,7 +67,7 @@ const DocumentsTable = () => {
         });
       }
 
-      // const response = await getAllDocuments(
+      // const response = await getAllReviews(
       //   `${currentUser.provider_company_id}?${queryParams.toString()}`
       // );
       const response = {
@@ -90,10 +90,10 @@ const DocumentsTable = () => {
     }
   };
 
-  const columns = useMemo<ColumnDef<IDocumentsData>[]>(
+  const columns = useMemo<ColumnDef<IReviewsData>[]>(
     () => [
       {
-        accessorFn: (row: IDocumentsData) => row.id,
+        accessorFn: (row: IReviewsData) => row.id,
         id: 'matchId',
         header: ({ column }) => (
           <DataGridColumnHeader
@@ -254,7 +254,7 @@ const DocumentsTable = () => {
 
     return (
       <div className="card-header flex-wrap gap-2 border-b-0 px-5">
-        <h3 className="card-title font-medium text-sm">Documents</h3>
+        <h3 className="card-title font-medium text-sm">Reviews</h3>
 
         <div className="flex flex-wrap gap-2 lg:gap-5">
           <div className="flex">
@@ -295,4 +295,4 @@ const DocumentsTable = () => {
   );
 };
 
-export { DocumentsTable };
+export { ReviewsTable };

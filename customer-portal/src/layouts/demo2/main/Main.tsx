@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { Outlet, useLocation } from 'react-router';
 import { useMenuCurrentItem } from '@/components/menu';
 import { useMenus } from '@/providers';
-import { Header, Navbar, Footer } from '../';
+import { Header, Footer } from '../';
 import { Toolbar, ToolbarHeading } from '../toolbar';
 
 const Main = () => {
@@ -20,7 +20,7 @@ const Main = () => {
       <div className="flex grow flex-col [[data-sticky-header=on]_&]:pt-[--tw-header-height-default]">
         <Header />
 
-        <Navbar />
+        {/* <Navbar /> */}
 
         <main className="grow" role="content">
           {!pathname.includes('/public-profile/') && (

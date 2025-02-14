@@ -146,7 +146,7 @@ export const MENU_SIDEBAR: TMenuConfig = [
       },
       {
         title: 'My Reviews',
-        path: '/account/security/get-started'
+        path: '/reviews'
       }
     ]
   },

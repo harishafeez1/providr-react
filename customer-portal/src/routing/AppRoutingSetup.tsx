@@ -83,6 +83,7 @@ import {
 import { Demo2Layout } from '@/layouts/demo2';
 import { DocumentsTablePage } from '@/pages/documents';
 import { AccountSettingsPlainPage } from '@/pages/settings';
+import { ReviewsTablePage } from '@/pages/reviews';
 
 const AppRoutingSetup = (): ReactElement => {
   return (
@@ -93,6 +94,7 @@ const AppRoutingSetup = (): ReactElement => {
           <Route path="/service-request" element={<ServiceRequestsTablePage />} />
           <Route path="/documents" element={<DocumentsTablePage />} />
           <Route path="/settings" element={<AccountSettingsPlainPage />} />
+          <Route path="/reviews" element={<ReviewsTablePage />} />
 
           <Route path="/public-profile/profiles/default" element={<ProfileDefaultPage />} />
           <Route path="/public-profile/profiles/creator" element={<ProfileCreatorPage />} />
