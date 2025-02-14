@@ -17,6 +17,10 @@ export interface UserModel {
   occupation?: string;
   companyName?: string;
   phone?: string;
+  dob?: Date | undefined;
+  ndis_number: string;
+  ndis_plan_type: string;
+  ndis_plan_date: Date | undefined;
   roles?: number[];
   pic?: string;
   language?: TLanguageCode;

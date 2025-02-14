@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 
 import { IReviewsData, ModalFilters } from './';
 import { useAuthContext } from '@/auth';
+import { getReviews } from '@/services/api/reviews';
 // import { getAllReviews } from '@/services/api';
 
 interface IColumnFilterProps<TData, TValue> {
@@ -67,14 +68,7 @@ const ReviewsTable = () => {
         });
       }
 
-      // const response = await getAllReviews(
-      //   `${currentUser.provider_company_id}?${queryParams.toString()}`
-      // );
-      const response = {
-        current_page: 1,
-        data: [],
-        total: 0
-      };
+      const response = await getReviews(`${queryParams.toString()}`);
 
       return {
         data: response.data,
@@ -97,7 +91,7 @@ const ReviewsTable = () => {
         id: 'matchId',
         header: ({ column }) => (
           <DataGridColumnHeader
-            title="Match ID"
+            title="ID"
             filter={<ColumnInputFilter column={column} />}
             column={column}
             icon={<i className="ki-filled ki-barcode text-lg"></i>}
@@ -127,7 +121,7 @@ const ReviewsTable = () => {
         id: 'participantName',
         header: ({ column }) => (
           <DataGridColumnHeader
-            title="participant Name"
+            title="Provider"
             column={column}
             icon={<i className="ki-filled ki-user"></i>}
           />
@@ -135,7 +129,7 @@ const ReviewsTable = () => {
         cell: (info) => {
           return (
             <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.customer_id}
+              {info.row.original.provider_company.name}
             </div>
           );
         },
@@ -182,7 +176,7 @@ const ReviewsTable = () => {
         cell: (info) => {
           return (
             <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.service_id}
+              {info.row.original.service_offering.service.name}
             </div>
           );
         },
@@ -191,11 +185,11 @@ const ReviewsTable = () => {
         }
       },
       {
-        accessorFn: (row) => row.address,
-        id: 'location',
+        accessorFn: (row) => row.id,
+        id: 'content',
         header: ({ column }) => (
           <DataGridColumnHeader
-            title="Location"
+            title="Content"
             column={column}
             icon={<i className="ki-filled ki-geolocation"></i>}
           />
@@ -203,7 +197,7 @@ const ReviewsTable = () => {
         cell: (info) => {
           return (
             <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.address}
+              {info.row.original.content}
             </div>
           );
         },
@@ -216,7 +210,7 @@ const ReviewsTable = () => {
         id: 'actioned',
         header: ({ column }) => (
           <DataGridColumnHeader
-            title="actioned"
+            title="Responded"
             column={column}
             icon={<i className="ki-filled ki-user-tick text-lg"></i>}
           />
@@ -224,7 +218,7 @@ const ReviewsTable = () => {
         cell: (info) => {
           return (
             <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.actioned_at}
+              {info.row.original.reply}
             </div>
           );
         },
