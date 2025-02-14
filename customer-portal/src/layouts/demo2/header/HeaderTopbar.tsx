@@ -1,13 +1,15 @@
 import { useRef } from 'react';
-import { toAbsoluteUrl } from '@/utils';
 import { Menu, MenuItem, MenuToggle } from '@/components';
 import { DropdownUser } from '@/partials/dropdowns/user';
 import { useLanguage } from '@/i18n';
+import { useAuthContext } from '@/auth';
 
 const HeaderTopbar = () => {
   const itemUserRef = useRef<any>(null);
   const { isRTL } = useLanguage();
-
+  const profile = useAuthContext();
+  const firstName = profile.currentUser?.first_name;
+  const firstLetter = firstName ? firstName.charAt(0).toUpperCase() : '';
   return (
     <div className="flex items-center gap-3.5">
       <Menu>
@@ -28,11 +30,11 @@ const HeaderTopbar = () => {
           }}
         >
           <MenuToggle className="btn btn-icon rounded-full">
-            <img
-              className="size-9 rounded-full justify-center border border-gray-500 shrink-0"
-              src={toAbsoluteUrl('/media/avatars/gray/5.png')}
-              alt=""
-            />
+            {firstLetter && (
+              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 text-gray-700">
+                {firstLetter}
+              </div>
+            )}
           </MenuToggle>
           {DropdownUser({ menuItemRef: itemUserRef })}
         </MenuItem>
