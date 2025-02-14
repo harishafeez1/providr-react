@@ -19,4 +19,5 @@ export const GET_REVIEWS_URL = `${API_URL}/reviews`;
 // Documents
 export const GET_DOCUMENTS_URL = `${API_URL}/all_documents`;
 export const UPLOAD_DOCUMENTS_URL = `${API_URL}/documents`;
-export const DELETE_DOCUMENTS_URL = `${API_URL}/documents`; //id
+export const DOWNLOAD_DOCUMENTS_URL = `${API_URL}/documents`; //id
+export const DELETE_DOCUMENTS_URL = `${API_URL}/delete_documents`; //id

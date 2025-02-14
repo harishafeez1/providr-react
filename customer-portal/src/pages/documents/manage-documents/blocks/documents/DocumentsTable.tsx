@@ -8,8 +8,8 @@ import { Input } from '@/components/ui/input';
 
 import { IDocumentsData, ModalFilters } from './';
 import { useAuthContext } from '@/auth';
-import { getDocuments } from '@/services/api/documents';
-// import { getAllDocuments } from '@/services/api';
+import { deleteDocument, downloadDocument, getDocuments } from '@/services/api/documents';
+import { Button } from '@/components/ui/button';
 
 interface IColumnFilterProps<TData, TValue> {
   column: Column<TData, TValue>;
@@ -84,6 +84,17 @@ const DocumentsTable = () => {
     }
   };
 
+  const handleDocDownload = async (id: any) => {
+    await downloadDocument(id);
+  };
+
+  const handleDocDelete = async (id: any) => {
+    const res = await deleteDocument(id);
+    if (res) {
+      setRefreshKey((pre) => pre + 1);
+    }
+  };
+
   const columns = useMemo<ColumnDef<IDocumentsData>[]>(
     () => [
       {
@@ -151,7 +162,10 @@ const DocumentsTable = () => {
         cell: (info) => {
           return (
             <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.actioned_at}
+              <Button onClick={() => handleDocDownload(info.row.original.id)}>Download</Button>
+              <Button variant={'destructive'} onClick={() => handleDocDelete(info.row.original.id)}>
+                Delete
+              </Button>
             </div>
           );
         },
