@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 
 import { IDocumentsData, ModalFilters } from './';
 import { useAuthContext } from '@/auth';
+import { getDocuments } from '@/services/api/documents';
 // import { getAllDocuments } from '@/services/api';
 
 interface IColumnFilterProps<TData, TValue> {
@@ -16,7 +17,7 @@ interface IColumnFilterProps<TData, TValue> {
 
 const DocumentsTable = () => {
   const { currentUser } = useAuthContext();
-
+  const [refreshKey, setRefreshKey] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleModalOpen = () => {
@@ -67,14 +68,7 @@ const DocumentsTable = () => {
         });
       }
 
-      // const response = await getAllDocuments(
-      //   `${currentUser.provider_company_id}?${queryParams.toString()}`
-      // );
-      const response = {
-        current_page: 1,
-        data: [],
-        total: 0
-      };
+      const response = await getDocuments(`${queryParams.toString()}`);
 
       return {
         data: response.data,
@@ -97,7 +91,7 @@ const DocumentsTable = () => {
         id: 'matchId',
         header: ({ column }) => (
           <DataGridColumnHeader
-            title="Match ID"
+            title="ID"
             filter={<ColumnInputFilter column={column} />}
             column={column}
             icon={<i className="ki-filled ki-barcode text-lg"></i>}
@@ -124,10 +118,10 @@ const DocumentsTable = () => {
       },
       {
         accessorFn: (row) => row.customer_id,
-        id: 'participantName',
+        id: 'document_name',
         header: ({ column }) => (
           <DataGridColumnHeader
-            title="participant Name"
+            title="Document Name"
             column={column}
             icon={<i className="ki-filled ki-user"></i>}
           />
@@ -135,7 +129,7 @@ const DocumentsTable = () => {
         cell: (info) => {
           return (
             <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.customer_id}
+              {info.row.original.document_name}
             </div>
           );
         },
@@ -143,74 +137,7 @@ const DocumentsTable = () => {
           headerClassName: 'min-w-[180px]'
         }
       },
-      {
-        accessorFn: (row) => row.status,
-        id: 'status',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            title="Status"
-            column={column}
-            icon={<i className="ki-filled ki-flag"></i>}
-          />
-        ),
-        cell: (info) => {
-          return (
-            <span
-              className={`badge badge-${info.row.original.status ? 'success' : 'danger'} shrink-0 badge-outline rounded-[30px]`}
-            >
-              <span
-                className={`size-1.5 rounded-full bg-${info.row.original.status ? 'success' : 'danger'} me-1.5`}
-              ></span>
-              {info.row.original.status ? 'Active' : 'Disabled'}
-            </span>
-          );
-        },
-        meta: {
-          headerClassName: 'min-w-[180px]'
-        }
-      },
-      {
-        accessorFn: (row) => row.service_id,
-        id: 'service',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            title="Service"
-            column={column}
-            icon={<i className="ki-filled ki-courier text-lg"></i>}
-          />
-        ),
-        cell: (info) => {
-          return (
-            <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.service_id}
-            </div>
-          );
-        },
-        meta: {
-          headerClassName: 'min-w-[180px]'
-        }
-      },
-      {
-        accessorFn: (row) => row.address,
-        id: 'location',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            title="Location"
-            column={column}
-            icon={<i className="ki-filled ki-geolocation"></i>}
-          />
-        ),
-        cell: (info) => {
-          return (
-            <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.address}
-            </div>
-          );
-        },
-        meta: {
-          headerClassName: 'min-w-[180px]'
-        }
-      },
+
       {
         accessorFn: (row) => row.actioned_at,
         id: 'actioned',
@@ -275,6 +202,7 @@ const DocumentsTable = () => {
   return (
     <>
       <DataGrid
+        key={refreshKey}
         columns={columns}
         serverSide={true}
         onFetchData={fetchRequests}

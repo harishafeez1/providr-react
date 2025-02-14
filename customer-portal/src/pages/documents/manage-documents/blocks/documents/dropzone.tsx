@@ -1,16 +1,18 @@
+import { uploadDocument } from '@/services/api/documents';
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 
 interface DropzoneProps {
   onDrop: (acceptedFiles: File[]) => void;
+  onUploadSuccess: () => void;
 }
-
 interface FileWithPreview extends File {
   preview: string;
 }
 
-const Dropzone: React.FC<DropzoneProps> = ({ onDrop }) => {
+const Dropzone: React.FC<DropzoneProps> = ({ onDrop, onUploadSuccess }) => {
   const [files, setFiles] = useState<FileWithPreview[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const handleDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -26,9 +28,26 @@ const Dropzone: React.FC<DropzoneProps> = ({ onDrop }) => {
     [onDrop]
   );
 
-  const handleUpload = () => {
-    // Implement the upload logic here
-    console.log('Uploading files:', files);
+  const handleUpload = async () => {
+    setLoading(true);
+    if (!files.length) {
+      console.log('No files to upload');
+      return;
+    }
+
+    // Convert files to base64 or FormData
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append('document', file);
+    });
+
+    const res = await uploadDocument(formData);
+
+    if (res) {
+      setLoading(false);
+      setFiles([]);
+      onUploadSuccess();
+    }
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop: handleDrop });
@@ -55,8 +74,8 @@ const Dropzone: React.FC<DropzoneProps> = ({ onDrop }) => {
       </div>
       {files.length > 0 && (
         <div className="flex justify-center ">
-          <button className="btn btn-primary" onClick={handleUpload}>
-            Upload File
+          <button className="btn btn-primary" onClick={handleUpload} disabled={loading}>
+            {loading ? 'Uploading...' : 'Upload File'}
           </button>
         </div>
       )}
