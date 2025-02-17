@@ -149,7 +149,7 @@ const DocumentsTable = () => {
         id: 'actioned',
         header: ({ column }) => (
           <DataGridColumnHeader
-            title="actioned"
+            title="Action"
             column={column}
             icon={<i className="ki-filled ki-user-tick text-lg"></i>}
           />
