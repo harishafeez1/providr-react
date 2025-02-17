@@ -17,6 +17,7 @@ const AppRoutingSetup = (): ReactElement => {
     <Routes>
       <Route element={<RequireAuth />}>
         <Route element={<Demo2Layout />}>
+          <Route path="/" element={<ServiceRequestsTablePage />} />
           <Route path="/service-request" element={<ServiceRequestsTablePage />} />
           <Route path="/documents" element={<DocumentsTablePage />} />
           <Route path="/settings" element={<AccountSettingsPlainPage />} />
