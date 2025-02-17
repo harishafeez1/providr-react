@@ -1,10 +1,5 @@
 import axios from 'axios';
-import {
-  DELETE_DOCUMENTS_URL,
-  DOWNLOAD_DOCUMENTS_URL,
-  GET_DOCUMENTS_URL,
-  UPLOAD_DOCUMENTS_URL
-} from '../endpoints';
+import { DELETE_DOCUMENTS_URL, GET_DOCUMENTS_URL, UPLOAD_DOCUMENTS_URL } from '../endpoints';
 
 const getDocuments = async (params: any) => {
   try {
@@ -26,16 +21,6 @@ const uploadDocument = async (data: any) => {
   }
 };
 
-const downloadDocument = async (id: any) => {
-  try {
-    const response = await axios.get(`${DOWNLOAD_DOCUMENTS_URL}/${id}`);
-    return response.data;
-  } catch (err) {
-    console.error('Error downloading documents:', err);
-    throw err;
-  }
-};
-
 const deleteDocument = async (id: any) => {
   try {
     const response = await axios.get(`${DELETE_DOCUMENTS_URL}/${id}`);
@@ -46,4 +31,4 @@ const deleteDocument = async (id: any) => {
   }
 };
 
-export { getDocuments, uploadDocument, downloadDocument, deleteDocument };
+export { getDocuments, uploadDocument, deleteDocument };

@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 
 import { IDocumentsData, ModalFilters } from './';
 import { useAuthContext } from '@/auth';
-import { deleteDocument, downloadDocument, getDocuments } from '@/services/api/documents';
+import { deleteDocument, getDocuments } from '@/services/api/documents';
 import { Button } from '@/components/ui/button';
 
 interface IColumnFilterProps<TData, TValue> {
