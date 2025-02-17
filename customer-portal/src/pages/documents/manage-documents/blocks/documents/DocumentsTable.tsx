@@ -1,6 +1,15 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { DataGrid, DataGridColumnHeader, KeenIcon, TDataGridRequestParams } from '@/components';
+import {
+  DataGrid,
+  DataGridColumnHeader,
+  KeenIcon,
+  TDataGridRequestParams,
+  Menu,
+  MenuItem,
+  MenuToggle
+} from '@/components';
+import { MenuIcon, MenuLink, MenuSub, MenuTitle } from '@/components';
 import { ColumnDef, Column, RowSelectionState } from '@tanstack/react-table';
 
 import { toast } from 'sonner';
@@ -19,14 +28,77 @@ const DocumentsTable = () => {
   const { currentUser } = useAuthContext();
   const [refreshKey, setRefreshKey] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [isModalOpen2, setIsModalOpen2] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<number>(0);
+  const [tableRow, setTableRow] = useState({});
   const handleModalOpen = () => {
     setIsModalOpen(true);
+  };
+  const handleModalOpen2 = (id: number, row: any) => {
+    setSelectedUserId(id);
+    setIsModalOpen2(true);
+    setTableRow({ ...row });
   };
 
   const handleModalClose = () => {
     setIsModalOpen(false);
   };
+
+  const DropdownCard2 = (handleModalOpen: any, handleModalOpen2: any, row: any) => {
+    return (
+      <MenuSub className="menu-default" rootClassName="w-full max-w-[200px]">
+        <MenuItem
+          onClick={() => handleModalOpen2(row.id, row)}
+          toggle="dropdown"
+          dropdownProps={{
+            placement: 'left-start',
+            modifiers: [
+              {
+                name: 'offset',
+                options: {
+                  offset: [15, 0] // [skid, distance]
+                }
+              }
+            ]
+          }}
+        >
+          <MenuLink>
+            <a className="flex">
+              <MenuIcon>
+                <KeenIcon icon="notepad-edit" />
+              </MenuIcon>
+              <MenuTitle>View Document</MenuTitle>
+            </a>
+          </MenuLink>
+        </MenuItem>
+        <MenuItem
+          onClick={() => handleModalOpen(row.id)}
+          toggle="dropdown"
+          dropdownProps={{
+            placement: 'left-start',
+            modifiers: [
+              {
+                name: 'offset',
+                options: {
+                  offset: [15, 0] // [skid, distance]
+                }
+              }
+            ]
+          }}
+        >
+          <MenuLink>
+            <a className="flex">
+              <MenuIcon>
+                <KeenIcon icon="trash" />
+              </MenuIcon>
+              <MenuTitle>Delete Document</MenuTitle>
+            </a>
+          </MenuLink>
+        </MenuItem>
+      </MenuSub>
+    );
+  };
+
   const ColumnInputFilter = <TData, TValue>({ column }: IColumnFilterProps<TData, TValue>) => {
     return (
       <Input
@@ -144,35 +216,37 @@ const DocumentsTable = () => {
           headerClassName: 'min-w-[180px]'
         }
       },
+
       {
-        accessorFn: (row) => row.actioned_at,
-        id: 'actioned',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            title="Action"
-            column={column}
-            icon={<i className="ki-filled ki-user-tick text-lg"></i>}
-          />
+        id: 'click',
+        header: () => '',
+        enableSorting: false,
+        cell: (row) => (
+          <Menu className="items-stretch">
+            <MenuItem
+              toggle="dropdown"
+              trigger="click"
+              dropdownProps={{
+                placement: 'bottom-start',
+                modifiers: [
+                  {
+                    name: 'offset',
+                    options: {
+                      offset: [0, -10] // [skid, distance]
+                    }
+                  }
+                ]
+              }}
+            >
+              <MenuToggle className="btn btn-sm btn-icon btn-light btn-clear">
+                <KeenIcon icon="dots-vertical" />
+              </MenuToggle>
+              {DropdownCard2(handleModalOpen, handleModalOpen2, row.row.original)}
+            </MenuItem>
+          </Menu>
         ),
-        cell: (info) => {
-          return (
-            <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              <a
-                className="btn btn-success"
-                href={`${import.meta.env.VITE_APP_AWS_URL}/${info.row.original.document_path}`}
-                target="_blank"
-                download
-              >
-                Download
-              </a>
-              <Button variant={'destructive'} onClick={() => handleDocDelete(info.row.original.id)}>
-                Delete
-              </Button>
-            </div>
-          );
-        },
         meta: {
-          headerClassName: 'min-w-[180px]'
+          headerClassName: 'w-[60px]'
         }
       }
     ],

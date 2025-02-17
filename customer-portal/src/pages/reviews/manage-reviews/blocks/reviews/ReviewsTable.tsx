@@ -191,7 +191,7 @@ const ReviewsTable = () => {
           <DataGridColumnHeader
             title="Content"
             column={column}
-            icon={<i className="ki-filled ki-geolocation"></i>}
+            icon={<i className="ki-filled ki-message-text-2"></i>}
           />
         ),
         cell: (info) => {
