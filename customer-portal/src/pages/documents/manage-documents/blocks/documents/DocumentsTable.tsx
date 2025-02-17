@@ -27,28 +27,11 @@ interface IColumnFilterProps<TData, TValue> {
 const DocumentsTable = () => {
   const { currentUser } = useAuthContext();
   const [refreshKey, setRefreshKey] = useState(0);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isModalOpen2, setIsModalOpen2] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState<number>(0);
-  const [tableRow, setTableRow] = useState({});
-  const handleModalOpen = () => {
-    setIsModalOpen(true);
-  };
-  const handleModalOpen2 = (id: number, row: any) => {
-    setSelectedUserId(id);
-    setIsModalOpen2(true);
-    setTableRow({ ...row });
-  };
 
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-  };
-
-  const DropdownCard2 = (handleModalOpen: any, handleModalOpen2: any, row: any) => {
+  const DropdownCard2 = (row: any) => {
     return (
       <MenuSub className="menu-default" rootClassName="w-full max-w-[200px]">
         <MenuItem
-          onClick={() => handleModalOpen2(row.id, row)}
           toggle="dropdown"
           dropdownProps={{
             placement: 'left-start',
@@ -63,7 +46,11 @@ const DocumentsTable = () => {
           }}
         >
           <MenuLink>
-            <a className="flex">
+            <a
+              href={`${import.meta.env.VITE_APP_AWS_URL}/${row.document_path}`}
+              className="flex"
+              target="_blank"
+            >
               <MenuIcon>
                 <KeenIcon icon="notepad-edit" />
               </MenuIcon>
@@ -72,7 +59,7 @@ const DocumentsTable = () => {
           </MenuLink>
         </MenuItem>
         <MenuItem
-          onClick={() => handleModalOpen(row.id)}
+          onClick={() => handleDocDelete(row.id)}
           toggle="dropdown"
           dropdownProps={{
             placement: 'left-start',
@@ -241,7 +228,7 @@ const DocumentsTable = () => {
               <MenuToggle className="btn btn-sm btn-icon btn-light btn-clear">
                 <KeenIcon icon="dots-vertical" />
               </MenuToggle>
-              {DropdownCard2(handleModalOpen, handleModalOpen2, row.row.original)}
+              {DropdownCard2(row.row.original)}
             </MenuItem>
           </Menu>
         ),
@@ -302,7 +289,7 @@ const DocumentsTable = () => {
         toolbar={<Toolbar />}
         layout={{ card: true }}
       />
-      <ModalFilters open={isModalOpen} onOpenChange={handleModalClose} />
+      {/* <ModalFilters open={isModalOpen} onOpenChange={handleModalClose} /> */}
     </>
   );
 };
