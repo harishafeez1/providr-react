@@ -23,8 +23,7 @@ const Dropzone: React.FC<DropzoneProps> = ({ onDrop, onUploadSuccess }) => {
           })
         )
       );
-      if (onDrop){
-
+      if (onDrop) {
         onDrop(acceptedFiles);
       }
     },
@@ -46,8 +45,8 @@ const Dropzone: React.FC<DropzoneProps> = ({ onDrop, onUploadSuccess }) => {
 
     const res = await uploadDocument(formData);
 
+    setLoading(false);
     if (res) {
-      setLoading(false);
       setFiles([]);
       onUploadSuccess();
     }
