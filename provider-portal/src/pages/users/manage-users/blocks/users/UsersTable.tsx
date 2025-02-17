@@ -26,12 +26,12 @@ export type TDataGridRequestParams = {
   sorting?: SortingState;
   columnFilters?: ColumnFiltersState;
 };
-const DropdownCard2 = (handleModalOpen: any, handleModalOpen2: any, id: any) => {
+const DropdownCard2 = (handleModalOpen: any, handleModalOpen2: any, row: any) => {
   const { isRTL } = useLanguage();
   return (
     <MenuSub className="menu-default" rootClassName="w-full max-w-[200px]">
       <MenuItem
-        onClick={() => handleModalOpen2(id)}
+        onClick={() => handleModalOpen2(row.id, row)}
         toggle="dropdown"
         dropdownProps={{
           placement: isRTL() ? 'left-start' : 'right-start',
@@ -55,7 +55,7 @@ const DropdownCard2 = (handleModalOpen: any, handleModalOpen2: any, id: any) => 
         </MenuLink>
       </MenuItem>
       <MenuItem
-        onClick={() => handleModalOpen(id)}
+        onClick={() => handleModalOpen(row.id)}
         toggle="dropdown"
         dropdownProps={{
           placement: isRTL() ? 'left-start' : 'right-start',
@@ -85,9 +85,15 @@ const DropdownCard2 = (handleModalOpen: any, handleModalOpen2: any, id: any) => 
 const UsersTable = () => {
   const { currentUser } = useAuthContext();
   const [selectedUserId, setSelectedUserId] = useState<number>(0);
+  const [tableRow, setTableRow] = useState({
+    admin: 0,
+    permission_billing: 0,
+    permission_editor: 0,
+    permission_intake: 0,
+    permission_review: 0
+  });
   const [roles, setRoles] = useState<Record<string, number>>({});
   const [refreshKey, setRefreshKey] = useState(0);
-
   const { refreshTable } = useAppSelector((state) => state.users);
   useEffect(() => {
     if (refreshTable) {
@@ -96,18 +102,18 @@ const UsersTable = () => {
     store.dispatch(setRefreshTable(false));
   }, [refreshTable]);
 
-  // useEffect(() => {
-  //   if (currentUser) {
-  // const rolesObject = {
-  //   admin: currentUser.admin,
-  //   permission_billing: currentUser.permission_billing,
-  //   permission_editor: currentUser.permission_editor,
-  //   permission_intake: currentUser.permission_intake,
-  //   permission_review: currentUser.permission_review
-  // };
-  // setRoles(rolesObject);
-  //   }
-  // }, [currentUser]);
+  useEffect(() => {
+    if (currentUser) {
+      const rolesObject = {
+        admin: tableRow.admin,
+        permission_billing: tableRow.permission_billing,
+        permission_editor: tableRow.permission_editor,
+        permission_intake: tableRow.permission_intake,
+        permission_review: tableRow.permission_review
+      };
+      setRoles(rolesObject);
+    }
+  }, [tableRow]);
 
   // const [searchQuery, setSearchQuery] = useState('');
 
@@ -176,9 +182,10 @@ const UsersTable = () => {
   const handleModalClose2 = () => {
     setIsModalOpen2(false);
   };
-  const handleModalOpen2 = (id: number) => {
+  const handleModalOpen2 = (id: number, row: any) => {
     setSelectedUserId(id);
     setIsModalOpen2(true);
+    setTableRow({ ...row });
   };
   const handleModalClose = () => {
     setIsModalOpen(false);
@@ -323,7 +330,7 @@ const UsersTable = () => {
               <MenuToggle className="btn btn-sm btn-icon btn-light btn-clear">
                 <KeenIcon icon="dots-vertical" />
               </MenuToggle>
-              {DropdownCard2(handleModalOpen, handleModalOpen2, row.row.original.id)}
+              {DropdownCard2(handleModalOpen, handleModalOpen2, row.row.original)}
             </MenuItem>
           </Menu>
         ),

@@ -87,7 +87,7 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
       const services = await getAllServices();
       store.dispatch(setServices(services));
     };
-    if (localStorage.getItem('impersonate') !== 'true' && services.length === 0) {
+    if (localStorage.getItem('impersonate') !== 'true' && auth?.token && services.length === 0) {
       fetchServices();
     }
   }, [currentUser]);

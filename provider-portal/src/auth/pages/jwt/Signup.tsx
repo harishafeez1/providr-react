@@ -3,10 +3,11 @@ import { useFormik } from 'formik';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
+import { useGoogleLogin } from '@react-oauth/google';
 
 import { useAuthContext } from '../../useAuthContext';
 import { toAbsoluteUrl } from '@/utils';
-import { Alert, KeenIcon } from '@/components';
+import { Alert, KeenIcon, ScreenLoader } from '@/components';
 import { useLayout } from '@/providers';
 import {
   Select,
@@ -80,7 +81,7 @@ const signupSchema = Yup.object().shape({
 
 const Signup = () => {
   const [loading, setLoading] = useState(false);
-  const { register } = useAuthContext();
+  const { register, googleLogin } = useAuthContext();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -127,6 +128,29 @@ const Signup = () => {
     setShowConfirmPassword(!showConfirmPassword);
   };
 
+  const gooleLogin = useGoogleLogin({
+    onSuccess: async (code) => {
+      try {
+        setLoading(true);
+        await googleLogin(code);
+        navigate('/');
+        setLoading(false);
+      } catch {
+        // setStatus('The login details are incorrect');
+        // setSubmitting(false);
+        setLoading(false);
+      }
+    },
+    flow: 'auth-code',
+    onError: () => {
+      console.log('Login Failed');
+    }
+  });
+
+  if (loading) {
+    return <ScreenLoader />;
+  }
+
   return (
     <div className="card max-w-[370px] w-full">
       <form
@@ -148,7 +172,7 @@ const Signup = () => {
         </div>
 
         <div className="grid grid-cols gap-2.5">
-          <a href="#" className="btn btn-light btn-sm justify-center">
+          <a onClick={() => gooleLogin()} className="btn btn-light btn-sm justify-center">
             <img
               src={toAbsoluteUrl('/media/brand-logos/google.svg')}
               className="size-3.5 shrink-0"
