@@ -19,7 +19,7 @@ const DropdownUser = ({ menuItemRef }: IDropdownUserProps) => {
           <MenuItem>
             <MenuLink path="/settings">
               <MenuIcon className="setting-2">
-                <KeenIcon icon="badge" />
+                <KeenIcon icon="setting-2" />
               </MenuIcon>
               <MenuTitle>Settings</MenuTitle>
             </MenuLink>
@@ -27,7 +27,7 @@ const DropdownUser = ({ menuItemRef }: IDropdownUserProps) => {
           <MenuItem>
             <MenuLink path="/service-request">
               <MenuIcon className="setting-2">
-                <KeenIcon icon="badge" />
+                <KeenIcon icon="courier" />
               </MenuIcon>
               <MenuTitle>Service Requests</MenuTitle>
             </MenuLink>
@@ -35,7 +35,7 @@ const DropdownUser = ({ menuItemRef }: IDropdownUserProps) => {
           <MenuItem>
             <MenuLink path="/documents">
               <MenuIcon className="setting-2">
-                <KeenIcon icon="badge" />
+                <KeenIcon icon="note-2" />
               </MenuIcon>
               <MenuTitle>Documents</MenuTitle>
             </MenuLink>
@@ -43,7 +43,7 @@ const DropdownUser = ({ menuItemRef }: IDropdownUserProps) => {
           <MenuItem>
             <MenuLink path="/reviews">
               <MenuIcon className="setting-2">
-                <KeenIcon icon="badge" />
+                <KeenIcon icon="pencil" />
               </MenuIcon>
               <MenuTitle>My Reviews</MenuTitle>
             </MenuLink>

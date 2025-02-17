@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { KeenIcon } from '@/components';
+import { DefaultTooltip, KeenIcon } from '@/components';
 import { type MouseEvent, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useAuthContext } from '@/auth';
@@ -79,7 +79,18 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
       <form onSubmit={formik.handleSubmit} noValidate>
         <div className="card-body grid gap-5">
           <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
-            <label className="form-label max-w-56">First Name</label>
+            <label className="form-label max-w-56 flex items-center">
+              First Name
+              <DefaultTooltip
+                title={
+                  'These are the items related to the NDIS participant, whether it is yourself or someone you are acting on behalf of. We do not currently support the option to act on behalf of multiple participants from a single Clickability user account.'
+                }
+                placement={'top'}
+              >
+                <KeenIcon icon="information-2" className="text-gray-500 text-lg mx-4" />
+              </DefaultTooltip>
+            </label>
+
             <label className="input">
               <input
                 placeholder="Enter Name"
@@ -97,7 +108,7 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
             )}
           </div>
           <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
-            <label className="form-label max-w-56">Last Name</label>
+            <label className="form-label max-w-56 ">Last Name</label>
             <label className="input">
               <input
                 placeholder="Enter Name"
@@ -115,7 +126,17 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
             )}
           </div>
           <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
-            <label className="form-label max-w-56">Phone Number</label>
+            <label className="form-label max-w-56 items-center">
+              Phone Number
+              <DefaultTooltip
+                title={
+                  'Providing your phone number allows us to contact you quickly if needed, for example if you have requested a service and we need additional information from you. Providing a mobile number is best as we plan to provide SMS notifications of important events in the near future.'
+                }
+                placement={'top'}
+              >
+                <KeenIcon icon="information-2" className="text-gray-500 text-lg mx-4" />
+              </DefaultTooltip>
+            </label>
             <label className="input">
               <input
                 placeholder="Enter Phone Number"
@@ -134,7 +155,15 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
           </div>
           <div className="w-full">
             <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
-              <label className="form-label flex items-center gap-1 max-w-56">Birth Date</label>
+              <label className="form-label flex items-center gap-1 max-w-56 ">
+                Birth Date
+                <DefaultTooltip
+                  title={'Providing your date of birth allows us to improve content relevance.'}
+                  placement={'top'}
+                >
+                  <KeenIcon icon="information-2" className="text-gray-500 text-lg mx-4" />
+                </DefaultTooltip>
+              </label>
               <Popover>
                 <PopoverTrigger asChild>
                   <button
@@ -166,7 +195,17 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
           </div>
 
           <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
-            <label className="form-label max-w-56">NDIS number</label>
+            <label className="form-label max-w-56 items-center">
+              NDIS number{' '}
+              <DefaultTooltip
+                title={
+                  'Providing your NDIS number allows us to respond to service requests faster.'
+                }
+                placement={'top'}
+              >
+                <KeenIcon icon="information-2" className="text-gray-500 text-lg mx-4" />
+              </DefaultTooltip>
+            </label>
             <label className="input">
               <input
                 placeholder="Enter NDIS Number"
@@ -185,7 +224,15 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
           </div>
 
           <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
-            <label className="form-label max-w-56">NDIS Type</label>
+            <label className="form-label max-w-56 items-center">
+              NDIS Type{' '}
+              <DefaultTooltip
+                title={'Providing your NDIS plan type allows us to improve content relevance.'}
+                placement={'top'}
+              >
+                <KeenIcon icon="information-2" className="text-gray-500 text-lg mx-4" />
+              </DefaultTooltip>
+            </label>
             <Select
               defaultValue={currentUser?.ndis_plan_type || 'self-Managed'}
               onValueChange={(value) => {
@@ -205,7 +252,15 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
           <div className="w-full">
             <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
               <label className="form-label flex items-center gap-1 max-w-56">
-                NDIS plan start date
+                NDIS plan start date{' '}
+                <DefaultTooltip
+                  title={
+                    'Providing your NDIS plan start date allows us to personalise notifications and content.'
+                  }
+                  placement={'top'}
+                >
+                  <KeenIcon icon="information-2" className="text-gray-500 text-lg mx-4" />
+                </DefaultTooltip>
               </label>
               <Popover>
                 <PopoverTrigger asChild>
