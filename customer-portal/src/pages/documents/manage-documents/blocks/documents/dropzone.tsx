@@ -42,13 +42,16 @@ const Dropzone: React.FC<DropzoneProps> = ({ onDrop, onUploadSuccess }) => {
     files.forEach((file) => {
       formData.append('document', file);
     });
-
-    const res = await uploadDocument(formData);
-
-    setLoading(false);
-    if (res) {
-      setFiles([]);
-      onUploadSuccess();
+    try {
+      const res = await uploadDocument(formData);
+      if (res) {
+        setFiles([]);
+        onUploadSuccess();
+      }
+    } catch (error) {
+      console.error('Error uploading files:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
