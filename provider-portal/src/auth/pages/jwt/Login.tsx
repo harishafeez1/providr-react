@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
-import { KeenIcon } from '@/components';
+import { KeenIcon, ScreenLoader } from '@/components';
 import { toAbsoluteUrl } from '@/utils';
 import { useAuthContext } from '@/auth';
 import { useLayout } from '@/providers';
@@ -74,12 +74,15 @@ const Login = () => {
   const gooleLogin = useGoogleLogin({
     onSuccess: async (code) => {
       try {
+        setLoading(true);
         await googleLogin(code);
 
         navigate(from, { replace: true });
+        setLoading(false);
       } catch {
         // setStatus('The login details are incorrect');
         // setSubmitting(false);
+        setLoading(false);
       }
     },
     flow: 'auth-code',
@@ -87,6 +90,11 @@ const Login = () => {
       console.log('Login Failed');
     }
   });
+
+  if (loading) {
+    return <ScreenLoader />;
+  }
+
   return (
     <div className="card max-w-[390px] w-full">
       <form
