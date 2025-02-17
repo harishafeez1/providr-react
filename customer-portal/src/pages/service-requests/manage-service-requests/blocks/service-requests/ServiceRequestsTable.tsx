@@ -262,12 +262,12 @@ const ServiceRequestsTable = () => {
               />
             </label>
           </div>
-
+          {/*
           <div className="flex flex-wrap gap-2.5">
             <button className="btn btn-sm btn-outline btn-primary" onClick={handleModalOpen}>
               <KeenIcon icon="setting-4" /> Filters
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
     );
