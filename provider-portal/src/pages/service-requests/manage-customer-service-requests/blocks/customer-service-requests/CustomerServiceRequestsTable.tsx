@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 
 import { ICustomerServiceRequestsData, ModalFilters } from './';
 import { useAuthContext } from '@/auth';
-import { getAllServiceRequests } from '@/services/api';
+import { getAllCustomerServiceRequests } from '@/services/api';
 
 interface IColumnFilterProps<TData, TValue> {
   column: Column<TData, TValue>;
@@ -67,7 +67,7 @@ const CustomerServiceRequestsTable = () => {
         });
       }
 
-      const response = await getAllServiceRequests(
+      const response = await getAllCustomerServiceRequests(
         `${currentUser.provider_company_id}?${queryParams.toString()}`
       );
 
@@ -122,7 +122,7 @@ const CustomerServiceRequestsTable = () => {
         id: 'participantName',
         header: ({ column }) => (
           <DataGridColumnHeader
-            title="participant Name"
+            title="Participant Name"
             column={column}
             icon={<i className="ki-filled ki-user"></i>}
           />
@@ -130,7 +130,7 @@ const CustomerServiceRequestsTable = () => {
         cell: (info) => {
           return (
             <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.customer_id}
+              {`${info.row.original.customer.first_name} ${info.row.original.customer?.last_name || ''}`}
             </div>
           );
         },
@@ -177,7 +177,7 @@ const CustomerServiceRequestsTable = () => {
         cell: (info) => {
           return (
             <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.service_id}
+              {info.row.original.service.name}
             </div>
           );
         },
@@ -211,7 +211,7 @@ const CustomerServiceRequestsTable = () => {
         id: 'actioned',
         header: ({ column }) => (
           <DataGridColumnHeader
-            title="actioned"
+            title="Action"
             column={column}
             icon={<i className="ki-filled ki-user-tick text-lg"></i>}
           />

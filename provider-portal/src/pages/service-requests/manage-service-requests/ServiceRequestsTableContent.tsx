@@ -4,7 +4,7 @@ import { NavbarMenu } from '@/partials/menu/NavbarMenu';
 const ServiceRequestsTableContent = () => {
   const menuConfig = [
     {
-      title: 'My Service Request',
+      title: 'Connected Requests',
       path: '/service-request/my-service-request'
     },
     {

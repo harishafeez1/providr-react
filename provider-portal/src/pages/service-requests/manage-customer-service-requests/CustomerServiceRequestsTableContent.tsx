@@ -4,7 +4,7 @@ import { CustomerServiceRequestsTable } from './blocks';
 const CustomerServiceRequestsTableContent = () => {
   const menuConfig = [
     {
-      title: 'My Service Request',
+      title: 'Connected Requests',
       path: '/service-request/my-service-request'
     },
     {

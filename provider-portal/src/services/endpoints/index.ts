@@ -18,7 +18,8 @@ export const GET_UPDATE_SERVICE_OFFERING_URL = `${API_URL}/service_offerings/upd
 export const GET_DELETE_SERVICE_OFFERING_URL = `${API_URL}/service_offerings/delete`;
 
 // Service Requests Routes
-export const GET_ALL_SERVICE_REQUEST_URL = `${API_URL}/service_requests/all_service_requests`;
+export const GET_ALL_CONNECTED_SERVICE_REQUEST_URL = `${API_URL}/service_requests/connected_service_requests`;
+export const GET_ALL_CUSTOMER_SERVICE_REQUEST_URL = `${API_URL}/service_requests/all_service_requests`;
 
 // All Users Routes
 export const GET_ALL_USER_URL = `${API_URL}/provider_user_profile/all_users`;

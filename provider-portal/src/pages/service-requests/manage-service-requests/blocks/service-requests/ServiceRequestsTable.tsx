@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 
 import { IServiceRequestsData, ModalFilters } from './';
 import { useAuthContext } from '@/auth';
-import { getAllServiceRequests } from '@/services/api';
+import { getAllConnectedServiceRequests } from '@/services/api';
 
 interface IColumnFilterProps<TData, TValue> {
   column: Column<TData, TValue>;
@@ -67,7 +67,7 @@ const ServiceRequestsTable = () => {
         });
       }
 
-      const response = await getAllServiceRequests(
+      const response = await getAllConnectedServiceRequests(
         `${currentUser.provider_company_id}?${queryParams.toString()}`
       );
 
