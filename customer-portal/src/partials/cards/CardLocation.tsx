@@ -41,10 +41,10 @@ const CardLocation = ({
     );
   };
   return (
-    <div className="card w-[280px] border-0 mb-4">
+    <div className="card  border-0 mb-4">
       <img
         src={toAbsoluteUrl(`/media/images/600x400/${image}`)}
-        className="rounded-t-xl max-w-[280px] shrink-0"
+        className="rounded-t-xl shrink-0"
         alt=""
       />
       <div className="card-border card-rounded-b px-3.5 h-full pt-3 pb-3.5">

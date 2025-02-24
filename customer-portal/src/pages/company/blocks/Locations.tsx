@@ -1,4 +1,6 @@
+import React, { useState } from 'react';
 import { CardLocation } from '@/partials/cards';
+
 interface ITagsItem {
   label: string;
 }
@@ -13,6 +15,9 @@ interface ILocationsItem {
 interface ILocationsItems extends Array<ILocationsItem> {}
 
 const Locations = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4;
+
   const items: ILocationsItems = [
     {
       image: '10.jpg',
@@ -86,11 +91,34 @@ const Locations = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-      {items.map((item, index) => {
-        return renderItem(item, index);
-      })}
-    </div>
+    <>
+      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4  gap-5">
+        {items
+          .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+          .map((item, index) => {
+            return renderItem(item, index);
+          })}
+      </div>
+      <div className="flex justify-center mt-4">
+        <button
+          onClick={() => setCurrentPage(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="badge disabled:opacity-50"
+        >
+          Previous
+        </button>
+        <span className="px-4 py-2 mx-1">
+          Page {currentPage} of {Math.ceil(items.length / itemsPerPage)}
+        </span>
+        <button
+          onClick={() => setCurrentPage(currentPage + 1)}
+          disabled={currentPage === Math.ceil(items.length / itemsPerPage)}
+          className="badge disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
+    </>
   );
 };
 
