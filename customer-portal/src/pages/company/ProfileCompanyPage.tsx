@@ -1,5 +1,4 @@
 import { Fragment } from 'react';
-import { Container } from '@/components/container';
 import { ProfileCompanyContent } from './';
 import clsx from 'clsx';
 
