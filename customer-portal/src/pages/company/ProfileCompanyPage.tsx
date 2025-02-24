@@ -6,7 +6,7 @@ const ProfileCompanyPage = () => {
   return (
     <Fragment>
       {/* <Container> */}
-      <div className={clsx('container-fluid')}>
+      <div className={clsx('container-fluid px-3')}>
         <ProfileCompanyContent />
       </div>
       {/* </Container> */}
