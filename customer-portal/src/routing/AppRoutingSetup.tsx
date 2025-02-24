@@ -11,18 +11,20 @@ import { Demo2Layout } from '@/layouts/demo2';
 import { DocumentsTablePage } from '@/pages/documents';
 import { AccountSettingsPlainPage } from '@/pages/settings';
 import { ReviewsTablePage } from '@/pages/reviews';
+import { ProfileCompanyPage } from '@/pages/company';
 
 const AppRoutingSetup = (): ReactElement => {
   return (
     <Routes>
-      <Route element={<RequireAuth />}>
-        <Route element={<Demo2Layout />}>
+      <Route element={<Demo2Layout />}>
+        <Route element={<RequireAuth />}>
           <Route path="/" element={<ServiceRequestsTablePage />} />
           <Route path="/service-request" element={<ServiceRequestsTablePage />} />
           <Route path="/documents" element={<DocumentsTablePage />} />
           <Route path="/settings" element={<AccountSettingsPlainPage />} />
           <Route path="/reviews" element={<ReviewsTablePage />} />
         </Route>
+        <Route path="/directory" element={<ProfileCompanyPage />} />
       </Route>
       <Route path="error/*" element={<ErrorsRouting />} />
       <Route path="*" element={<AuthPage />} />

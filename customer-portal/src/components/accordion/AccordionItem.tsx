@@ -40,7 +40,7 @@ const AccordionItemComponent = ({
       )}
     >
       <button type="button" className="accordion-toggle py-4 cursor-pointer" onClick={onClick}>
-        <span className="text-base text-gray-900">{title}</span>
+        <span className="form-label text-gray-900">{title}</span>
         {buildIndicator()}
       </button>
       <Collapse in={isOpen}>

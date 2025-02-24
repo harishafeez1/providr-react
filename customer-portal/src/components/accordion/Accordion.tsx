@@ -9,16 +9,22 @@ interface IAccordionProps {
 }
 
 const AccordionComponent = ({ className, children, allowMultiple }: IAccordionProps) => {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [openIndices, setOpenIndices] = useState<number[]>([]);
 
   const handleItemClick = (index: number) => {
-    setOpenIndex((prevIndex) => (prevIndex === index ? null : index));
+    setOpenIndices((prevIndices) =>
+      prevIndices.includes(index)
+        ? prevIndices.filter((i) => i !== index)
+        : allowMultiple
+          ? [...prevIndices, index]
+          : [index]
+    );
   };
 
   const modifiedChildren = Children.map(children, (child, index) => {
     if (isValidElement<IAccordionItemProps>(child)) {
       return cloneElement<IAccordionItemProps>(child, {
-        isOpen: allowMultiple ? child.props.isOpen : openIndex === index,
+        isOpen: openIndices.includes(index),
         onClick: () => handleItemClick(index)
       });
     }
