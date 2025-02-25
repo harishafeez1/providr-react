@@ -1,21 +1,67 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { DataGrid, DataGridColumnHeader, KeenIcon, TDataGridRequestParams } from '@/components';
+import {
+  DataGrid,
+  DataGridColumnHeader,
+  KeenIcon,
+  TDataGridRequestParams,
+  Menu,
+  MenuIcon,
+  MenuLink,
+  MenuSub,
+  MenuTitle,
+  MenuItem,
+  MenuToggle
+} from '@/components';
 import { ColumnDef, Column, RowSelectionState } from '@tanstack/react-table';
 
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
+import { useLanguage } from '@/i18n';
 
 import { ICustomerServiceRequestsData, ModalFilters } from './';
 import { useAuthContext } from '@/auth';
-import { getAllCustomerServiceRequests } from '@/services/api';
+import { getAllCustomerServiceRequests, getInteresetedInRequest } from '@/services/api';
 
 interface IColumnFilterProps<TData, TValue> {
   column: Column<TData, TValue>;
 }
 
+const DropdownCard2 = (handleInterestedRequest: any, row: any) => {
+  const { isRTL } = useLanguage();
+  return (
+    <MenuSub className="menu-default" rootClassName="w-full max-w-[200px]">
+      <MenuItem
+        onClick={() => handleInterestedRequest(row.id)}
+        toggle="dropdown"
+        dropdownProps={{
+          placement: isRTL() ? 'left-start' : 'right-start',
+          modifiers: [
+            {
+              name: 'offset',
+              options: {
+                offset: isRTL() ? [15, 0] : [-15, 0] // [skid, distance]
+              }
+            }
+          ]
+        }}
+      >
+        <MenuLink>
+          <a className="flex">
+            <MenuIcon>
+              <KeenIcon icon="check" />
+            </MenuIcon>
+            <MenuTitle>I'm Interested</MenuTitle>
+          </a>
+        </MenuLink>
+      </MenuItem>
+    </MenuSub>
+  );
+};
+
 const CustomerServiceRequestsTable = () => {
   const { currentUser } = useAuthContext();
+  const { isRTL } = useLanguage();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -82,6 +128,14 @@ const CustomerServiceRequestsTable = () => {
         data: [],
         totalCount: 0
       };
+    }
+  };
+
+  const handleInterestedRequest = (service_request_id: any) => {
+    if (currentUser?.provider_company_id) {
+      getInteresetedInRequest(currentUser?.provider_company_id, service_request_id);
+    } else {
+      console.log('company is present');
     }
   };
 
@@ -156,7 +210,7 @@ const CustomerServiceRequestsTable = () => {
               <span
                 className={`size-1.5 rounded-full bg-${info.row.original.status ? 'success' : 'danger'} me-1.5`}
               ></span>
-              {info.row.original.status ? 'Active' : 'Disabled'}
+              {info.row.original.status ? 'Open' : 'Completed'}
             </span>
           );
         },
@@ -207,28 +261,39 @@ const CustomerServiceRequestsTable = () => {
         }
       },
       {
-        accessorFn: (row) => row.actioned_at,
-        id: 'actioned',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            title="Action"
-            column={column}
-            icon={<i className="ki-filled ki-user-tick text-lg"></i>}
-          />
+        id: 'click',
+        header: () => '',
+        enableSorting: false,
+        cell: (row) => (
+          <Menu className="items-stretch">
+            <MenuItem
+              toggle="dropdown"
+              trigger="click"
+              dropdownProps={{
+                placement: isRTL() ? 'bottom-start' : 'bottom-end',
+                modifiers: [
+                  {
+                    name: 'offset',
+                    options: {
+                      offset: isRTL() ? [0, -10] : [0, 10] // [skid, distance]
+                    }
+                  }
+                ]
+              }}
+            >
+              <MenuToggle className="btn btn-sm btn-icon btn-light btn-clear">
+                <KeenIcon icon="dots-vertical" />
+              </MenuToggle>
+              {DropdownCard2(handleInterestedRequest, row.row.original)}
+            </MenuItem>
+          </Menu>
         ),
-        cell: (info) => {
-          return (
-            <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.actioned_at}
-            </div>
-          );
-        },
         meta: {
-          headerClassName: 'min-w-[180px]'
+          headerClassName: 'w-[60px]'
         }
       }
     ],
-    []
+    [isRTL]
   );
 
   const handleRowSelection = (state: RowSelectionState) => {

@@ -20,6 +20,7 @@ export const GET_DELETE_SERVICE_OFFERING_URL = `${API_URL}/service_offerings/del
 // Service Requests Routes
 export const GET_ALL_CONNECTED_SERVICE_REQUEST_URL = `${API_URL}/service_requests/connected_service_requests`;
 export const GET_ALL_CUSTOMER_SERVICE_REQUEST_URL = `${API_URL}/service_requests/all_service_requests`;
+export const GET_PROVIDER_INTERESTED_URL = `${API_URL}/service_requests/send_request`;
 
 // All Users Routes
 export const GET_ALL_USER_URL = `${API_URL}/provider_user_profile/all_users`;
