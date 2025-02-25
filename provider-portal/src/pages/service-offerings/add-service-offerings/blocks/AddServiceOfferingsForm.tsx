@@ -115,8 +115,8 @@ const AddServiceOfferingsForm = () => {
               <div className="grid gap-5">
                 <div className="flex items-baseline flex-wrap gap-2.5">
                   <label className="form-label max-w-70 gap-1">
-                    <KeenIcon icon="loading" className="text-sm" /> Select your service Your
-                    progress
+                    <KeenIcon icon="loading" className="text-sm" />
+                    Your progress
                   </label>
                   <div className="progress w-[100%]">
                     <div
