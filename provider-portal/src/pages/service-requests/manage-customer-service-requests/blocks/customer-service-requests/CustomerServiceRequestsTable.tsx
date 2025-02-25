@@ -288,7 +288,8 @@ const CustomerServiceRequestsTable = () => {
               <MenuToggle className="btn btn-sm btn-icon btn-light btn-clear">
                 <KeenIcon icon="dots-vertical" />
               </MenuToggle>
-              {DropdownCard2(handleInterestedRequest, row.row.original)}
+              {row.row.original.service_request_provider.length <= 0 &&
+                DropdownCard2(handleInterestedRequest, row.row.original)}
             </MenuItem>
           </Menu>
         ),
