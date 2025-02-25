@@ -210,7 +210,11 @@ const CustomerServiceRequestsTable = () => {
               <span
                 className={`size-1.5 rounded-full bg-${info.row.original.status ? 'success' : 'danger'} me-1.5`}
               ></span>
-              {info.row.original.status ? 'Open' : 'Completed'}
+              {info.row.original.service_request_provider.length === 0
+                ? 'Open'
+                : info.row.original.service_request_provider.length > 0
+                  ? info.row.original.service_request_provider[0].status
+                  : ''}
             </span>
           );
         },
