@@ -24,6 +24,7 @@ import { NotificationsTablePage } from '@/pages/notifications';
 import { AddCompanyProfilePage, ProfileCompanyPage } from '@/pages/company-profile';
 import PermissionWrapper from '@/layouts/demo1/PermissionProvider';
 import { CustomerServiceRequestsTablePage } from '@/pages/service-requests/manage-customer-service-requests';
+import { RequestViewPage } from '@/pages/service-requests/request-view';
 
 const AppRoutingSetup = (): ReactElement => {
   return (
@@ -68,6 +69,14 @@ const AppRoutingSetup = (): ReactElement => {
             element={
               <PermissionWrapper requiredPermissions={['admin', 'intake']}>
                 <CustomerServiceRequestsTablePage />
+              </PermissionWrapper>
+            }
+          />
+          <Route
+            path="/service-request/request"
+            element={
+              <PermissionWrapper requiredPermissions={['admin', 'intake']}>
+                <RequestViewPage />
               </PermissionWrapper>
             }
           />
