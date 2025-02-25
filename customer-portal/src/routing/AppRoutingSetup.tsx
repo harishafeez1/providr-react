@@ -1,7 +1,7 @@
 import { ReactElement } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
 
-import { ServiceRequestsTablePage } from '@/pages/service-requests';
+import { RequestViewPage, ServiceRequestsTablePage } from '@/pages/service-requests';
 
 import { AuthPage } from '@/auth';
 import { RequireAuth } from '@/auth/RequireAuth';
@@ -20,6 +20,7 @@ const AppRoutingSetup = (): ReactElement => {
         <Route element={<RequireAuth />}>
           <Route path="/" element={<ServiceRequestsTablePage />} />
           <Route path="/service-request" element={<ServiceRequestsTablePage />} />
+          <Route path="/service-request/request" element={<RequestViewPage />} />
           <Route path="/documents" element={<DocumentsTablePage />} />
           <Route path="/settings" element={<AccountSettingsPlainPage />} />
           <Route path="/reviews" element={<ReviewsTablePage />} />
