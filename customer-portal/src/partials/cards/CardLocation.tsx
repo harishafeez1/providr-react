@@ -1,9 +1,12 @@
 import { KeenIcon } from '@/components';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { ModalDeleteConfirmation } from '@/pages/company/blocks/ModalDeleteConfirmation';
+import { ModalDeleteConfirmation } from '@/pages/directory';
 import { toAbsoluteUrl } from '@/utils/Assets';
 import { useState } from 'react';
+// import { Heart, Star } from 'react-icons/fa';
+// import cn from 'classnames';
+
 interface ITagsItem {
   label: string;
 }
@@ -16,6 +19,9 @@ interface ILocationProps {
   rating: number;
   comments_number: number;
   participant_endorsements?: ITagsItems;
+  location: string;
+  dates: string;
+  price: number;
 }
 
 const CardLocation = ({
@@ -24,9 +30,14 @@ const CardLocation = ({
   description,
   rating,
   comments_number,
-  participant_endorsements
+  participant_endorsements,
+  location,
+  dates,
+  price
 }: ILocationProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
+
   const handleModalClose = () => {
     setIsModalOpen(false);
   };
@@ -40,44 +51,38 @@ const CardLocation = ({
       </span>
     );
   };
+
   return (
-    <div className="card  border-0 mb-4">
-      <img
-        src={toAbsoluteUrl(`/media/images/600x400/${image}`)}
-        className="rounded-t-xl shrink-0"
-        alt=""
-      />
-      <div className="card-border card-rounded-b px-3.5 h-full pt-3 pb-3.5">
-        <a href="#" className="font-medium block text-gray-900 hover:text-primary text-md mb-2">
-          {title}
-        </a>
-        <div className=" py-3">
-          <Button variant="light" size="sm" onClick={handleModalOpen}>
-            connect
-          </Button>
+    <div className="group cursor-pointer">
+      <div className="relative aspect-square overflow-hidden rounded-xl">
+        <img
+          src={toAbsoluteUrl(`/media/images/600x400/${image}`)}
+          alt={title}
+          className="h-full w-full object-cover transition group-hover:scale-105"
+        />
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            setIsFavorite(!isFavorite);
+          }}
+          className="absolute right-3 top-3 rounded-full p-2 transition hover:bg-white/10"
+        >
+          <KeenIcon icon="heart" className={'text-red'} />
+        </button>
+      </div>
+      <div className="mt-2">
+        <div className="flex items-center justify-between">
+          <h3 className="font-medium">{title}</h3>
+          <div className="flex items-center gap-1">
+            <KeenIcon icon="star" className={'text-white mr-1'} />
+            <span>{rating}</span>
+          </div>
         </div>
-        <div className="flex items-center mb-2">
-          {[...Array(5)].map((_, index) => (
-            <KeenIcon
-              key={index}
-              icon="star"
-              className={index < rating ? 'text-yellow-500 mr-1' : 'text-gray-400 mr-1'}
-            />
-          ))}
-          <KeenIcon icon="message-text-2" />
-          <span className="text-sm text-gray-500 ml-1">{comments_number}</span>
-        </div>
-        <p className="text-2sm text-gray-700">{description}</p>
-        {participant_endorsements && (
-          <>
-            <Separator className="my-2" />
-            <div className="flex flex-wrap gap-2.5 mb-2">
-              {participant_endorsements.map((item, index) => {
-                return renderItem(item, index);
-              })}
-            </div>
-          </>
-        )}
+        <p className="text-sm text-gray-500">{location}</p>
+        <p className="text-sm text-gray-500">{dates}</p>
+        <p className="mt-2">
+          <span className="font-medium">${price}</span> night
+        </p>
       </div>
       <ModalDeleteConfirmation
         open={isModalOpen}

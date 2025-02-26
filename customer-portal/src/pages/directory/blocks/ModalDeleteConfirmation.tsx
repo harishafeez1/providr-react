@@ -6,10 +6,8 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog';
-import { KeenIcon } from '@/components';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
-import { useState } from 'react';
 import clsx from 'clsx';
 
 interface IModalDeleteConfirmationProps {

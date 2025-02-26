@@ -49,10 +49,10 @@ module.exports = {
                 inverse: '#ffffff'
               },
               primary: {
-                default: '#1B84FF',
-                active: '#056EE9',
-                light: '#EFF6FF',
-                clarity: 'rgba(27, 132, 255, 0.20)',
+                default: '#752C84',
+                active: '#752C84',
+                light: '#52C84',
+                clarity: '#752C84',
                 inverse: '#ffffff'
               },
               success: {
@@ -176,7 +176,7 @@ module.exports = {
           light: {
             default: '0px 4px 12px 0px rgba(0, 0, 0, 0.09)',
             light: '0px 3px 4px 0px rgba(0, 0, 0, 0.03)',
-            primary: '0px 4px 12px 0px rgba(40, 132, 239, 0.35)',
+            primary: '0px 4px 12px 0px rgba(0, 0, 0, 0.09)',
             success: '0px 4px 12px 0px rgba(53, 189, 100, 0.35)',
             danger: '0px 4px 12px 0px rgba(241, 65, 108, 0.35)',
             info: '0px 4px 12px 0px rgba(114, 57, 234, 0.35)',
@@ -201,45 +201,45 @@ module.exports = {
       colors: {
         //begin: Shadcn UI Colors
         background: 'hsl(var(--background))',
-  			foreground: 'hsl(var(--foreground))',
-  			card: {
-  				DEFAULT: 'hsl(var(--card))',
-  				foreground: 'hsl(var(--card-foreground))'
-  			},
-  			popover: {
-  				DEFAULT: 'hsl(var(--popover))',
-  				foreground: 'hsl(var(--popover-foreground))'
-  			},
-  			primary: {
-  				DEFAULT: 'hsl(var(--primary))',
-  				foreground: 'hsl(var(--primary-foreground))'
-  			},
-  			secondary: {
-  				DEFAULT: 'hsl(var(--secondary))',
-  				foreground: 'hsl(var(--secondary-foreground))'
-  			},
-  			muted: {
-  				DEFAULT: 'hsl(var(--muted))',
-  				foreground: 'hsl(var(--muted-foreground))'
-  			},
-  			accent: {
-  				DEFAULT: 'hsl(var(--accent))',
-  				foreground: 'hsl(var(--accent-foreground))'
-  			},
-  			destructive: {
-  				DEFAULT: 'hsl(var(--destructive))',
-  				foreground: 'hsl(var(--destructive-foreground))'
-  			},
-  			border: 'hsl(var(--border))',
-  			input: 'hsl(var(--input))',
-  			ring: 'hsl(var(--ring))',
-  			chart: {
-  				'1': 'hsl(var(--chart-1))',
-  				'2': 'hsl(var(--chart-2))',
-  				'3': 'hsl(var(--chart-3))',
-  				'4': 'hsl(var(--chart-4))',
-  				'5': 'hsl(var(--chart-5))'
-  			},
+        foreground: 'hsl(var(--foreground))',
+        card: {
+          DEFAULT: 'hsl(var(--card))',
+          foreground: 'hsl(var(--card-foreground))'
+        },
+        popover: {
+          DEFAULT: 'hsl(var(--popover))',
+          foreground: 'hsl(var(--popover-foreground))'
+        },
+        primary: {
+          DEFAULT: 'hsl(var(--primary))',
+          foreground: 'hsl(var(--primary-foreground))'
+        },
+        secondary: {
+          DEFAULT: 'hsl(var(--secondary))',
+          foreground: 'hsl(var(--secondary-foreground))'
+        },
+        muted: {
+          DEFAULT: 'hsl(var(--muted))',
+          foreground: 'hsl(var(--muted-foreground))'
+        },
+        accent: {
+          DEFAULT: 'hsl(var(--accent))',
+          foreground: 'hsl(var(--accent-foreground))'
+        },
+        destructive: {
+          DEFAULT: 'hsl(var(--destructive))',
+          foreground: 'hsl(var(--destructive-foreground))'
+        },
+        border: 'hsl(var(--border))',
+        input: 'hsl(var(--input))',
+        ring: 'hsl(var(--ring))',
+        chart: {
+          1: 'hsl(var(--chart-1))',
+          2: 'hsl(var(--chart-2))',
+          3: 'hsl(var(--chart-3))',
+          4: 'hsl(var(--chart-4))',
+          5: 'hsl(var(--chart-5))'
+        },
         //end
         gray: {
           100: 'var(--tw-gray-100)',
@@ -326,7 +326,7 @@ module.exports = {
           600: '#0B0C10',
           black: '#000000',
           clarity: 'rgba(24, 25, 31, 0.50)'
-        },        
+        }
       },
       boxShadow: {
         card: 'var(--tw-card-box-shadow)',
@@ -515,20 +515,20 @@ module.exports = {
           }
         },
         container: {
-					fixed: {
-						px: {
-							DEFAULT: theme('spacing')['6'],
-							xl: theme('spacing')['7.5']
-						},
-						'max-width': theme('screens.xl')
-					},
-					fluid: {
-						px: {
-							DEFAULT: theme('spacing')['6'],
-							xl: theme('spacing')['7.5']
-						}
-					}
-				},
+          fixed: {
+            px: {
+              DEFAULT: theme('spacing')['6'],
+              xl: theme('spacing')['7.5']
+            },
+            'max-width': theme('screens.xl')
+          },
+          fluid: {
+            px: {
+              DEFAULT: theme('spacing')['6'],
+              xl: theme('spacing')['7.5']
+            }
+          }
+        },
         btn: {
           xs: {
             height: '1.75rem',
@@ -683,7 +683,7 @@ module.exports = {
     })
   },
   plugins: [
-    require('tailwindcss-animate'), 
+    require('tailwindcss-animate'),
     require('./src/plugins/plugin'),
     require('./src/plugins/components/theme'),
     require('./src/plugins/components/breakpoints'),

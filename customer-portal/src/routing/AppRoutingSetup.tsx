@@ -11,7 +11,7 @@ import { Demo2Layout } from '@/layouts/demo2';
 import { DocumentsTablePage } from '@/pages/documents';
 import { AccountSettingsPlainPage } from '@/pages/settings';
 import { ReviewsTablePage } from '@/pages/reviews';
-import { ProfileCompanyPage } from '@/pages/company';
+import { DirectoryPage } from '@/pages/directory';
 
 const AppRoutingSetup = (): ReactElement => {
   return (
@@ -25,7 +25,7 @@ const AppRoutingSetup = (): ReactElement => {
           <Route path="/settings" element={<AccountSettingsPlainPage />} />
           <Route path="/reviews" element={<ReviewsTablePage />} />
         </Route>
-        <Route path="/directory" element={<ProfileCompanyPage />} />
+        <Route path="/directory" element={<DirectoryPage />} />
       </Route>
       <Route path="error/*" element={<ErrorsRouting />} />
       <Route path="*" element={<AuthPage />} />
