@@ -73,7 +73,7 @@ const AppRoutingSetup = (): ReactElement => {
             }
           />
           <Route
-            path="/service-request/request"
+            path="/service-request/request/:id"
             element={
               <PermissionWrapper requiredPermissions={['admin', 'intake']}>
                 <RequestViewPage />

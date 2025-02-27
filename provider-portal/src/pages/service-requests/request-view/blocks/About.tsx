@@ -1,20 +1,28 @@
+import React from 'react';
+
 interface IAboutTable {
   status: string;
-  info: string;
+  info: string | React.JSX.Element;
 }
 interface IAboutTables extends Array<IAboutTable> {}
 
-const About = () => {
+const About = ({ data }: any) => {
   const tables: IAboutTables = [
-    { status: 'Name', info: '32' },
-    { status: 'Last Name:', info: 'Amsterdam' },
-    { status: 'Gender:', info: 'North Holland' },
-    { status: 'Age Range:', info: 'N/A' },
-    { status: 'City:', info: '1092 NL' },
-    { status: 'State:', info: '1092 NL' },
-    { status: 'Postcode:', info: '1092 NL' },
-    { status: 'Telehealth:', info: 'N/A' },
-    { status: 'Online Service:', info: 'N/A' }
+    {
+      status: 'Name',
+      info: data?.first_name || ''
+    },
+    { status: 'Last Name:', info: data?.last_name || '' },
+    { status: 'Gender:', info: data?.gender || '' },
+    { status: 'Address:', info: data?.address || '' },
+    { status: 'City:', info: data?.city || '' },
+    { status: 'State:', info: data?.state || '' },
+    { status: 'Postcode:', info: data?.zip_code || '' },
+    { status: 'Age Range:', info: data?.age_group_options?.join(', ') },
+    {
+      status: 'Access Method:',
+      info: data?.service_delivered_options?.join(', ')
+    }
   ];
 
   const renderGridItem = (table: IAboutTable, index: number) => {

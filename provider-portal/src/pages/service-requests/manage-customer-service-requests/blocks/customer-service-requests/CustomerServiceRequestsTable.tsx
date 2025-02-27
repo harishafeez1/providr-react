@@ -31,8 +31,31 @@ const DropdownCard2 = (handleInterestedRequest: any, row: any) => {
   const { isRTL } = useLanguage();
   return (
     <MenuSub className="menu-default" rootClassName="w-full max-w-[200px]">
+      {row.service_request_provider.length <= 0 && (
+        <MenuItem
+          onClick={() => handleInterestedRequest(row.id)}
+          toggle="dropdown"
+          dropdownProps={{
+            placement: isRTL() ? 'left-start' : 'right-start',
+            modifiers: [
+              {
+                name: 'offset',
+                options: {
+                  offset: isRTL() ? [15, 0] : [-15, 0] // [skid, distance]
+                }
+              }
+            ]
+          }}
+        >
+          <MenuLink>
+            <MenuIcon>
+              <KeenIcon icon="check" />
+            </MenuIcon>
+            <MenuTitle>I'm Interested</MenuTitle>
+          </MenuLink>
+        </MenuItem>
+      )}
       <MenuItem
-        onClick={() => handleInterestedRequest(row.id)}
         toggle="dropdown"
         dropdownProps={{
           placement: isRTL() ? 'left-start' : 'right-start',
@@ -46,13 +69,11 @@ const DropdownCard2 = (handleInterestedRequest: any, row: any) => {
           ]
         }}
       >
-        <MenuLink>
-          <a className="flex">
-            <MenuIcon>
-              <KeenIcon icon="check" />
-            </MenuIcon>
-            <MenuTitle>I'm Interested</MenuTitle>
-          </a>
+        <MenuLink path={`/service-request/request/${row.id}`}>
+          <MenuIcon>
+            <KeenIcon icon="eye" />
+          </MenuIcon>
+          <MenuTitle>View Request</MenuTitle>
         </MenuLink>
       </MenuItem>
     </MenuSub>
@@ -265,6 +286,31 @@ const CustomerServiceRequestsTable = () => {
         }
       },
       {
+        accessorFn: (row) => row.address,
+        id: 'location',
+        header: ({ column }) => (
+          <DataGridColumnHeader
+            title="Contacted"
+            column={column}
+            icon={<i className="ki-filled ki-geolocation"></i>}
+          />
+        ),
+        cell: (info) => {
+          return (
+            <div className="flex items-center text-gray-800 font-normal gap-1.5">
+              {info.row.original.service_request_provider?.[0]?.customer_contacted ? (
+                <div className="badge badge-pill badge-success">Yes</div>
+              ) : (
+                <div className="badge badge-pill badge-danger">No</div>
+              )}
+            </div>
+          );
+        },
+        meta: {
+          headerClassName: 'min-w-[180px]'
+        }
+      },
+      {
         id: 'click',
         header: () => '',
         enableSorting: false,
@@ -288,8 +334,7 @@ const CustomerServiceRequestsTable = () => {
               <MenuToggle className="btn btn-sm btn-icon btn-light btn-clear">
                 <KeenIcon icon="dots-vertical" />
               </MenuToggle>
-              {row.row.original.service_request_provider.length <= 0 &&
-                DropdownCard2(handleInterestedRequest, row.row.original)}
+              {DropdownCard2(handleInterestedRequest, row.row.original)}
             </MenuItem>
           </Menu>
         ),

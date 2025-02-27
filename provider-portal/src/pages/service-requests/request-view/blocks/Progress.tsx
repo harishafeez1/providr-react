@@ -1,13 +1,26 @@
 import { Step, StepLabel, Stepper } from '@mui/material';
 import 'leaflet/dist/leaflet.css';
+import { useEffect, useState } from 'react';
 
-const ProgressbarPoints = () => {
+const ProgressbarPoints = ({ data }: any) => {
   const HorizontalLinearAlternativeLabelStepper = () => {
-    const steps = ['Request Received ', 'in progress ', 'complete'];
+    const [activeStepTab, setActiveStepTab] = useState(0);
+
+    useEffect(() => {
+      if (data?.service_request_provider) {
+        data.service_request_provider[0].status === 'In Progress'
+          ? setActiveStepTab(1)
+          : data.service_request_provider[0].status === 'Completed'
+            ? setActiveStepTab(2)
+            : setActiveStepTab(0);
+      }
+    }, [data]);
+
+    const steps = ['Open', 'In Progress', 'Completed'];
 
     return (
       <div className="w-full">
-        <Stepper className="w-full" alternativeLabel activeStep={1}>
+        <Stepper className="w-full" alternativeLabel activeStep={activeStepTab}>
           {steps.map((label) => (
             <Step className="bg-white" key={label}>
               <StepLabel sx={{ color: 'red' }}>{label}</StepLabel>

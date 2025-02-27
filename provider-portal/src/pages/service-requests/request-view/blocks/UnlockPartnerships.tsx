@@ -1,14 +1,16 @@
+import { format } from 'date-fns';
+
 interface IAboutTable {
   status: string;
   info: string;
 }
 interface IAboutTables extends Array<IAboutTable> {}
 
-const UnlockPartnerships = () => {
+const UnlockPartnerships = ({ data }: any) => {
   const tables: IAboutTables = [
-    { status: 'Match ID:', info: '32' },
-    { status: 'Updated By:', info: 'Amsterdam' },
-    { status: 'Recived:', info: 'North Holland' }
+    { status: 'Match ID:', info: data.id },
+    // { status: 'Updated By:', info: 'Amsterdam' },
+    { status: 'Created:', info: data.created_at ? format(data.created_at, 'LLL dd, y') : '' }
   ];
   const renderTable = (table: IAboutTable, index: number) => {
     return (
@@ -28,16 +30,18 @@ const UnlockPartnerships = () => {
         <div className="flex flex-wrap md:flex-nowrap items-center gap-6 md:gap-10">
           <div className="flex flex-col gap-3">
             <h2 className="text-1.5xl font-semibold text-gray-900">
-              Sydney Olympic Park, NSW 2127 <br />
-              <span className="text-xl font-bold text-primary">Service:</span>
-              <span className="text-xl font-bold text-primary"> Partnerships on Our Blog</span>
+              {data?.address ? data.address : ''}
+              <p className="text-xl font-bold text-primary">
+                Service: {data?.service ? data?.service?.name : ''}
+              </p>
             </h2>
 
             <table className="table-auto">
               <tbody>
-                {tables.map((table, index) => {
-                  return renderTable(table, index);
-                })}
+                {data &&
+                  tables.map((table, index) => {
+                    return renderTable(table, index);
+                  })}
               </tbody>
             </table>
           </div>
