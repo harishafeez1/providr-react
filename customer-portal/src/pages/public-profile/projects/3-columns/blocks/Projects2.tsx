@@ -5,7 +5,7 @@ import { KeenIcon } from '@/components';
 import { CardProject, CardProjectRow } from '@/partials/cards';
 
 interface IProjects2Item {
-  logo: string;
+  logo?: string;
   name: string;
   description: string;
   startDate?: string;
@@ -313,35 +313,35 @@ const Projects2 = () => {
     }
   ];
 
-  const renderProject = (project: IProjects2Item, index: number) => {
-    return (
-      <CardProject
-        logo={project.logo}
-        name={project.name}
-        description={project.description}
-        startDate={project.startDate}
-        endDate={project.endDate}
-        status={project.status}
-        progress={project.progress}
-        team={project.team}
-        key={index}
-      />
-    );
-  };
+  // const renderProject = (project: IProjects2Item, index: number) => {
+  //   return (
+  //     <CardProject
+  //       logo={project.logo}
+  //       name={project.name}
+  //       description={project.description}
+  //       startDate={project.startDate}
+  //       endDate={project.endDate}
+  //       status={project.status}
+  //       progress={project.progress}
+  //       team={project.team}
+  //       key={index}
+  //     />
+  //   );
+  // };
 
-  const renderItem = (item: IProjects2Item, index: number) => {
-    return (
-      <CardProjectRow
-        logo={item.logo}
-        name={item.name}
-        description={item.description}
-        status={item.status}
-        progress={item.progress}
-        team={item.team}
-        key={index}
-      />
-    );
-  };
+  // const renderItem = (item: IProjects2Item, index: number) => {
+  //   return (
+  //     <CardProjectRow
+  //       logo={item.logo}
+  //       name={item.name}
+  //       description={item.description}
+  //       status={item.status}
+  //       progress={item.progress}
+  //       team={item.team}
+  //       key={index}
+  //     />
+  //   );
+  // };
 
   return (
     <div className="flex flex-col items-stretch gap-5 lg:gap-7.5">
@@ -375,9 +375,9 @@ const Projects2 = () => {
       {activeView === 'cards' && (
         <div id="projects_cards">
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5 lg:gap-7.5">
-            {projects.map((project, index) => {
+            {/* {projects.map((project, index) => {
               return renderProject(project, index);
-            })}
+            })} */}
           </div>
 
           <div className="flex grow justify-center pt-5 lg:pt-7.5">
@@ -391,9 +391,9 @@ const Projects2 = () => {
       {activeView === 'list' && (
         <div id="projects_list">
           <div className="flex flex-col gap-5 lg:gap-7.5">
-            {projects.map((item, index) => {
+            {/* {projects.map((item, index) => {
               return renderItem(item, index);
-            })}
+            })} */}
           </div>
 
           <div className="flex grow justify-center pt-5 lg:pt-7.5">

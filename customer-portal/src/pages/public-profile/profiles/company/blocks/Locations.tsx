@@ -39,16 +39,16 @@ const Locations = () => {
     }
   ];
 
-  const renderItem = (item: ILocationsItem, index: number) => {
-    return (
-      <CardLocation
-        key={index}
-        image={item.image}
-        title={item.title}
-        description={item.description}
-      />
-    );
-  };
+  // const renderItem = (item: ILocationsItem, index: number) => {
+  //   return (
+  //     <CardLocation
+  //       key={index}
+  //       image={item.image}
+  //       title={item.title}
+  //       description={item.description}
+  //     />
+  //   );
+  // };
 
   return (
     <div className="card">
@@ -61,9 +61,9 @@ const Locations = () => {
       </div>
       <div className="card-body p-5 lg:p-7.5 lg:pb-7">
         <div className="flex gap-5 scrollable-x">
-          {items.map((item, index) => {
+          {/* {items.map((item, index) => {
             return renderItem(item, index);
-          })}
+          })} */}
         </div>
       </div>
     </div>
