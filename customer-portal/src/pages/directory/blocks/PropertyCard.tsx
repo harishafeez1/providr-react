@@ -51,9 +51,7 @@ export function PropertyCard({
         </div>
         <p className="text-sm text-gray-500">{location}</p>
         <p className="text-sm text-gray-500">{dates}</p>
-        <p className="mt-2">
-          <button className="btn btn-primary btn-sm">connect</button>
-        </p>
+        <p className="mt-2"></p>
       </div>
     </div>
   );
