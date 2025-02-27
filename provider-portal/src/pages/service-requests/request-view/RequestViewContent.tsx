@@ -35,7 +35,7 @@ const RequestViewContent = () => {
   }, [id]);
 
   if (loading) {
-    return <Skeleton />;
+    return <></>;
   }
 
   return (
