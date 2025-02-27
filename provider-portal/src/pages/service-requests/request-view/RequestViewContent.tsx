@@ -14,15 +14,15 @@ import { Skeleton } from '@/components/ui/skeleton';
 const RequestViewContent = () => {
   const { id } = useParams();
   const [requestData, setRequestData] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchRequest = async () => {
       try {
         if (!id) return;
-        setLoading(true);
         const response = await getSingleServiceRequest(id);
         setRequestData(response);
+        setLoading(false);
       } catch (err: any) {
         setLoading(false);
         throw new Error(err);
