@@ -52,7 +52,7 @@ export function PropertyCard({
         <p className="text-sm text-gray-500">{location}</p>
         <p className="text-sm text-gray-500">{dates}</p>
         <p className="mt-2">
-          <span className="font-medium">${price}</span> night
+          <button className="btn btn-primary btn-sm">connect</button>
         </p>
       </div>
     </div>

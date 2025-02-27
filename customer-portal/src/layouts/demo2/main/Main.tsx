@@ -4,7 +4,6 @@ import { Outlet, useLocation } from 'react-router';
 import { useMenuCurrentItem } from '@/components/menu';
 import { useMenus } from '@/providers';
 import { Header, Footer } from '../';
-import { Toolbar, ToolbarHeading } from '../toolbar';
 
 const Main = () => {
   const { pathname } = useLocation();
@@ -20,14 +19,7 @@ const Main = () => {
       <div className="flex grow flex-col [[data-sticky-header=on]_&]:pt-[--tw-header-height-default]">
         <Header />
 
-        {/* <Navbar /> */}
-
         <main className="grow" role="content">
-          {!pathname.includes('/public-profile/') && (
-            <Toolbar>
-              <ToolbarHeading />
-            </Toolbar>
-          )}
           <Outlet />
         </main>
         <Footer />

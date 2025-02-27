@@ -60,7 +60,7 @@ export function Categories() {
           </button>
         </div>
       </div>
-      <FilterModal isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
+      <FilterModal open={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
     </>
   );
 }
