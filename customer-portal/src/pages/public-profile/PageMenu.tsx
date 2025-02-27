@@ -7,7 +7,8 @@ const PageMenu = () => {
   const accountMenuConfig = menuConfig?.['2']?.children;
 
   if (accountMenuConfig) {
-    return <NavbarMenu items={accountMenuConfig} />;
+    return;
+    // <NavbarMenu items={accountMenuConfig} />;
   } else {
     return <>test</>;
   }
