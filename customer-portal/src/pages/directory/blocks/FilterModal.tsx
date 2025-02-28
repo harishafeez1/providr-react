@@ -3,6 +3,7 @@ import {
   DialogBody,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog';
@@ -58,7 +59,7 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
             <DialogTitle>Filters</DialogTitle>
             <DialogDescription></DialogDescription>
           </DialogHeader>
-          <DialogBody className="flex flex-col items-center scrollable-y-auto">
+          <DialogBody className="flex flex-col max-h-[450px] xl:max-h-[650px]  items-center scrollable-y-auto">
             <div className="grid gap-2">
               <form onSubmit={formik.handleSubmit} noValidate>
                 <div className="grid gap-5">
@@ -281,6 +282,9 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
               </form>
             </div>
           </DialogBody>
+          <DialogFooter className="justify-end">
+            <button className="btn btn-primary">Apply</button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
