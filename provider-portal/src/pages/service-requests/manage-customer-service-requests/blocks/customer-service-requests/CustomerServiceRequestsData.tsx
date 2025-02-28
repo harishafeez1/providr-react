@@ -23,6 +23,7 @@ interface ICustomerServiceRequestsData {
   actioned_at: string;
   customer: UserModel;
   service: Services;
+  provider_company_id?: number | string;
   service_request_provider: ServiceRequestProvider[];
 }
 

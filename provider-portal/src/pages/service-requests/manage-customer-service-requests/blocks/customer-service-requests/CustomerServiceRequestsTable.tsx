@@ -321,30 +321,34 @@ const CustomerServiceRequestsTable = () => {
         id: 'click',
         header: () => '',
         enableSorting: false,
-        cell: (row) => (
-          <Menu className="items-stretch">
-            <MenuItem
-              toggle="dropdown"
-              trigger="click"
-              dropdownProps={{
-                placement: isRTL() ? 'bottom-start' : 'bottom-end',
-                modifiers: [
-                  {
-                    name: 'offset',
-                    options: {
-                      offset: isRTL() ? [0, -10] : [0, 10] // [skid, distance]
+        cell: (row) =>
+          row.row.original.provider_company_id !== null &&
+          row.row.original.provider_company_id !== '' ? (
+            ''
+          ) : (
+            <Menu className="items-stretch">
+              <MenuItem
+                toggle="dropdown"
+                trigger="click"
+                dropdownProps={{
+                  placement: isRTL() ? 'bottom-start' : 'bottom-end',
+                  modifiers: [
+                    {
+                      name: 'offset',
+                      options: {
+                        offset: isRTL() ? [0, -10] : [0, 10] // [skid, distance]
+                      }
                     }
-                  }
-                ]
-              }}
-            >
-              <MenuToggle className="btn btn-sm btn-icon btn-light btn-clear">
-                <KeenIcon icon="dots-vertical" />
-              </MenuToggle>
-              {DropdownCard2(handleInterestedRequest, row.row.original)}
-            </MenuItem>
-          </Menu>
-        ),
+                  ]
+                }}
+              >
+                <MenuToggle className="btn btn-sm btn-icon btn-light btn-clear">
+                  <KeenIcon icon="dots-vertical" />
+                </MenuToggle>
+                {DropdownCard2(handleInterestedRequest, row.row.original)}
+              </MenuItem>
+            </Menu>
+          ),
         meta: {
           headerClassName: 'w-[60px]'
         }

@@ -1,6 +1,18 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { DataGrid, DataGridColumnHeader, KeenIcon, TDataGridRequestParams } from '@/components';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  DataGrid,
+  DataGridColumnHeader,
+  KeenIcon,
+  TDataGridRequestParams,
+  Menu,
+  MenuIcon,
+  MenuLink,
+  MenuSub,
+  MenuTitle,
+  MenuItem,
+  MenuToggle
+} from '@/components';
 import { ColumnDef, Column, RowSelectionState } from '@tanstack/react-table';
 
 import { toast } from 'sonner';
@@ -8,14 +20,71 @@ import { Input } from '@/components/ui/input';
 
 import { IServiceRequestsData, ModalFilters } from './';
 import { useAuthContext } from '@/auth';
-import { getAllConnectedServiceRequests } from '@/services/api';
+import { getAllConnectedServiceRequests, getInteresetedInRequest } from '@/services/api';
+import { useLanguage } from '@/i18n';
+import { ICustomerServiceRequestsData } from '@/pages/service-requests/manage-customer-service-requests/blocks';
 
 interface IColumnFilterProps<TData, TValue> {
   column: Column<TData, TValue>;
 }
 
+const DropdownCard2 = (handleInterestedRequest: any, row: any) => {
+  const { isRTL } = useLanguage();
+  return (
+    <MenuSub className="menu-default" rootClassName="w-full max-w-[200px]">
+      {row.service_request_provider.length <= 0 && (
+        <MenuItem
+          onClick={() => handleInterestedRequest(row.id)}
+          toggle="dropdown"
+          dropdownProps={{
+            placement: isRTL() ? 'left-start' : 'right-start',
+            modifiers: [
+              {
+                name: 'offset',
+                options: {
+                  offset: isRTL() ? [15, 0] : [-15, 0] // [skid, distance]
+                }
+              }
+            ]
+          }}
+        >
+          <MenuLink>
+            <MenuIcon>
+              <KeenIcon icon="check" />
+            </MenuIcon>
+            <MenuTitle>I'm Interested</MenuTitle>
+          </MenuLink>
+        </MenuItem>
+      )}
+      <MenuItem
+        toggle="dropdown"
+        dropdownProps={{
+          placement: isRTL() ? 'left-start' : 'right-start',
+          modifiers: [
+            {
+              name: 'offset',
+              options: {
+                offset: isRTL() ? [15, 0] : [-15, 0] // [skid, distance]
+              }
+            }
+          ]
+        }}
+      >
+        <MenuLink path={`/service-request/request/${row.id}`}>
+          <MenuIcon>
+            <KeenIcon icon="eye" />
+          </MenuIcon>
+          <MenuTitle>View Request</MenuTitle>
+        </MenuLink>
+      </MenuItem>
+    </MenuSub>
+  );
+};
+
 const ServiceRequestsTable = () => {
   const { currentUser } = useAuthContext();
+  const { isRTL } = useLanguage();
+  const navigate = useNavigate();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -85,10 +154,24 @@ const ServiceRequestsTable = () => {
     }
   };
 
-  const columns = useMemo<ColumnDef<IServiceRequestsData>[]>(
+  const handleInterestedRequest = async (service_request_id: any) => {
+    if (currentUser?.provider_company_id) {
+      const res = await getInteresetedInRequest(
+        currentUser?.provider_company_id,
+        service_request_id
+      );
+      if (res) {
+        navigate(`/service-request/request/${service_request_id}`);
+      }
+    } else {
+      console.log('company is present');
+    }
+  };
+
+  const columns = useMemo<ColumnDef<ICustomerServiceRequestsData>[]>(
     () => [
       {
-        accessorFn: (row: IServiceRequestsData) => row.id,
+        accessorFn: (row: ICustomerServiceRequestsData) => row.id,
         id: 'matchId',
         header: ({ column }) => (
           <DataGridColumnHeader
@@ -122,7 +205,7 @@ const ServiceRequestsTable = () => {
         id: 'participantName',
         header: ({ column }) => (
           <DataGridColumnHeader
-            title="participant Name"
+            title="Participant Name"
             column={column}
             icon={<i className="ki-filled ki-user"></i>}
           />
@@ -130,7 +213,7 @@ const ServiceRequestsTable = () => {
         cell: (info) => {
           return (
             <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.customer_id}
+              {`${info.row.original.customer.first_name} ${info.row.original.customer?.last_name || ''}`}
             </div>
           );
         },
@@ -156,7 +239,11 @@ const ServiceRequestsTable = () => {
               <span
                 className={`size-1.5 rounded-full bg-${info.row.original.status ? 'success' : 'danger'} me-1.5`}
               ></span>
-              {info.row.original.status ? 'Active' : 'Disabled'}
+              {info.row.original.service_request_provider.length === 0
+                ? 'Open'
+                : info.row.original.service_request_provider.length > 0
+                  ? info.row.original.service_request_provider[0].status
+                  : ''}
             </span>
           );
         },
@@ -177,7 +264,7 @@ const ServiceRequestsTable = () => {
         cell: (info) => {
           return (
             <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.service_id}
+              {info.row.original.service.name}
             </div>
           );
         },
@@ -207,28 +294,64 @@ const ServiceRequestsTable = () => {
         }
       },
       {
-        accessorFn: (row) => row.actioned_at,
-        id: 'actioned',
+        accessorFn: (row) => row.address,
+        id: 'location',
         header: ({ column }) => (
           <DataGridColumnHeader
-            title="actioned"
+            title="Contacted"
             column={column}
-            icon={<i className="ki-filled ki-user-tick text-lg"></i>}
+            icon={<i className="ki-filled ki-geolocation"></i>}
           />
         ),
         cell: (info) => {
           return (
             <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.actioned_at}
+              {info.row.original.service_request_provider?.[0]?.customer_contacted ? (
+                <div className="badge badge-pill badge-success">Yes</div>
+              ) : (
+                <div className="badge badge-pill badge-danger">No</div>
+              )}
             </div>
           );
         },
         meta: {
           headerClassName: 'min-w-[180px]'
         }
+      },
+      {
+        id: 'click',
+        header: () => '',
+        enableSorting: false,
+        cell: (row) => (
+          <Menu className="items-stretch">
+            <MenuItem
+              toggle="dropdown"
+              trigger="click"
+              dropdownProps={{
+                placement: isRTL() ? 'bottom-start' : 'bottom-end',
+                modifiers: [
+                  {
+                    name: 'offset',
+                    options: {
+                      offset: isRTL() ? [0, -10] : [0, 10] // [skid, distance]
+                    }
+                  }
+                ]
+              }}
+            >
+              <MenuToggle className="btn btn-sm btn-icon btn-light btn-clear">
+                <KeenIcon icon="dots-vertical" />
+              </MenuToggle>
+              {DropdownCard2(handleInterestedRequest, row.row.original)}
+            </MenuItem>
+          </Menu>
+        ),
+        meta: {
+          headerClassName: 'w-[60px]'
+        }
       }
     ],
-    []
+    [isRTL]
   );
 
   const handleRowSelection = (state: RowSelectionState) => {
