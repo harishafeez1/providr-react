@@ -178,7 +178,7 @@ function PhotosStep() {
       </div>
       <label className="form-label flex items-center gap-1 max-w-56">Select who this is for</label>
       <div className="grid grid-cols-3 gap-4">
-        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
+        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:bg-[#8a4099] has-[:checked]:text-white has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
           <input
             className="appearance-none"
             type="radio"
@@ -186,10 +186,10 @@ function PhotosStep() {
             defaultChecked={true}
             value="2"
           />
-          <label className="text-center text-md">Myself</label>
+          <span className="text-center text-md">Myself</span>
         </label>
 
-        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
+        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:bg-[#8a4099] has-[:checked]:text-white has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
           <input
             className="appearance-none"
             type="radio"
@@ -197,9 +197,9 @@ function PhotosStep() {
             defaultChecked={true}
             value="2"
           />
-          <label className="text-center text-md">Someone I care for</label>
+          <span className="text-center text-md">Someone I care for</span>
         </label>
-        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
+        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:bg-[#8a4099] has-[:checked]:text-white has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
           <input
             className="appearance-none"
             type="radio"
@@ -207,7 +207,7 @@ function PhotosStep() {
             defaultChecked={true}
             value="2"
           />
-          <label className="text-center text-md">Enter Your Email Address</label>
+          <span className="text-center text-md">Enter Your Email Address</span>
         </label>
       </div>
     </div>
@@ -219,7 +219,7 @@ function PricingStep() {
     <div className="space-y-6">
       <label className="form-label flex items-center gap-1 max-w-56">Particiapnts age range</label>
       <div className="grid grid-cols-3 gap-4">
-        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
+        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:bg-[#8a4099] has-[:checked]:text-white has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
           <input
             className="appearance-none"
             type="radio"
@@ -227,10 +227,10 @@ function PricingStep() {
             defaultChecked={true}
             value="2"
           />
-          <label className="text-center text-md">Mature Age (60+ years)</label>
+          <span className="text-center text-md">Mature Age (60+ years)</span>
         </label>
 
-        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
+        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:bg-[#8a4099] has-[:checked]:text-white has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
           <input
             className="appearance-none"
             type="radio"
@@ -238,9 +238,9 @@ function PricingStep() {
             defaultChecked={true}
             value="2"
           />
-          <label className="text-center text-md">Adults (22-59 years)</label>
+          <span className="text-center text-md">Adults (22-59 years)</span>
         </label>
-        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
+        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:bg-[#8a4099] has-[:checked]:text-white has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
           <input
             className="appearance-none"
             type="radio"
@@ -248,9 +248,9 @@ function PricingStep() {
             defaultChecked={true}
             value="2"
           />
-          <label className="text-center text-md">Young people (17-21 years)</label>
+          <span className="text-center text-md">Young people (17-21 years)</span>
         </label>
-        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
+        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:bg-[#8a4099] has-[:checked]:text-white has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
           <input
             className="appearance-none"
             type="radio"
@@ -258,9 +258,9 @@ function PricingStep() {
             defaultChecked={true}
             value="2"
           />
-          <label className="text-center text-md">Children (8-16 years)</label>
+          <span className="text-center text-md">Children (8-16 years)</span>
         </label>
-        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
+        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:bg-[#8a4099] has-[:checked]:text-white has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
           <input
             className="appearance-none"
             type="radio"
@@ -268,14 +268,14 @@ function PricingStep() {
             defaultChecked={true}
             value="2"
           />
-          <label className="text-center text-md">Early Childhood (0-7 years)</label>
+          <span className="text-center text-md">Early Childhood (0-7 years)</span>
         </label>
       </div>
       <label className="form-label flex items-center gap-1 max-w-56">
         Who manages the NDIS plan
       </label>
       <div className="grid grid-cols-3 gap-4">
-        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
+        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:bg-[#8a4099] has-[:checked]:text-white has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
           <input
             className="appearance-none"
             type="radio"
@@ -283,10 +283,10 @@ function PricingStep() {
             defaultChecked={true}
             value="3"
           />
-          <label className="text-center text-md">Plan managed</label>
+          <span className="text-center text-md">Plan managed</span>
         </label>
 
-        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
+        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:bg-[#8a4099] has-[:checked]:text-white has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
           <input
             className="appearance-none"
             type="radio"
@@ -294,9 +294,9 @@ function PricingStep() {
             defaultChecked={true}
             value="3"
           />
-          <label className="text-center text-md">Self managed</label>
+          <span className="text-center text-md">Self managed</span>
         </label>
-        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
+        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:bg-[#8a4099] has-[:checked]:text-white has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
           <input
             className="appearance-none"
             type="radio"
@@ -304,9 +304,9 @@ function PricingStep() {
             defaultChecked={true}
             value="3"
           />
-          <label className="text-center text-md">Agency managed</label>
+          <span className="text-center text-md">Agency managed</span>
         </label>
-        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
+        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:bg-[#8a4099] has-[:checked]:text-white has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
           <input
             className="appearance-none"
             type="radio"
@@ -314,9 +314,9 @@ function PricingStep() {
             defaultChecked={true}
             value="3"
           />
-          <label className="text-center text-md">Waiting for approval </label>
+          <span className="text-center text-md">Waiting for approval </span>
         </label>
-        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
+        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:bg-[#8a4099] has-[:checked]:text-white has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
           <input
             className="appearance-none"
             type="radio"
@@ -324,9 +324,9 @@ function PricingStep() {
             defaultChecked={true}
             value="3"
           />
-          <label className="text-center text-md">Not with NDIS</label>
+          <span className="text-center text-md">Not with NDIS</span>
         </label>
-        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
+        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:bg-[#8a4099] has-[:checked]:text-white has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
           <input
             className="appearance-none"
             type="radio"
@@ -334,7 +334,7 @@ function PricingStep() {
             defaultChecked={true}
             value="3"
           />
-          <label className="text-center text-md">Unsure</label>
+          <span className="text-center text-md">Unsure</span>
         </label>
       </div>
     </div>

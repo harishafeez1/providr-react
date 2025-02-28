@@ -16,9 +16,8 @@ const Header = () => {
           <div className="" />
 
           <div className="lg:flex hidden items-center gap-4">
-            <span>Housing</span>
-            <span className="text-primary">Provider</span>
-            <span>Jobs</span>
+            <span>Services</span>
+            <span className="text-primary">Directory</span>
           </div>
           <div className="" />
           <div className="" />
