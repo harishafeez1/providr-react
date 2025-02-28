@@ -12,6 +12,7 @@ import { DocumentsTablePage } from '@/pages/documents';
 import { AccountSettingsPlainPage } from '@/pages/settings';
 import { ReviewsTablePage } from '@/pages/reviews';
 import { DirectoryPage } from '@/pages/directory';
+import { PublicLayout } from '@/layouts/public-layout';
 
 const AppRoutingSetup = (): ReactElement => {
   return (
@@ -25,11 +26,13 @@ const AppRoutingSetup = (): ReactElement => {
           <Route path="/settings" element={<AccountSettingsPlainPage />} />
           <Route path="/reviews" element={<ReviewsTablePage />} />
         </Route>
-        <Route path="/directory" element={<DirectoryPage />} />
       </Route>
       <Route path="error/*" element={<ErrorsRouting />} />
       <Route path="*" element={<AuthPage />} />
       <Route path="*" element={<Navigate to="/error/404" />} />
+      <Route element={<PublicLayout />}>
+        <Route path="/directory" element={<DirectoryPage />} />
+      </Route>
     </Routes>
   );
 };
