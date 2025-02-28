@@ -4,17 +4,25 @@ interface IAboutTable {
 }
 interface IAboutTables extends Array<IAboutTable> {}
 
-const About = () => {
+const About = ({ data }: any) => {
   const tables: IAboutTables = [
-    { status: 'Name', info: '32' },
-    { status: 'Last Name:', info: 'Amsterdam' },
-    { status: 'Gender:', info: 'North Holland' },
-    { status: 'Age Range:', info: 'N/A' },
-    { status: 'City:', info: '1092 NL' },
-    { status: 'State:', info: '1092 NL' },
-    { status: 'Postcode:', info: '1092 NL' },
-    { status: 'Telehealth:', info: 'N/A' },
-    { status: 'Online Service:', info: 'N/A' }
+    {
+      status: 'Name',
+      info: data?.first_name || ''
+    },
+    { status: 'Last Name:', info: data?.last_name || '' },
+    { status: 'Gender:', info: data?.gender || '' },
+    { status: 'Address:', info: data?.address || '' },
+    { status: 'City:', info: data?.city || '' },
+    { status: 'State:', info: data?.state || '' },
+    { status: 'Postcode:', info: data?.zip_code || '' },
+    { status: 'Email:', info: data?.email || '' },
+    { status: 'Phone:', info: data?.phone || '' },
+    { status: 'Age Range:', info: data?.age_group_options?.join(', ') },
+    {
+      status: 'Access Method:',
+      info: data?.service_delivered_options?.join(', ')
+    }
   ];
 
   const renderGridItem = (table: IAboutTable, index: number) => {
@@ -30,13 +38,13 @@ const About = () => {
   };
 
   return (
-    <div className="card">
+    <div className="">
       <div className="card-header">
         <h3 className="card-title">Participant Information</h3>
       </div>
 
-      <div className="card-body pt-4 pb-3">
-        <div className="grid grid-cols-3 gap-4">
+      <div className=" pt-4 pb-3">
+        <div className="grid grid-cols-4 gap-4">
           {tables.map((table, index) => {
             return renderGridItem(table, index);
           })}

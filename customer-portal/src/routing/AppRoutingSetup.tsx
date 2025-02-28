@@ -22,7 +22,7 @@ const AppRoutingSetup = (): ReactElement => {
         <Route element={<RequireAuth />}>
           <Route path="/" element={<ServiceRequestsTablePage />} />
           <Route path="/service-request" element={<ServiceRequestsTablePage />} />
-          <Route path="/service-request/request" element={<RequestViewPage />} />
+          <Route path="/service-request/request/:id" element={<RequestViewPage />} />
           <Route path="/documents" element={<DocumentsTablePage />} />
           <Route path="/settings" element={<AccountSettingsPlainPage />} />
           <Route path="/reviews" element={<ReviewsTablePage />} />

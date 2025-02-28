@@ -1,15 +1,13 @@
+import { About } from './About';
+
 interface IAboutTable {
   status: string;
   info: string;
 }
 interface IAboutTables extends Array<IAboutTable> {}
 
-const UnlockPartnerships = () => {
-  const tables: IAboutTables = [
-    { status: 'Match ID:', info: '32' },
-    { status: 'Updated By:', info: 'Amsterdam' },
-    { status: 'Recived:', info: 'North Holland' }
-  ];
+const UnlockPartnerships = ({ data }: any) => {
+  const tables: IAboutTables = [{ status: 'Description:', info: data?.description || '' }];
   const renderTable = (table: IAboutTable, index: number) => {
     return (
       <tr key={index}>
@@ -41,6 +39,9 @@ const UnlockPartnerships = () => {
               </tbody>
             </table>
           </div>
+        </div>
+        <div className="mt-2">
+          <About data={data} />
         </div>
       </div>
     </div>

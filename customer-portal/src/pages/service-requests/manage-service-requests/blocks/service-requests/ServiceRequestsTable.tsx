@@ -1,6 +1,18 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { DataGrid, DataGridColumnHeader, KeenIcon, TDataGridRequestParams } from '@/components';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  DataGrid,
+  DataGridColumnHeader,
+  KeenIcon,
+  Menu,
+  MenuIcon,
+  MenuItem,
+  MenuLink,
+  MenuSub,
+  MenuTitle,
+  MenuToggle,
+  TDataGridRequestParams
+} from '@/components';
 import { ColumnDef, Column, RowSelectionState } from '@tanstack/react-table';
 
 import { toast } from 'sonner';
@@ -9,14 +21,46 @@ import { Input } from '@/components/ui/input';
 import { IServiceRequestsData, ModalFilters } from './';
 import { useAuthContext } from '@/auth';
 import { getServiceRequests } from '@/services/api/service-requests';
+import { useLanguage } from '@/i18n';
 // import { getAllServiceRequests } from '@/services/api';
 
 interface IColumnFilterProps<TData, TValue> {
   column: Column<TData, TValue>;
 }
 
+const DropdownCard2 = (row: any) => {
+  const { isRTL } = useLanguage();
+  return (
+    <MenuSub className="menu-default" rootClassName="w-full max-w-[200px]">
+      <MenuItem
+        toggle="dropdown"
+        dropdownProps={{
+          placement: isRTL() ? 'left-start' : 'right-start',
+          modifiers: [
+            {
+              name: 'offset',
+              options: {
+                offset: isRTL() ? [15, 0] : [-15, 0] // [skid, distance]
+              }
+            }
+          ]
+        }}
+      >
+        <MenuLink path={`/service-request/request/${row.id}`}>
+          <MenuIcon>
+            <KeenIcon icon="eye" />
+          </MenuIcon>
+          <MenuTitle>View Request</MenuTitle>
+        </MenuLink>
+      </MenuItem>
+    </MenuSub>
+  );
+};
+
 const ServiceRequestsTable = () => {
   const { currentUser } = useAuthContext();
+  const { isRTL } = useLanguage();
+  const navigate = useNavigate();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -117,27 +161,6 @@ const ServiceRequestsTable = () => {
         }
       },
       {
-        accessorFn: (row) => row.provider_company_id,
-        id: 'company',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            title="Provider"
-            column={column}
-            icon={<i className="ki-filled ki-user"></i>}
-          />
-        ),
-        cell: (info) => {
-          return (
-            <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.provider_company.name}
-            </div>
-          );
-        },
-        meta: {
-          headerClassName: 'min-w-[180px]'
-        }
-      },
-      {
         accessorFn: (row) => row.status,
         id: 'status',
         header: ({ column }) => (
@@ -150,12 +173,15 @@ const ServiceRequestsTable = () => {
         cell: (info) => {
           return (
             <span
-              className={`badge badge-${info.row.original.status ? 'success' : 'danger'} shrink-0 badge-outline rounded-[30px]`}
+              className={`badge badge-${info.row.original.provider_company_id !== null && info.row.original.provider_company_id !== '' ? 'success' : 'danger'} shrink-0 badge-outline rounded-[30px]`}
             >
               <span
-                className={`size-1.5 rounded-full bg-${info.row.original.status ? 'success' : 'danger'} me-1.5`}
+                className={`size-1.5 rounded-full bg-${info.row.original.provider_company_id !== null && info.row.original.provider_company_id !== '' ? 'success' : 'danger'} me-1.5`}
               ></span>
-              {info.row.original.status ? 'Active' : 'Disabled'}
+              {info.row.original.provider_company_id !== null &&
+              info.row.original.provider_company_id !== ''
+                ? 'Completed'
+                : 'Open'}
             </span>
           );
         },
@@ -204,28 +230,39 @@ const ServiceRequestsTable = () => {
         meta: {
           headerClassName: 'min-w-[180px]'
         }
+      },
+      {
+        id: 'click',
+        header: () => '',
+        enableSorting: false,
+        cell: (row) => (
+          <Menu className="items-stretch">
+            <MenuItem
+              toggle="dropdown"
+              trigger="click"
+              dropdownProps={{
+                placement: isRTL() ? 'bottom-start' : 'bottom-end',
+                modifiers: [
+                  {
+                    name: 'offset',
+                    options: {
+                      offset: isRTL() ? [0, -10] : [0, 10] // [skid, distance]
+                    }
+                  }
+                ]
+              }}
+            >
+              <MenuToggle className="btn btn-sm btn-icon btn-light btn-clear">
+                <KeenIcon icon="dots-vertical" />
+              </MenuToggle>
+              {DropdownCard2(row.row.original)}
+            </MenuItem>
+          </Menu>
+        ),
+        meta: {
+          headerClassName: 'w-[60px]'
+        }
       }
-      // {
-      //   accessorFn: (row) => row.actioned_at,
-      //   id: 'actioned',
-      //   header: ({ column }) => (
-      //     <DataGridColumnHeader
-      //       title="actioned"
-      //       column={column}
-      //       icon={<i className="ki-filled ki-user-tick text-lg"></i>}
-      //     />
-      //   ),
-      //   cell: (info) => {
-      //     return (
-      //       <div className="flex items-center text-gray-800 font-normal gap-1.5">
-      //         {info.row.original.actioned_at}
-      //       </div>
-      //     );
-      //   },
-      //   meta: {
-      //     headerClassName: 'min-w-[180px]'
-      //   }
-      // }
     ],
     []
   );
