@@ -7,10 +7,10 @@ const ProgressbarPoints = ({ data }: any) => {
     const [activeStepTab, setActiveStepTab] = useState(0);
 
     useEffect(() => {
-      if (data?.service_request_provider) {
-        data.service_request_provider[0].status === 'In Progress'
+      if (data?.service_request_provider?.length > 0) {
+        data.service_request_provider?.[0].status === 'In Progress'
           ? setActiveStepTab(1)
-          : data.service_request_provider[0].status === 'Completed'
+          : data.service_request_provider?.[0].status === 'Completed'
             ? setActiveStepTab(2)
             : setActiveStepTab(0);
       }

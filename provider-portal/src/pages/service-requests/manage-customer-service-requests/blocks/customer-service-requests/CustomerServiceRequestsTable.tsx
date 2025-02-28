@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   DataGrid,
   DataGridColumnHeader,
@@ -83,6 +83,7 @@ const DropdownCard2 = (handleInterestedRequest: any, row: any) => {
 const CustomerServiceRequestsTable = () => {
   const { currentUser } = useAuthContext();
   const { isRTL } = useLanguage();
+  const navigate = useNavigate();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -152,9 +153,15 @@ const CustomerServiceRequestsTable = () => {
     }
   };
 
-  const handleInterestedRequest = (service_request_id: any) => {
+  const handleInterestedRequest = async (service_request_id: any) => {
     if (currentUser?.provider_company_id) {
-      getInteresetedInRequest(currentUser?.provider_company_id, service_request_id);
+      const res = await getInteresetedInRequest(
+        currentUser?.provider_company_id,
+        service_request_id
+      );
+      if (res) {
+        navigate(`/service-request/request/${service_request_id}`);
+      }
     } else {
       console.log('company is present');
     }

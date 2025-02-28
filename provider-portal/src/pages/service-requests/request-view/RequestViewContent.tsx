@@ -8,13 +8,16 @@ import {
 } from './blocks';
 import { useParams } from 'react-router-dom';
 
-import { getSingleServiceRequest } from '@/services/api';
-import { Skeleton } from '@/components/ui/skeleton';
-
+import { getInteresetedInRequest, getSingleServiceRequest } from '@/services/api';
+import { Button } from '@/components/ui/button';
+import { useAuthContext } from '@/auth';
 const RequestViewContent = () => {
   const { id } = useParams();
-  const [requestData, setRequestData] = useState({});
+  const [requestData, setRequestData] = useState<any>({});
+  const [updateData, setUpdateData] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const { currentUser } = useAuthContext();
 
   useEffect(() => {
     const fetchRequest = async () => {
@@ -32,11 +35,22 @@ const RequestViewContent = () => {
     };
 
     fetchRequest();
-  }, [id]);
+  }, [id, updateData]);
 
   if (loading) {
     return <></>;
   }
+
+  const handleInterestedRequest = async () => {
+    if (currentUser?.provider_company_id && id) {
+      const res = await getInteresetedInRequest(currentUser?.provider_company_id, id);
+      if (res) {
+        setUpdateData(!updateData);
+      }
+    } else {
+      console.log('company is present');
+    }
+  };
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-3 gap-5 lg:gap-7.5">
@@ -46,14 +60,22 @@ const RequestViewContent = () => {
             <UnlockPartnerships data={requestData} />
             <ProgressbarPoints data={requestData} />
             <CompanyProfile data={requestData} />
-            <About data={requestData} />
+            {requestData?.service_request_provider?.length > 0 && <About data={requestData} />}
           </div>
         </div>
       </div>
       <div className="col-span-1">
-        <div className="grid gap-5 lg:gap-7.5">
-          <WorkExperience data={requestData} />
-        </div>
+        {requestData?.service_request_provider?.length > 0 ? (
+          <div className="grid gap-5 lg:gap-7.5">
+            <WorkExperience data={requestData} />
+          </div>
+        ) : (
+          <div className="flex justify-center">
+            <Button onClick={() => handleInterestedRequest()} size={'lg'}>
+              I'm Interested
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
