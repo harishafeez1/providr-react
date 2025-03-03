@@ -1,11 +1,11 @@
 import clsx from 'clsx';
-import { Heart, Star } from 'lucide-react';
+import { Heart, MessageCircleMore, Star } from 'lucide-react';
 import { useState } from 'react';
 
 export function PropertyCard({ data }: any) {
   const [isFavorite, setIsFavorite] = useState(false);
   return (
-    <div className="">
+    <>
       <div className="relative aspect-square overflow-hidden rounded-xl">
         <img
           src={
@@ -29,11 +29,17 @@ export function PropertyCard({ data }: any) {
         </button>
       </div>
       <div className="mt-2">
+        {data?.review_stats && (
+          <p className="my-2 px-2 text-center">
+            <MessageCircleMore color="#752c84" className="inline-block mx-2" />
+            {data?.review_stats ? data?.review_stats?.total_reviews : 0} reviews
+          </p>
+        )}
         <div className="flex items-center justify-between">
-          <h3 className="font-medium">{data?.name || ''}</h3>
+          <h3 className="font-medium truncate pe-2">{data?.name || ''}</h3>
           <div className="flex items-center gap-1">
             <Star className="h-4 w-4 fill-current" />
-            <span>{data?.rating || 4.8}</span>
+            <span>{data?.review_stats ? data?.review_stats?.average_rating : 0}</span>
           </div>
         </div>
         <p className="text-sm text-gray-500">{data?.location || ''}</p>
@@ -50,6 +56,6 @@ export function PropertyCard({ data }: any) {
           )}
         </div>
       </div>
-    </div>
+    </>
   );
 }

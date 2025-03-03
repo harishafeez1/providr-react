@@ -42,7 +42,7 @@ const About = ({ data }: any) => {
       <h3 className="card-title">Participant Information</h3>
 
       <div className=" pt-4 pb-3">
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {tables.map((table, index) => {
             return renderGridItem(table, index);
           })}
