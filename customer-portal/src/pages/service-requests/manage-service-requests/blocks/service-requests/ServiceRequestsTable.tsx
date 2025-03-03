@@ -71,6 +71,7 @@ const ServiceRequestsTable = () => {
   const handleModalClose = () => {
     setIsModalOpen(false);
   };
+
   const ColumnInputFilter = <TData, TValue>({ column }: IColumnFilterProps<TData, TValue>) => {
     return (
       <Input
@@ -83,13 +84,6 @@ const ServiceRequestsTable = () => {
   };
 
   const fetchRequests = async (params: TDataGridRequestParams) => {
-    if (!currentUser) {
-      console.error('currentUser is undefined');
-      return {
-        data: [],
-        totalCount: 0
-      };
-    }
     try {
       const queryParams = new URLSearchParams();
 
@@ -115,8 +109,8 @@ const ServiceRequestsTable = () => {
       const response = await getServiceRequests(`${queryParams.toString()}`);
 
       return {
-        data: response.data,
-        totalCount: response.total
+        data: response.data || [],
+        totalCount: response.total || 0
       };
     } catch (error) {
       console.error(error);
@@ -247,7 +241,7 @@ const ServiceRequestsTable = () => {
         cell: (info) => {
           return (
             <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.address}
+              {info.row.original.address || '---'}
             </div>
           );
         },
@@ -288,7 +282,7 @@ const ServiceRequestsTable = () => {
         }
       }
     ],
-    []
+    [isRTL]
   );
 
   const handleRowSelection = (state: RowSelectionState) => {
