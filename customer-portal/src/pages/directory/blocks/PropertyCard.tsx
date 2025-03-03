@@ -5,7 +5,7 @@ import { useState } from 'react';
 export function PropertyCard({ data }: any) {
   const [isFavorite, setIsFavorite] = useState(false);
   return (
-    <>
+    <div>
       <div className="relative aspect-square overflow-hidden rounded-xl">
         <img
           src={
@@ -36,7 +36,7 @@ export function PropertyCard({ data }: any) {
           </p>
         )}
         <div className="flex items-center justify-between">
-          <h3 className="font-medium truncate pe-2">{data?.name || ''}</h3>
+          <h3 className="font-medium truncate pe-">{data?.name || ''}</h3>
           <div className="flex items-center gap-1">
             <Star className="h-4 w-4 fill-current" />
             <span>{data?.review_stats ? data?.review_stats?.average_rating : 0}</span>
@@ -44,18 +44,20 @@ export function PropertyCard({ data }: any) {
         </div>
         <p className="text-sm text-gray-500">{data?.location || ''}</p>
         <p className="text-sm text-gray-500">{data?.description || ''}</p>
-        <div className="px-10">
-          {data?.provider_company ? (
+        {/* {data?.provider_company ? (
+          <div className="px-10">
             <p className="mt-2 rounded-full bg-success-clarity px-2 py-1 text-xs text-success text-center">
               Already Contacted
             </p>
-          ) : (
+          </div>
+        ) : (
+          <div className="px-10">
             <p className="mt-2 rounded-full bg-primary-clarity px-2 py-1 text-xs text-white text-center">
               Contact You Soon
             </p>
-          )}
-        </div>
+          </div>
+        )} */}
       </div>
-    </>
+    </div>
   );
 }
