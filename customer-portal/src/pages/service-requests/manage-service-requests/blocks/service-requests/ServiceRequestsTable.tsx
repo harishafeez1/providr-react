@@ -173,16 +173,40 @@ const ServiceRequestsTable = () => {
         cell: (info) => {
           return (
             <span
-              className={`badge badge-${info.row.original.provider_company_id !== null && info.row.original.provider_company_id !== '' ? 'success' : 'danger'} shrink-0 badge-outline rounded-[30px]`}
+              className={`badge badge-${info.row.original.provider_company_id !== null && info.row.original.provider_company_id !== '' ? 'success' : 'success'} shrink-0 badge-outline rounded-[30px]`}
             >
               <span
-                className={`size-1.5 rounded-full bg-${info.row.original.provider_company_id !== null && info.row.original.provider_company_id !== '' ? 'success' : 'danger'} me-1.5`}
+                className={`size-1.5 rounded-full bg-${info.row.original.provider_company_id !== null && info.row.original.provider_company_id !== '' ? 'success' : 'success'} me-1.5`}
               ></span>
               {info.row.original.provider_company_id !== null &&
               info.row.original.provider_company_id !== ''
                 ? 'Completed'
                 : 'Open'}
             </span>
+          );
+        },
+        meta: {
+          headerClassName: 'min-w-[180px]'
+        }
+      },
+      {
+        accessorFn: (row) => row.provider_company_id,
+        id: 'provider_company',
+        header: ({ column }) => (
+          <DataGridColumnHeader
+            title="Connected Provider"
+            column={column}
+            icon={<i className="ki-filled ki-flag"></i>}
+          />
+        ),
+        cell: (info) => {
+          return (
+            <div className="flex items-center text-gray-800 font-normal gap-1.5">
+              {info.row.original?.provider_company === null ||
+              Object.keys(info.row.original.provider_company).length === 0
+                ? '---'
+                : info.row.original.provider_company?.name || '---'}
+            </div>
           );
         },
         meta: {

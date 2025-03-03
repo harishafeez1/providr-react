@@ -26,9 +26,9 @@ const UnlockPartnerships = ({ data }: any) => {
         <div className="flex flex-wrap md:flex-nowrap items-center gap-6 md:gap-10">
           <div className="flex flex-col gap-3">
             <h2 className="text-1.5xl font-semibold text-gray-900">
-              Sydney Olympic Park, NSW 2127 <br />
-              <span className="text-xl font-bold text-primary">Service:</span>
-              <span className="text-xl font-bold text-primary"> Partnerships on Our Blog</span>
+              {data?.address || ''} <br />
+              <span className="text-xl font-bold text-primary">Service: </span>
+              <span className="text-xl font-bold text-primary">{data?.service?.name || ''}</span>
             </h2>
 
             <table className="table-auto">

@@ -39,9 +39,7 @@ const About = ({ data }: any) => {
 
   return (
     <div className="">
-      <div className="card-header">
-        <h3 className="card-title">Participant Information</h3>
-      </div>
+      <h3 className="card-title">Participant Information</h3>
 
       <div className=" pt-4 pb-3">
         <div className="grid grid-cols-4 gap-4">

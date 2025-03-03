@@ -1,5 +1,4 @@
 import { PropertyCard } from '@/pages/directory';
-import React from 'react';
 
 const ProvidersCard = ({ data }: any) => {
   return (

@@ -33,12 +33,22 @@ export function PropertyCard({ data }: any) {
           <h3 className="font-medium">{data?.name || ''}</h3>
           <div className="flex items-center gap-1">
             <Star className="h-4 w-4 fill-current" />
-            <span>{4.5}</span>
+            <span>{data?.rating || 4.8}</span>
           </div>
         </div>
         <p className="text-sm text-gray-500">{data?.location || ''}</p>
         <p className="text-sm text-gray-500">{data?.description || ''}</p>
-        <p className="mt-2"></p>
+        <div className="px-10">
+          {data?.provider_company ? (
+            <p className="mt-2 rounded-full bg-success-clarity px-2 py-1 text-xs text-success text-center">
+              Already Contacted
+            </p>
+          ) : (
+            <p className="mt-2 rounded-full bg-primary-clarity px-2 py-1 text-xs text-white text-center">
+              Contact You Soon
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
