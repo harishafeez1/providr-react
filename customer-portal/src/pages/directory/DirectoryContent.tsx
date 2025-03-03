@@ -4,7 +4,7 @@ const properties = [
     id: 1,
     imageUrl:
       'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075&auto=format&fit=crop',
-    title: 'Modern Villa with Ocean View',
+    name: 'Modern Villa with Ocean View',
     location: 'Malibu, California',
     price: 550,
     rating: 4.95,
@@ -14,7 +14,7 @@ const properties = [
     id: 2,
     imageUrl:
       'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop',
-    title: 'Cozy Mountain Cabin',
+    name: 'Cozy Mountain Cabin',
     location: 'Aspen, Colorado',
     price: 300,
     rating: 4.89,
@@ -24,7 +24,7 @@ const properties = [
     id: 3,
     imageUrl:
       'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=2053&auto=format&fit=crop',
-    title: 'Luxury Beachfront House',
+    name: 'Luxury Beachfront House',
     location: 'Miami Beach, Florida',
     price: 450,
     rating: 4.92,
@@ -34,7 +34,7 @@ const properties = [
     id: 4,
     imageUrl:
       'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=2070&auto=format&fit=crop',
-    title: 'Downtown Penthouse',
+    name: 'Downtown Penthouse',
     location: 'New York City, New York',
     price: 600,
     rating: 4.88,
@@ -44,7 +44,7 @@ const properties = [
     id: 5,
     imageUrl:
       'https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=2070&auto=format&fit=crop',
-    title: 'Rustic Farmhouse',
+    name: 'Rustic Farmhouse',
     location: 'Nashville, Tennessee',
     price: 250,
     rating: 4.96,
@@ -54,7 +54,7 @@ const properties = [
     id: 6,
     imageUrl:
       'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?q=80&w=2084&auto=format&fit=crop',
-    title: 'Desert Oasis Villa',
+    name: 'Desert Oasis Villa',
     location: 'Scottsdale, Arizona',
     price: 400,
     rating: 4.91,
@@ -64,7 +64,7 @@ const properties = [
     id: 7,
     imageUrl:
       'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?q=80&w=2070&auto=format&fit=crop',
-    title: 'Lake House Retreat',
+    name: 'Lake House Retreat',
     location: 'Lake Tahoe, Nevada',
     price: 350,
     rating: 4.93,
@@ -74,7 +74,7 @@ const properties = [
     id: 8,
     imageUrl:
       'https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=2070&auto=format&fit=crop',
-    title: 'Historic Downtown Loft',
+    name: 'Historic Downtown Loft',
     location: 'Charleston, South Carolina',
     price: 280,
     rating: 4.87,
@@ -84,7 +84,7 @@ const properties = [
     id: 9,
     imageUrl:
       'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075&auto=format&fit=crop',
-    title: 'Modern Villa with Ocean View',
+    name: 'Modern Villa with Ocean View',
     location: 'Malibu, California',
     price: 550,
     rating: 4.95,
@@ -94,7 +94,7 @@ const properties = [
     id: 10,
     imageUrl:
       'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2070&auto=format&fit=crop',
-    title: 'Cozy Mountain Cabin',
+    name: 'Cozy Mountain Cabin',
     location: 'Aspen, Colorado',
     price: 300,
     rating: 4.89,
@@ -104,7 +104,7 @@ const properties = [
     id: 11,
     imageUrl:
       'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=2053&auto=format&fit=crop',
-    title: 'Luxury Beachfront House',
+    name: 'Luxury Beachfront House',
     location: 'Miami Beach, Florida',
     price: 450,
     rating: 4.92,
@@ -114,7 +114,7 @@ const properties = [
     id: 12,
     imageUrl:
       'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?q=80&w=2070&auto=format&fit=crop',
-    title: 'Downtown Penthouse',
+    name: 'Downtown Penthouse',
     location: 'New York City, New York',
     price: 600,
     rating: 4.88,
@@ -124,7 +124,7 @@ const properties = [
     id: 13,
     imageUrl:
       'https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=2070&auto=format&fit=crop',
-    title: 'Rustic Farmhouse',
+    name: 'Rustic Farmhouse',
     location: 'Nashville, Tennessee',
     price: 250,
     rating: 4.96,
@@ -134,7 +134,7 @@ const properties = [
     id: 14,
     imageUrl:
       'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?q=80&w=2084&auto=format&fit=crop',
-    title: 'Desert Oasis Villa',
+    name: 'Desert Oasis Villa',
     location: 'Scottsdale, Arizona',
     price: 400,
     rating: 4.91,
@@ -144,7 +144,7 @@ const properties = [
     id: 15,
     imageUrl:
       'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?q=80&w=2070&auto=format&fit=crop',
-    title: 'Lake House Retreat',
+    name: 'Lake House Retreat',
     location: 'Lake Tahoe, Nevada',
     price: 350,
     rating: 4.93,
@@ -154,7 +154,7 @@ const properties = [
     id: 16,
     imageUrl:
       'https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=2070&auto=format&fit=crop',
-    title: 'Historic Downtown Loft',
+    name: 'Historic Downtown Loft',
     location: 'Charleston, South Carolina',
     price: 280,
     rating: 4.87,
