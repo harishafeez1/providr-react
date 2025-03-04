@@ -3,7 +3,6 @@ import {
   Premises,
   ProfileCard,
   ServiceArea,
-  Specialisations,
   AccessMethods,
   AgeGroups,
   Services,
@@ -12,10 +11,22 @@ import {
   ModelReview
 } from './blocks';
 import { Tags } from './blocks/Tags';
-import { Link } from 'react-router-dom';
-import { useState } from 'react';
+// import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { getPublicProviderProfile } from '@/services/api/provider-profile';
+import { useParams } from 'react-router';
 
 const ProfileCompanyContent = () => {
+  const { id } = useParams();
+
+  useEffect(() => {
+    const fetchProvider = async () => {
+      await getPublicProviderProfile(id);
+    };
+
+    fetchProvider();
+  }, [id]);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalClose = () => {
     setIsModalOpen(false);
@@ -30,9 +41,10 @@ const ProfileCompanyContent = () => {
           <div className="col-span-1">
             <div className="flex flex-col gap-5 lg:gap-7.5">
               <div className={clsx('card')}>
-                <span className="badge badge-sm badge-warning badge-outline">
+                <div className="text-sm text-center">connect with this provider</div>
+                {/* <span className="badge badge-sm badge-warning badge-outline">
                   Comming Soon!!! :)
-                </span>
+                </span> */}
                 <div className="card-body">
                   <div className="flex flex-wrap gap-2.5 m-2">
                     <button
@@ -42,22 +54,22 @@ const ProfileCompanyContent = () => {
                     >
                       Write a Review
                     </button>
-                    <button
+                    {/* <button
                       className="btn btn-light flex justify-center grow"
                       onClick={() => handleModalOpen()}
                       disabled
                     >
                       Endorse this provider
-                    </button>
+                    </button> */}
                   </div>
                 </div>
               </div>
-              <Link
+              {/* <Link
                 to="/company-profile/add-profile"
                 className="btn btn-light flex justify-center grow"
               >
                 Edit Your Profile
-              </Link>
+              </Link> */}
               <Tags title="Languages" />
               <ServiceArea title="Service Area" />
               {/* <Specialisations title="Specialisations" /> */}

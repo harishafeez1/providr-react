@@ -46,10 +46,10 @@ interface ErrorMsg {
 export function setupAxios(axios: any) {
   axios.defaults.headers.Accept = 'application/json';
   axios.interceptors.request.use(
-    (config: { headers: { Authorization: string } }) => {
+    (config: { headers: { Authorization: string; public?: boolean } }) => {
       const auth = getAuth();
 
-      if (auth?.token) {
+      if (auth?.token && !config.headers.public) {
         config.headers.Authorization = `Bearer ${auth.token}`;
       }
 

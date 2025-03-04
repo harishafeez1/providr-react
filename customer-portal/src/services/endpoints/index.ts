@@ -22,3 +22,6 @@ export const GET_DOCUMENTS_URL = `${API_URL}/all_documents`;
 export const UPLOAD_DOCUMENTS_URL = `${API_URL}/documents`;
 export const DOWNLOAD_DOCUMENTS_URL = `${API_URL}/documents`; //id
 export const DELETE_DOCUMENTS_URL = `${API_URL}/delete_documents`; //id
+
+// Public Facing Routes
+export const GET_PUBLIC_PROVIDER_URL = `${API_URL}/public_provider_profile`; //id

@@ -25,11 +25,11 @@ const AppRoutingSetup = (): ReactElement => {
           <Route path="/service-request" element={<ServiceRequestsTablePage />} />
           <Route path="/service-request/request/:id" element={<RequestViewPage />} />
           <Route path="/documents" element={<DocumentsTablePage />} />
-          <Route path="/provider-profile/:id" element={<ProfileCompanyPage />} />
           <Route path="/settings" element={<AccountSettingsPlainPage />} />
           <Route path="/reviews" element={<ReviewsTablePage />} />
         </Route>
       </Route>
+      <Route path="/provider-profile/:id" element={<ProfileCompanyPage />} />
       <Route path="error/*" element={<ErrorsRouting />} />
       <Route path="*" element={<AuthPage />} />
       <Route path="*" element={<Navigate to="/error/404" />} />
