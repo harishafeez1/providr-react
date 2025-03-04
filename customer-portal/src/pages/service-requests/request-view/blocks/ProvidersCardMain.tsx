@@ -1,4 +1,4 @@
-import { PropertyCard } from '@/pages/directory';
+import { ProviderCard } from './ProviderCard';
 
 const ProvidersCard = ({ data }: any) => {
   return (
@@ -10,7 +10,7 @@ const ProvidersCard = ({ data }: any) => {
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {data?.requested_provider_companies?.map((property: any) => (
             <div className="card-border card-rounded p-1">
-              <PropertyCard key={property.id} data={property} />
+              <ProviderCard key={property.id} data={property} />
             </div>
           ))}
         </div>

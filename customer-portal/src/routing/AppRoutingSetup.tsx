@@ -14,6 +14,7 @@ import { ReviewsTablePage } from '@/pages/reviews';
 import { DirectoryPage } from '@/pages/directory';
 import { PublicLayout } from '@/layouts/public-layout';
 import { ServicesPage } from '@/pages/Services';
+import { ProfileCompanyPage } from '@/pages/company-profile';
 
 const AppRoutingSetup = (): ReactElement => {
   return (
@@ -24,6 +25,7 @@ const AppRoutingSetup = (): ReactElement => {
           <Route path="/service-request" element={<ServiceRequestsTablePage />} />
           <Route path="/service-request/request/:id" element={<RequestViewPage />} />
           <Route path="/documents" element={<DocumentsTablePage />} />
+          <Route path="/provider-profile/:id" element={<ProfileCompanyPage />} />
           <Route path="/settings" element={<AccountSettingsPlainPage />} />
           <Route path="/reviews" element={<ReviewsTablePage />} />
         </Route>

@@ -12,4 +12,5 @@ export * from './Tags';
 export * from './UnlockPartnerships';
 export * from './WorkExperience';
 export * from './CompanyProfile';
-export * from './ProvidersCard';
+export * from './ProvidersCardMain';
+export * from './ProviderCard';

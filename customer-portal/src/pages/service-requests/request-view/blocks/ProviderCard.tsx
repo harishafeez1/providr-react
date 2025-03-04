@@ -1,8 +1,8 @@
 import clsx from 'clsx';
 import { Heart, MessageCircleMore, Star } from 'lucide-react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
-export function PropertyCard({ data }: any) {
+const ProviderCard = ({ data }: any) => {
   const [isFavorite, setIsFavorite] = useState(false);
   return (
     <div>
@@ -44,7 +44,22 @@ export function PropertyCard({ data }: any) {
         </div>
         <p className="text-sm text-gray-500">{data?.location || ''}</p>
         <p className="text-sm text-gray-500">{data?.description || ''}</p>
+        {data?.provider_company ? (
+          <div className="px-10">
+            <p className="mt-2 rounded-full bg-success-clarity px-2 py-1 text-xs text-success text-center">
+              Already Contacted
+            </p>
+          </div>
+        ) : (
+          <div className="px-10">
+            <p className="mt-2 rounded-full bg-primary-clarity px-2 py-1 text-xs text-white text-center">
+              Contact You Soon
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
-}
+};
+
+export { ProviderCard };
