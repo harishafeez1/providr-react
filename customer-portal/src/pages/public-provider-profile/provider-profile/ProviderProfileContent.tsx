@@ -27,6 +27,10 @@ const ProviderProfileContent = () => {
     }
   }, [id]);
 
+  if (loading) {
+    <></>;
+  }
+
   return (
     <>
       <ProviderDetailPage data={resData} />
