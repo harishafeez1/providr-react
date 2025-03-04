@@ -17,38 +17,20 @@ interface IServicesItem {
 }
 interface IServicesItems extends Array<IServicesItem> {}
 
-const Services = () => {
-  const items: IServicesItems = [
-    {
-      name: 'Acme software development',
-      dueDate: 'Group',
-      serviceArea: [{ label: 'New York', suburbs: [{ name: 'Manhattan' }, { name: 'Brooklyn' }] }]
-    },
-    {
-      name: 'Strategic Partnership Deal',
-      dueDate: 'Telehealth',
-      serviceArea: [{ label: 'Los Angeles', suburbs: [{ name: 'Hollywood' }, { name: 'Venice' }] }]
-    },
-    {
-      name: 'Client Onboarding',
-      dueDate: 'Online service',
-      serviceArea: [{ label: 'Houston', suburbs: [{ name: 'Downtown' }, { name: 'Midtown' }] }]
-    }
-  ];
-
-  const renderItem = (item: IServicesItem, index: number) => {
+const Services = ({ data }: any) => {
+  const renderItem = (item: any, index: number) => {
     return (
       <tr key={index}>
         <td className="text-start">
           <a href="#" className="text-sm font-medium text-gray-900 hover:text-primary">
-            {item.name}
+            {item.service.name}
           </a>
         </td>
 
         <td>
           <div className="flex justify-end rtl:justify-start shrink-0">
             <div key={index} className="location">
-              {item.serviceArea.map((location, locIndex) => (
+              {/* {item.serviceArea.map((location, locIndex) => (
                 <div key={locIndex} className="location">
                   <span className="badge badge-sm badge-gray-700">{location.label}</span>
                   <div className="suburbs">
@@ -59,7 +41,7 @@ const Services = () => {
                     ))}
                   </div>
                 </div>
-              ))}
+              ))} */}
             </div>
           </div>
         </td>
@@ -86,7 +68,7 @@ const Services = () => {
           </thead>
 
           <tbody>
-            {items.map((item, index) => {
+            {data?.service_offerings?.map((item: any, index: number) => {
               return renderItem(item, index);
             })}
           </tbody>

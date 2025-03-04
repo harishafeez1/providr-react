@@ -19,9 +19,13 @@ import { useParams } from 'react-router';
 const ProfileCompanyContent = () => {
   const { id } = useParams();
 
+  const [resData, setResData] = useState({});
+
   useEffect(() => {
     const fetchProvider = async () => {
-      await getPublicProviderProfile(id);
+      const res = await getPublicProviderProfile(id);
+
+      setResData(res);
     };
 
     fetchProvider();
@@ -80,7 +84,7 @@ const ProfileCompanyContent = () => {
           <div className="col-span-1 lg:col-span-2">
             <div className="flex flex-col gap-5 lg:gap-7.5">
               <ProfileCard />
-              <Services />
+              <Services data={resData} />
               <Overview />
               <Premises />
               <Comments />

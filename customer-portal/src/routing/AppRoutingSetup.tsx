@@ -14,7 +14,8 @@ import { ReviewsTablePage } from '@/pages/reviews';
 import { DirectoryPage } from '@/pages/directory';
 import { PublicLayout } from '@/layouts/public-layout';
 import { ServicesPage } from '@/pages/Services';
-import { ProfileCompanyPage } from '@/pages/company-profile';
+// import { ProfileCompanyPage } from '@/pages/company-profile';
+import { ProviderProfilePage } from '@/pages/public-provider-profile';
 
 const AppRoutingSetup = (): ReactElement => {
   return (
@@ -29,13 +30,13 @@ const AppRoutingSetup = (): ReactElement => {
           <Route path="/reviews" element={<ReviewsTablePage />} />
         </Route>
       </Route>
-      <Route path="/provider-profile/:id" element={<ProfileCompanyPage />} />
       <Route path="error/*" element={<ErrorsRouting />} />
       <Route path="*" element={<AuthPage />} />
       <Route path="*" element={<Navigate to="/error/404" />} />
       <Route element={<PublicLayout />}>
         <Route path="/directory" element={<DirectoryPage />} />
         <Route path="/services" element={<ServicesPage />} />
+        <Route path="/provider-profile/:id" element={<ProviderProfilePage />} />
       </Route>
     </Routes>
   );
