@@ -1,11 +1,13 @@
 import clsx from 'clsx';
 import { Heart, MessageCircleMore, Star } from 'lucide-react';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 export function PropertyCard({ data }: any) {
   const [isFavorite, setIsFavorite] = useState(false);
   return (
     <div>
+      <Link to={`/provider-profile/${data?.id}`}>
       <div className="relative aspect-square overflow-hidden rounded-xl">
         <img
           src={
@@ -45,6 +47,7 @@ export function PropertyCard({ data }: any) {
         <p className="text-sm text-gray-500">{data?.location || ''}</p>
         <p className="text-sm text-gray-500">{data?.description || ''}</p>
       </div>
+      </Link>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { KeenIcon } from '@/components';
 import clsx from 'clsx';
 import { useState } from 'react';
 import { HeaderLogo } from './HeaderLogo';
+import { Link } from 'react-router-dom';
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -16,8 +17,12 @@ const Header = () => {
           <div className="" />
 
           <div className="lg:flex hidden items-center gap-4">
+            <Link to="/services">
             <span>Services</span>
+            </Link>
+            <Link to="/directory">
             <span className="text-primary">Directory</span>
+            </Link>
           </div>
           <div className="" />
           <div className="" />
