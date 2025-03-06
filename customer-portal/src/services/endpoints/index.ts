@@ -25,3 +25,6 @@ export const DELETE_DOCUMENTS_URL = `${API_URL}/delete_documents`; //id
 
 // Public Facing Routes
 export const GET_PUBLIC_PROVIDER_URL = `${API_URL}/public_provider_profile`; //id
+export const GET_CONNECT_PROVIDER_URL = `${API_URL}/connect_provider`; //id
+export const GET_DIRECT_CONNECT_PROVIDER_URL = `${API_URL}/direct_connect_provider`; //id
+export const GET_DIRECTORY_PROVIDER_URL = `${API_URL}/directory`; //id

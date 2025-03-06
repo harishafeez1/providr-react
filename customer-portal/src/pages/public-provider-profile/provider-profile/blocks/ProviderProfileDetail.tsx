@@ -22,6 +22,7 @@ import { Premises } from './Premises';
 import { it } from 'node:test';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
+import { ConnectProviderModal } from './ConnectProviderModal';
 
 interface ProviderDetailPageProps {
   data: any;
@@ -30,10 +31,18 @@ interface ProviderDetailPageProps {
 const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data }) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [property, setProperty] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleModalOpen = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
 
   const toggleFavorite = () => {
     setIsFavorite(!isFavorite);
@@ -49,6 +58,7 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data }) => {
 
   return (
     <div className="min-h-screen bg-white">
+            <ConnectProviderModal open={isModalOpen} onOpenChange={handleModalClose} />
       {/* Property title section */}
       <div className="container mx-auto px-4 pt-6">
         <div className="flex items-start justify-between mb-4">
@@ -76,33 +86,26 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data }) => {
 
       {/* Photo gallery */}
       <div className="container mx-auto mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-2 rounded-xl overflow-hidden">
-          <div className="aspect-auto md:row-span-2 md:col-span-2">
-            <img
-              src={`${import.meta.env.VITE_APP_AWS_URL}/${data?.photo_gallery?.[0]}`}
-              alt={'name'}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          {data?.photo_gallery?.slice(1)?.map((image: any) => (
-            <div className="aspect-[1] md:aspect-square">
-              <img
-                src={`${import.meta.env.VITE_APP_AWS_URL}/${image}`}
-                alt={`name`}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          ))}
+  <div className="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-2 rounded-xl overflow-hidden">
+    {/* Large Main Image */}
+    <div className="md:row-span-2 md:col-span-2 h-full">
+      <img
+        src={`${import.meta.env.VITE_APP_AWS_URL}/${data?.photo_gallery?.[0]}`}
+        alt="name"
+        className="w-full h-full object-cover rounded-lg"
+      />
+    </div>
 
-          {/* {property.images.slice(1).map((image: string, index: number) => (
-            <div key={index} className="aspect-[4/3] md:aspect-square">
-              <img
-                src={image}
-                alt={`${property.title} ${index + 1}`}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          ))} */}
+    {/* Smaller Images */}
+    {data?.photo_gallery?.slice(1, 5)?.map((image: any, index: number) => (
+      <div key={index} className="h-full">
+        <img
+          src={`${import.meta.env.VITE_APP_AWS_URL}/${image}`}
+          alt="name"
+          className="w-full h-full object-cover rounded-lg"
+        />
+      </div>
+    ))}
         </div>
       </div>
 
@@ -158,7 +161,7 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data }) => {
           <div className="lg:col-span-1">
             <div className="sticky top-24 border rounded-xl p-6 shadow-lg">
               <div className="flex justify-center flex-col gap-4 mb-4">
-                <Button variant={'destructive'} size={'sm'}>
+                <Button variant={'destructive'} size={'sm'} onClick={handleModalOpen}>
                   Connect with this provider
                 </Button>
                 <Button variant={'outline'} size={'sm'}>
@@ -214,6 +217,7 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data }) => {
           Show all 73 reviews
         </button> */}
       </div>
+
     </div>
   );
 };

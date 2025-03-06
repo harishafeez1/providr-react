@@ -6,7 +6,7 @@ export const MENU_SIDEBAR: TMenuConfig = [
     icon: 'element-11',
     children: [
       {
-        title: 'Light Sidebar',
+        title: '',
         path: '/'
       },
       {

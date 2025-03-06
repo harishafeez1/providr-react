@@ -4,14 +4,18 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getSingleServiceRequests } from '@/services/api/service-requests';
 import { useAuthContext } from '@/auth';
+import { RootState } from '@/redux/store';
+import { useAppSelector } from '@/redux/hooks';
+import ClassNameGenerator from '@mui/utils/ClassNameGenerator';
 
 const RequestViewContent = () => {
   const { id } = useParams();
   const [requestData, setRequestData] = useState<any>({});
   const [updateData, setUpdateData] = useState(false);
   const [loading, setLoading] = useState(true);
+  
+  const {serviceRequest} = useAppSelector((state: RootState) => state.serviceRequest);
 
-  const { currentUser } = useAuthContext();
 
   useEffect(() => {
     const fetchRequest = async () => {
@@ -38,11 +42,11 @@ const RequestViewContent = () => {
   return (
     <div className="flex flex-col gap-5 lg:gap-7.5">
       <div className="flex flex-col gap-5 lg:gap-7.5">
-        <UnlockPartnerships data={requestData} />
+        <UnlockPartnerships data={serviceRequest} />
       </div>
       <Separator />
       <div className="">
-        <ProvidersCard data={requestData} />
+        <ProvidersCard data={serviceRequest} />
       </div>
     </div>
   );

@@ -1,5 +1,7 @@
 import axios from 'axios';
-import { GET_SERVICE_REQUEST_URL, GET_SERVICE_REQUEST_VIEW_URL } from '../endpoints';
+import { GET_CONNECT_PROVIDER_URL, GET_SERVICE_REQUEST_URL, GET_SERVICE_REQUEST_VIEW_URL } from '../endpoints';
+import { setServiceRequest } from '@/redux/slices/service-request-slice';
+import { store } from '@/redux/store';
 
 const getServiceRequests = async (params: any) => {
   try {
@@ -14,6 +16,9 @@ const getServiceRequests = async (params: any) => {
 const getSingleServiceRequests = async (requestId: any) => {
   try {
     const response = await axios.get(`${GET_SERVICE_REQUEST_VIEW_URL}/${requestId}`);
+    store.dispatch(
+      setServiceRequest(response.data)
+    )
     return response.data;
   } catch (err) {
     console.error('Error fetching Single Service Requests:', err);
@@ -21,4 +26,14 @@ const getSingleServiceRequests = async (requestId: any) => {
   }
 };
 
-export { getServiceRequests, getSingleServiceRequests };
+const getConnectedProvider = async (providerId: any, requestId: any) => {
+  try {
+    const response = await axios.post(`${GET_CONNECT_PROVIDER_URL}/${providerId}`,{request_id:requestId});
+    return response.data;
+  } catch (err) {
+    console.error('Error Posting single connected provider:', err);
+    throw err;
+  }
+};
+
+export { getServiceRequests, getSingleServiceRequests, getConnectedProvider };

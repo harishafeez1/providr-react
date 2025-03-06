@@ -9,6 +9,8 @@ import { setupAxios } from './auth';
 import { ProvidersWrapper } from './providers';
 import React from 'react';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { store } from './redux/store';
+import { Provider } from 'react-redux';
 
 /**
  * Inject interceptors for axios.
@@ -20,10 +22,13 @@ setupAxios(axios);
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(
   <GoogleOAuthProvider clientId={import.meta.env.VITE_APP_GOOGLE_CLIENT_ID}>
-    <React.StrictMode>
+    <Provider store={store}>
+    {/* <React.StrictMode> */}
       <ProvidersWrapper>
         <App />
       </ProvidersWrapper>
-    </React.StrictMode>
+    {/* </React.StrictMode> */}
+
+    </Provider>
   </GoogleOAuthProvider>
 );
