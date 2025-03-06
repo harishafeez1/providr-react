@@ -212,7 +212,7 @@ const CustomerServiceRequestsTable = () => {
         cell: (info) => {
           return (
             <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {`${info.row.original.customer.first_name} ${info.row.original.customer?.last_name || ''}`}
+              {`${info.row.original.customer?.first_name || ''} ${info.row.original.customer?.last_name || ''}`}
             </div>
           );
         },
