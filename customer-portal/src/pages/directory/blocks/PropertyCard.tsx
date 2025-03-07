@@ -13,7 +13,7 @@ export function PropertyCard({ data }: any) {
           src={
             data?.business_logo
               ? `${import.meta.env.VITE_APP_AWS_URL}/${data?.business_logo}`
-              : data?.imageUrl
+              : `${import.meta.env.VITE_APP_AWS_URL}/man-helping-woman-for-carrier.png`
           }
           alt={'company name'}
           className="h-full w-full object-cover transition group-hover:scale-105"
