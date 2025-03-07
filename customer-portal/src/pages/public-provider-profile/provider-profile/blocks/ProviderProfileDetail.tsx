@@ -90,17 +90,18 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data }) => {
     {/* Large Main Image */}
     <div className="md:row-span-2 md:col-span-2 h-full">
       <img
-        src={`${import.meta.env.VITE_APP_AWS_URL}/${data?.photo_gallery?.[0]}`}
+        src={`${import.meta.env.VITE_APP_AWS_URL}/${data?.photo_gallery?.[0]}` || `${import.meta.env.VITE_APP_AWS_URL}/man-helping-woman-for-carrier.png`}
         alt="name"
         className="w-full h-full object-cover rounded-lg"
       />
     </div>
 
     {/* Smaller Images */}
+
     {data?.photo_gallery?.slice(1, 5)?.map((image: any, index: number) => (
       <div key={index} className="h-full">
         <img
-          src={`${import.meta.env.VITE_APP_AWS_URL}/${image}`}
+          src={`${import.meta.env.VITE_APP_AWS_URL}/${image}` || `${import.meta.env.VITE_APP_AWS_URL}/man-helping-woman-for-carrier.png`}
           alt="name"
           className="w-full h-full object-cover rounded-lg"
         />
