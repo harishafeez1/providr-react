@@ -45,7 +45,7 @@ export function PropertyCard({ data }: any) {
           </div>
         </div>
         <p className="text-sm text-gray-500">{data?.location || ''}</p>
-        <p className="text-sm text-gray-500">{data?.description || ''}</p>
+        <p className="text-sm text-gray-500 truncate">{data?.description || ''}</p>
       </div>
       </Link>
     </div>
