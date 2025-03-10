@@ -18,8 +18,8 @@ const DirectoryContent = ({ providers, loading }: any) => {
           {loading
             ? Array.from({ length: 10 }).map((_, index) => <ListingSkeleton key={index} />)
             : providers.map((provider: any) => (
-                <div className="card-border card-rounded p-4">
-                  <PropertyCard key={provider.id} data={provider} />
+                <div key={provider.id} className="card-border card-rounded p-4">
+                  <PropertyCard data={provider} />
                 </div>
               ))}
         </div>

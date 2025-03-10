@@ -154,9 +154,11 @@ export interface IMenuHeadingProps {
 
 export interface IMenuItemConfig {
   title?: string;
+  name?: string;
   disabled?: boolean;
   heading?: string;
   icon?: string;
+  service_icon?: string;
   badge?: string;
   separator?: boolean;
   tooltip?: Partial<TooltipProps>;

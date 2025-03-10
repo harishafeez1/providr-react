@@ -1,40 +1,20 @@
 import { NavbarMenu } from '@/partials/menu/NavbarMenu';
 
-const PageMenu = () => {
-  const accountMenuConfig = [
-    { title: 'All', path: 'Home' },
-    { title: 'Beach', path: 'Waves' },
-    { title: 'Tropical', path: 'Palm' },
-    { title: 'Countryside', path: 'Mountain' },
-    { title: 'City', path: 'Building2' },
-    { title: 'Camping', path: 'Tent' },
-    { title: 'Islands', path: 'UmbrellaIcon' },
-    { title: 'All', path: 'Home' },
-    { title: 'Beach', path: 'Waves' },
-    { title: 'Tropical', path: 'Palm' },
-    { title: 'Countryside', path: 'Mountain' },
-    { title: 'City', path: 'Building2' },
-    { title: 'Camping', path: 'Tent' },
-    { title: 'Islands', path: 'UmbrellaIcon' },
-    { title: 'All', path: 'Home' },
-    { title: 'Beach', path: 'Waves' },
-    { title: 'Tropical', path: 'Palm' },
-    { title: 'Countryside', path: 'Mountain' },
-    { title: 'City', path: 'Building2' },
-    { title: 'Camping', path: 'Tent' },
-    { title: 'Islands', path: 'UmbrellaIcon' },
-    { title: 'All', path: 'Home' },
-    { title: 'Beach', path: 'Waves' },
-    { title: 'Tropical', path: 'Palm' },
-    { title: 'Countryside', path: 'Mountain' },
-    { title: 'City', path: 'Building2' },
-    { title: 'Camping', path: 'Tent' },
-    { title: 'Islands', path: 'UmbrellaIcon' }
-  ];
+export interface IServices {
+  name: string;
+  path?: string;
+  service_icon: string;
+}
 
+interface PageMenuProps {
+  services: IServices[];
+  loading: boolean;
+}
+
+const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
   return (
     <div className="w-[90%]">
-      <NavbarMenu type={true} items={accountMenuConfig} />
+      <NavbarMenu type={true} items={services} loading={loading} />
     </div>
   );
 };

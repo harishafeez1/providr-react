@@ -5,9 +5,23 @@ import { PageMenu } from './blocks/PageMenu';
 import { KeenIcon } from '@/components';
 import { getListoftProvider } from '@/services/api/provider-profile';
 
+export function ServicesSkeleton() {
+  return (
+    <div className="">
+      <div className="animate-pulse">
+        <div className="h-12 w-12 bg-gray-200 mb-2 rounded-full"></div>
+        <div className="space-y-1">
+          <div className="h-4 w-12 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const DirectoryPage = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [providers, setProviders] = useState<any>([]);
+  const [allServices, setAllServices] = useState<any>([]);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
@@ -24,7 +38,8 @@ const DirectoryPage = () => {
     try {
       const res = await getListoftProvider(page);
       if (res) {
-        setProviders((prev: any) => [...prev, ...res.data]);
+        setProviders((prev: any) => [...prev, ...res.directories.data]);
+        setAllServices(res.services);
         setCurrentPage(res.current_page);
         setLastPage(res.last_page);
       }
@@ -39,7 +54,11 @@ const DirectoryPage = () => {
     <Fragment>
       <Navbar>
         <div className="flex w-full items-center justify-between border-b px-8 py-5">
-          <PageMenu />
+          {loading ? (
+            Array.from({ length: 20 }).map((_, index) => <ServicesSkeleton key={index} />)
+          ) : (
+            <PageMenu services={allServices} loading={loading} />
+          )}
           <NavbarActions>
             <button
               onClick={() => setIsFilterOpen(true)}

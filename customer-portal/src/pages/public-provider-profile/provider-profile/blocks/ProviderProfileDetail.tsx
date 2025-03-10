@@ -54,6 +54,19 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
     );
   }
 
+  function GridListingSkeleton() {
+    return (
+      <div className="col-span-2">
+        <div className="animate-pulse">
+          <div className="h-[190px] w-full bg-gray-200 rounded-xl mb-6"></div>
+        </div>
+        <div className="animate-pulse">
+          <div className="h-[190px] bg-gray-200 rounded-xl mb-6"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white">
       <ConnectProviderModal open={isModalOpen} onOpenChange={handleModalClose} />
@@ -83,28 +96,34 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
       </div>
 
       {/* Photo gallery */}
-      {loading ? (
-        <ListingSkeleton />
-      ) : (
-        <div className="container mx-auto mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-2 rounded-xl overflow-hidden">
-            {/* Large Main Image */}
-            <div className="md:row-span-2 md:col-span-2 h-full">
+      <div className="container mx-auto mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-2 rounded-xl overflow-hidden">
+          {/* Large Main Image */}
+          <div className="md:row-span-2 md:col-span-2 h-full">
+            {loading ? (
+              <ListingSkeleton />
+            ) : (
               <img
                 src={
                   data?.photo_gallery?.[0]
                     ? `${import.meta.env.VITE_APP_AWS_URL}/${data?.photo_gallery?.[0]}`
-                    : `${import.meta.env.VITE_APP_AWS_URL}/man-helping-woman-for-carrier.png`
+                    : !loading && !data?.photo_gallery?.[0]
+                      ? `${import.meta.env.VITE_APP_AWS_URL}/man-helping-woman-for-carrier.png`
+                      : ''
                 }
                 alt="company details"
                 className="w-full object-contain rounded-lg h-[400px]"
                 loading="lazy"
               />
-            </div>
+            )}
+          </div>
 
-            {/* Smaller Images */}
+          {/* Smaller Images */}
 
-            {data?.photo_gallery?.slice(1, 5)?.map((image: any, index: number) => (
+          {loading ? (
+            <GridListingSkeleton />
+          ) : (
+            data?.photo_gallery?.slice(1, 5)?.map((image: any, index: number) => (
               <div key={index} className="h-full">
                 <img
                   src={
@@ -117,10 +136,10 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
                   loading="lazy"
                 />
               </div>
-            ))}
-          </div>
+            ))
+          )}
         </div>
-      )}
+      </div>
       {/* Main content */}
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">

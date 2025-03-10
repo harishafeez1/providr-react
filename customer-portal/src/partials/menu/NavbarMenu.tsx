@@ -9,13 +9,15 @@ import {
   MenuArrow
 } from '@/components/menu';
 import { useLanguage } from '@/i18n';
+import { IServices } from '@/pages/directory/blocks/PageMenu';
 import React from 'react';
 interface NavbarMenuProps {
   type: boolean;
-  items: { title: string; path: string }[];
+  items: IServices[];
+  loading: boolean;
 }
 
-const NavbarMenu: React.FC<NavbarMenuProps> = ({ type, items }) => {
+const NavbarMenu: React.FC<NavbarMenuProps> = ({ type, items, loading }) => {
   const { isRTL } = useLanguage();
 
   const buildMenu = (items: TMenuConfig) => {
@@ -39,9 +41,17 @@ const NavbarMenu: React.FC<NavbarMenuProps> = ({ type, items }) => {
               ]
             }}
           >
-            <KeenIcon icon="eye-slash" className="h-6 w-6" />
+            {item.service_icon ? (
+              <div
+                className="h-6 w-6"
+                dangerouslySetInnerHTML={{ __html: item.service_icon }}
+              ></div>
+            ) : (
+              ''
+            )}
+            {/* <KeenIcon icon="eye-slash" className="h-6 w-6" /> */}
             <MenuTitle className="text-nowrap text-sm text-gray-700 menu-item-active:text-primary menu-item-active:font-medium menu-item-here:text-primary menu-item-here:font-medium menu-item-show:text-primary menu-link-hover:text-primary">
-              {item.title}
+              {item.name || ''}
             </MenuTitle>
           </MenuItem>
         );
@@ -99,74 +109,16 @@ const NavbarMenu: React.FC<NavbarMenuProps> = ({ type, items }) => {
     });
   };
 
-  // const builNavSub = (items: TMenuConfig) => {
-  //   return items.map((item, index) => {
-  //     return (
-  //       <MenuItem key={index}>
-  //         asdfa
-  //         <MenuTitle>{item.title}</MenuTitle>
-  //       </MenuItem>
-  //     );
-  //   });
-  // };
-
-  // const buildMenuSub = (items: TMenuConfig) => {
-  //   return items.map((item, index) => {
-  //     if (item.children) {
-  //       return (
-  //         <MenuItem
-  //           key={index}
-  //           toggle="dropdown"
-  //           trigger="hover"
-  //           dropdownProps={{
-  //             placement: isRTL() ? 'left-start' : 'right-start',
-  //             modifiers: [
-  //               {
-  //                 name: 'offset',
-  //                 options: {
-  //                   offset: isRTL() ? [10, 0] : [-10, 0] // [skid, distance]
-  //                 }
-  //               }
-  //             ]
-  //           }}
-  //         >
-  //           <MenuLink>
-  //             <MenuTitle>{item.title}</MenuTitle>
-  //             {buildMenuToggle()}
-  //           </MenuLink>
-  //           <MenuSub className="menu-default" rootClassName="py min-w-[200px]">
-  //             {buildMenuSub(item.children)}
-  //           </MenuSub>
-  //         </MenuItem>
-  //       );
-  //     } else {
-  //       return (
-  //         <MenuItem key={index}>
-  //           <MenuLink path={item.path}>
-  //             <MenuTitle>{item.title}</MenuTitle>
-  //           </MenuLink>
-  //         </MenuItem>
-  //       );
-  //     }
-  //   });
-  // };
-
-  // const buildMenuToggle = () => {
-  //   return (
-  //     <MenuArrow>
-  //       <KeenIcon icon="down" className="text-2xs [.menu-dropdown_&]:-rotate-90" />
-  //     </MenuArrow>
-  //   );
-  // };
-
   return (
-    <div className="grid">
-      <div className="scrollable-x-auto">
-        <Menu highlight={true} className="gap-3">
-          {buildMenu(items)}
-        </Menu>
+    <>
+      <div className="grid">
+        <div className="scrollable-x-auto">
+          <Menu highlight={true} className="gap-3">
+            {buildMenu(items)}
+          </Menu>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
