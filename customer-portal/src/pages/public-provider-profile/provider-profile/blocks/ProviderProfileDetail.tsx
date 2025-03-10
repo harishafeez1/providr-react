@@ -50,11 +50,6 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
     return (
       <div className="animate-pulse">
         <div className="h-[400px] bg-gray-200 rounded-xl mb-6"></div>
-        <div className="space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-3/4"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-        </div>
       </div>
     );
   }
@@ -89,12 +84,8 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
 
       {/* Photo gallery */}
       {loading ? (
-        // <div className="min-h-screen bg-white">
-        //   <div className="max-w-6xl mx-auto px-4 py-8">
         <ListingSkeleton />
       ) : (
-        //   </div>
-        // </div>
         <div className="container mx-auto mb-8">
           <div className="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-2 rounded-xl overflow-hidden">
             {/* Large Main Image */}
@@ -105,8 +96,8 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
                     ? `${import.meta.env.VITE_APP_AWS_URL}/${data?.photo_gallery?.[0]}`
                     : `${import.meta.env.VITE_APP_AWS_URL}/man-helping-woman-for-carrier.png`
                 }
-                alt="name"
-                className="w-full h-full object-cover rounded-lg"
+                alt="company details"
+                className="w-full object-contain rounded-lg h-[400px]"
                 loading="lazy"
               />
             </div>
@@ -121,8 +112,8 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
                       ? `${import.meta.env.VITE_APP_AWS_URL}/${image}`
                       : `${import.meta.env.VITE_APP_AWS_URL}/man-helping-woman-for-carrier.png`
                   }
-                  alt="name"
-                  className="w-full h-full object-cover rounded-lg"
+                  alt="details"
+                  className="w-full object-contain rounded-lg h-[400px]"
                   loading="lazy"
                 />
               </div>
@@ -142,8 +133,12 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
                 </div>
                 <div className="w-12 h-12 rounded-full overflow-hidden">
                   <img
-                    src={`${import.meta.env.VITE_APP_AWS_URL}/${data?.business_logo}`}
-                    alt={'host name'}
+                    src={
+                      data?.business_logo
+                        ? `${import.meta.env.VITE_APP_AWS_URL}/${data?.business_logo}`
+                        : `${import.meta.env.VITE_APP_AWS_URL}/man-helping-woman-for-carrier.png`
+                    }
+                    alt={'company details'}
                     className="w-full h-full object-cover"
                     loading="lazy"
                   />

@@ -8,7 +8,7 @@ import { getListoftProvider } from '@/services/api/provider-profile';
 const DirectoryPage = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [providers, setProviders] = useState<any>([]);
-  
+
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -24,7 +24,7 @@ const DirectoryPage = () => {
     try {
       const res = await getListoftProvider(page);
       if (res) {
-        setProviders((prev : any) => [...prev, ...res.data]); 
+        setProviders((prev: any) => [...prev, ...res.data]);
         setCurrentPage(res.current_page);
         setLastPage(res.last_page);
       }
@@ -53,7 +53,7 @@ const DirectoryPage = () => {
         </div>
       </Navbar>
 
-      <DirectoryContent providers={providers} />
+      <DirectoryContent providers={providers} loading={loading} />
 
       {currentPage < lastPage && (
         <div className="flex justify-center mt-6">
@@ -62,7 +62,7 @@ const DirectoryPage = () => {
             onClick={() => fetchProviders(currentPage + 1)}
             disabled={loading}
           >
-            {loading ? "Loading..." : "Load More"}
+            {loading ? 'Loading...' : 'Load More'}
           </button>
         </div>
       )}
