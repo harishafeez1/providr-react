@@ -2,8 +2,21 @@ import { useState } from 'react';
 import { Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { useAppSelector } from '@/redux/hooks';
+import { CustomSelect } from '@/components';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 
 export default function AirbnbWizard() {
+  const { services } = useAppSelector((state) => state.services);
+
   const [currentStep, setCurrentStep] = useState(0);
   const steps = [
     {
@@ -17,7 +30,7 @@ export default function AirbnbWizard() {
       component: <LocationStep />
     },
     {
-      title: 'Requirement',
+      title: 'Participant',
       description: 'Who needs this service?',
       component: <PhotosStep />
     },
@@ -103,6 +116,7 @@ export default function AirbnbWizard() {
   );
 }
 function BasicInfoStep() {
+  const { services } = useAppSelector((state) => state.services);
   const [service, setService] = useState('');
 
   const suggestions = ['Cleaning', 'Plumbing', 'Electrical', 'Painting', 'Carpentry'];
@@ -110,19 +124,19 @@ function BasicInfoStep() {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold">Service Information</h3>
+        <h3 className="text-lg font-semibold pb-2">Service Information</h3>
         <div className="flex items-baseline flex-wrap gap-2.5 mb-4">
-          <label className="form-label flex items-center gap-1 max-w-56">Select a service</label>
-          <input
+          <CustomSelect options={services} onChange={(opt: any) => console.log(opt)} />
+          {/* <input
             className="input w-full"
             placeholder="Select a service"
             type="text"
             value={service}
             onChange={(e) => setService(e.target.value)}
-          />
+          /> */}
         </div>
       </div>
-      <div>
+      {/* <div>
         <h4 className="text-sm font-medium mb-2">Suggestions</h4>
         <div className="flex flex-wrap gap-2">
           {suggestions.map((suggestion) => (
@@ -135,7 +149,7 @@ function BasicInfoStep() {
             </button>
           ))}
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
@@ -157,20 +171,40 @@ function PhotosStep() {
   return (
     <div className="space-y-6">
       <div className="flex items-baseline flex-wrap gap-2.5 mb-4">
-        <label className="form-label flex items-center gap-1 max-w-56">What is your name?</label>
-        <input className="input w-full" placeholder="First name will be okay!" type="text" />
+        <label className="form-label flex items-center gap-1 max-w-56">First name</label>
+        <input className="input w-full" placeholder="First name" type="text" />
       </div>
       <div className="flex items-baseline flex-wrap gap-2.5 mb-4">
-        <label className="form-label flex items-center gap-1 max-w-56">
-          What is your client name?
-        </label>
-        <input
-          className="input w-full"
-          placeholder="First name will be okay! (if you are thr client Enter your name)"
-          type="text"
-        />
+        <label className="form-label flex items-center gap-1 max-w-56">Last name</label>
+        <input className="input w-full" placeholder="Last name" type="text" />
       </div>
       <div className="flex items-baseline flex-wrap gap-2.5 mb-4">
+        <label className="form-label flex items-center gap-1 max-w-56">Gender</label>
+        <Select>
+          <SelectTrigger className="">
+            <SelectValue placeholder="Select a Gender" />
+          </SelectTrigger>
+          <SelectContent className="">
+            <SelectGroup>
+              <SelectItem value="male">MALE</SelectItem>
+              <SelectItem value="female">FEMALE</SelectItem>
+              <SelectItem value="others">OTHERS</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="flex items-baseline flex-wrap gap-2.5 mb-4">
+        <label className="form-label flex items-center gap-1 max-w-56">Email</label>
+        <input className="input w-full" placeholder="abc@gmail.com" type="email" />
+      </div>
+
+      <div className="flex items-baseline flex-wrap gap-2.5 mb-4">
+        <label className="form-label flex items-center gap-1 max-w-56">Phone</label>
+        <input className="input w-full" placeholder="" type="text" />
+      </div>
+
+      {/* <div className="flex items-baseline flex-wrap gap-2.5 mb-4">
         <label className="form-label flex items-center gap-1 max-w-56">
           Where should we send the results?
         </label>
@@ -209,7 +243,7 @@ function PhotosStep() {
           />
           <span className="text-center text-md">Enter Your Email Address</span>
         </label>
-      </div>
+      </div> */}
     </div>
   );
 }
@@ -271,7 +305,7 @@ function PricingStep() {
           <span className="text-center text-md">Early Childhood (0-7 years)</span>
         </label>
       </div>
-      <label className="form-label flex items-center gap-1 max-w-56">
+      {/* <label className="form-label flex items-center gap-1 max-w-56">
         Who manages the NDIS plan
       </label>
       <div className="grid grid-cols-3 gap-4">
@@ -336,7 +370,7 @@ function PricingStep() {
           />
           <span className="text-center text-md">Unsure</span>
         </label>
-      </div>
+      </div> */}
     </div>
   );
 }
