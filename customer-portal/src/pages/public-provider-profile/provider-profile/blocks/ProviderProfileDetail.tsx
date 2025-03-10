@@ -26,14 +26,12 @@ import { ConnectProviderModal } from './ConnectProviderModal';
 
 interface ProviderDetailPageProps {
   data: any;
+  loading: boolean;
 }
 
-const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data }) => {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }) => {
   const [isFavorite, setIsFavorite] = useState(false);
-  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleModalOpen = () => {
@@ -48,17 +46,22 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data }) => {
     setIsFavorite(!isFavorite);
   };
 
-  if (loading) {
+  function ListingSkeleton() {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FF5A5F]"></div>
+      <div className="animate-pulse">
+        <div className="h-[400px] bg-gray-200 rounded-xl mb-6"></div>
+        <div className="space-y-4">
+          <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-white">
-            <ConnectProviderModal open={isModalOpen} onOpenChange={handleModalClose} />
+      <ConnectProviderModal open={isModalOpen} onOpenChange={handleModalClose} />
       {/* Property title section */}
       <div className="container mx-auto px-4 pt-6">
         <div className="flex items-start justify-between mb-4">
@@ -85,31 +88,48 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data }) => {
       </div>
 
       {/* Photo gallery */}
-      <div className="container mx-auto mb-8">
-  <div className="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-2 rounded-xl overflow-hidden">
-    {/* Large Main Image */}
-    <div className="md:row-span-2 md:col-span-2 h-full">
-      <img
-        src={data?.photo_gallery?.[0] ?`${import.meta.env.VITE_APP_AWS_URL}/${data?.photo_gallery?.[0]}` :`${import.meta.env.VITE_APP_AWS_URL}/man-helping-woman-for-carrier.png`}
-        alt="name"
-        className="w-full h-full object-cover rounded-lg"
-      />
-    </div>
+      {loading ? (
+        // <div className="min-h-screen bg-white">
+        //   <div className="max-w-6xl mx-auto px-4 py-8">
+        <ListingSkeleton />
+      ) : (
+        //   </div>
+        // </div>
+        <div className="container mx-auto mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-2 rounded-xl overflow-hidden">
+            {/* Large Main Image */}
+            <div className="md:row-span-2 md:col-span-2 h-full">
+              <img
+                src={
+                  data?.photo_gallery?.[0]
+                    ? `${import.meta.env.VITE_APP_AWS_URL}/${data?.photo_gallery?.[0]}`
+                    : `${import.meta.env.VITE_APP_AWS_URL}/man-helping-woman-for-carrier.png`
+                }
+                alt="name"
+                className="w-full h-full object-cover rounded-lg"
+                loading="lazy"
+              />
+            </div>
 
-    {/* Smaller Images */}
+            {/* Smaller Images */}
 
-    {data?.photo_gallery?.slice(1, 5)?.map((image: any, index: number) => (
-      <div key={index} className="h-full">
-        <img
-          src={image ? `${import.meta.env.VITE_APP_AWS_URL}/${image}` : `${import.meta.env.VITE_APP_AWS_URL}/man-helping-woman-for-carrier.png`}
-          alt="name"
-          className="w-full h-full object-cover rounded-lg"
-        />
-      </div>
-    ))}
+            {data?.photo_gallery?.slice(1, 5)?.map((image: any, index: number) => (
+              <div key={index} className="h-full">
+                <img
+                  src={
+                    image
+                      ? `${import.meta.env.VITE_APP_AWS_URL}/${image}`
+                      : `${import.meta.env.VITE_APP_AWS_URL}/man-helping-woman-for-carrier.png`
+                  }
+                  alt="name"
+                  className="w-full h-full object-cover rounded-lg"
+                  loading="lazy"
+                />
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-
+      )}
       {/* Main content */}
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
@@ -125,6 +145,7 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data }) => {
                     src={`${import.meta.env.VITE_APP_AWS_URL}/${data?.business_logo}`}
                     alt={'host name'}
                     className="w-full h-full object-cover"
+                    loading="lazy"
                   />
                 </div>
               </div>
@@ -218,7 +239,6 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data }) => {
           Show all 73 reviews
         </button> */}
       </div>
-
     </div>
   );
 };

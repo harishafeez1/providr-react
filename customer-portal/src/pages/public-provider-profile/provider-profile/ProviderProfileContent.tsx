@@ -33,7 +33,7 @@ const ProviderProfileContent = () => {
 
   return (
     <>
-      <ProviderDetailPage data={resData} />
+      <ProviderDetailPage data={resData} loading={loading} />
     </>
   );
 };
