@@ -97,7 +97,7 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
 
       {/* Photo gallery */}
       <div className="container mx-auto mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-2 rounded-xl overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-4 grid-rows-1 gap-2 rounded-xl overflow-hidden">
           {/* Large Main Image */}
           <div className="md:row-span-2 md:col-span-2 h-full">
             {loading ? (
@@ -166,14 +166,21 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
             </div>
 
             {/* Host highlights */}
-            <div className="py-6 border-b">
+            <div className="py-6">
               <h2 className="text-xl font-bold mb-2">Services</h2>
               <div className="py-6 border-b">
-                <div className="grid grid-cols-1 backdrop:gap-4">
+                <div className="grid grid-cols-1 gap-4 backdrop:gap-4">
                   {data?.service_offerings?.map((item: any) => (
-                    <div key={item.id} className="flex items-start">
-                      <div className="mt-1 mr-4">
-                        <Home size={24} />
+                    <div key={item.id} className="flex gap-2 items-start">
+                      <div className="space-y-2 mr-4">
+                        {item.service.service_icon ? (
+                          <div
+                            className="h-10 w-12"
+                            dangerouslySetInnerHTML={{ __html: item.service.service_icon }}
+                          ></div>
+                        ) : (
+                          ''
+                        )}
                       </div>
                       <div>
                         <h3 className="font-medium">{item?.service?.name || ''}</h3>
