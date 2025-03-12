@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { useAppSelector } from '@/redux/hooks';
 import { CustomSelect } from '@/components';
+import ReactSelect from 'react-select';
+import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
+import { geocodeByAddress, getLatLng, geocodeByPlaceId } from 'react-google-places-autocomplete';
 import {
   Select,
   SelectContent,
@@ -13,10 +16,28 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import { store } from '@/redux/store';
+import {
+  setResetServiceState,
+  setSelectedServiceId,
+  setServiceDetails,
+  setServiceLocation,
+  setServiceParticipantData,
+  setUpdateWizardData
+} from '@/redux/slices/services-slice';
+import { useNavigate } from 'react-router';
+import { useAuthContext } from '@/auth';
+import { getStoreRequest } from '@/services/api/service-requests';
 
 export default function AirbnbWizard() {
-  const { services } = useAppSelector((state) => state.services);
+  const { selectedServiceId, serviceLocation, participantData, wizardData } = useAppSelector(
+    (state) => state.services
+  );
 
+  const { auth, currentUser } = useAuthContext();
+  const [finishLoading, setFinishLoading] = useState(false);
+
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const steps = [
     {
@@ -41,7 +62,46 @@ export default function AirbnbWizard() {
     }
   ];
 
+  const handleStroeRequest = async () => {
+    if (auth?.token) {
+      setFinishLoading(true);
+      const res = await getStoreRequest({ ...wizardData, customer_id: currentUser?.id });
+      if (res) {
+        setFinishLoading(false);
+        store.dispatch(setResetServiceState());
+        setCurrentStep(0);
+      }
+    }
+  };
+
+  const isNextDisabled = () => {
+    switch (currentStep) {
+      case 0:
+        return !selectedServiceId; // Disable if no service is selected
+      case 1:
+        return !serviceLocation?.address; // Disable if location is not selected
+      case 2:
+        return !participantData.first_name || !participantData.email || !participantData.phone; // Disable if participant info is incomplete
+      case 3:
+        return wizardData?.length <= 0;
+      case 4:
+        return finishLoading;
+      default:
+        return false;
+    }
+  };
+
   const nextStep = () => {
+    if (currentStep === steps.length - 1) {
+      const token = auth?.token;
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+      if (token) {
+        handleStroeRequest();
+      }
+    }
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     }
@@ -104,7 +164,7 @@ export default function AirbnbWizard() {
           </Button>
           <Button
             onClick={nextStep}
-            disabled={currentStep === steps.length}
+            disabled={currentStep === steps.length || isNextDisabled()}
             className="btn btn-primary"
           >
             {currentStep === steps.length - 1 ? 'Finish' : 'Next'}
@@ -117,23 +177,17 @@ export default function AirbnbWizard() {
 }
 function BasicInfoStep() {
   const { services } = useAppSelector((state) => state.services);
-  const [service, setService] = useState('');
-
-  const suggestions = ['Cleaning', 'Plumbing', 'Electrical', 'Painting', 'Carpentry'];
 
   return (
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold pb-2">Service Information</h3>
         <div className="flex items-baseline flex-wrap gap-2.5 mb-4">
-          <CustomSelect options={services} onChange={(opt: any) => console.log(opt)} />
-          {/* <input
-            className="input w-full"
-            placeholder="Select a service"
-            type="text"
-            value={service}
-            onChange={(e) => setService(e.target.value)}
-          /> */}
+          <ReactSelect
+            options={services}
+            onChange={(item: any) => store.dispatch(setSelectedServiceId(item.value))}
+            className="w-full text-sm"
+          />
         </div>
       </div>
       {/* <div>
@@ -155,13 +209,55 @@ function BasicInfoStep() {
 }
 
 function LocationStep() {
+  const handleLocationChange = async (address: any) => {
+    let location: {
+      latitude?: string;
+      longitude?: string;
+      address?: string;
+      city?: string;
+      state?: string;
+      country?: string;
+      zip_code?: string;
+    } = {};
+    await geocodeByAddress(address.label)
+      .then((results) => getLatLng(results[0]))
+      .then(
+        ({ lat, lng }) => (
+          (location.address = address.label),
+          (location.state = address.value.structured_formatting.secondary_text),
+          (location.state = address.value.structured_formatting.secondary_text),
+          (location.latitude = String(lat)),
+          (location.longitude = String(lng))
+        )
+      )
+      .then(() => store.dispatch(setServiceLocation(location)));
+    const results = await geocodeByPlaceId(address.value.place_id);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-baseline flex-wrap gap-2.5 mb-4">
         <label className="form-label flex items-center gap-1 max-w-56">
           Enter the service location
         </label>
-        <input className="input w-full" placeholder="Enter Your Suburb Or Postcode" type="text" />
+        <div className="w-full">
+          <GooglePlacesAutocomplete
+            apiKey={import.meta.env.VITE_APP_GOOGLE_API_KEY}
+            onLoadFailed={(err) => {
+              console.error('Could not load google places autocomplete', err);
+            }}
+            autocompletionRequest={{
+              componentRestrictions: {
+                country: 'aus'
+              }
+            }}
+            selectProps={{
+              isClearable: true,
+              placeholder: 'Search for a place',
+              onChange: handleLocationChange
+            }}
+          />
+        </div>
       </div>
     </div>
   );
@@ -172,15 +268,49 @@ function PhotosStep() {
     <div className="space-y-6">
       <div className="flex items-baseline flex-wrap gap-2.5 mb-4">
         <label className="form-label flex items-center gap-1 max-w-56">First name</label>
-        <input className="input w-full" placeholder="First name" type="text" />
+        <input
+          className="input w-full"
+          placeholder="First name"
+          type="text"
+          required
+          onChange={(e) =>
+            store.dispatch(
+              setServiceParticipantData({
+                ...store.getState().services.participantData,
+                first_name: e.target.value
+              })
+            )
+          }
+        />
       </div>
       <div className="flex items-baseline flex-wrap gap-2.5 mb-4">
         <label className="form-label flex items-center gap-1 max-w-56">Last name</label>
-        <input className="input w-full" placeholder="Last name" type="text" />
+        <input
+          className="input w-full"
+          placeholder="Last name"
+          type="text"
+          onChange={(e) =>
+            store.dispatch(
+              setServiceParticipantData({
+                ...store.getState().services.participantData,
+                last_name: e.target.value
+              })
+            )
+          }
+        />
       </div>
       <div className="flex items-baseline flex-wrap gap-2.5 mb-4">
         <label className="form-label flex items-center gap-1 max-w-56">Gender</label>
-        <Select>
+        <Select
+          onValueChange={(item) =>
+            store.dispatch(
+              setServiceParticipantData({
+                ...store.getState().services.participantData,
+                gender: item
+              })
+            )
+          }
+        >
           <SelectTrigger className="">
             <SelectValue placeholder="Select a Gender" />
           </SelectTrigger>
@@ -196,12 +326,38 @@ function PhotosStep() {
 
       <div className="flex items-baseline flex-wrap gap-2.5 mb-4">
         <label className="form-label flex items-center gap-1 max-w-56">Email</label>
-        <input className="input w-full" placeholder="abc@gmail.com" type="email" />
+        <input
+          className="input w-full"
+          placeholder="abc@gmail.com"
+          type="email"
+          required
+          onChange={(e) =>
+            store.dispatch(
+              setServiceParticipantData({
+                ...store.getState().services.participantData,
+                email: e.target.value
+              })
+            )
+          }
+        />
       </div>
 
       <div className="flex items-baseline flex-wrap gap-2.5 mb-4">
         <label className="form-label flex items-center gap-1 max-w-56">Phone</label>
-        <input className="input w-full" placeholder="" type="text" />
+        <input
+          className="input w-full"
+          placeholder=""
+          type="text"
+          required
+          onChange={(e) =>
+            store.dispatch(
+              setServiceParticipantData({
+                ...store.getState().services.participantData,
+                phone: e.target.value
+              })
+            )
+          }
+        />
       </div>
 
       {/* <div className="flex items-baseline flex-wrap gap-2.5 mb-4">
@@ -249,128 +405,49 @@ function PhotosStep() {
 }
 
 function PricingStep() {
+  const [selectedAge, setSelectedAge] = useState<string>('Mature Age (60+ years)');
+
+  useEffect(() => {
+    store.dispatch(setServiceDetails([selectedAge]));
+    store.dispatch(setUpdateWizardData());
+  }, [selectedAge]);
+
+  const handleSelection = (age: string) => {
+    setSelectedAge(age);
+    // store.dispatch(setServiceDetails([age]));
+    // store.dispatch(setUpdateWizardData());
+  };
+
+  const ageOptions = [
+    'Mature Age (60+ years)',
+    'Adults (22-59 years)',
+    'Young people (17-21 years)',
+    'Children (8-16 years)',
+    'Early Childhood (0-7 years)'
+  ];
+
   return (
     <div className="space-y-6">
-      <label className="form-label flex items-center gap-1 max-w-56">Particiapnts age range</label>
+      <label className="form-label flex items-center gap-1 max-w-56">Participants age range</label>
       <div className="grid grid-cols-3 gap-4">
-        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:bg-[#8a4099] has-[:checked]:text-white has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
-          <input
-            className="appearance-none"
-            type="radio"
-            name="appearance_option"
-            defaultChecked={true}
-            value="2"
-          />
-          <span className="text-center text-md">Mature Age (60+ years)</span>
-        </label>
-
-        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:bg-[#8a4099] has-[:checked]:text-white has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
-          <input
-            className="appearance-none"
-            type="radio"
-            name="appearance_option"
-            defaultChecked={true}
-            value="2"
-          />
-          <span className="text-center text-md">Adults (22-59 years)</span>
-        </label>
-        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:bg-[#8a4099] has-[:checked]:text-white has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
-          <input
-            className="appearance-none"
-            type="radio"
-            name="appearance_option"
-            defaultChecked={true}
-            value="2"
-          />
-          <span className="text-center text-md">Young people (17-21 years)</span>
-        </label>
-        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:bg-[#8a4099] has-[:checked]:text-white has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
-          <input
-            className="appearance-none"
-            type="radio"
-            name="appearance_option"
-            defaultChecked={true}
-            value="2"
-          />
-          <span className="text-center text-md">Children (8-16 years)</span>
-        </label>
-        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:bg-[#8a4099] has-[:checked]:text-white has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
-          <input
-            className="appearance-none"
-            type="radio"
-            name="appearance_option"
-            defaultChecked={true}
-            value="2"
-          />
-          <span className="text-center text-md">Early Childhood (0-7 years)</span>
-        </label>
+        {ageOptions.map((age) => (
+          <label
+            key={age}
+            className={`flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl h-[70px] mb-0.5 cursor-pointer 
+            ${selectedAge === age ? 'border-primary bg-[#8a4099] text-white border-2' : ''}`}
+          >
+            <input
+              className="appearance-none"
+              type="radio"
+              name="age_option"
+              value={age}
+              checked={selectedAge === age}
+              onChange={() => handleSelection(age)}
+            />
+            <span className="text-center text-md">{age}</span>
+          </label>
+        ))}
       </div>
-      {/* <label className="form-label flex items-center gap-1 max-w-56">
-        Who manages the NDIS plan
-      </label>
-      <div className="grid grid-cols-3 gap-4">
-        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:bg-[#8a4099] has-[:checked]:text-white has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
-          <input
-            className="appearance-none"
-            type="radio"
-            name="appearance_option1"
-            defaultChecked={true}
-            value="3"
-          />
-          <span className="text-center text-md">Plan managed</span>
-        </label>
-
-        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:bg-[#8a4099] has-[:checked]:text-white has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
-          <input
-            className="appearance-none"
-            type="radio"
-            name="appearance_option1"
-            defaultChecked={true}
-            value="3"
-          />
-          <span className="text-center text-md">Self managed</span>
-        </label>
-        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:bg-[#8a4099] has-[:checked]:text-white has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
-          <input
-            className="appearance-none"
-            type="radio"
-            name="appearance_option1"
-            defaultChecked={true}
-            value="3"
-          />
-          <span className="text-center text-md">Agency managed</span>
-        </label>
-        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:bg-[#8a4099] has-[:checked]:text-white has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
-          <input
-            className="appearance-none"
-            type="radio"
-            name="appearance_option1"
-            defaultChecked={true}
-            value="3"
-          />
-          <span className="text-center text-md">Waiting for approval </span>
-        </label>
-        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:bg-[#8a4099] has-[:checked]:text-white has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
-          <input
-            className="appearance-none"
-            type="radio"
-            name="appearance_option1"
-            defaultChecked={true}
-            value="3"
-          />
-          <span className="text-center text-md">Not with NDIS</span>
-        </label>
-        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:bg-[#8a4099] has-[:checked]:text-white has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
-          <input
-            className="appearance-none"
-            type="radio"
-            name="appearance_option1"
-            defaultChecked={true}
-            value="3"
-          />
-          <span className="text-center text-md">Unsure</span>
-        </label>
-      </div> */}
     </div>
   );
 }

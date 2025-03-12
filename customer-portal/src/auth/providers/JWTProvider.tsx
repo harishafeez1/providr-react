@@ -20,6 +20,10 @@ import {
   REGISTER_URL,
   RESET_PASSWORD_URL
 } from '@/services/endpoints';
+import { useAppSelector } from '@/redux/hooks';
+import { RootState, store } from '@/redux/store';
+import { getStoreRequest } from '@/services/api/service-requests';
+import { setResetServiceState } from '@/redux/slices/services-slice';
 
 interface AuthContextProps {
   loading: boolean;
@@ -59,11 +63,17 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
   const [auth, setAuth] = useState<AuthModel | undefined>(authHelper.getAuth());
   const [currentUser, setCurrentUser] = useState<UserModel | undefined>();
 
+  const { wizardData } = useAppSelector((state: RootState) => state.services);
+
   const verify = async () => {
     if (auth) {
       try {
         const { data: user } = await getUser();
         setCurrentUser(user);
+        if (Object.keys(wizardData).length > 0 && user) {
+          await getStoreRequest({ ...wizardData, customer_id: user?.id });
+          store.dispatch(setResetServiceState());
+        }
       } catch {
         saveAuth(undefined);
         setCurrentUser(undefined);

@@ -23,13 +23,11 @@ const CustomSelect = <Option, IsMulti extends boolean = false>({
   isMulti,
   ...rest
 }: GenericSelectProps<Option, IsMulti>) => {
-  const defaultValue = (value: any) => {
-    return options ? options.find((option: any) => option.value === value) : '';
-  };
-  const multiValue = (values: any) => {
-    return options
-      ? values.map((value: any) => options.find((option: any) => option.value === value))
-      : [];
+  const getValue = () => {
+    if (!value) return isMulti ? [] : null;
+    return isMulti
+      ? (value as any[]).map((val) => options.find((option: any) => option.value === val))
+      : options.find((option: any) => option.value === value);
   };
 
   return (
@@ -39,7 +37,7 @@ const CustomSelect = <Option, IsMulti extends boolean = false>({
       options={options}
       isMulti={isMulti}
       // @ts-ignore
-      value={isMulti ? multiValue(value) : [defaultValue(value)]}
+      value={getValue()}
       onChange={onChange}
       classNamePrefix="react-select"
       {...rest}

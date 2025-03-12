@@ -13,6 +13,7 @@ export const LOGOUT_URL = `${API_URL}/logout`;
 // Service Request
 export const GET_SERVICE_REQUEST_URL = `${API_URL}/service_requests`;
 export const GET_SERVICE_REQUEST_VIEW_URL = `${API_URL}/single_service_request`;
+export const GET_SERVICE_REQUEST_STORE_URL = `${API_URL}/store_service_request`;
 
 // Reviews
 export const GET_REVIEWS_URL = `${API_URL}/reviews`;

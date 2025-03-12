@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { GET_CONNECT_PROVIDER_URL, GET_SERVICE_REQUEST_URL, GET_SERVICE_REQUEST_VIEW_URL } from '../endpoints';
+import { GET_CONNECT_PROVIDER_URL, GET_SERVICE_REQUEST_STORE_URL, GET_SERVICE_REQUEST_URL, GET_SERVICE_REQUEST_VIEW_URL } from '../endpoints';
 import { setServiceRequest } from '@/redux/slices/service-request-slice';
 import { store } from '@/redux/store';
 
@@ -36,4 +36,14 @@ const getConnectedProvider = async (providerId: any, requestId: any) => {
   }
 };
 
-export { getServiceRequests, getSingleServiceRequests, getConnectedProvider };
+const getStoreRequest = async (data:any) => {
+  try {
+    const response = await axios.post(GET_SERVICE_REQUEST_STORE_URL, data);
+    return response.data;
+  } catch (err) {
+    console.error('Error Posting request wizard data:', err);
+    throw err;
+  }
+};
+
+export { getServiceRequests, getSingleServiceRequests, getConnectedProvider, getStoreRequest };
