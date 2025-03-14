@@ -18,10 +18,10 @@ const Header = () => {
 
           <div className="lg:flex hidden items-center gap-4">
             <Link to="/services">
-            <span>Services</span>
+              <span>Services</span>
             </Link>
             <Link to="/directory">
-            <span className="text-primary">Directory</span>
+              <span className="">Directory</span>
             </Link>
           </div>
           <div className="" />

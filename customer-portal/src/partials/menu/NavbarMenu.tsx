@@ -20,13 +20,14 @@ interface NavbarMenuProps {
 const NavbarMenu: React.FC<NavbarMenuProps> = ({ type, items, loading }) => {
   const { isRTL } = useLanguage();
 
-  const buildMenu = (items: TMenuConfig) => {
-    return items.map((item, index) => {
+  const buildMenu = (services: TMenuConfig) => {
+    return services.map((item, index) => {
       if (type) {
+        console.log('---------->', item);
         return (
           <MenuItem
             key={index}
-            className="flex flex-col items-center gap-2 px-2 transition whitespace-nowrap"
+            className="flex flex-col items-center gap-2 px-2 transition whitespace-nowrap cursor-pointer"
             toggle="dropdown"
             trigger="hover"
             dropdownProps={{
@@ -112,7 +113,7 @@ const NavbarMenu: React.FC<NavbarMenuProps> = ({ type, items, loading }) => {
   return (
     <>
       <div className="grid">
-        <div className="scrollable-x-auto">
+        <div className="scrollable-x-auto scrollbar-hidden">
           <Menu highlight={true} className="gap-3">
             {buildMenu(items)}
           </Menu>

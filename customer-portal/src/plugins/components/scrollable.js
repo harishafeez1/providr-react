@@ -21,6 +21,17 @@ export default plugin(({addComponents, theme}) => {
         'background-color': 'transparent'
       }
     },
+
+        // ✅ New class to completely hide scrollbar
+        '.scrollbar-hidden': {
+          'scrollbar-width': 'none', // Hide scrollbar in Firefox
+          '-ms-overflow-style': 'none', // Hide scrollbar in IE/Edge
+          '&::-webkit-scrollbar': {
+            display: 'none', // Hide scrollbar in Chrome/Safari
+          },
+        },
+
+
     '.scrollable, .scrollable-hover': {
       'overflow': 'scroll',
     },
