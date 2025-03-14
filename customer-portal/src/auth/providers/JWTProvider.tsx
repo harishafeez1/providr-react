@@ -70,10 +70,6 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
       try {
         const { data: user } = await getUser();
         setCurrentUser(user);
-        if (Object.keys(wizardData).length > 0 && user) {
-          await getStoreRequest({ ...wizardData, customer_id: user?.id });
-          store.dispatch(setResetServiceState());
-        }
       } catch {
         saveAuth(undefined);
         setCurrentUser(undefined);
@@ -121,6 +117,7 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
         phone
       });
       saveAuth(auth);
+
       const { data: user } = await getUser();
       setCurrentUser(user);
     } catch (error) {

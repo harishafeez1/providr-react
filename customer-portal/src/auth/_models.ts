@@ -4,6 +4,7 @@ export interface AuthModel {
   message?: string;
   token: string;
   user?: UserModel;
+  customer?: UserModel;
 }
 
 export interface UserModel {

@@ -97,7 +97,28 @@ export const servicesSlice = createSlice({
     
     },
 
-    setResetServiceState: () => initialState,
+    setResetServiceState: (state) => {
+      state.wizardData = {};
+      state.selectedServiceId = 0;
+      state.serviceLocation = {
+        latitude: "",
+        longitude: "",
+        address: "",
+        city: "",
+        state: "",
+        country: "",
+        zip_code: "",
+      };
+      state.participantData = {
+        first_name: "",
+        last_name: "",
+        gender: "",
+        email: "",
+        phone: "",
+      };
+      state.serviceDetails = {};
+    }
+    ,
   }
 });
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Check, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { useAppSelector } from '@/redux/hooks';
@@ -26,19 +26,20 @@ import {
   setUpdateWizardData
 } from '@/redux/slices/services-slice';
 import { useNavigate } from 'react-router';
-import { useAuthContext } from '@/auth';
+import { getAuth, useAuthContext } from '@/auth';
 import { getStoreRequest } from '@/services/api/service-requests';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export default function AirbnbWizard() {
   const { selectedServiceId, serviceLocation, participantData, wizardData } = useAppSelector(
     (state) => state.services
   );
-
-  const { auth, currentUser } = useAuthContext();
+  const { auth, currentUser, setCurrentUser, getUser, saveAuth } = useAuthContext();
   const [finishLoading, setFinishLoading] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
+
   const steps = [
     {
       title: 'Service',
@@ -63,9 +64,10 @@ export default function AirbnbWizard() {
   ];
 
   const handleStroeRequest = async () => {
-    if (auth?.token) {
+    if (getAuth()?.token) {
+      const wizardWithCustomerId = { ...wizardData, customer_id: currentUser?.id };
       setFinishLoading(true);
-      const res = await getStoreRequest({ ...wizardData, customer_id: currentUser?.id });
+      const res = await getStoreRequest(wizardWithCustomerId);
       if (res) {
         setFinishLoading(false);
         store.dispatch(setResetServiceState());
@@ -91,11 +93,46 @@ export default function AirbnbWizard() {
     }
   };
 
+  useEffect(() => {
+    if (getAuth()?.token) {
+      getUser().then(() => {
+        const auth = getAuth();
+        saveAuth(auth);
+        setCurrentUser(auth?.customer);
+      });
+    }
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.newValue) {
+        console.log('🔹 Detected login from another tab!');
+        setIsLoggedIn(true);
+      }
+    };
+
+    // Listen for storage changes
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
   const nextStep = () => {
     if (currentStep === steps.length - 1) {
       const token = auth?.token;
       if (!token) {
-        navigate('/login');
+        // Open login page & give it time to load
+        const loginTab = window.open('/login', '_blank');
+
+        if (!loginTab) {
+          console.error('❌ Failed to open login tab. Make sure pop-ups are not blocked.');
+          return;
+        }
+
+        console.log('✅ Login tab opened. Waiting for authentication...');
+
         return;
       }
       if (token) {
@@ -152,7 +189,7 @@ export default function AirbnbWizard() {
             {steps[currentStep].component}
           </div>
         </CardContent>
-        <CardFooter className="border-t pt-6 flex justify-between">
+        <CardFooter className=" py-6 flex justify-between">
           <Button
             variant="outline"
             onClick={prevStep}
@@ -162,14 +199,39 @@ export default function AirbnbWizard() {
             <ChevronLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
-          <Button
-            onClick={nextStep}
-            disabled={currentStep === steps.length || isNextDisabled()}
-            className="btn btn-primary"
-          >
-            {currentStep === steps.length - 1 ? 'Finish' : 'Next'}
-            <ChevronRight className="w-4 h-4 ml-2" />
-          </Button>
+          <div className="relative">
+            <Button
+              onClick={nextStep}
+              disabled={currentStep === steps.length || isNextDisabled()}
+              className="btn btn-primary "
+            >
+              {currentStep === steps.length - 1
+                ? getAuth()?.token
+                  ? 'Complete'
+                  : 'Login'
+                : 'Next'}
+              {/* <ChevronRight className="w-4 h-4 ml-2" /> */}
+            </Button>
+
+            {currentStep === steps.length - 1 && !getAuth()?.token && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger className="">
+                    <div className="absolute -top-[30px] right-[-10px] flex items-center w-max space-x-1">
+                      <Info className="text-danger" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="w-48 text-danger">
+                      * You must be logged in to complete this request.
+                      <br />
+                      Please log in and return once you have successfully signed in.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
         </CardFooter>
       </Card>
     </div>
@@ -414,8 +476,6 @@ function PricingStep() {
 
   const handleSelection = (age: string) => {
     setSelectedAge(age);
-    // store.dispatch(setServiceDetails([age]));
-    // store.dispatch(setUpdateWizardData());
   };
 
   const ageOptions = [

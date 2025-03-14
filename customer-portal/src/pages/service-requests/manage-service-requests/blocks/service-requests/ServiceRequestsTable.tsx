@@ -22,6 +22,7 @@ import { IServiceRequestsData, ModalFilters } from './';
 import { useAuthContext } from '@/auth';
 import { getServiceRequests } from '@/services/api/service-requests';
 import { useLanguage } from '@/i18n';
+import { RotateCcw } from 'lucide-react';
 // import { getAllServiceRequests } from '@/services/api';
 
 interface IColumnFilterProps<TData, TValue> {
@@ -63,7 +64,7 @@ const ServiceRequestsTable = () => {
   const navigate = useNavigate();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [refreshKey, setRefreshKey] = useState(0);
   const handleModalOpen = () => {
     setIsModalOpen(true);
   };
@@ -305,7 +306,10 @@ const ServiceRequestsTable = () => {
       <div className="card-header flex-wrap gap-2 border-b-0 px-5">
         <h3 className="card-title font-medium text-sm">Service Requests</h3>
 
-        <div className="flex flex-wrap gap-2 lg:gap-5">
+        <div className="flex items-center flex-wrap gap-2 lg:gap-5">
+          <div onClick={() => setRefreshKey(refreshKey + 1)}>
+            <RotateCcw className="cursor-pointer text-gray-500" />
+          </div>
           <div className="flex">
             <label className="input input-sm">
               <KeenIcon icon="magnifier" />
@@ -330,6 +334,7 @@ const ServiceRequestsTable = () => {
   return (
     <>
       <DataGrid
+        key={refreshKey}
         columns={columns}
         serverSide={true}
         onFetchData={fetchRequests}
