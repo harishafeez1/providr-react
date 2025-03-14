@@ -1,11 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit';
 import servicesSlice from './slices/services-slice';
 import serviceRequestReducer from './slices/service-request-slice'
+import  directorySlice  from './slices/directory-slice';
 
 export const store = configureStore({
   reducer: {
     services: servicesSlice,
-    serviceRequest: serviceRequestReducer
+    serviceRequest: serviceRequestReducer,
+    directory : directorySlice
   }
 });
 

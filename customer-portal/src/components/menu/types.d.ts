@@ -153,6 +153,7 @@ export interface IMenuHeadingProps {
 }
 
 export interface IMenuItemConfig {
+  id?:  number;
   title?: string;
   name?: string;
   disabled?: boolean;

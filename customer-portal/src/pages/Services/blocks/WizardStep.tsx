@@ -3,7 +3,6 @@ import { Check, ChevronLeft, ChevronRight, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { useAppSelector } from '@/redux/hooks';
-import { CustomSelect } from '@/components';
 import ReactSelect from 'react-select';
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 import { geocodeByAddress, getLatLng, geocodeByPlaceId } from 'react-google-places-autocomplete';
@@ -25,7 +24,6 @@ import {
   setServiceParticipantData,
   setUpdateWizardData
 } from '@/redux/slices/services-slice';
-import { useNavigate } from 'react-router';
 import { getAuth, useAuthContext } from '@/auth';
 import { getStoreRequest } from '@/services/api/service-requests';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';

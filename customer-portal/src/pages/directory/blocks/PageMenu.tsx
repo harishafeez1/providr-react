@@ -1,6 +1,7 @@
 import { NavbarMenu } from '@/partials/menu/NavbarMenu';
 
 export interface IServices {
+  id: number;
   name: string;
   path?: string;
   service_icon: string;

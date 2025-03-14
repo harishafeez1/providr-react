@@ -30,7 +30,7 @@ const getDirectConnectProvider = async (providerId: any, data: any) => {
 
 const getListoftProvider = async (params: any) => {
   try {
-    const response = await axios.get(`${GET_DIRECTORY_PROVIDER_URL}?page=${params}`, {
+    const response = await axios.post(`${GET_DIRECTORY_PROVIDER_URL}?page=${params}`, {
       headers: { public: true } 
     });
     store.dispatch(setProviderProfileDirectory(response.data));

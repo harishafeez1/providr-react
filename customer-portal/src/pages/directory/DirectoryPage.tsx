@@ -38,7 +38,8 @@ const DirectoryPage = () => {
     try {
       const res = await getListoftProvider(page);
       if (res) {
-        setProviders((prev: any) => [...prev, ...res.directories.data]);
+        setProviders(res.directories.data);
+        // setProviders((prev: any) => [...prev, ...res.directories.data]);
         setAllServices(res.services);
         setCurrentPage(res.current_page);
         setLastPage(res.last_page);
