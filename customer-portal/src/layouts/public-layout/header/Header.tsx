@@ -10,12 +10,13 @@ import { store } from '@/redux/store';
 import { setAgeGroup, setLocation } from '@/redux/slices/directory-slice';
 import { useAppSelector } from '@/redux/hooks';
 import { postDirectoryFilters } from '@/services/api/directory';
-import { appendProviders, setAllProviders, setPagination } from '@/redux/slices/directory-listing-slice';
+import { appendProviders, setAllProviders, setLoading, setPagination } from '@/redux/slices/directory-listing-slice';
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const { age_group } = useAppSelector((state) => state.directory);
+  const { pagination:{loading} } = useAppSelector((state) => state.directoryListing);
 
   const handleLocationChange = async (address: any) => {
     store.dispatch(setLocation(address.label));
@@ -24,6 +25,7 @@ const Header = () => {
   const allFilters = useAppSelector((state) => state.directory);
 
   const handleFilters = async () => {
+    store.dispatch(setLoading(true));
     const res = await postDirectoryFilters(allFilters);
     if (res) {
       if (res.directories.current_page === 1) {
@@ -37,6 +39,7 @@ const Header = () => {
         lastPage: res.directories.last_page 
       }));
     }
+    store.dispatch(setLoading(false));
   };
 
   const ageGroupOptions = [

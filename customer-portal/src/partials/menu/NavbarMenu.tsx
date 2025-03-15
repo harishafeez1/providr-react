@@ -11,7 +11,7 @@ import {
 import { useLanguage } from '@/i18n';
 import { IServices } from '@/pages/directory/blocks/PageMenu';
 import { useAppSelector } from '@/redux/hooks';
-import { appendProviders, setAllProviders, setPagination } from '@/redux/slices/directory-listing-slice';
+import { appendProviders, setAllProviders, setLoading, setPagination } from '@/redux/slices/directory-listing-slice';
 import { setServiceId } from '@/redux/slices/directory-slice';
 import { store } from '@/redux/store';
 import { postDirectoryFilters } from '@/services/api/directory';
@@ -26,29 +26,38 @@ const NavbarMenu: React.FC<NavbarMenuProps> = ({ type, items, loading }) => {
   const { isRTL } = useLanguage();
   const [selectedId, setSelectedId] = useState<number>();
 
-  const { service_id } = useAppSelector((state) => state.directory);
   const allFilters = useAppSelector((state) => state.directory);
+  const { service_id } = useAppSelector((state) => state.directory);
+  const { isFilterModalOpen } = useAppSelector((state) => state.directoryListing);
+
+  console.log('isFilterModalOpen', isFilterModalOpen);
+
+  const handlePostFilters = async () => {
+    try {
+      if (!isFilterModalOpen && service_id !== '') {
+        store.dispatch(setLoading(true));
+        const res = await postDirectoryFilters(allFilters);
+        if (res) {
+          if (res?.directories?.current_page === 1) {
+            store.dispatch(setAllProviders(res.directories.data));
+          } else {
+            store.dispatch(appendProviders(res.directories.data));
+          }
+          store.dispatch(setPagination({ 
+            currentPage: res.directories.current_page, 
+            lastPage: res.directories.last_page 
+          }));
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching providers:', error);
+    } finally {
+      store.dispatch(setLoading(false));
+    }
+  };
 
   useEffect(() => {
-    const handlePostFilters =async () =>{
-      if (service_id !== '') {
-      const res = await postDirectoryFilters(allFilters);
-      if (res) {
-        if (res?.directories?.current_page === 1) {
-          store.dispatch(setAllProviders(res.directories.data));
-        } else {
-          store.dispatch(appendProviders(res.directories.data));
-        }
-  
-        store.dispatch(setPagination({ 
-          currentPage: res.directories.current_page, 
-          lastPage: res.directories.last_page 
-        }));
-      }
-      }
-    }
-
-    handlePostFilters()
+    handlePostFilters();
   }, [service_id]);
 
   const buildMenu = (services: TMenuConfig) => {
@@ -57,7 +66,7 @@ const NavbarMenu: React.FC<NavbarMenuProps> = ({ type, items, loading }) => {
         return (
           <div
             key={item?.id}
-            onClick={() => {
+            onClick={async() => {
               setSelectedId(item?.id);
               store.dispatch(setServiceId(item?.id));
             }}

@@ -9,7 +9,8 @@ import { RootState, store } from '@/redux/store';
 import { 
   setAllProviders, 
   appendProviders, 
-  setPagination, 
+  setPagination,
+  setLoading 
 } from '@/redux/slices/directory-listing-slice';
 import { useAppSelector } from '@/redux/hooks';
 
@@ -29,8 +30,8 @@ function ServicesSkeleton() {
 
 const DirectoryPage = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [allServices, setAllServices] = useState<any>([]);
+  const [servicesLoading, setServicesLoading] = useState(false);
 
   const { allProviders , pagination } = useAppSelector((state) => state.directoryListing);
 
@@ -39,9 +40,9 @@ const DirectoryPage = () => {
   }, []);
 
   const fetchProviders = async (page: number) => {
-    if (loading) return;
-  setLoading(true)
 
+    store.dispatch(setLoading(true));
+    setServicesLoading(true);
     try {
       const res = await getListoftProvider(page);
       if (res) {
@@ -59,7 +60,8 @@ const DirectoryPage = () => {
     } catch (error) {
       console.error('Error fetching providers:', error);
     } finally {
-      setLoading(false);
+      store.dispatch(setLoading(false));
+      setServicesLoading(false);
     }
   };
 
@@ -68,10 +70,10 @@ const DirectoryPage = () => {
     <Fragment>
       <Navbar>
         <div className="flex w-full items-center justify-between border-b px-8 py-5">
-          {loading ? (
+          {servicesLoading ? (
             Array.from({ length: 20 }).map((_, index) => <ServicesSkeleton key={index} />)
           ) : (
-            <PageMenu services={allServices} loading={loading} />
+            <PageMenu services={allServices} loading={servicesLoading} />
           )}
           <NavbarActions>
             <button
@@ -86,16 +88,16 @@ const DirectoryPage = () => {
         </div>
       </Navbar>
 
-      <DirectoryContent providers={allProviders} loading={loading} />
+      <DirectoryContent providers={allProviders} loading={pagination.loading} />
 
       {pagination.currentPage < pagination.lastPage && (
         <div className="flex justify-center mt-6">
           <button
             className="px-4 py-2 btn btn-primary rounded-lg"
             onClick={() => fetchProviders(pagination.currentPage + 1)}
-            disabled={loading}
+            disabled={pagination.loading}
           >
-            {loading ? 'Loading...' : 'Load More'}
+            {pagination.loading ? 'Loading...' : 'Load More'}
           </button>
         </div>
       )}

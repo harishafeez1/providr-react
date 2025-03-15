@@ -3,26 +3,23 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 interface DirectoryState {
   allProviders: any[];
   filteredProviders: any[];
-  activeFilters: {
-    services: string[];
-    [key: string]: any;
-  };
   pagination: {
     currentPage: number;
     lastPage: number;
+    loading: boolean;
   };
+  isFilterModalOpen: boolean,
 }
 
 const initialState: DirectoryState = {
   allProviders: [],
   filteredProviders: [],
-  activeFilters: {
-    services: [],
-  },
   pagination: {
     currentPage: 1,
     lastPage: 1,
+    loading: false
   },
+  isFilterModalOpen: false,
 };
 
 export const directoryListingSlice = createSlice({
@@ -35,26 +32,31 @@ export const directoryListingSlice = createSlice({
     },
     appendProviders: (state, action: PayloadAction<any[]>) => {
       state.allProviders = [...state.allProviders, ...action.payload];
-      state.filteredProviders = state.activeFilters.services.length 
-        ? state.filteredProviders 
-        : [...state.filteredProviders, ...action.payload];
+      state.filteredProviders = [...state.filteredProviders, ...action.payload];
     },
     setPagination: (state, action: PayloadAction<{ currentPage: number; lastPage: number }>) => {
       state.pagination.currentPage = action.payload.currentPage;
       state.pagination.lastPage = action.payload.lastPage;
     },
     clearFilters: (state) => {
-      state.activeFilters = initialState.activeFilters;
       state.filteredProviders = state.allProviders;
     },
+    setLoading: (state, action: PayloadAction<boolean>) => {
+      state.pagination.loading = action.payload;
+    },
+    setIsFilterModalOpen: (state, action) => {
+        state.isFilterModalOpen = action.payload;
+      },
   },
 });
 
 export const { 
   setAllProviders, 
   appendProviders, 
-  setPagination, 
-  clearFilters 
+  setPagination,
+  setLoading,
+  clearFilters,
+  setIsFilterModalOpen 
 } = directoryListingSlice.actions;
 
 export default directoryListingSlice.reducer;

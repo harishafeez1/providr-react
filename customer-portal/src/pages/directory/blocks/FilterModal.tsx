@@ -25,7 +25,7 @@ import {
   setServiceId
 } from '@/redux/slices/directory-slice';
 import { postDirectoryFilters } from '@/services/api/directory';
-import { appendProviders, setAllProviders, setPagination } from '@/redux/slices/directory-listing-slice';
+import { appendProviders, setAllProviders, setLoading, setPagination, setIsFilterModalOpen } from '@/redux/slices/directory-listing-slice';
 
 interface IModalDeleteConfirmationProps {
   open: boolean;
@@ -34,10 +34,11 @@ interface IModalDeleteConfirmationProps {
 }
 
 const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
-  const [loading, setLoading] = useState(false);
+  const [localServiceId, setLocalServiceId] = useState('');
   const { services } = useAppSelector((state) => state.services);
+  const { ndis_register, age_group } = useAppSelector((state) => state.directory);
+  const { pagination:{loading} } = useAppSelector((state) => state.directoryListing);
 
-  const { service_id, ndis_register, age_group } = useAppSelector((state) => state.directory);
 
   const allFilters = useAppSelector((state) => state.directory);
 
@@ -50,7 +51,10 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
   };
 
   const handleFilters = async () => {
-    setLoading(true);
+    store.dispatch(setIsFilterModalOpen(true));
+    store.dispatch(setServiceId(localServiceId));
+    store.dispatch(setLoading(true));
+
     const res = await postDirectoryFilters(allFilters);
     if (res) {
       if (res.directories.current_page === 1) {
@@ -64,7 +68,8 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
         lastPage: res.directories.last_page 
       }));
 
-      setLoading(false);
+      store.dispatch(setIsFilterModalOpen(false));
+      store.dispatch(setLoading(false));
       onClose();
     }
   };
@@ -106,7 +111,7 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
                 <div className="flex items-baseline flex-wrap  gap-2.5 mb-4">
                   <ReactSelect
                     options={services}
-                    onChange={(item: any) => store.dispatch(setServiceId(item.value))}
+                    onChange={(item: any) => setLocalServiceId(item.value)} 
                     className="w-full text-sm"
                   />
                 </div>
