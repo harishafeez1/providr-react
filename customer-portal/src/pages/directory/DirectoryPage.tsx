@@ -4,8 +4,17 @@ import { Navbar, NavbarActions } from '@/partials/navbar';
 import { PageMenu } from './blocks/PageMenu';
 import { KeenIcon } from '@/components';
 import { getListoftProvider } from '@/services/api/provider-profile';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, store } from '@/redux/store';
+import { 
+  setAllProviders, 
+  appendProviders, 
+  setPagination, 
+} from '@/redux/slices/directory-listing-slice';
+import { useAppSelector } from '@/redux/hooks';
 
-export function ServicesSkeleton() {
+
+function ServicesSkeleton() {
   return (
     <div className="">
       <div className="animate-pulse">
@@ -20,12 +29,10 @@ export function ServicesSkeleton() {
 
 const DirectoryPage = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [providers, setProviders] = useState<any>([]);
+  const [loading, setLoading] = useState(false);
   const [allServices, setAllServices] = useState<any>([]);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [lastPage, setLastPage] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const { allProviders , pagination } = useAppSelector((state) => state.directoryListing);
 
   useEffect(() => {
     fetchProviders(1);
@@ -33,16 +40,21 @@ const DirectoryPage = () => {
 
   const fetchProviders = async (page: number) => {
     if (loading) return;
-    setLoading(true);
+  setLoading(true)
 
     try {
       const res = await getListoftProvider(page);
       if (res) {
-        setProviders(res.directories.data);
-        // setProviders((prev: any) => [...prev, ...res.directories.data]);
+        if (page === 1) {
+          store.dispatch(setAllProviders(res.directories.data));
+        } else {
+          store.dispatch(appendProviders(res.directories.data));
+        }
         setAllServices(res.services);
-        setCurrentPage(res.current_page);
-        setLastPage(res.last_page);
+        store.dispatch(setPagination({ 
+          currentPage: res.directories.current_page, 
+          lastPage: res.directories.last_page 
+        }));
       }
     } catch (error) {
       console.error('Error fetching providers:', error);
@@ -50,6 +62,7 @@ const DirectoryPage = () => {
       setLoading(false);
     }
   };
+
 
   return (
     <Fragment>
@@ -73,13 +86,13 @@ const DirectoryPage = () => {
         </div>
       </Navbar>
 
-      <DirectoryContent providers={providers} loading={loading} />
+      <DirectoryContent providers={allProviders} loading={loading} />
 
-      {currentPage < lastPage && (
+      {pagination.currentPage < pagination.lastPage && (
         <div className="flex justify-center mt-6">
           <button
             className="px-4 py-2 btn btn-primary rounded-lg"
-            onClick={() => fetchProviders(currentPage + 1)}
+            onClick={() => fetchProviders(pagination.currentPage + 1)}
             disabled={loading}
           >
             {loading ? 'Loading...' : 'Load More'}

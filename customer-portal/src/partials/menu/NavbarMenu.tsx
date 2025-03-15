@@ -11,6 +11,7 @@ import {
 import { useLanguage } from '@/i18n';
 import { IServices } from '@/pages/directory/blocks/PageMenu';
 import { useAppSelector } from '@/redux/hooks';
+import { appendProviders, setAllProviders, setPagination } from '@/redux/slices/directory-listing-slice';
 import { setServiceId } from '@/redux/slices/directory-slice';
 import { store } from '@/redux/store';
 import { postDirectoryFilters } from '@/services/api/directory';
@@ -29,9 +30,25 @@ const NavbarMenu: React.FC<NavbarMenuProps> = ({ type, items, loading }) => {
   const allFilters = useAppSelector((state) => state.directory);
 
   useEffect(() => {
-    if (service_id !== '') {
-      postDirectoryFilters(allFilters);
+    const handlePostFilters =async () =>{
+      if (service_id !== '') {
+      const res = await postDirectoryFilters(allFilters);
+      if (res) {
+        if (res?.directories?.current_page === 1) {
+          store.dispatch(setAllProviders(res.directories.data));
+        } else {
+          store.dispatch(appendProviders(res.directories.data));
+        }
+  
+        store.dispatch(setPagination({ 
+          currentPage: res.directories.current_page, 
+          lastPage: res.directories.last_page 
+        }));
+      }
+      }
     }
+
+    handlePostFilters()
   }, [service_id]);
 
   const buildMenu = (services: TMenuConfig) => {

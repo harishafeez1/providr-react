@@ -25,6 +25,7 @@ import {
   setServiceId
 } from '@/redux/slices/directory-slice';
 import { postDirectoryFilters } from '@/services/api/directory';
+import { appendProviders, setAllProviders, setPagination } from '@/redux/slices/directory-listing-slice';
 
 interface IModalDeleteConfirmationProps {
   open: boolean;
@@ -52,6 +53,17 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
     setLoading(true);
     const res = await postDirectoryFilters(allFilters);
     if (res) {
+      if (res.directories.current_page === 1) {
+        store.dispatch(setAllProviders(res.directories.data));
+      } else {
+        store.dispatch(appendProviders(res.directories.data));
+      }
+
+      store.dispatch(setPagination({ 
+        currentPage: res.directories.current_page, 
+        lastPage: res.directories.last_page 
+      }));
+
       setLoading(false);
       onClose();
     }
@@ -248,8 +260,8 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
             </div>
           </DialogBody>
           <DialogFooter className="justify-end">
-            <button className="btn btn-primary" onClick={handleFilters}>
-              Apply
+            <button className="btn btn-primary" onClick={handleFilters} disabled={loading}>
+              {loading ? 'Please wait...' : 'Apply'}
             </button>
           </DialogFooter>
         </DialogContent>

@@ -1,16 +1,6 @@
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-interface DirectoryState {
-    service_id: string;
-    location: string;
-    age_group: string;
-    ndis_register: {
-      ndis_registered: any;
-      ndis_childhood_registered: any;
-    };
-  }
-
 // Define the initial state with proper typing
 const initialState = {
     service_id : '',

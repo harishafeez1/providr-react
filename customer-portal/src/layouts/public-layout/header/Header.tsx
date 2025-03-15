@@ -10,7 +10,7 @@ import { store } from '@/redux/store';
 import { setAgeGroup, setLocation } from '@/redux/slices/directory-slice';
 import { useAppSelector } from '@/redux/hooks';
 import { postDirectoryFilters } from '@/services/api/directory';
-import { getListoftProvider } from '@/services/api/provider-profile';
+import { appendProviders, setAllProviders, setPagination } from '@/redux/slices/directory-listing-slice';
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -26,7 +26,16 @@ const Header = () => {
   const handleFilters = async () => {
     const res = await postDirectoryFilters(allFilters);
     if (res) {
-      await getListoftProvider(1);
+      if (res.directories.current_page === 1) {
+        store.dispatch(setAllProviders(res.directories.data));
+      } else {
+        store.dispatch(appendProviders(res.directories.data));
+      }
+
+      store.dispatch(setPagination({ 
+        currentPage: res.directories.current_page, 
+        lastPage: res.directories.last_page 
+      }));
     }
   };
 
