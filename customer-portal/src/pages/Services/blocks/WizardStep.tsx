@@ -124,7 +124,7 @@ export default function AirbnbWizard() {
 
   const nextStep = () => {
     if (currentStep === steps.length - 1) {
-      const token = auth?.token;
+      const token = getAuth()?.token;
       if (!token) {
         // Open login page & give it time to load
         const loginTab = window.open('/login', '_blank');
