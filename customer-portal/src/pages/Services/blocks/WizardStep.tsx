@@ -104,8 +104,13 @@ export default function AirbnbWizard() {
   useEffect(() => {
     const handleStorageChange = (event: StorageEvent) => {
       if (event.key === import.meta.env.VITE_APP_NAME) {
-        console.log('🔹 Detected login from another tab!');
-        setIsLoggedIn(true);
+        if (event.newValue) {
+          console.log('🔹 Detected auth key update: user logged in');
+          setIsLoggedIn(true);
+        } else {
+          console.log('🔹 Detected auth key removal: user logged out');
+          setIsLoggedIn(false);
+        }
       }
     };
 
@@ -203,11 +208,7 @@ export default function AirbnbWizard() {
               disabled={currentStep === steps.length || isNextDisabled()}
               className="btn btn-primary "
             >
-              {currentStep === steps.length - 1
-                ? getAuth()?.token
-                  ? 'Complete'
-                  : 'Login'
-                : 'Next'}
+              {currentStep === steps.length - 1 ? (isLoggedIn ? 'Complete' : 'Login') : 'Next'}
               {/* <ChevronRight className="w-4 h-4 ml-2" /> */}
             </Button>
 
