@@ -22,10 +22,18 @@ import {
   setLocation,
   setNdisChildhoodRegistered,
   setNdisRegistered,
+  setResetFilters,
   setServiceId
 } from '@/redux/slices/directory-slice';
 import { postDirectoryFilters } from '@/services/api/directory';
-import { appendProviders, setAllProviders, setLoading, setPagination, setIsFilterModalOpen } from '@/redux/slices/directory-listing-slice';
+import {
+  appendProviders,
+  setAllProviders,
+  setLoading,
+  setPagination,
+  setIsFilterModalOpen
+} from '@/redux/slices/directory-listing-slice';
+import { Button } from '@/components/ui/button';
 
 interface IModalDeleteConfirmationProps {
   open: boolean;
@@ -37,8 +45,9 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
   const [localServiceId, setLocalServiceId] = useState('');
   const { services } = useAppSelector((state) => state.services);
   const { ndis_register, age_group } = useAppSelector((state) => state.directory);
-  const { pagination:{loading} } = useAppSelector((state) => state.directoryListing);
-
+  const {
+    pagination: { loading }
+  } = useAppSelector((state) => state.directoryListing);
 
   const allFilters = useAppSelector((state) => state.directory);
 
@@ -63,10 +72,12 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
         store.dispatch(appendProviders(res.directories.data));
       }
 
-      store.dispatch(setPagination({ 
-        currentPage: res.directories.current_page, 
-        lastPage: res.directories.last_page 
-      }));
+      store.dispatch(
+        setPagination({
+          currentPage: res.directories.current_page,
+          lastPage: res.directories.last_page
+        })
+      );
 
       store.dispatch(setIsFilterModalOpen(false));
       store.dispatch(setLoading(false));
@@ -111,7 +122,7 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
                 <div className="flex items-baseline flex-wrap  gap-2.5 mb-4">
                   <ReactSelect
                     options={services}
-                    onChange={(item: any) => setLocalServiceId(item.value)} 
+                    onChange={(item: any) => setLocalServiceId(item.value)}
                     className="w-full text-sm"
                   />
                 </div>
@@ -264,7 +275,16 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
               </div>
             </div>
           </DialogBody>
-          <DialogFooter className="justify-end">
+          <DialogFooter className="justify-end gap-4">
+            <Button
+              onClick={() => {
+                // store.dispatch(setResetFilters());
+                // postDirectoryFilters(allFilters);
+              }}
+            >
+              Clear Filters
+            </Button>
+
             <button className="btn btn-primary" onClick={handleFilters} disabled={loading}>
               {loading ? 'Please wait...' : 'Apply'}
             </button>

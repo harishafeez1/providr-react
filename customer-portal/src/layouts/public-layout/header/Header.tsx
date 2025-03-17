@@ -10,14 +10,22 @@ import { store } from '@/redux/store';
 import { setAgeGroup, setLocation } from '@/redux/slices/directory-slice';
 import { useAppSelector } from '@/redux/hooks';
 import { postDirectoryFilters } from '@/services/api/directory';
-import { appendProviders, clearFilters, setAllProviders, setLoading, setPagination } from '@/redux/slices/directory-listing-slice';
+import {
+  appendProviders,
+  clearFilters,
+  setAllProviders,
+  setLoading,
+  setPagination
+} from '@/redux/slices/directory-listing-slice';
 import { Button } from '@/components/ui/button';
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const { age_group } = useAppSelector((state) => state.directory);
-  const { pagination:{loading} } = useAppSelector((state) => state.directoryListing);
+  const {
+    pagination: { loading }
+  } = useAppSelector((state) => state.directoryListing);
 
   const handleLocationChange = async (address: any) => {
     store.dispatch(setLocation(address.label));
@@ -35,10 +43,12 @@ const Header = () => {
         store.dispatch(appendProviders(res.directories.data));
       }
 
-      store.dispatch(setPagination({ 
-        currentPage: res.directories.current_page, 
-        lastPage: res.directories.last_page 
-      }));
+      store.dispatch(
+        setPagination({
+          currentPage: res.directories.current_page,
+          lastPage: res.directories.last_page
+        })
+      );
     }
     store.dispatch(setLoading(false));
   };
@@ -79,7 +89,7 @@ const Header = () => {
         </div>
 
         {/* Search - Mobile */}
-        
+
         <div className="relative flex lg:w-[55%] items-center gap-4 rounded-full border px-4 py-2 shadow-md hover:shadow-md transition duration-200 m-3 w-full">
           <div className="flex flex-col ml-4 w-full">
             <label className="form-label text-gray-900 ps-2">Location</label>
@@ -197,9 +207,6 @@ const Header = () => {
             <KeenIcon icon="magnifier" className="text-xl font-bold text-white" />
           </div>
         </div>
-        <div className="ms-auto py-2">
-          <Button onClick={()=> console.log('clear filters') }>Clear Filters</Button>
-          </div>  
       </div>
 
       {/* Mobile Menu */}

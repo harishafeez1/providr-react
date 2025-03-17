@@ -39,7 +39,9 @@ const initialState = {
         state.ndis_register.ndis_childhood_registered = action.payload;
       },
 
+      setResetFilters: () => initialState
+
   }});
   
-  export const {  setServiceId, setLocation, setAgeGroup, setNdisRegistered, setNdisChildhoodRegistered} = directorySlice.actions;
+  export const {  setServiceId, setLocation, setAgeGroup, setNdisRegistered, setNdisChildhoodRegistered, setResetFilters} = directorySlice.actions;
   export default directorySlice.reducer;
