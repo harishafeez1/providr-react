@@ -103,7 +103,7 @@ export default function AirbnbWizard() {
 
   useEffect(() => {
     const handleStorageChange = (event: StorageEvent) => {
-      if (event.newValue) {
+      if (event.key === import.meta.env.VITE_APP_NAME) {
         console.log('🔹 Detected login from another tab!');
         setIsLoggedIn(true);
       }

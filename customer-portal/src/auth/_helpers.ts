@@ -5,9 +5,7 @@ import { type AuthModel } from './_models';
 import { toast } from 'sonner';
 import { AxiosError } from 'axios';
 
-const AUTH_LOCAL_STORAGE_KEY = `${import.meta.env.VITE_APP_NAME}-auth-v${
-  import.meta.env.VITE_APP_VERSION
-}`;
+const AUTH_LOCAL_STORAGE_KEY = `${import.meta.env.VITE_APP_NAME}`;
 
 const getAuth = (): AuthModel | undefined => {
   try {
