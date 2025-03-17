@@ -6,14 +6,14 @@ import { KeenIcon } from '@/components';
 import { getListoftProvider } from '@/services/api/provider-profile';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, store } from '@/redux/store';
-import { 
-  setAllProviders, 
-  appendProviders, 
+import {
+  setAllProviders,
+  appendProviders,
   setPagination,
-  setLoading 
+  setLoading,
+  setLoadMore
 } from '@/redux/slices/directory-listing-slice';
 import { useAppSelector } from '@/redux/hooks';
-
 
 function ServicesSkeleton() {
   return (
@@ -33,14 +33,15 @@ const DirectoryPage = () => {
   const [allServices, setAllServices] = useState<any>([]);
   const [servicesLoading, setServicesLoading] = useState(false);
 
-  const { allProviders , pagination } = useAppSelector((state) => state.directoryListing);
+  const { allProviders, pagination, filteredProviders } = useAppSelector(
+    (state) => state.directoryListing
+  );
 
   useEffect(() => {
     fetchProviders(1);
   }, []);
 
   const fetchProviders = async (page: number) => {
-
     store.dispatch(setLoading(true));
     setServicesLoading(true);
     try {
@@ -52,10 +53,12 @@ const DirectoryPage = () => {
           store.dispatch(appendProviders(res.directories.data));
         }
         setAllServices(res.services);
-        store.dispatch(setPagination({ 
-          currentPage: res.directories.current_page, 
-          lastPage: res.directories.last_page 
-        }));
+        store.dispatch(
+          setPagination({
+            currentPage: res.directories.current_page,
+            lastPage: res.directories.last_page
+          })
+        );
       }
     } catch (error) {
       console.error('Error fetching providers:', error);
@@ -64,7 +67,6 @@ const DirectoryPage = () => {
       setServicesLoading(false);
     }
   };
-
 
   return (
     <Fragment>
@@ -88,13 +90,16 @@ const DirectoryPage = () => {
         </div>
       </Navbar>
 
-      <DirectoryContent providers={allProviders} loading={pagination.loading} />
+      <DirectoryContent providers={filteredProviders} loading={pagination.loading} />
 
       {pagination.currentPage < pagination.lastPage && (
         <div className="flex justify-center mt-6">
           <button
             className="px-4 py-2 btn btn-primary rounded-lg"
-            onClick={() => fetchProviders(pagination.currentPage + 1)}
+            onClick={() => {
+              store.dispatch(setLoadMore(true));
+              fetchProviders(pagination.currentPage + 1);
+            }}
             disabled={pagination.loading}
           >
             {pagination.loading ? 'Loading...' : 'Load More'}

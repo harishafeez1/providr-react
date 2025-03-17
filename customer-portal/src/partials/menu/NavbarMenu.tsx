@@ -11,7 +11,12 @@ import {
 import { useLanguage } from '@/i18n';
 import { IServices } from '@/pages/directory/blocks/PageMenu';
 import { useAppSelector } from '@/redux/hooks';
-import { appendProviders, setAllProviders, setLoading, setPagination } from '@/redux/slices/directory-listing-slice';
+import {
+  appendProviders,
+  setAllProviders,
+  setLoading,
+  setPagination
+} from '@/redux/slices/directory-listing-slice';
 import { setServiceId } from '@/redux/slices/directory-slice';
 import { store } from '@/redux/store';
 import { postDirectoryFilters } from '@/services/api/directory';
@@ -28,13 +33,11 @@ const NavbarMenu: React.FC<NavbarMenuProps> = ({ type, items, loading }) => {
 
   const allFilters = useAppSelector((state) => state.directory);
   const { service_id } = useAppSelector((state) => state.directory);
-  const { isFilterModalOpen } = useAppSelector((state) => state.directoryListing);
-
-  console.log('isFilterModalOpen', isFilterModalOpen);
+  const { isFilterModalOpen, loadMore } = useAppSelector((state) => state.directoryListing);
 
   const handlePostFilters = async () => {
     try {
-      if (!isFilterModalOpen && service_id !== '') {
+      if (!isFilterModalOpen && service_id && !loadMore) {
         store.dispatch(setLoading(true));
         const res = await postDirectoryFilters(allFilters);
         if (res) {
@@ -43,10 +46,12 @@ const NavbarMenu: React.FC<NavbarMenuProps> = ({ type, items, loading }) => {
           } else {
             store.dispatch(appendProviders(res.directories.data));
           }
-          store.dispatch(setPagination({ 
-            currentPage: res.directories.current_page, 
-            lastPage: res.directories.last_page 
-          }));
+          store.dispatch(
+            setPagination({
+              currentPage: res.directories.current_page,
+              lastPage: res.directories.last_page
+            })
+          );
         }
       }
     } catch (error) {
@@ -66,7 +71,7 @@ const NavbarMenu: React.FC<NavbarMenuProps> = ({ type, items, loading }) => {
         return (
           <div
             key={item?.id}
-            onClick={async() => {
+            onClick={async () => {
               setSelectedId(item?.id);
               store.dispatch(setServiceId(item?.id));
             }}

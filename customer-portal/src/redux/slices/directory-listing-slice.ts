@@ -9,6 +9,7 @@ interface DirectoryState {
     loading: boolean;
   };
   isFilterModalOpen: boolean,
+  loadMore: boolean,
 }
 
 const initialState: DirectoryState = {
@@ -20,6 +21,7 @@ const initialState: DirectoryState = {
     loading: false
   },
   isFilterModalOpen: false,
+  loadMore: false
 };
 
 export const directoryListingSlice = createSlice({
@@ -44,6 +46,10 @@ export const directoryListingSlice = createSlice({
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.pagination.loading = action.payload;
     },
+    
+    setLoadMore: (state, action: PayloadAction<boolean>) => {
+      state.loadMore = action.payload;
+    },
     setIsFilterModalOpen: (state, action) => {
         state.isFilterModalOpen = action.payload;
       },
@@ -56,7 +62,8 @@ export const {
   setPagination,
   setLoading,
   clearFilters,
-  setIsFilterModalOpen 
+  setIsFilterModalOpen,
+  setLoadMore
 } = directoryListingSlice.actions;
 
 export default directoryListingSlice.reducer;
