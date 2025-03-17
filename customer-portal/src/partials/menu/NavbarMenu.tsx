@@ -15,12 +15,13 @@ import {
   appendProviders,
   setAllProviders,
   setLoading,
+  setLoadMore,
   setPagination
 } from '@/redux/slices/directory-listing-slice';
 import { setServiceId } from '@/redux/slices/directory-slice';
 import { store } from '@/redux/store';
 import { postDirectoryFilters } from '@/services/api/directory';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 interface NavbarMenuProps {
   type: boolean;
   items: IServices[];
@@ -53,6 +54,8 @@ const NavbarMenu: React.FC<NavbarMenuProps> = ({ type, items, loading }) => {
             })
           );
         }
+      } else {
+        store.dispatch(setLoadMore(false));
       }
     } catch (error) {
       console.error('Error fetching providers:', error);

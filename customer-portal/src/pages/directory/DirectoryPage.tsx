@@ -90,7 +90,7 @@ const DirectoryPage = () => {
         </div>
       </Navbar>
 
-      <DirectoryContent providers={filteredProviders} loading={pagination.loading} />
+      <DirectoryContent providers={allProviders} loading={pagination.loading} />
 
       {pagination.currentPage < pagination.lastPage && (
         <div className="flex justify-center mt-6">
