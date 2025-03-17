@@ -276,14 +276,14 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
             </div>
           </DialogBody>
           <DialogFooter className="justify-end gap-4">
-            <Button
+            {/* <Button
               onClick={() => {
-                // store.dispatch(setResetFilters());
-                // postDirectoryFilters(allFilters);
+                store.dispatch(setResetFilters());
+                postDirectoryFilters(allFilters);
               }}
             >
               Clear Filters
-            </Button>
+            </Button> */}
 
             <button className="btn btn-primary" onClick={handleFilters} disabled={loading}>
               {loading ? 'Please wait...' : 'Apply'}
