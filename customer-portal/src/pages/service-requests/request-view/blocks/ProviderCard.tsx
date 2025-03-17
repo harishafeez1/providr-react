@@ -10,22 +10,30 @@ import { Link } from 'react-router-dom';
 const ProviderCard = ({ data, comapnyId }: any) => {
   const [isFavorite, setIsFavorite] = useState(false);
 
-  const handleProviderConnection =async () =>{
-  const res =  await getConnectedProvider(data?.id, data?.pivot?.service_request_id);
-  if(res){
-    store.dispatch(setServiceRequest(res))
-  }
-  }
+  const handleProviderConnection = async () => {
+    const res = await getConnectedProvider(data?.id, data?.pivot?.service_request_id);
+    if (res) {
+      store.dispatch(setServiceRequest(res));
+    }
+  };
 
   return (
     <div className="cursor-pointer">
-      {comapnyId == null || comapnyId == ""? <Button onClick={handleProviderConnection} className='w-full' size={'lg'}>Connect</Button> :
-      comapnyId !== null ? <div className={`text-center badge ${data?.pivot?.status === 'Completed' ? 'badge-success' : ''}`}>
-        {data?.pivot?.status}
-      </div>  : ""}
+      {comapnyId == null || comapnyId == '' ? (
+        <Button onClick={handleProviderConnection} className="w-full" size={'lg'}>
+          Connect
+        </Button>
+      ) : comapnyId !== null ? (
+        <div
+          className={`text-center badge ${data?.pivot?.status === 'Completed' ? 'badge-success' : ''}`}
+        >
+          {data?.pivot?.status}
+        </div>
+      ) : (
+        ''
+      )}
       <Link to={`/provider-profile/${data?.id}`}>
-      <div className="w-full px-2">
-      </div>
+        <div className="w-full px-2"></div>
         <div className="relative aspect-square overflow-hidden rounded-xl">
           <img
             src={
@@ -66,20 +74,18 @@ const ProviderCard = ({ data, comapnyId }: any) => {
             </div>
           </div>
           <p className="text-sm text-gray-500">{data?.location || ''}</p>
-          <p className="text-sm text-gray-500">{data?.description || ''}</p>
+          <p className="text-sm text-gray-500 truncate py-2">{data?.description || ''}</p>
           {data?.pivot?.customer_contacted === 1 ? (
             <div className="px-10">
               <p className="mt-2 flex gap-4 rounded-full bg-success-clarity px-2 py-1 text-xs text-success text-center">
-              <Phone size={16}/>
-              
+                <Phone size={16} />
                 Already Contacted
-            
               </p>
             </div>
           ) : (
             <div className="px-10">
               <p className="mt-2 flex gap-4  rounded-full bg-primary-clarity px-2 py-1 text-xs text-white text-center">
-              <Phone size={16}/>
+                <Phone size={16} />
                 Contact You Soon
               </p>
             </div>

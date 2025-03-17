@@ -18,8 +18,7 @@ import {
   Facebook,
   Instagram
 } from 'lucide-react';
-import { Premises } from './Premises';
-import { it } from 'node:test';
+
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { ConnectProviderModal } from './ConnectProviderModal';
