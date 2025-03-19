@@ -4,16 +4,20 @@ import { Navbar, NavbarActions } from '@/partials/navbar';
 import { PageMenu } from './blocks/PageMenu';
 import { KeenIcon } from '@/components';
 import { getListoftProvider } from '@/services/api/provider-profile';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState, store } from '@/redux/store';
+
+import { store } from '@/redux/store';
 import {
   setAllProviders,
   appendProviders,
   setPagination,
   setLoading,
-  setLoadMore
+  setLoadMore,
+  setAllServices
 } from '@/redux/slices/directory-listing-slice';
 import { useAppSelector } from '@/redux/hooks';
+import { useLocation } from 'react-router';
+import { postDirectoryFilters } from '@/services/api/directory';
+import { getAllServices } from '@/services/api/all-services';
 
 function ServicesSkeleton() {
   return (
@@ -29,17 +33,65 @@ function ServicesSkeleton() {
 }
 
 const DirectoryPage = () => {
+  const location = useLocation();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [allServices, setAllServices] = useState<any>([]);
   const [servicesLoading, setServicesLoading] = useState(false);
 
-  const { allProviders, pagination, filteredProviders } = useAppSelector(
+  const { allProviders, pagination, allServices } = useAppSelector(
     (state) => state.directoryListing
   );
+  const allFilters = useAppSelector((state) => state.directory);
 
   useEffect(() => {
-    fetchProviders(1);
-  }, []);
+    if (location.pathname.includes('directory')) {
+      const fromServicePage = sessionStorage.getItem('fromService');
+      if (fromServicePage === 'true') {
+        sessionStorage.removeItem('fromService');
+
+        // Define and invoke the async function
+        const fetchData = async () => {
+          try {
+            setServicesLoading(true);
+            store.dispatch(setLoading(true));
+
+            // Fetch filtered directory data
+            const res = await postDirectoryFilters(allFilters);
+
+            // Fetch all services
+            const servicesRes = await getAllServices();
+            if (servicesRes) {
+              store.dispatch(setAllServices(servicesRes));
+              setServicesLoading(false);
+            }
+
+            // Update providers and pagination based on directory response
+            if (res) {
+              if (res.directories.current_page === 1) {
+                store.dispatch(setAllProviders(res.directories.data));
+              } else {
+                store.dispatch(appendProviders(res.directories.data));
+              }
+
+              store.dispatch(
+                setPagination({
+                  currentPage: res.directories.current_page,
+                  lastPage: res.directories.last_page
+                })
+              );
+            }
+          } catch (error) {
+            console.error('Error fetching data:', error);
+          } finally {
+            store.dispatch(setLoading(false));
+          }
+        };
+
+        fetchData();
+      } else {
+        fetchProviders(1);
+      }
+    }
+  }, [location.pathname]);
 
   const fetchProviders = async (page: number) => {
     store.dispatch(setLoading(true));
@@ -47,12 +99,12 @@ const DirectoryPage = () => {
     try {
       const res = await getListoftProvider(page);
       if (res) {
+        store.dispatch(setAllServices(res.services));
         if (page === 1) {
           store.dispatch(setAllProviders(res.directories.data));
         } else {
           store.dispatch(appendProviders(res.directories.data));
         }
-        setAllServices(res.services);
         store.dispatch(
           setPagination({
             currentPage: res.directories.current_page,

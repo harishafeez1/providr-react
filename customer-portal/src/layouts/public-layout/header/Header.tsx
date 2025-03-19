@@ -4,7 +4,7 @@ import ReactSelect from 'react-select';
 import clsx from 'clsx';
 import { useState } from 'react';
 import { HeaderLogo } from './HeaderLogo';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import GooglePlacesAutocomplete, {
   geocodeByAddress,
   geocodeByPlaceId,
@@ -22,9 +22,11 @@ import {
 } from '@/redux/slices/directory-listing-slice';
 
 const Header = () => {
+  const locationCheck = useLocation();
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const { age_group } = useAppSelector((state) => state.directory);
+  const { age_group, location } = useAppSelector((state) => state.directory);
   const {
     pagination: { loading }
   } = useAppSelector((state) => state.directoryListing);
@@ -88,6 +90,11 @@ const Header = () => {
   const allFilters = useAppSelector((state) => state.directory);
 
   const handleFilters = async () => {
+    if (!locationCheck.pathname.includes('directory')) {
+      sessionStorage.setItem('fromService', 'true');
+      navigate('/directory');
+      return;
+    }
     store.dispatch(setLoading(true));
     const res = await postDirectoryFilters(allFilters);
     if (res) {
@@ -155,7 +162,8 @@ const Header = () => {
                     autocompletionRequest={{
                       componentRestrictions: {
                         country: 'aus'
-                      }
+                      },
+                      types: ['(regions)']
                     }}
                     debounce={300}
                     selectProps={{

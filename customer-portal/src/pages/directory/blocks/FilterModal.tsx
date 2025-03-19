@@ -161,7 +161,8 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
                       autocompletionRequest={{
                         componentRestrictions: {
                           country: 'aus'
-                        }
+                        },
+                        types: ['(regions)']
                       }}
                       selectProps={{
                         isClearable: true,

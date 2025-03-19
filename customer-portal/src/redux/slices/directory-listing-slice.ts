@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface DirectoryState {
+  allServices: any[];
   allProviders: any[];
   filteredProviders: any[];
   pagination: {
@@ -13,6 +14,7 @@ interface DirectoryState {
 }
 
 const initialState: DirectoryState = {
+  allServices:[],
   allProviders: [],
   filteredProviders: [],
   pagination: {
@@ -28,6 +30,9 @@ export const directoryListingSlice = createSlice({
   name: 'directoryListing',
   initialState,
   reducers: {
+    setAllServices: (state, action: PayloadAction<any[]>) => {
+      state.allServices = action.payload;
+    },
     setAllProviders: (state, action: PayloadAction<any[]>) => {
       state.allProviders = action.payload;
       state.filteredProviders = action.payload;
@@ -57,6 +62,7 @@ export const directoryListingSlice = createSlice({
 });
 
 export const { 
+  setAllServices,
   setAllProviders, 
   appendProviders, 
   setPagination,
