@@ -101,22 +101,25 @@ export default function AirbnbWizard() {
     }
   }, [isLoggedIn]);
 
+  const checkAuthKey = () => {
+    const authToken = localStorage.getItem(import.meta.env.VITE_APP_NAME);
+    setIsLoggedIn(!!authToken);
+  };
+
   useEffect(() => {
+    checkAuthKey();
+
+    // Handle storage changes from other tabs/windows
     const handleStorageChange = (event: StorageEvent) => {
       if (event.key === import.meta.env.VITE_APP_NAME) {
-        if (event.newValue) {
-          console.log('🔹 Detected auth key update: user logged in');
-          setIsLoggedIn(true);
-        } else {
-          console.log('🔹 Detected auth key removal: user logged out');
-          setIsLoggedIn(false);
-        }
+        checkAuthKey();
       }
     };
 
-    // Listen for storage changes
+    // Add the storage event listener
     window.addEventListener('storage', handleStorageChange);
 
+    // Cleanup the event listener on component unmount
     return () => {
       window.removeEventListener('storage', handleStorageChange);
     };
@@ -126,13 +129,27 @@ export default function AirbnbWizard() {
     if (currentStep === steps.length - 1) {
       const token = getAuth()?.token;
       if (!token) {
-        // Open login page & give it time to load
-        const loginTab = window.open('/login', '_blank');
+        const width = 600;
+        const height = 600;
+
+        const left = window.screen.width / 2 - width / 2;
+        const top = window.screen.height / 2 - height / 2;
+
+        const loginTab = window.open(
+          '/login',
+          '_blank',
+          `width=${width},height=${height},top=${top},left=${left}`
+        );
 
         if (!loginTab) {
           console.error('❌ Failed to open login tab. Make sure pop-ups are not blocked.');
           return;
         }
+        window.addEventListener('message', (event) => {
+          if (event.data === 'closeLogin' && loginTab) {
+            loginTab.close();
+          }
+        });
 
         console.log('✅ Login tab opened. Waiting for authentication...');
 

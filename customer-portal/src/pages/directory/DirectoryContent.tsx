@@ -5,9 +5,6 @@ const DirectoryContent = ({ providers, loading }: any) => {
     return (
       <div className="animate-pulse">
         <div className="h-[400px] bg-gray-200 rounded-xl mb-6"></div>
-        <div className="space-y-4">
-          <div className="h-8 bg-gray-200 rounded"></div>
-        </div>
       </div>
     );
   }

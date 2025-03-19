@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import GooglePlacesAutocomplete, {
   geocodeByAddress,
+  geocodeByPlaceId,
   getLatLng
 } from 'react-google-places-autocomplete';
 
@@ -34,6 +35,7 @@ import {
   setIsFilterModalOpen
 } from '@/redux/slices/directory-listing-slice';
 import { Button } from '@/components/ui/button';
+import { getListoftProvider } from '@/services/api/provider-profile';
 
 interface IModalDeleteConfirmationProps {
   open: boolean;
@@ -56,7 +58,59 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
   }, []);
 
   const handleLocationChange = async (address: any) => {
-    store.dispatch(setLocation(address.label));
+    const location: {
+      latitude?: string;
+      longitude?: string;
+      address?: string;
+      suburb?: string;
+      state?: string;
+      country?: string;
+      zip_code?: string;
+    } = {};
+
+    if (address) {
+      const results = await geocodeByPlaceId(address.value.place_id);
+      const latLng = await getLatLng(results[0]);
+      location.latitude = String(latLng.lat);
+      location.longitude = String(latLng.lng);
+      location.address = address.label;
+
+      // Extract address components
+      const addressComponents = results[0].address_components;
+
+      // Extract suburb (usually stored as "locality" or "sublocality")
+      const suburbComponent = addressComponents.find(
+        (component) =>
+          component.types.includes('locality') || component.types.includes('sublocality')
+      );
+      if (suburbComponent) {
+        location.suburb = suburbComponent.long_name;
+      }
+
+      // Optionally, extract state, country, and postal code if needed:
+      const stateComponent = addressComponents.find((component) =>
+        component.types.includes('administrative_area_level_1')
+      );
+      if (stateComponent) {
+        location.state = stateComponent.long_name;
+      }
+      const countryComponent = addressComponents.find((component) =>
+        component.types.includes('country')
+      );
+      if (countryComponent) {
+        location.country = countryComponent.long_name;
+      }
+      const zipComponent = addressComponents.find((component) =>
+        component.types.includes('postal_code')
+      );
+      if (zipComponent) {
+        location.zip_code = zipComponent.long_name;
+      }
+
+      store.dispatch(setLocation(location?.suburb));
+    } else {
+      store.dispatch(setLocation(''));
+    }
   };
 
   const handleFilters = async () => {
@@ -276,14 +330,27 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
             </div>
           </DialogBody>
           <DialogFooter className="justify-end gap-4">
-            {/* <Button
-              onClick={() => {
+            <Button
+              onClick={async () => {
                 store.dispatch(setResetFilters());
-                postDirectoryFilters(allFilters);
+                const res = await getListoftProvider(1);
+                if (res) {
+                  if (res.directories.current_page === 1) {
+                    store.dispatch(setAllProviders(res.directories.data));
+                  } else {
+                    store.dispatch(appendProviders(res.directories.data));
+                  }
+                  store.dispatch(
+                    setPagination({
+                      currentPage: res.directories.current_page,
+                      lastPage: res.directories.last_page
+                    })
+                  );
+                }
               }}
             >
-              Clear Filters
-            </Button> */}
+              Clear All Filters
+            </Button>
 
             <button className="btn btn-primary" onClick={handleFilters} disabled={loading}>
               {loading ? 'Please wait...' : 'Apply'}

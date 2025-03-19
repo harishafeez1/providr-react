@@ -95,6 +95,10 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
       saveAuth(auth);
       // const { data: user } = await getUser();
       setCurrentUser(auth?.user);
+      if (window.opener) {
+        window.opener.postMessage('closeLogin', '*');
+        window.close();
+      }
     } catch (error) {
       saveAuth(undefined);
       throw new Error(`Error ${error}`);
@@ -120,6 +124,10 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
 
       const { data: user } = await getUser();
       setCurrentUser(user);
+      if (window.opener) {
+        window.opener.postMessage('closeLogin', '*');
+        window.close();
+      }
     } catch (error) {
       saveAuth(undefined);
       throw new Error(`Error ${error}`);
@@ -156,6 +164,10 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
       saveAuth(auth);
       // const { data: user } = await getUser();
       setCurrentUser(auth?.user);
+      if (window.opener) {
+        window.opener.postMessage('closeLogin', '*');
+        window.close();
+      }
     } catch (error) {
       saveAuth(undefined);
       throw new Error(`Login Error ${error}`);

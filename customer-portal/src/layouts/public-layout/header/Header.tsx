@@ -5,19 +5,21 @@ import clsx from 'clsx';
 import { useState } from 'react';
 import { HeaderLogo } from './HeaderLogo';
 import { Link } from 'react-router-dom';
-import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
+import GooglePlacesAutocomplete, {
+  geocodeByAddress,
+  geocodeByPlaceId,
+  getLatLng
+} from 'react-google-places-autocomplete';
 import { store } from '@/redux/store';
 import { setAgeGroup, setLocation } from '@/redux/slices/directory-slice';
 import { useAppSelector } from '@/redux/hooks';
 import { postDirectoryFilters } from '@/services/api/directory';
 import {
   appendProviders,
-  clearFilters,
   setAllProviders,
   setLoading,
   setPagination
 } from '@/redux/slices/directory-listing-slice';
-import { Button } from '@/components/ui/button';
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -28,7 +30,59 @@ const Header = () => {
   } = useAppSelector((state) => state.directoryListing);
 
   const handleLocationChange = async (address: any) => {
-    store.dispatch(setLocation(address.label));
+    const location: {
+      latitude?: string;
+      longitude?: string;
+      address?: string;
+      suburb?: string;
+      state?: string;
+      country?: string;
+      zip_code?: string;
+    } = {};
+
+    if (address) {
+      const results = await geocodeByPlaceId(address.value.place_id);
+      const latLng = await getLatLng(results[0]);
+      location.latitude = String(latLng.lat);
+      location.longitude = String(latLng.lng);
+      location.address = address.label;
+
+      // Extract address components
+      const addressComponents = results[0].address_components;
+
+      // Extract suburb (usually stored as "locality" or "sublocality")
+      const suburbComponent = addressComponents.find(
+        (component) =>
+          component.types.includes('locality') || component.types.includes('sublocality')
+      );
+      if (suburbComponent) {
+        location.suburb = suburbComponent.long_name;
+      }
+
+      // Optionally, extract state, country, and postal code if needed:
+      const stateComponent = addressComponents.find((component) =>
+        component.types.includes('administrative_area_level_1')
+      );
+      if (stateComponent) {
+        location.state = stateComponent.long_name;
+      }
+      const countryComponent = addressComponents.find((component) =>
+        component.types.includes('country')
+      );
+      if (countryComponent) {
+        location.country = countryComponent.long_name;
+      }
+      const zipComponent = addressComponents.find((component) =>
+        component.types.includes('postal_code')
+      );
+      if (zipComponent) {
+        location.zip_code = zipComponent.long_name;
+      }
+
+      store.dispatch(setLocation(location?.suburb));
+    } else {
+      store.dispatch(setLocation(''));
+    }
   };
 
   const allFilters = useAppSelector((state) => state.directory);
@@ -139,10 +193,14 @@ const Header = () => {
                           ...provided,
                           color: state.isFocused ? '#fff' : '#000', // Change text color on hover
                           backgroundColor: state.isFocused ? '#4a90e2' : 'transparent'
+                        }),
+                        clearIndicator: (provided) => ({
+                          ...provided,
+                          cursor: 'pointer'
                         })
                       },
-                      onChange: handleLocationChange
-                      // isClearable: true
+                      onChange: handleLocationChange,
+                      isClearable: true
                     }}
                   />
                 </div>
@@ -157,8 +215,14 @@ const Header = () => {
                 <ReactSelect
                   options={ageGroupOptions}
                   value={ageGroupOptions.find((opt) => opt.value === age_group)}
-                  onChange={(selectedOption) => store.dispatch(setAgeGroup(selectedOption?.value))}
-                  // isClearable
+                  onChange={(selectedOption) => {
+                    if (selectedOption?.value) {
+                      store.dispatch(setAgeGroup(selectedOption?.value));
+                    } else {
+                      store.dispatch(setAgeGroup(''));
+                    }
+                  }}
+                  isClearable
                   placeholder="Select Age Group"
                   styles={{
                     control: (provided) => ({
@@ -194,6 +258,10 @@ const Header = () => {
                       ...provided,
                       color: state.isFocused ? '#fff' : '#000', // Change text color on hover
                       backgroundColor: state.isFocused ? '#4a90e2' : 'transparent'
+                    }),
+                    clearIndicator: (provided) => ({
+                      ...provided,
+                      cursor: 'pointer'
                     })
                   }}
                 />
