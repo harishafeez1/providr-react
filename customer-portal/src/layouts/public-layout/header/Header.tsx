@@ -314,7 +314,7 @@ const Header = () => {
               target="_blank"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              Log in as Provider
+              Login as Provider
             </a>
           </div>
         </div>
