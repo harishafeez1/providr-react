@@ -18,7 +18,7 @@ interface EditorProps {
 
 const Editor = ({ value, onChange, className, toolbarId: providedToolbarId }: EditorProps) => {
   const [content, setContent] = useState(value);
-  const generatedId = useId(); // generate a unique id for each Editor instance
+  const generatedId = useId();
   // Sanitize the generated id to remove colons
   const sanitizedId = generatedId.replace(/:/g, '-');
   const toolbarId = providedToolbarId || `toolbar-${sanitizedId}`;
@@ -46,7 +46,7 @@ const Editor = ({ value, onChange, className, toolbarId: providedToolbarId }: Ed
   return (
     <div className="custom-editor">
       {/* Custom Toolbar Container with Unique ID */}
-      <div id={toolbarId}>
+      <div id={toolbarId} className="rounded-md input mb-2 ">
         {/* Header Dropdown */}
         <select className="ql-header" defaultValue="">
           <option value="1">H1</option>
@@ -111,6 +111,9 @@ const Editor = ({ value, onChange, className, toolbarId: providedToolbarId }: Ed
       </div>
 
       <ReactQuill
+        style={{
+          borderRadius: '6px'
+        }}
         value={content}
         onChange={(newContent) => {
           setContent(newContent);
