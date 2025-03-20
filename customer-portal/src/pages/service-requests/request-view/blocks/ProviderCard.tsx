@@ -9,6 +9,10 @@ import { Link } from 'react-router-dom';
 
 const ProviderCard = ({ data, comapnyId }: any) => {
   const [isFavorite, setIsFavorite] = useState(false);
+  const truncateText = (htmlString: string, length: number) => {
+    const text = new DOMParser().parseFromString(htmlString, 'text/html').body.textContent || '';
+    return text.length > length ? text.substring(0, length) + '...' : text;
+  };
 
   const handleProviderConnection = async () => {
     const res = await getConnectedProvider(data?.id, data?.pivot?.service_request_id);
@@ -74,7 +78,12 @@ const ProviderCard = ({ data, comapnyId }: any) => {
             </div>
           </div>
           <p className="text-sm text-gray-500">{data?.location || ''}</p>
-          <p className="text-sm text-gray-500 truncate py-2">{data?.description || ''}</p>
+          <div className="ql-content">
+            <div
+              className="mt-4"
+              dangerouslySetInnerHTML={{ __html: truncateText(data?.description || '', 20) }}
+            ></div>
+          </div>
           {data?.pivot?.customer_contacted === 1 ? (
             <div className="px-10">
               <p className="mt-2 flex gap-4 rounded-full bg-success-clarity px-2 py-1 text-xs text-success text-center">

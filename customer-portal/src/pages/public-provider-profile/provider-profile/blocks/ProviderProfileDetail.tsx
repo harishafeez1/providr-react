@@ -194,7 +194,12 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
             {/* Description */}
             <div className="py-6 border-b">
               <h2 className="text-xl font-bold mb-4">About</h2>
-              <p className="text-gray-700 leading-relaxed mt-4">{data?.description || ''}</p>
+              <div className="ql-content">
+                <div
+                  className="mt-4"
+                  dangerouslySetInnerHTML={{ __html: data?.description || '' }}
+                ></div>
+              </div>
               {/* <button className="mt-4 font-medium underline">Show more</button> */}
             </div>
           </div>

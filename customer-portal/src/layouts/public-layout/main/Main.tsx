@@ -17,7 +17,7 @@ const Main = () => {
         <title>{menuItem?.title}</title>
       </Helmet>
       <div className="max-w-screen-2xl mx-auto w-screen h-screen">
-        <div className="flex grow flex-col [[data-sticky-header=on]_&]:pt-[--tw-header-height-default]">
+        <div className="flex grow flex-col">
           <Header />
 
           <main className="grow" role="content">

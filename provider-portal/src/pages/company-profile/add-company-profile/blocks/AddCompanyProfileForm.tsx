@@ -8,6 +8,7 @@ import type { IImageInputFile } from '@/components/image-input';
 import axios from 'axios';
 import { UPDATE_COMPANY_PROFILE_URL } from '@/services/endpoints';
 import { useAuthContext } from '@/auth';
+import { Editor } from '../../../../components/editor/Editor';
 
 const AddCompanyProfileForm = () => {
   const { currentUser, getUser, setCurrentCompany, setCurrentUser } = useAuthContext();
@@ -176,8 +177,16 @@ const AddCompanyProfileForm = () => {
                   help and book in a complementary profile optimisation session here and we can help
                   you writing a description.
                 </p>
-                <label className="input">
-                  <Field
+                <div className="w-full">
+                  <Editor
+                    className="h-80"
+                    value={values.description}
+                    onChange={(value) => {
+                      setFieldValue('description', value);
+                    }}
+                  />
+                </div>
+                {/* <Field
                     name="description"
                     type="textarea"
                     placeholder="Enter a short description"
@@ -185,8 +194,7 @@ const AddCompanyProfileForm = () => {
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       setFieldValue('description', e.target.value);
                     }}
-                  />
-                </label>
+                  /> */}
               </div>
               <div className="grid gap-2.5 ">
                 <label className="form-label max-w-70 gap-1">

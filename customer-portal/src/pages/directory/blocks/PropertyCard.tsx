@@ -5,6 +5,11 @@ import { Link } from 'react-router-dom';
 
 export function PropertyCard({ data }: any) {
   const [isFavorite, setIsFavorite] = useState(false);
+  const truncateText = (htmlString: string, length: number) => {
+    const text = new DOMParser().parseFromString(htmlString, 'text/html').body.textContent || '';
+    return text.length > length ? text.substring(0, length) + '...' : text;
+  };
+
   return (
     <div className="cursor-pointers">
       <Link to={`/provider-profile/${data?.id}`}>
@@ -48,7 +53,12 @@ export function PropertyCard({ data }: any) {
             </div>
           </div>
           <p className="text-sm text-gray-500">{data?.location || ''}</p>
-          <p className="text-sm text-gray-500 truncate">{data?.description || ''}</p>
+          <div className="ql-content">
+            <div
+              className="mt-4 truncate"
+              dangerouslySetInnerHTML={{ __html: truncateText(data?.description || '', 100) }}
+            ></div>
+          </div>
         </div>
       </Link>
     </div>
