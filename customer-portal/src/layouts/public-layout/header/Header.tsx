@@ -301,21 +301,21 @@ const Header = () => {
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="absolute right-4 top-20 w-64 rounded-xl border bg-white shadow-lg">
-          <div className="p-2">
-            <button className="w-full rounded-lg px-4 py-3 text-left hover:bg-gray-100">
-              Sign up
-            </button>
-            <button className="w-full rounded-lg px-4 py-3 text-left hover:bg-gray-100">
-              Log in
-            </button>
-          </div>
-          <div className="border-t p-2">
-            <button className="w-full rounded-lg px-4 py-3 text-left hover:bg-gray-100">
-              Airbnb your home
-            </button>
-            <button className="w-full rounded-lg px-4 py-3 text-left hover:bg-gray-100">
-              Help Center
-            </button>
+          <div className="flex flex-col p-2">
+            <Link
+              to={'/login'}
+              className="w-full rounded-lg px-4 py-3 text-left hover:bg-gray-100 hover:text-primary font-medium"
+            >
+              Login as Participant
+            </Link>
+            <a
+              href={`/provider-portal/auth/login`}
+              className="w-full rounded-lg px-4 py-3 text-left hover:bg-gray-100 hover:text-primary font-medium"
+              target="_blank"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Log in as Provider
+            </a>
           </div>
         </div>
       )}
