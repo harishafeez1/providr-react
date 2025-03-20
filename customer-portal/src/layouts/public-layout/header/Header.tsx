@@ -122,6 +122,7 @@ const Header = () => {
     { value: 'Mature Age (60+ years)', label: 'Mature Age (60+ years)' }
   ];
 
+  const checkLoaction = useLocation();
   return (
     <header className="w- sticky top-0 z-50 border-b bg-white">
       <div className="mx-auto flex flex-col  h-30 items-center justify-between px-4 sm:px-8">
@@ -132,10 +133,22 @@ const Header = () => {
 
           <div className="lg:flex hidden items-center gap-4">
             <Link to="/services">
-              <span>Services</span>
+              <span
+                className={clsx({
+                  'border-b-2 border-primary py-2': checkLoaction.pathname.includes('services')
+                })}
+              >
+                Services
+              </span>
             </Link>
             <Link to="/directory">
-              <span className="">Directory</span>
+              <span
+                className={clsx({
+                  'border-b-2 border-primary py-2': checkLoaction.pathname.includes('directory')
+                })}
+              >
+                Directory
+              </span>
             </Link>
           </div>
           <div className="" />

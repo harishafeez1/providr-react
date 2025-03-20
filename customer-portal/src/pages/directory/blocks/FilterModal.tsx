@@ -183,9 +183,9 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
                 </div>
 
                 <h3 className="text-lg font-semibold">NDIS Register</h3>
-                <div className="flex items-baseline flex-wrap  gap-2.5 mb-4 cursor-pointer">
-                  <div className="input flex">
-                    <label className="flex checkbox checkbox-sm gap-1">
+                <div className="flex items-baseline flex-wrap  gap-2.5 mb-4 ">
+                  <label className=" input flex checkbox checkbox-sm gap-1 w-full cursor-pointer">
+                    <div className="flex gap-4">
                       <input
                         type="checkbox"
                         checked={ndis_register.ndis_registered === 1}
@@ -194,10 +194,10 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
                         }}
                       />
                       <span className="switch-label">NDIS Registered</span>
-                    </label>
-                  </div>
-                  <div className="input flex cursor-pointer">
-                    <label className="flex checkbox checkbox-sm gap-1">
+                    </div>
+                  </label>
+                  <label className=" input flex checkbox checkbox-sm gap-1 w-full cursor-pointer">
+                    <div className="flex gap-4">
                       <input
                         type="checkbox"
                         checked={ndis_register.ndis_childhood_registered === 1}
@@ -208,8 +208,8 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
                         }}
                       />
                       <span className="switch-label">NDIS Early Childhood Registered</span>
-                    </label>
-                  </div>
+                    </div>
+                  </label>
                 </div>
 
                 <h3 className="text-lg font-semibold">Age Group</h3>
@@ -221,8 +221,11 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
                     { name: 'Adults (22-59 years)' },
                     { name: 'Mature Age (60+ years)' }
                   ].map((option) => (
-                    <div className="input flex" key={option.name}>
-                      <label className="flex radio radio-sm gap-1">
+                    <label
+                      className="input flex radio radio-sm gap-1 cursor-pointer"
+                      key={option.name}
+                    >
+                      <div className=" flex gap-4">
                         <input
                           type="radio"
                           name="age_group"
@@ -231,8 +234,8 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
                           onChange={(e) => store.dispatch(setAgeGroup(e.target.value))}
                         />
                         <span className="switch-label">{option.name}</span>
-                      </label>
-                    </div>
+                      </div>
+                    </label>
                   ))}
                 </div>
 
