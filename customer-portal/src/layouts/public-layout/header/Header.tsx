@@ -289,12 +289,13 @@ const Header = () => {
               </div>
             </label>
           </div>
-          <div
+          <button
             className="flex items-center justify-center rounded-full bg-primary px-3 py-2 m-1 cursor-pointer"
             onClick={handleFilters}
+            disabled={allFilters.age_group === '' && allFilters.location === ''}
           >
             <KeenIcon icon="magnifier" className="text-xl font-bold text-white" />
-          </div>
+          </button>
         </div>
       </div>
 
