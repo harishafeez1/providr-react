@@ -156,7 +156,7 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
                   {data?.service_offerings?.map((item: any) => (
                     <>
                       <div key={item.id} className="flex justify-between">
-                        <div className="flex gap-2 items-start">
+                        <div className="flex gap-2 items-start truncate me-6">
                           <div className="space-y-2 mr-4">
                             {item.service.service_icon ? (
                               <div
@@ -169,25 +169,29 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
                           </div>
                           <div>
                             <h3 className="font-medium">{item?.service?.name || ''}</h3>
-                            <p className="text-gray-600 text-sm">{item?.description || ''}</p>
+                            <p className="text-gray-600 text-sm ">{item?.description || ''}</p>
                           </div>
                         </div>
                         <div className="flex items-end">
                           <Dialog>
                             <DialogTrigger asChild>
                               <Button variant="outline" size={'sm'}>
-                                View Service Areas
+                                View Service Detail
                               </Button>
                             </DialogTrigger>
-                            <DialogContent className="max-w-lg">
-                              <DialogHeader>Areas</DialogHeader>
-                              <div className="flex flex-col p-4 items-center gap-4">
+                            <DialogContent className="max-w-xl">
+                              <DialogHeader className="text-lg font-bold">
+                                Service Detail
+                              </DialogHeader>
+                              <div className="flex flex-col justify-center flex-wrap p-4">
+                                <div className="text-lg font-bold">Description</div>
+                                <div className="text-sm">{item?.description || ''}</div>
+                              </div>
+                              <div className="text-lg font-bold ps-4 ">Areas</div>
+                              <div className="flex flex-wrap p-4 items-center gap-4">
                                 {item?.service_available_options?.map(
                                   (option: any, index: number) => (
-                                    <div
-                                      key={index}
-                                      className="flex items-center gap-2 text-sm font-medium"
-                                    >
+                                    <div key={index} className="badge badge-sm badge-gray-100">
                                       <span>{option}</span>
                                     </div>
                                   )
