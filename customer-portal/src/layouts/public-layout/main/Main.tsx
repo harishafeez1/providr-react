@@ -16,7 +16,7 @@ const Main = () => {
       <Helmet>
         <title>{menuItem?.title}</title>
       </Helmet>
-      <div className="max-w-screen-2xl mx-auto w-screen h-screen">
+      
         <div className="flex grow flex-col">
           <Header />
 
@@ -25,7 +25,7 @@ const Main = () => {
           </main>
           <Footer />
         </div>
-      </div>
+ 
     </Fragment>
   );
 };
