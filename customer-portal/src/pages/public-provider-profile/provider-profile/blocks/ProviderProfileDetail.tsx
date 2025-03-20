@@ -245,8 +245,31 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
                 </div>
 
                 <div className="flex justify-around">
-                  <Facebook className="text-primary" size={22} />
-                  <Instagram className="text-primary" size={22} />
+                  {data?.facebook_url ? (
+                    <a
+                      href={data.facebook_url}
+                      className="cursor-pointer"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Facebook className="text-primary" size={22} />
+                    </a>
+                  ) : (
+                    <Facebook className="text-primary" size={22} />
+                  )}
+
+                  {data?.instagram_url ? (
+                    <a
+                      href={data.instagram_url}
+                      className="cursor-pointer"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Instagram className="text-primary" size={22} />
+                    </a>
+                  ) : (
+                    <Instagram className="text-primary" size={22} />
+                  )}
                 </div>
               </div>
             </div>
