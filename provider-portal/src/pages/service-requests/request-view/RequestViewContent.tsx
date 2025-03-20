@@ -60,7 +60,7 @@ const RequestViewContent = () => {
             <UnlockPartnerships data={requestData} />
             <ProgressbarPoints data={requestData} />
             <CompanyProfile data={requestData} />
-            {requestData?.service_request_provider?.length > 0 && <About data={requestData} />}
+            <About data={requestData} />
           </div>
         </div>
       </div>
