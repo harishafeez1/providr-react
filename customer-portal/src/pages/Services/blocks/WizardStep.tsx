@@ -6,6 +6,7 @@ import { useAppSelector } from '@/redux/hooks';
 import ReactSelect from 'react-select';
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 import { geocodeByAddress, getLatLng, geocodeByPlaceId } from 'react-google-places-autocomplete';
+import * as Yup from 'yup';
 import {
   Select,
   SelectContent,
@@ -342,6 +343,37 @@ function LocationStep() {
 }
 
 function PhotosStep() {
+  interface Errors {
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+    phone?: string;
+    gender?: string;
+  }
+  const participantData = useAppSelector((state) => state.services.participantData);
+  const [errors, setErrors] = useState<Errors>({});
+
+  const handleChange = async (field: any, value: any) => {
+    try {
+      await validationSchema.validateAt(field, { [field]: value });
+      setErrors((prevErrors) => ({ ...prevErrors, [field]: undefined }));
+      store.dispatch(setServiceParticipantData({ ...participantData, [field]: value }));
+    } catch (error: any) {
+      setErrors((prevErrors) => ({ ...prevErrors, [field]: error?.message }));
+    }
+  };
+
+  const validationSchema = Yup.object().shape({
+    first_name: Yup.string().required('First name is required'),
+    last_name: Yup.string().required('Last name is required'),
+    email: Yup.string().email('Invalid email').required('Email is required'),
+    phone: Yup.string()
+      .matches(/^[0-9]+$/, 'Phone must be numeric')
+      .min(10, 'Phone must be at least 10 digits')
+      .required('Phone is required'),
+    gender: Yup.string().required('Gender is required')
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex items-baseline flex-wrap gap-2.5 mb-4">
@@ -350,49 +382,29 @@ function PhotosStep() {
           className="input w-full"
           placeholder="First name"
           type="text"
-          required
-          onChange={(e) =>
-            store.dispatch(
-              setServiceParticipantData({
-                ...store.getState().services.participantData,
-                first_name: e.target.value
-              })
-            )
-          }
+          onChange={(e) => handleChange('first_name', e.target.value)}
         />
+        {errors?.first_name && <p className="text-red-500 text-sm">{errors?.first_name}</p>}
       </div>
+
       <div className="flex items-baseline flex-wrap gap-2.5 mb-4">
         <label className="form-label flex items-center gap-1 max-w-56">Last name</label>
         <input
           className="input w-full"
           placeholder="Last name"
           type="text"
-          onChange={(e) =>
-            store.dispatch(
-              setServiceParticipantData({
-                ...store.getState().services.participantData,
-                last_name: e.target.value
-              })
-            )
-          }
+          onChange={(e) => handleChange('last_name', e.target.value)}
         />
+        {errors?.last_name && <p className="text-red-500 text-sm">{errors?.last_name}</p>}
       </div>
+
       <div className="flex items-baseline flex-wrap gap-2.5 mb-4">
         <label className="form-label flex items-center gap-1 max-w-56">Gender</label>
-        <Select
-          onValueChange={(item) =>
-            store.dispatch(
-              setServiceParticipantData({
-                ...store.getState().services.participantData,
-                gender: item
-              })
-            )
-          }
-        >
-          <SelectTrigger className="">
+        <Select onValueChange={(item) => handleChange('gender', item)}>
+          <SelectTrigger>
             <SelectValue placeholder="Select a Gender" />
           </SelectTrigger>
-          <SelectContent className="">
+          <SelectContent>
             <SelectGroup>
               <SelectItem value="male">MALE</SelectItem>
               <SelectItem value="female">FEMALE</SelectItem>
@@ -400,6 +412,7 @@ function PhotosStep() {
             </SelectGroup>
           </SelectContent>
         </Select>
+        {errors?.gender && <p className="text-red-500 text-sm">{errors?.gender}</p>}
       </div>
 
       <div className="flex items-baseline flex-wrap gap-2.5 mb-4">
@@ -408,76 +421,20 @@ function PhotosStep() {
           className="input w-full"
           placeholder="abc@gmail.com"
           type="email"
-          required
-          onChange={(e) =>
-            store.dispatch(
-              setServiceParticipantData({
-                ...store.getState().services.participantData,
-                email: e.target.value
-              })
-            )
-          }
+          onChange={(e) => handleChange('email', e.target.value)}
         />
+        {errors?.email && <p className="text-red-500 text-sm">{errors?.email}</p>}
       </div>
 
       <div className="flex items-baseline flex-wrap gap-2.5 mb-4">
         <label className="form-label flex items-center gap-1 max-w-56">Phone</label>
         <input
           className="input w-full"
-          placeholder=""
           type="text"
-          required
-          onChange={(e) =>
-            store.dispatch(
-              setServiceParticipantData({
-                ...store.getState().services.participantData,
-                phone: e.target.value
-              })
-            )
-          }
+          onChange={(e) => handleChange('phone', e.target.value)}
         />
+        {errors?.phone && <p className="text-red-500 text-sm">{errors?.phone}</p>}
       </div>
-
-      {/* <div className="flex items-baseline flex-wrap gap-2.5 mb-4">
-        <label className="form-label flex items-center gap-1 max-w-56">
-          Where should we send the results?
-        </label>
-        <input className="input w-full" placeholder="Enter Your Email Address" type="text" />
-      </div>
-      <label className="form-label flex items-center gap-1 max-w-56">Select who this is for</label>
-      <div className="grid grid-cols-3 gap-4">
-        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:bg-[#8a4099] has-[:checked]:text-white has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
-          <input
-            className="appearance-none"
-            type="radio"
-            name="appearance_option"
-            defaultChecked={true}
-            value="2"
-          />
-          <span className="text-center text-md">Myself</span>
-        </label>
-
-        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:bg-[#8a4099] has-[:checked]:text-white has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
-          <input
-            className="appearance-none"
-            type="radio"
-            name="appearance_option"
-            defaultChecked={true}
-            value="2"
-          />
-          <span className="text-center text-md">Someone I care for</span>
-        </label>
-        <label className="flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl has-[:checked]:border-primary has-[:checked]:bg-[#8a4099] has-[:checked]:text-white has-[:checked]:border-2 [&_.checked]:has-[:checked]:flex h-[70px] mb-0.5">
-          <input
-            className="appearance-none"
-            type="radio"
-            name="appearance_option"
-            defaultChecked={true}
-            value="2"
-          />
-          <span className="text-center text-md">Enter Your Email Address</span>
-        </label>
-      </div> */}
     </div>
   );
 }
