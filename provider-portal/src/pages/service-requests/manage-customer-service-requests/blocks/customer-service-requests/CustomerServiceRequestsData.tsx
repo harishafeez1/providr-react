@@ -16,6 +16,8 @@ interface ServiceRequestProvider {
 
 interface ICustomerServiceRequestsData {
   id: string | number;
+  first_name: string;
+  last_name: string;
   customer_id: string;
   status: 'active' | 'inactive';
   service_id: string | number;
