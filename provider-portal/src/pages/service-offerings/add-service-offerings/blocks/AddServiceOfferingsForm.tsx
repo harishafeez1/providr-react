@@ -366,7 +366,7 @@ const AddServiceOfferingsForm = () => {
                               setSelectedPlace(null);
                             }}
                           >
-                            Add
+                            Add Address
                           </Button>
                         </div>
                       </label>

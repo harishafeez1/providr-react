@@ -1,27 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import {
-  Heart,
-  Star,
-  Share,
-  MapPin,
-  Calendar,
-  Users,
-  Home,
-  Wifi,
-  Car,
-  Utensils,
-  Snowflake,
-  Phone,
-  Mail,
-  Globe,
-  Facebook,
-  Instagram
-} from 'lucide-react';
+import React, { useState } from 'react';
+import { Heart, Star, Share, Phone, Mail, Globe, Facebook, Instagram } from 'lucide-react';
 
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { ConnectProviderModal } from './ConnectProviderModal';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Dialog, DialogContent, DialogHeader, DialogTrigger } from '@/components/ui/dialog';
 
 interface ProviderDetailPageProps {
   data: any;
@@ -170,22 +154,50 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
               <div className="py-6 border-b">
                 <div className="grid grid-cols-1 gap-4 backdrop:gap-4">
                   {data?.service_offerings?.map((item: any) => (
-                    <div key={item.id} className="flex gap-2 items-start">
-                      <div className="space-y-2 mr-4">
-                        {item.service.service_icon ? (
-                          <div
-                            className="h-10 w-12"
-                            dangerouslySetInnerHTML={{ __html: item.service.service_icon }}
-                          ></div>
-                        ) : (
-                          ''
-                        )}
+                    <>
+                      <div key={item.id} className="flex justify-between">
+                        <div className="flex gap-2 items-start">
+                          <div className="space-y-2 mr-4">
+                            {item.service.service_icon ? (
+                              <div
+                                className="h-10 w-12"
+                                dangerouslySetInnerHTML={{ __html: item.service.service_icon }}
+                              ></div>
+                            ) : (
+                              ''
+                            )}
+                          </div>
+                          <div>
+                            <h3 className="font-medium">{item?.service?.name || ''}</h3>
+                            <p className="text-gray-600 text-sm">{item?.description || ''}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-end">
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size={'sm'}>
+                                View Service Areas
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-lg">
+                              <DialogHeader>Areas</DialogHeader>
+                              <div className="flex flex-col p-4 items-center gap-4">
+                                {item?.service_available_options?.map(
+                                  (option: any, index: number) => (
+                                    <div
+                                      key={index}
+                                      className="flex items-center gap-2 text-sm font-medium"
+                                    >
+                                      <span>{option}</span>
+                                    </div>
+                                  )
+                                )}
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="font-medium">{item?.service?.name || ''}</h3>
-                        <p className="text-gray-600 text-sm">{item?.description || ''}</p>
-                      </div>
-                    </div>
+                    </>
                   ))}
                 </div>
               </div>
@@ -206,7 +218,7 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
 
           {/* Right column - Booking widget */}
           <div className="lg:col-span-1">
-            <div className="sticky top-24 border rounded-xl p-6 shadow-lg">
+            <div className="sticky top-44 border rounded-xl p-6 shadow-lg bg-white z-10">
               <div className="flex justify-center flex-col gap-4 mb-4">
                 <Button variant={'destructive'} size={'sm'} onClick={handleModalOpen}>
                   Connect with this provider
@@ -232,6 +244,55 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
                   <Facebook className="text-primary" size={22} />
                   <Instagram className="text-primary" size={22} />
                 </div>
+              </div>
+            </div>
+            <div className="card card-rounded p-4 mt-4 shadow-lg card-white">
+              <div className="card-title">Service Areas</div>
+              <ScrollArea className="h-40">
+                <div className="flex flex-col gap-2 truncate p-2">
+                  {Array.isArray(data?.addresses_collection) &&
+                    (data?.addresses_collection || [])?.map((item: any, index: number) => (
+                      <div key={index} className="badge bg-gray-200">
+                        {item || ''}
+                      </div>
+                    ))}
+                </div>
+              </ScrollArea>
+            </div>
+            <div className="card card-rounded p-4 mt-4 shadow-lg card-white">
+              <div className="card-title">Access Method</div>
+
+              <div className="flex flex-col gap-2 truncate p-2">
+                {Array.isArray(data?.access_method_collection) &&
+                  (data?.access_method_collection || [])?.map((item: any, index: number) => (
+                    <div key={index} className="badge bg-gray-200">
+                      {item || ''}
+                    </div>
+                  ))}
+              </div>
+            </div>
+            <div className="card card-rounded p-4 mt-4 shadow-lg card-white">
+              <div className="card-title">Age Groups</div>
+
+              <div className="flex flex-col gap-2 truncate p-2">
+                {Array.isArray(data?.age_group_collection) &&
+                  (data?.age_group_collection || [])?.map((item: any, index: number) => (
+                    <div key={index} className="badge bg-gray-200">
+                      {item || ''}
+                    </div>
+                  ))}
+              </div>
+            </div>
+            <div className="card card-rounded p-4 mt-4 shadow-lg card-white">
+              <div className="card-title">Languages</div>
+
+              <div className="flex flex-col gap-2 truncate p-2">
+                {Array.isArray(data?.language_collection) &&
+                  data.language_collection.map((item: string, index: number) => (
+                    <div key={index} className="badge bg-gray-200">
+                      {item}
+                    </div>
+                  ))}
               </div>
             </div>
           </div>
