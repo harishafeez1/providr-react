@@ -36,6 +36,7 @@ const DirectoryPage = () => {
   const location = useLocation();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [servicesLoading, setServicesLoading] = useState(false);
+  const [loadMoreLoading, setLoadMoreLoading] = useState(false);
 
   const { allProviders, pagination, allServices } = useAppSelector(
     (state) => state.directoryListing
@@ -120,6 +121,31 @@ const DirectoryPage = () => {
     }
   };
 
+  const loadMoreProviders = async (page: number) => {
+    setLoadMoreLoading(true);
+    try {
+      const res = await getListoftProvider(page);
+      if (res) {
+        store.dispatch(setAllServices(res.services));
+        if (page === 1) {
+          store.dispatch(setAllProviders(res.directories.data));
+        } else {
+          store.dispatch(appendProviders(res.directories.data));
+        }
+        store.dispatch(
+          setPagination({
+            currentPage: res.directories.current_page,
+            lastPage: res.directories.last_page
+          })
+        );
+      }
+    } catch (error) {
+      console.error('Error fetching providers:', error);
+    } finally {
+      setLoadMoreLoading(false);
+    }
+  };
+
   return (
     <Fragment>
       <Navbar>
@@ -150,11 +176,11 @@ const DirectoryPage = () => {
             className="px-4 py-2 btn btn-primary rounded-lg"
             onClick={() => {
               store.dispatch(setLoadMore(true));
-              fetchProviders(pagination.currentPage + 1);
+              loadMoreProviders(pagination.currentPage + 1);
             }}
-            disabled={pagination.loading}
+            disabled={loadMoreLoading}
           >
-            {pagination.loading ? 'Loading...' : 'Load More'}
+            {loadMoreLoading ? 'Loading...' : 'Load More'}
           </button>
         </div>
       )}

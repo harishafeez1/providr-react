@@ -176,7 +176,7 @@ const Header = () => {
                       componentRestrictions: {
                         country: 'aus'
                       },
-                      types: ['(regions)']
+                      types: ['address']
                     }}
                     debounce={300}
                     selectProps={{

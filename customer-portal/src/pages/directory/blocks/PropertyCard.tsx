@@ -17,7 +17,7 @@ export function PropertyCard({ data }: any) {
           <img
             src={
               data?.business_logo
-                ? `${import.meta.env.VITE_APP_AWS_URL}/${data?.business_logo}`
+                ? `${import.meta.env.VITE_APP_AWS_URL}/${data?.photo_gallery?.[0]}`
                 : `${import.meta.env.VITE_APP_AWS_URL}/man-helping-woman-for-carrier.png`
             }
             alt={'company name'}
@@ -46,7 +46,18 @@ export function PropertyCard({ data }: any) {
             </p>
           )}
           <div className="flex items-center justify-between">
-            <h3 className="font-medium truncate pe-">{data?.name || ''}</h3>
+            <div className="flex gap-2 items-center">
+              <img
+                src={
+                  data?.business_logo
+                    ? `${import.meta.env.VITE_APP_AWS_URL}/${data?.business_logo}`
+                    : `${import.meta.env.VITE_APP_AWS_URL}/man-helping-woman-for-carrier.png`
+                }
+                alt={'company name'}
+                className="h-8 w-8 rounded-full object-cover"
+              />
+              <h3 className="font-medium truncate pe-">{data?.name || ''}</h3>
+            </div>
             <div className="flex items-center gap-1">
               <Star className="h-4 w-4 fill-current" />
               <span>{data?.review_stats ? data?.review_stats?.average_rating : 0}</span>
