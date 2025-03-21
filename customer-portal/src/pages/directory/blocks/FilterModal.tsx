@@ -162,7 +162,7 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
                         componentRestrictions: {
                           country: 'aus'
                         },
-                        types: ['(regions)']
+                        types: ['address']
                       }}
                       selectProps={{
                         isClearable: true,
