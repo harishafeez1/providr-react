@@ -85,8 +85,6 @@ export default function AirbnbWizard() {
         return !participantData.first_name || !participantData.email || !participantData.phone; // Disable if participant info is incomplete
       case 3:
         return wizardData?.length <= 0;
-      case 4:
-        return finishLoading;
       default:
         return false;
     }
@@ -223,10 +221,16 @@ export default function AirbnbWizard() {
           <div className="relative">
             <Button
               onClick={nextStep}
-              disabled={currentStep === steps.length || isNextDisabled()}
+              disabled={currentStep === steps.length || isNextDisabled() || finishLoading}
               className="btn btn-primary "
             >
-              {currentStep === steps.length - 1 ? (isLoggedIn ? 'Complete' : 'Login') : 'Next'}
+              {currentStep === steps.length - 1
+                ? isLoggedIn
+                  ? finishLoading
+                    ? 'Please wait...'
+                    : 'Complete'
+                  : 'Login'
+                : 'Next'}
               {/* <ChevronRight className="w-4 h-4 ml-2" /> */}
             </Button>
 

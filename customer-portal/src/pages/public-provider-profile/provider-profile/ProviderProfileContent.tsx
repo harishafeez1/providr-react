@@ -7,7 +7,7 @@ import ProviderDetailPage from './blocks/ProviderProfileDetail';
 const ProviderProfileContent = () => {
   const { id } = useParams();
 
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [resData, setResData] = useState<any>();
 
   useEffect(() => {
@@ -17,19 +17,18 @@ const ProviderProfileContent = () => {
       setResData(res);
     };
     try {
+      setLoading(true);
       fetchProvider();
-      setLoading(false);
     } catch (error) {
       console.error(error);
-      setLoading(false);
     } finally {
       setLoading(false);
     }
   }, [id]);
 
-  if (loading) {
-    <></>;
-  }
+  // if (loading) {
+  //   <></>;
+  // }
 
   return (
     <>

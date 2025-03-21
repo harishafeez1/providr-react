@@ -201,7 +201,13 @@ const Header = () => {
                         }),
                         placeholder: (provided) => ({
                           ...provided,
-                          color: '#999' // Change placeholder color if needed
+                          color: '#999', // Change placeholder color if needed
+                          display: 'block', // Default visible
+
+                          // Hide placeholder on small screens
+                          '@media (max-width: 425px)': {
+                            display: 'none'
+                          }
                         }),
                         menu: (provided) => ({
                           ...provided,
@@ -244,7 +250,7 @@ const Header = () => {
                     }
                   }}
                   isClearable
-                  placeholder="Select Age Group"
+                  placeholder={'Select Age Group'}
                   styles={{
                     control: (provided) => ({
                       ...provided,
@@ -266,7 +272,13 @@ const Header = () => {
                     placeholder: (provided) => ({
                       ...provided,
                       color: '#999', // Change placeholder color if needed
-                      fontSize: '14px'
+                      fontSize: '14px',
+                      display: 'block', // Default visible
+
+                      // Hide placeholder on small screens
+                      '@media (max-width: 425px)': {
+                        display: 'none'
+                      }
                     }),
                     menu: (provided) => ({
                       ...provided,

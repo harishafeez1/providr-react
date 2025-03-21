@@ -51,10 +51,10 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white ">
       <ConnectProviderModal open={isModalOpen} onOpenChange={handleModalClose} />
       {/* Property title section */}
-      <div className="container mx-auto px-4 pt-6">
+      <div className="px-4 pt-6">
         <div className="flex items-start justify-between mb-4">
           <div>
             <h1 className="text-2xl font-bold">{data?.name || ''}</h1>
@@ -79,7 +79,7 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
       </div>
 
       {/* Photo gallery */}
-      <div className="container mx-auto mb-8 px-4">
+      <div className="mb-8 px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-2 rounded-xl overflow-hidden">
           {/* Large Main Image */}
           <div className="row-span-1 col-span-1 md:row-span-2 md:col-span-2">
@@ -102,27 +102,38 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
           {/* Smaller Images */}
           {loading ? (
             <GridListingSkeleton />
-          ) : (
-            data?.photo_gallery?.slice(1, 5)?.map((image: any, index: number) => (
+          ) : data?.photo_gallery?.length > 0 ? (
+            data?.photo_gallery?.slice(1, 5).map((image: any, index: number) => (
               <div key={index} className="h-48 md:h-full">
                 <img
-                  src={
-                    image
-                      ? `${import.meta.env.VITE_APP_AWS_URL}/${image}`
-                      : `${import.meta.env.VITE_APP_AWS_URL}/man-helping-woman-for-carrier.png`
-                  }
+                  src={`${import.meta.env.VITE_APP_AWS_URL}/${image}`}
                   alt="details"
                   className="w-full h-full object-cover rounded-lg"
                   loading="lazy"
                 />
               </div>
             ))
+          ) : (
+            // Default image when no images are available
+            [...Array(2)].map((_, index) => {
+              const image = data?.photo_gallery?.[index + 1] || 'man-helping-woman-for-carrier.png';
+              return (
+                <div key={index} className="h-48 md:h-full">
+                  <img
+                    src={`${import.meta.env.VITE_APP_AWS_URL}/${image}`}
+                    alt="details"
+                    className="w-full h-full object-cover rounded-lg"
+                    loading="lazy"
+                  />
+                </div>
+              );
+            })
           )}
         </div>
       </div>
 
       {/* Main content */}
-      <div className="container mx-auto px-4">
+      <div className="px-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           {/* Left column - Property details */}
           <div className="lg:col-span-2">
@@ -152,8 +163,8 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
               <div className="py-6 border-b">
                 <div className="grid grid-cols-1 gap-4 backdrop:gap-4">
                   {data?.service_offerings?.map((item: any) => (
-                    <>
-                      <div key={item.id} className="flex justify-between">
+                    <div key={item.id}>
+                      <div className="flex justify-between">
                         <div className="flex gap-2 items-start truncate me-6">
                           <div className="space-y-2 mr-4">
                             {item.service.service_icon ? (
@@ -199,7 +210,7 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
                           </Dialog>
                         </div>
                       </div>
-                    </>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -220,7 +231,7 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
 
           {/* Right column - Booking widget */}
           <div className="lg:col-span-1">
-            <div className="sticky top-44 border rounded-xl p-6 shadow-lg bg-white z-10">
+            <div className="lg:sticky top-44 border rounded-xl p-6 shadow-lg bg-white z-10">
               <div className="flex justify-center flex-col gap-4 mb-4">
                 <Button variant={'destructive'} size={'sm'} onClick={handleModalOpen}>
                   Connect with this provider
@@ -325,7 +336,7 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
       </div>
 
       {/* Reviews section */}
-      <div id="reviews" className="container mx-auto px-4 py-12">
+      <div id="reviews" className="px-4 py-12">
         <div className="flex items-center mb-6">
           <Star size={20} className="text-black" />
           <span className="ml-2 text-xl font-bold">{data?.total_reviews} reviews</span>
