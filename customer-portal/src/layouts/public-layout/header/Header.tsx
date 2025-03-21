@@ -292,7 +292,7 @@ const Header = () => {
           <button
             className="flex items-center justify-center rounded-full bg-primary px-3 py-2 m-1 cursor-pointer"
             onClick={handleFilters}
-            disabled={allFilters.age_group === '' && allFilters.location === ''}
+            // disabled={allFilters.age_group === '' && allFilters.location === ''}
           >
             <KeenIcon icon="magnifier" className="text-xl font-bold text-white" />
           </button>
