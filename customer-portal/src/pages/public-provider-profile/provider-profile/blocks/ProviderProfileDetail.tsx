@@ -94,7 +94,6 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
                 }
                 alt="company details"
                 className="w-full h-full object-cover rounded-lg"
-                loading="lazy"
               />
             )}
           </div>
@@ -109,7 +108,6 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
                   src={`${import.meta.env.VITE_APP_AWS_URL}/${image}`}
                   alt="details"
                   className="w-full h-full object-cover rounded-lg"
-                  loading="lazy"
                 />
               </div>
             ))
@@ -123,7 +121,6 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
                     src={`${import.meta.env.VITE_APP_AWS_URL}/${image}`}
                     alt="details"
                     className="w-full h-full object-cover rounded-lg"
-                    loading="lazy"
                   />
                 </div>
               );
