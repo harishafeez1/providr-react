@@ -16,7 +16,7 @@ export function PropertyCard({ data }: any) {
         <div className="relative aspect-square overflow-hidden rounded-xl">
           <img
             src={
-              data?.business_logo
+              data?.photo_gallery?.[0]
                 ? `${import.meta.env.VITE_APP_AWS_URL}/${data?.photo_gallery?.[0]}`
                 : `${import.meta.env.VITE_APP_AWS_URL}/man-helping-woman-for-carrier.png`
             }
