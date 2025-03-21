@@ -114,7 +114,7 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
   };
 
   const handleFilters = async () => {
-    const updatedFilters = { ...allFilters, serviceId: localServiceId };
+    const updatedFilters = { ...allFilters, service_id: localServiceId };
     store.dispatch(setIsFilterModalOpen(true));
 
     store.dispatch(setLoading(true));
