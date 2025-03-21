@@ -20,13 +20,16 @@ import {
   setLoading,
   setPagination
 } from '@/redux/slices/directory-listing-slice';
+import { useAuthContext } from '@/auth';
 
 const Header = () => {
   const locationCheck = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const { age_group, location } = useAppSelector((state) => state.directory);
+  const { auth } = useAuthContext();
+
+  const { age_group } = useAppSelector((state) => state.directory);
   const {
     pagination: { loading }
   } = useAppSelector((state) => state.directoryListing);

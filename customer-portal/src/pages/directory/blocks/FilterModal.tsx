@@ -340,20 +340,20 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
             <Button
               onClick={async () => {
                 store.dispatch(setResetFilters());
-                const res = await getListoftProvider(1);
-                if (res) {
-                  if (res.directories.current_page === 1) {
-                    store.dispatch(setAllProviders(res.directories.data));
-                  } else {
-                    store.dispatch(appendProviders(res.directories.data));
-                  }
-                  store.dispatch(
-                    setPagination({
-                      currentPage: res.directories.current_page,
-                      lastPage: res.directories.last_page
-                    })
-                  );
-                }
+                // const res = await getListoftProvider(1);
+                // if (res) {
+                //   if (res.directories.current_page === 1) {
+                //     store.dispatch(setAllProviders(res.directories.data));
+                //   } else {
+                //     store.dispatch(appendProviders(res.directories.data));
+                //   }
+                //   store.dispatch(
+                //     setPagination({
+                //       currentPage: res.directories.current_page,
+                //       lastPage: res.directories.last_page
+                //     })
+                //   );
+                // }
               }}
             >
               Clear All Filters
