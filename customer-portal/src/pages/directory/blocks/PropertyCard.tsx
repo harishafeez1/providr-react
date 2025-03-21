@@ -56,7 +56,7 @@ export function PropertyCard({ data }: any) {
                 alt={'company name'}
                 className="h-8 w-8 rounded-full object-cover"
               />
-              <h3 className="font-medium truncate pe-">{data?.name || ''}</h3>
+              <h3 className="font-medium truncate max-w-48">{data?.name || ''}</h3>
             </div>
             <div className="flex items-center gap-1">
               <Star className="h-4 w-4 fill-current" />
