@@ -114,11 +114,12 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
   };
 
   const handleFilters = async () => {
+    const updatedFilters = { ...allFilters, serviceId: localServiceId };
     store.dispatch(setIsFilterModalOpen(true));
-    store.dispatch(setServiceId(localServiceId));
+
     store.dispatch(setLoading(true));
 
-    const res = await postDirectoryFilters(allFilters);
+    const res = await postDirectoryFilters(updatedFilters);
     if (res) {
       if (res.directories.current_page === 1) {
         store.dispatch(setAllProviders(res.directories.data));
@@ -177,7 +178,9 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
                 <div className="flex items-baseline flex-wrap  gap-2.5 mb-4">
                   <ReactSelect
                     options={services}
-                    onChange={(item: any) => setLocalServiceId(item.value)}
+                    onChange={(item: any) => {
+                      setLocalServiceId(item.value);
+                    }}
                     className="w-full text-sm"
                   />
                 </div>
