@@ -79,10 +79,10 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
       </div>
 
       {/* Photo gallery */}
-      <div className="container mx-auto mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 grid-rows-1 gap-2 rounded-xl overflow-hidden">
+      <div className="container mx-auto mb-8 px-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-2 rounded-xl overflow-hidden">
           {/* Large Main Image */}
-          <div className="md:row-span-2 md:col-span-2 h-full">
+          <div className="row-span-1 col-span-1 md:row-span-2 md:col-span-2">
             {loading ? (
               <ListingSkeleton />
             ) : (
@@ -90,24 +90,21 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
                 src={
                   data?.photo_gallery?.[0]
                     ? `${import.meta.env.VITE_APP_AWS_URL}/${data?.photo_gallery?.[0]}`
-                    : !loading && !data?.photo_gallery?.[0]
-                      ? `${import.meta.env.VITE_APP_AWS_URL}/man-helping-woman-for-carrier.png`
-                      : ''
+                    : `${import.meta.env.VITE_APP_AWS_URL}/man-helping-woman-for-carrier.png`
                 }
                 alt="company details"
-                className="w-full object-contain rounded-lg h-[400px]"
+                className="w-full h-full object-cover rounded-lg"
                 loading="lazy"
               />
             )}
           </div>
 
           {/* Smaller Images */}
-
           {loading ? (
             <GridListingSkeleton />
           ) : (
             data?.photo_gallery?.slice(1, 5)?.map((image: any, index: number) => (
-              <div key={index} className="h-full">
+              <div key={index} className="h-48 md:h-full">
                 <img
                   src={
                     image
@@ -115,7 +112,7 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
                       : `${import.meta.env.VITE_APP_AWS_URL}/man-helping-woman-for-carrier.png`
                   }
                   alt="details"
-                  className="w-full object-contain rounded-lg h-[400px]"
+                  className="w-full h-full object-cover rounded-lg"
                   loading="lazy"
                 />
               </div>
@@ -123,6 +120,7 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
           )}
         </div>
       </div>
+
       {/* Main content */}
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
