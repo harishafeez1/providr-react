@@ -38,7 +38,7 @@ const NavbarMenu: React.FC<NavbarMenuProps> = ({ type, items, loading }) => {
 
   const handlePostFilters = async () => {
     try {
-      if (!isFilterModalOpen && service_id && !loadMore) {
+      if (!isFilterModalOpen && service_id !== '' && !loadMore) {
         store.dispatch(setLoading(true));
         const res = await postDirectoryFilters(allFilters);
         if (res) {
