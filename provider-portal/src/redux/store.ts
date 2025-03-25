@@ -1,11 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit';
 import usersSlice from './slices/users-slice';
 import servicesSlice from './slices/services-slice';
+import  notificationsSlice  from './slices/notifications-slice';
 
 export const store = configureStore({
   reducer: {
     users: usersSlice,
-    services: servicesSlice
+    services: servicesSlice,
+    notifications: notificationsSlice
   }
 });
 

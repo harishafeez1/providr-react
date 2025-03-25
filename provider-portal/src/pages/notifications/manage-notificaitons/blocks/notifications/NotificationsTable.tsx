@@ -1,26 +1,88 @@
-import { useCallback, useMemo, useState } from 'react';
-import { DataGrid, DataGridColumnHeader } from '@/components';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { DataGrid, DataGridColumnHeader, TDataGridRequestParams } from '@/components';
 import { ColumnDef, Column, RowSelectionState } from '@tanstack/react-table';
 
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 
-import { NotificationsData, INotificationsData } from './';
+import { INotificationsData } from './';
+import { useAuthContext } from '@/auth';
+import { getAllNotifications, updateNotificationsSetting } from '@/services/api/notifications';
+import { store } from '@/redux/store';
+import { setNotificationsList } from '@/redux/slices/notifications-slice';
+import { useAppSelector } from '@/redux/hooks';
 
 interface IColumnFilterProps<TData, TValue> {
   column: Column<TData, TValue>;
 }
 
 const NotificationsTable = () => {
-  const [isEmail, setIsEmail] = useState(true);
+  const { currentUser } = useAuthContext();
+  const [refreshKey, setRefreshKey] = useState(0);
+
   const [isSms, setIsSms] = useState(true);
-  const handleToggleEmail = useCallback(() => {
-    setIsEmail((prev) => !prev);
-  }, []);
+  // const handleToggleEmail = useCallback(() => {
+  //   setIsEmail((prev) => !prev);
+  // }, []);
 
   const handleToggleSms = useCallback(() => {
     setIsSms((prev) => !prev);
   }, []);
+
+  const handleToggleEmail = async (row: any) => {
+    setRefreshKey((pre) => pre + 1);
+    await updateNotificationsSetting(currentUser?.provider_company_id, {
+      name: row.name,
+      active: row.active ? 0 : 1
+    });
+  };
+
+  const fetchNotifications = async (params: TDataGridRequestParams) => {
+    if (!currentUser) {
+      console.error('currentUser is undefined');
+      return {
+        data: [],
+        totalCount: 0
+      };
+    }
+    try {
+      const queryParams = new URLSearchParams();
+
+      queryParams.set('page', String(params.pageIndex + 1)); // Page is 1-indexed on server
+      queryParams.set('per_page', String(params.pageSize));
+      if (params.sorting?.[0]?.id) {
+        queryParams.set('sort', params.sorting[0].id);
+        queryParams.set('order', params.sorting[0].desc ? 'desc' : 'asc');
+      }
+
+      // if (searchQuery.trim().length > 0) {
+      //   queryParams.set('query', searchQuery);
+      // }
+
+      if (params.columnFilters) {
+        params.columnFilters.forEach(({ id, value }) => {
+          if (value !== undefined && value !== null) {
+            queryParams.set(`filter[${id}]`, String(value));
+          }
+        });
+      }
+
+      const response = await getAllNotifications(currentUser?.provider_company_id);
+
+      return {
+        data: response,
+        totalCount: response?.total
+      };
+    } catch (error) {
+      console.error(error);
+
+      return {
+        data: [],
+        totalCount: 0
+      };
+    }
+  };
+
   const ColumnInputFilter = <TData, TValue>({ column }: IColumnFilterProps<TData, TValue>) => {
     return (
       <Input
@@ -36,7 +98,7 @@ const NotificationsTable = () => {
     () => [
       {
         accessorFn: (row: INotificationsData) => row,
-        id: 'notification',
+        id: 'name',
         header: ({ column }) => (
           <DataGridColumnHeader
             title="Notification"
@@ -49,8 +111,8 @@ const NotificationsTable = () => {
           return (
             <div className="flex items-center gap-4">
               <div className="flex flex-col gap-0.5">
-                <label>{row.original.notification.title}</label>
-                {row.original.notification.description}
+                <label className="card-title">{row.original.name}</label>
+                {row.original.description}
               </div>
             </div>
           );
@@ -61,7 +123,7 @@ const NotificationsTable = () => {
         }
       },
       {
-        accessorFn: (row) => row.isEmail,
+        accessorFn: (row) => row.active,
         id: 'isEmail',
         header: ({ column }) => (
           <DataGridColumnHeader
@@ -74,10 +136,13 @@ const NotificationsTable = () => {
           return (
             <label className="switch switch-sm p-3">
               <input
-                className="order-1"
+                className=""
+                name={info.row.original.name}
                 type="checkbox"
-                checked={info.row.original.isEmail}
-                onChange={handleToggleEmail}
+                checked={info.row.original.active}
+                onChange={() => {
+                  handleToggleEmail(info.row.original);
+                }}
               />
             </label>
           );
@@ -85,7 +150,7 @@ const NotificationsTable = () => {
         meta: {
           headerClassName: 'min-w-[180px]'
         }
-      },
+      }
       // {
       //   accessorFn: (row) => row.isSms,
       //   id: 'isSms',
@@ -113,32 +178,30 @@ const NotificationsTable = () => {
       //     headerClassName: 'min-w-[180px]'
       //   }
       // },
-      {
-        accessorFn: (row) => row.lastUpdated,
-        id: 'lastUpdated',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            title="Updated"
-            column={column}
-            icon={<i className="ki-filled ki-time"></i>}
-          />
-        ),
-        cell: (info) => {
-          return (
-            <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.lastUpdated}
-            </div>
-          );
-        },
-        meta: {
-          headerClassName: 'min-w-[180px]'
-        }
-      }
+      // {
+      //   accessorFn: (row) => row.lastUpdated,
+      //   id: 'lastUpdated',
+      //   header: ({ column }) => (
+      //     <DataGridColumnHeader
+      //       title="Updated"
+      //       column={column}
+      //       icon={<i className="ki-filled ki-time"></i>}
+      //     />
+      //   ),
+      //   cell: (info) => {
+      //     return (
+      //       <div className="flex items-center text-gray-800 font-normal gap-1.5">
+      //         {info.row.original.lastUpdated}
+      //       </div>
+      //     );
+      //   },
+      //   meta: {
+      //     headerClassName: 'min-w-[180px]'
+      //   }
+      // }
     ],
     [handleToggleEmail, handleToggleSms]
   );
-
-  const data: INotificationsData[] = useMemo(() => NotificationsData, []);
 
   const handleRowSelection = (state: RowSelectionState) => {
     const selectedRowIds = Object.keys(state);
@@ -162,8 +225,10 @@ const NotificationsTable = () => {
   return (
     <>
       <DataGrid
+        key={refreshKey}
+        serverSide
         columns={columns}
-        data={data}
+        onFetchData={fetchNotifications}
         rowSelection={true}
         onRowSelectionChange={handleRowSelection}
         pagination={{ show: true }}

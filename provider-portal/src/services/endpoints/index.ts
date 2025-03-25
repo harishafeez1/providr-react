@@ -46,3 +46,7 @@ export const GET_ALL_REVIEWS_URL = `${API_URL}/reviews/all_reviews`;
 
 // All Services Routes
 export const GET_ALL_SERVICES_URL = `${API_URL}/all_services`;
+
+// All Notifications Routes
+export const GET_NOTIFICATIONS_URL = `${API_URL}/notification_settings`;  // type provider | customer / user_id | company_id
+export const UPDATE_NOTIFICATIONS_URL = `${API_URL}/notification_settings/update`;
