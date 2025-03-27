@@ -10,12 +10,12 @@ const DirectoryContent = ({ providers, loading }: any) => {
   }
   return (
     <>
-      <main className="w-full px-8 py-6">
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
+      <main className="w-full">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-5 2xl:grid-cols-6">
           {loading
             ? Array.from({ length: 10 }).map((_, index) => <ListingSkeleton key={index} />)
             : providers.map((provider: any) => (
-                <div key={provider.id} className="card-border card-rounded p-4">
+                <div key={provider.id} className="card-rounded">
                   <PropertyCard data={provider} />
                 </div>
               ))}

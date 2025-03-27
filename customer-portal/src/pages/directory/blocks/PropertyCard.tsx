@@ -33,7 +33,7 @@ export function PropertyCard({ data }: any) {
             <Heart
               className={clsx(
                 'h-6 w-6',
-                isFavorite ? 'fill-red-500 stroke-red-500' : 'stroke-white'
+                isFavorite ? 'fill-red-500 stroke-red-500' : 'stroke-white fill-transparent '
               )}
             />
           </button>
@@ -56,17 +56,19 @@ export function PropertyCard({ data }: any) {
                 alt={'company name'}
                 className="h-8 w-8 rounded-full object-cover"
               />
-              <h3 className="font-medium truncate max-w-48">{data?.name || ''}</h3>
+              <h3 className="font-semibold text-[#222222] text-md truncate max-w-48">
+                {data?.name || ''}
+              </h3>
             </div>
             <div className="flex items-center gap-1">
-              <Star className="h-4 w-4 fill-current" />
+              <Star className="h-3 w-3 fill-[#222222]" />
               <span>{data?.review_stats ? data?.review_stats?.average_rating : 0}</span>
             </div>
           </div>
           <p className="text-sm text-gray-500">{data?.location || ''}</p>
           <div className="ql-content">
             <div
-              className="mt-4 truncate"
+              className="mt-2 truncate text-[#6a6a6a] text-sm text-pretty"
               dangerouslySetInnerHTML={{ __html: truncateText(data?.description || '', 100) }}
             ></div>
           </div>

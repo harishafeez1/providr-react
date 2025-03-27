@@ -8,3 +8,52 @@
 
 /* Shadcn UI */
 @import "shadcn.ui";
+
+
+@font-face {
+    font-family: 'Cereal';
+    src: url('../../public/media/fonts/AirbnbCereal_W_Lt.otf') format('otf');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+@font-face {
+    font-family: 'Cereal';
+    src: url('../../public/media/fonts/AirbnbCereal_W_Bk.otf') format('otf');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+
+@font-face {
+    font-family: 'Cereal';
+    src: url('../../public/media/fonts/AirbnbCereal_W_Md.otf') format('otf');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+  }
+
+@font-face {
+    font-family: 'Cereal';
+    src: url('../../public/media/fonts/AirbnbCereal_W_Bd.otf') format('otf');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
+@font-face {
+    font-family: 'Cereal';
+    src: url('../../public/media/fonts/AirbnbCereal_W_XBd.otf') format('otf');
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+  }
+
+@font-face {
+    font-family: 'Cereal';
+    src: url('../../public/media/fonts/AirbnbCereal_W_Blk.otf') format('otf');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+  }

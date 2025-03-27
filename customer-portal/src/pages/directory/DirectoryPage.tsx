@@ -17,7 +17,6 @@ import {
 import { useAppSelector } from '@/redux/hooks';
 import { useLocation } from 'react-router';
 import { postDirectoryFilters } from '@/services/api/directory';
-import { getAllServices } from '@/services/api/all-services';
 
 function ServicesSkeleton() {
   return (
@@ -34,13 +33,9 @@ function ServicesSkeleton() {
 
 const DirectoryPage = () => {
   const location = useLocation();
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [servicesLoading, setServicesLoading] = useState(false);
   const [loadMoreLoading, setLoadMoreLoading] = useState(false);
 
-  const { allProviders, pagination, allServices } = useAppSelector(
-    (state) => state.directoryListing
-  );
+  const { allProviders, pagination } = useAppSelector((state) => state.directoryListing);
   const allFilters = useAppSelector((state) => state.directory);
 
   useEffect(() => {
@@ -52,18 +47,10 @@ const DirectoryPage = () => {
         // Define and invoke the async function
         const fetchData = async () => {
           try {
-            setServicesLoading(true);
             store.dispatch(setLoading(true));
 
             // Fetch filtered directory data
             const res = await postDirectoryFilters(allFilters);
-
-            // Fetch all services
-            const servicesRes = await getAllServices();
-            if (servicesRes) {
-              store.dispatch(setAllServices(servicesRes));
-              setServicesLoading(false);
-            }
 
             // Update providers and pagination based on directory response
             if (res) {
@@ -96,7 +83,6 @@ const DirectoryPage = () => {
 
   const fetchProviders = async (page: number) => {
     store.dispatch(setLoading(true));
-    setServicesLoading(true);
     try {
       const res = await getListoftProvider(page);
       if (res) {
@@ -117,7 +103,6 @@ const DirectoryPage = () => {
       console.error('Error fetching providers:', error);
     } finally {
       store.dispatch(setLoading(false));
-      setServicesLoading(false);
     }
   };
 
@@ -148,27 +133,9 @@ const DirectoryPage = () => {
 
   return (
     <Fragment>
-      <Navbar>
-        <div className="flex w-full items-center justify-between border-b px-8 py-5">
-          {servicesLoading ? (
-            Array.from({ length: 20 }).map((_, index) => <ServicesSkeleton key={index} />)
-          ) : (
-            <PageMenu services={allServices} loading={servicesLoading} />
-          )}
-          <NavbarActions>
-            <button
-              onClick={() => setIsFilterOpen(true)}
-              className="flex items-center gap-2 rounded-xl border px-4 py-2 hover:shadow-md transition"
-            >
-              <KeenIcon icon="filter" className="w-5 h-5" />
-              <span>Filters</span>
-            </button>
-            <FilterModal open={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
-          </NavbarActions>
-        </div>
-      </Navbar>
-
-      <DirectoryContent providers={allProviders} loading={pagination.loading} />
+      <div className="">
+        <DirectoryContent providers={allProviders} loading={pagination.loading} />
+      </div>
 
       {pagination.currentPage < pagination.lastPage && (
         <div className="flex justify-center mt-6">
@@ -180,7 +147,7 @@ const DirectoryPage = () => {
             }}
             disabled={loadMoreLoading}
           >
-            {loadMoreLoading ? 'Loading...' : 'Load More'}
+            {loadMoreLoading ? 'Loading...' : 'Show More'}
           </button>
         </div>
       )}

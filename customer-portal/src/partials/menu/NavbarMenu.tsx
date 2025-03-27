@@ -73,6 +73,7 @@ const NavbarMenu: React.FC<NavbarMenuProps> = ({ type, items, loading }) => {
       if (type) {
         return (
           <div
+            className="hover:border-b-2 border-gray-300"
             key={item?.id}
             onClick={async () => {
               setSelectedId(item?.id);
@@ -104,7 +105,7 @@ const NavbarMenu: React.FC<NavbarMenuProps> = ({ type, items, loading }) => {
               ) : (
                 ''
               )}
-              <MenuTitle className="text-nowrap text-sm text-gray-700 menu-item-active:text-primary menu-item-active:font-medium menu-item-here:text-primary menu-item-here:font-medium menu-item-show:text-primary menu-link-hover:text-primary">
+              <MenuTitle className="text-nowrap text-xs text-gray-700 menu-item-active:text-primary menu-item-active:font-medium menu-item-here:text-primary menu-item-here:font-medium menu-item-show:text-primary menu-link-hover:border-b">
                 {item.name || ''}
               </MenuTitle>
             </MenuItem>
@@ -120,7 +121,7 @@ const NavbarMenu: React.FC<NavbarMenuProps> = ({ type, items, loading }) => {
     <>
       <div className="grid">
         <div className="scrollable-x-auto scrollbar-hidden">
-          <Menu highlight={true} className="gap-3">
+          <Menu highlight={true} className="gap-4">
             {buildMenu(items)}
           </Menu>
         </div>

@@ -14,7 +14,7 @@ interface PageMenuProps {
 
 const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
   return (
-    <div className="w-[90%]">
+    <div className="w-[90%] ">
       <NavbarMenu type={true} items={services} loading={loading} />
     </div>
   );

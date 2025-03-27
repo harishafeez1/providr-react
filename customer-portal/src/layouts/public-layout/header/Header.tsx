@@ -1,8 +1,9 @@
 import { KeenIcon } from '@/components';
 import ReactSelect from 'react-select';
+import { Navbar, NavbarActions } from '@/partials/navbar';
 
 import clsx from 'clsx';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { HeaderLogo } from './HeaderLogo';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import GooglePlacesAutocomplete, {
@@ -17,17 +18,38 @@ import { postDirectoryFilters } from '@/services/api/directory';
 import {
   appendProviders,
   setAllProviders,
+  setAllServices,
   setLoading,
   setPagination
 } from '@/redux/slices/directory-listing-slice';
 import { useAuthContext } from '@/auth';
+import { PageMenu } from '@/pages/directory/blocks/PageMenu';
+import { getAllServices } from '@/services/api/all-services';
+import { FilterModal } from '@/pages/directory';
+
+function ServicesSkeleton() {
+  return (
+    <div className="">
+      <div className="animate-pulse">
+        <div className="h-12 w-12 bg-gray-200 mb-2 rounded-full"></div>
+        <div className="space-y-1">
+          <div className="h-4 w-12 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const Header = () => {
   const locationCheck = useLocation();
   const navigate = useNavigate();
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [servicesLoading, setServicesLoading] = useState(false);
 
   const { auth } = useAuthContext();
+
+  const { allServices } = useAppSelector((state) => state.directoryListing);
 
   const { age_group } = useAppSelector((state) => state.directory);
   const {
@@ -125,12 +147,33 @@ const Header = () => {
     { value: 'Mature Age (60+ years)', label: 'Mature Age (60+ years)' }
   ];
 
+  useEffect(() => {
+    // Define and invoke the async function
+    const fetchData = async () => {
+      if (allServices.length <= 1) {
+        try {
+          setServicesLoading(true);
+
+          const servicesRes = await getAllServices();
+          if (servicesRes) {
+            store.dispatch(setAllServices(servicesRes));
+          }
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        } finally {
+          setServicesLoading(false);
+        }
+      }
+    };
+    fetchData();
+  }, []);
+
   const checkLoaction = useLocation();
   return (
-    <header className="w- sticky top-0 z-50 border-b bg-white">
-      <div className="mx-auto flex flex-col  h-30 items-center justify-between px-4 sm:px-8">
+    <header className="sticky top-0 z-50 bg-white">
+      <div className="mx-auto flex flex-col h-30 items-center justify-between md:px-0 px-8 pb-2">
         {/* Logo */}
-        <div className="flex justify-between px-4 pt-4 w-full ">
+        <div className="flex justify-between pt-4 w-full ">
           <HeaderLogo />
           <div className="" />
 
@@ -165,14 +208,16 @@ const Header = () => {
           </button>
         </div>
 
-        {/* Search - Mobile */}
+        {/* Search */}
 
-        <div className="relative flex lg:w-[55%] items-center gap-4 rounded-full border px-4 py-2 shadow-md hover:shadow-md transition duration-200 m-3 w-full">
-          <div className="flex flex-col ml-4 w-full">
-            <label className="form-label text-gray-900 ps-2">Location</label>
-            <label className="input bg-transparent h-3 leading-none p-0 m-0 border-none w-full">
+        <div className="relative flex lg:w-[49%] items-center gap-4 rounded-full border border-gray-300 px-2 py-2 shadow-default hover:shadow-md transition duration-200 m-3 w-full">
+          <div className="flex flex-col gap-1 ps-4 w-full">
+            <label className="form-label text-gray-900 ps-[0.6rem] font-semibold tracking-wide">
+              Location
+            </label>
+            <label className="input bg-transparent leading-none p-0 m-0 border-none w-full h-4">
               <div className="w-full text-sm ">
-                <div className="mt-2 cursor-pointer">
+                <div className="cursor-pointer">
                   <GooglePlacesAutocomplete
                     apiKey={import.meta.env.VITE_APP_GOOGLE_API_KEY}
                     autocompletionRequest={{
@@ -189,7 +234,8 @@ const Header = () => {
                           ...provided,
                           border: 'none', // Removes the border
                           boxShadow: 'none', // Removes the box shadow
-                          backgroundColor: 'transparent' // Makes it transparent
+                          backgroundColor: 'transparent',
+                          height: '20px'
                         }),
                         indicatorSeparator: () => ({ display: 'none' }), // Removes the dropdown arrow line
                         dropdownIndicator: (provided) => ({
@@ -204,8 +250,9 @@ const Header = () => {
                         }),
                         placeholder: (provided) => ({
                           ...provided,
-                          color: '#999', // Change placeholder color if needed
+                          color: '#6a6a6a', // Change placeholder color if needed
                           display: 'block', // Default visible
+                          letterSpacing: '0.3px',
 
                           // Hide placeholder on small screens
                           '@media (max-width: 425px)': {
@@ -238,9 +285,11 @@ const Header = () => {
             </label>
           </div>
 
-          <div className="flex flex-col border-l px-5  border-gray-300 w-full">
-            <label className="form-label text-gray-900 ps-2">Age Group</label>
-            <label className="input bg-transparent h-3 leading-none p-0 m-0 border-none w-full mt-2">
+          <div className="flex flex-col border-l gap-1 px-5 border-gray-300 w-full">
+            <label className="form-label text-gray-900 ps-[0.6rem] font-semibold tracking-wide">
+              Age Group
+            </label>
+            <label className="input bg-transparent leading-none p-0 m-0 border-none w-full h-4">
               <div className="w-full text-sm ">
                 <ReactSelect
                   options={ageGroupOptions}
@@ -259,7 +308,8 @@ const Header = () => {
                       ...provided,
                       border: 'none', // Removes the border
                       boxShadow: 'none', // Removes the box shadow
-                      backgroundColor: 'transparent' // Makes it transparent
+                      backgroundColor: 'transparent',
+                      height: '20px'
                     }),
                     indicatorSeparator: () => ({ display: 'none' }), // Removes the dropdown arrow line
                     dropdownIndicator: (provided) => ({
@@ -274,9 +324,10 @@ const Header = () => {
                     }),
                     placeholder: (provided) => ({
                       ...provided,
-                      color: '#999', // Change placeholder color if needed
+                      color: '#6a6a6a', // Change placeholder color if needed
                       fontSize: '14px',
                       display: 'block', // Default visible
+                      letterSpacing: '0.3px',
 
                       // Hide placeholder on small screens
                       '@media (max-width: 425px)': {
@@ -335,6 +386,28 @@ const Header = () => {
           </div>
         </div>
       )}
+
+      <div className="border-b mx-[-100%]"></div>
+
+      <Navbar>
+        <div className="flex w-full items-center justify-between py-5">
+          {servicesLoading ? (
+            Array.from({ length: 20 }).map((_, index) => <ServicesSkeleton key={index} />)
+          ) : (
+            <PageMenu services={allServices} loading={servicesLoading} />
+          )}
+          <NavbarActions>
+            <button
+              onClick={() => setIsFilterOpen(true)}
+              className="flex items-center gap-2 rounded-xl border px-4 py-2 hover:shadow-md transition"
+            >
+              <KeenIcon icon="filter" className="w-5 h-5" />
+              <span>Filters</span>
+            </button>
+            <FilterModal open={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
+          </NavbarActions>
+        </div>
+      </Navbar>
     </header>
   );
 };

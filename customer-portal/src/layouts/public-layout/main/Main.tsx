@@ -16,16 +16,15 @@ const Main = () => {
       <Helmet>
         <title>{menuItem?.title}</title>
       </Helmet>
-      
-        <div className="flex grow flex-col">
-          <Header />
 
-          <main className="grow" role="content">
-            <Outlet />
-          </main>
-          <Footer />
-        </div>
- 
+      <div className="font-airbnb flex grow flex-col lg:px-20">
+        <Header />
+
+        <main className="grow" role="content">
+          <Outlet />
+        </main>
+        <Footer />
+      </div>
     </Fragment>
   );
 };
