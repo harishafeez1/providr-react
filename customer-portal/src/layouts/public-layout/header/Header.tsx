@@ -170,8 +170,8 @@ const Header = () => {
 
   const checkLoaction = useLocation();
   return (
-    <header className="sticky top-0 z-50 bg-white">
-      <div className="mx-auto flex flex-col h-30 items-center justify-between md:px-0 px-8 pb-2">
+    <header className="sticky top-[2px] z-50 bg-white shadow-[0px_-50px_50px_0px_#ffffff]">
+      <div className="mx-auto flex flex-col h-30 items-center justify-between md:px-0 px-8 pb-2 relative">
         {/* Logo */}
         <div className="flex justify-between pt-4 w-full ">
           <HeaderLogo />
@@ -181,7 +181,10 @@ const Header = () => {
             <Link to="/services">
               <span
                 className={clsx({
-                  'border-b-2 border-primary py-2': checkLoaction.pathname.includes('services')
+                  'py-2 font-semibold tracking-wider text-black/65':
+                    checkLoaction.pathname.includes('services'),
+                  'text-gray-600 font-medium hover:bg-gray-200 p-4 rounded-full hover:text-gray-700 tracking-wider':
+                    !checkLoaction.pathname.includes('services')
                 })}
               >
                 Services
@@ -190,7 +193,10 @@ const Header = () => {
             <Link to="/directory">
               <span
                 className={clsx({
-                  'border-b-2 border-primary py-2': checkLoaction.pathname.includes('directory')
+                  'py-2 font-semibold tracking-wider text-black/65':
+                    checkLoaction.pathname.includes('directory'),
+                  'text-gray-600 font-medium hover:bg-gray-200 p-4 rounded-full hover:text-gray-700 tracking-wider':
+                    !checkLoaction.pathname.includes('directory')
                 })}
               >
                 Directory
@@ -210,7 +216,7 @@ const Header = () => {
 
         {/* Search */}
 
-        <div className="relative flex lg:w-[49%] items-center gap-4 rounded-full border border-gray-300 px-2 py-2 shadow-default hover:shadow-md transition duration-200 m-3 w-full">
+        <div className="relative flex md:w-[70%] xl:w-[49%] items-center gap-4 rounded-full border border-gray-300 px-2 py-2 shadow-default hover:shadow-md transition duration-200 m-3 w-full">
           <div className="flex flex-col gap-1 ps-4 w-full">
             <label className="form-label text-gray-900 ps-[0.6rem] font-semibold tracking-wide">
               Location
@@ -387,27 +393,28 @@ const Header = () => {
         </div>
       )}
 
-      <div className="border-b mx-[-100%]"></div>
-
-      <Navbar>
-        <div className="flex w-full items-center justify-between py-5">
-          {servicesLoading ? (
-            Array.from({ length: 20 }).map((_, index) => <ServicesSkeleton key={index} />)
-          ) : (
-            <PageMenu services={allServices} loading={servicesLoading} />
-          )}
-          <NavbarActions>
-            <button
-              onClick={() => setIsFilterOpen(true)}
-              className="flex items-center gap-2 rounded-xl border px-4 py-2 hover:shadow-md transition"
-            >
-              <KeenIcon icon="filter" className="w-5 h-5" />
-              <span>Filters</span>
-            </button>
-            <FilterModal open={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
-          </NavbarActions>
-        </div>
-      </Navbar>
+      <div className="border-b absolute left-0 right-0"></div>
+      {!locationCheck?.pathname?.includes('provider-profile') && (
+        <Navbar>
+          <div className="flex w-full items-center justify-between py-5">
+            {servicesLoading ? (
+              Array.from({ length: 20 }).map((_, index) => <ServicesSkeleton key={index} />)
+            ) : (
+              <PageMenu services={allServices} loading={servicesLoading} />
+            )}
+            <NavbarActions>
+              <button
+                onClick={() => setIsFilterOpen(true)}
+                className="flex items-center gap-2 rounded-xl border px-4 py-2 hover:shadow-md transition"
+              >
+                <KeenIcon icon="filter" className="w-5 h-5" />
+                <span>Filters</span>
+              </button>
+              <FilterModal open={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
+            </NavbarActions>
+          </div>
+        </Navbar>
+      )}
     </header>
   );
 };

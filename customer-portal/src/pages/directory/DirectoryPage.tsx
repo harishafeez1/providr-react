@@ -138,7 +138,7 @@ const DirectoryPage = () => {
       </div>
 
       {pagination.currentPage < pagination.lastPage && (
-        <div className="flex justify-center mt-6">
+        <div className="flex justify-center mt-8">
           <button
             className="px-4 py-2 btn btn-primary rounded-lg"
             onClick={() => {

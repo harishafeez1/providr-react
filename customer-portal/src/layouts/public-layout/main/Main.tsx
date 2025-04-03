@@ -17,7 +17,7 @@ const Main = () => {
         <title>{menuItem?.title}</title>
       </Helmet>
 
-      <div className="font-airbnb flex grow flex-col lg:px-20">
+      <div className="font-airbnb flex grow flex-col px-10 lg:px-20 max-w-[2560px] mx-auto">
         <Header />
 
         <main className="grow" role="content">
