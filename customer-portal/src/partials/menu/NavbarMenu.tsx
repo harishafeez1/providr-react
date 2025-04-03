@@ -202,7 +202,7 @@ const NavbarMenu: React.FC<NavbarMenuProps> = ({ type, items, loading }) => {
                   setActiveItem('All'), handleAllBtnFilter();
                 }}
               >
-                <MenuItem className="flex flex-col items-center gap-3 cursor-pointer">
+                <MenuItem className="flex flex-col items-center gap-3 pe-1 cursor-pointer">
                   <MenuIcon size={25} />
                   <MenuTitle
                     className={clsx('text-nowrap text-sm text-gray-700', {

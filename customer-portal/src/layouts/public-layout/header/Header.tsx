@@ -394,7 +394,7 @@ const Header = () => {
       )}
 
       <div className="border-b absolute left-0 right-0"></div>
-      {!locationCheck?.pathname?.includes('provider-profile') && (
+      {locationCheck?.pathname?.includes('directory') && (
         <Navbar>
           <div className="flex w-full items-center justify-between py-5">
             {servicesLoading ? (

@@ -82,7 +82,7 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
       <div className="mb-8 px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-2 rounded-xl overflow-hidden">
           {/* Large Main Image */}
-          <div className="row-span-1 col-span-1 md:row-span-2 md:col-span-2 md-[340px]  lg:h-[510px]">
+          <div className="row-span-1 col-span-1 md:row-span-2 md:col-span-2 md-[340px] lg:h-[510px]">
             {loading ? (
               <ListingSkeleton />
             ) : (
@@ -116,7 +116,7 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
             [...Array(2)].map((_, index) => {
               const image = data?.photo_gallery?.[index + 1] || 'man-helping-woman-for-carrier.png';
               return (
-                <div key={index} className="h-48 md:h-full">
+                <div key={index} className="h-48 md:h-[170px] lg:h-[250px]">
                   <img
                     src={`${import.meta.env.VITE_APP_AWS_URL}/${image}`}
                     alt="details"
