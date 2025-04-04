@@ -6,6 +6,9 @@ import { Button } from '@/components/ui/button';
 import { ConnectProviderModal } from './ConnectProviderModal';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@radix-ui/react-dropdown-menu';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ProviderDetailPageProps {
   data: any;
@@ -233,20 +236,47 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
                 <Button className="bg-primary" onClick={handleModalOpen}>
                   Connect with this provider
                 </Button>
-                <Button variant={'outline'}>Write A Review</Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant={'outline'}>Write A Review</Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader className="text-lg font-bold">Review</DialogHeader>
+                    <div className="flex flex-col justify-center flex-wrap p-4">
+                      <Textarea placeholder="Write A Review..." className="h-40" />
+                    </div>
+                  </DialogContent>
+                </Dialog>
 
                 <div className="flex gap-6 justify-center items-center border card-rounded p-2">
-                  <Phone className="text-primary" size={16} />
-                  <span className="">{data?.company_phone || 'N/A'}</span>
+                  <Phone className="text-primary flex-shrink-0" size={18} />
+                  <span className="truncate overflow-hidden whitespace-nowrap">
+                    {data?.company_phone || 'N/A'}
+                  </span>
                 </div>
                 <div className="flex gap-6 justify-center items-center border card-rounded p-2">
-                  <Mail className="text-primary" size={16} />
-                  <span className="">{data?.company_email || 'N/A'}</span>
+                  <Mail className="text-primary flex-shrink-0" size={18} />
+                  <span className="truncate overflow-hidden whitespace-nowrap">
+                    {data?.company_email || 'N/A'}
+                  </span>
                 </div>
-                <div className="flex gap-6 justify-center items-center border card-rounded p-2">
-                  <Globe className="text-primary" size={16} />
-                  <span className="">{data?.company_website || 'N/A'}</span>
-                </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex gap-6 justify-center items-center border card-rounded p-2">
+                        <Globe className="text-primary flex-shrink-0" size={18} />
+                        <span className="truncate overflow-hidden whitespace-nowrap">
+                          {data?.company_website || 'N/A'}
+                        </span>
+                      </div>
+                    </TooltipTrigger>
+                    {data?.company_website && (
+                      <TooltipContent>
+                        <p className="text-sm">{data?.company_website || 'N/A'}</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </TooltipProvider>
 
                 <div className="flex justify-around">
                   {data?.facebook_url ? (
