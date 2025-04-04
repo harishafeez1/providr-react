@@ -58,12 +58,12 @@ const DirectoryContent = ({ providers, loading }: any) => {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 gap-6 place-items-center md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6"
+          className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6"
         >
           <AnimatePresence>
             {loading
               ? Array.from({ length: 10 }).map((_, index) => (
-                  <motion.div key={index} custom={index}>
+                  <motion.div key={index} variants={itemVariants} custom={index}>
                     <ListingSkeleton />
                   </motion.div>
                 ))
@@ -72,7 +72,7 @@ const DirectoryContent = ({ providers, loading }: any) => {
                     key={provider.id}
                     variants={itemVariants}
                     custom={index}
-                    className="card-rounded my-2"
+                    className="card-rounded mb-2"
                   >
                     <PropertyCard data={provider} />
                   </motion.div>

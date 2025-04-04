@@ -396,7 +396,7 @@ const Header = () => {
       <div className="border-b absolute left-0 right-0"></div>
       {locationCheck?.pathname?.includes('directory') && (
         <Navbar>
-          <div className="flex w-full items-center justify-between py-5">
+          <div className="flex w-full items-center justify-between pt-5">
             {servicesLoading ? (
               Array.from({ length: 20 }).map((_, index) => <ServicesSkeleton key={index} />)
             ) : (
