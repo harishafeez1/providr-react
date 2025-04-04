@@ -69,7 +69,7 @@ const DirectoryContent = ({ providers, loading }: any) => {
               ))
             ) : providers.length === 0 ? (
               <div className="col-span-6">
-                <div className="text-center text-2xl text-primary my-24">Nothing to preview</div>
+                <div className="text-center text-2xl text-primary xl:my-24">Nothing to preview</div>
               </div>
             ) : (
               providers.map((provider: any, index: number) => (

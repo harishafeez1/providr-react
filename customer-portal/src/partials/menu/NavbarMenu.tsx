@@ -144,7 +144,7 @@ const NavbarMenu: React.FC<NavbarMenuProps> = ({ type, items, loading }) => {
           >
             <MenuItem
               className={`flex flex-col items-center gap-2 px-2 transition whitespace-nowrap cursor-pointer py-2  
-              ${selectedId === item.id && activeItem !== 'All' ? 'border-b-2 border-b-primary' : 'border-b-transparent'}`}
+              ${selectedId === item.id && activeItem !== 'All' ? 'border-b-3 border-b-primary' : 'border-b-transparent'}`}
               toggle="dropdown"
               trigger="hover"
               dropdownProps={{
@@ -206,7 +206,7 @@ const NavbarMenu: React.FC<NavbarMenuProps> = ({ type, items, loading }) => {
                   <MenuIcon size={25} />
                   <MenuTitle
                     className={clsx('text-nowrap text-sm text-gray-700', {
-                      'border-b-2 border-primary font-medium pb-2': activeItem === 'All'
+                      'border-b-3 border-primary font-medium pb-2': activeItem === 'All'
                     })}
                   >
                     {'All'}
