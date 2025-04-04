@@ -141,7 +141,7 @@ const DirectoryPage = () => {
       {pagination.currentPage < pagination.lastPage && (
         <div className="flex justify-center my-12">
           <Button
-            className="btn btn-primary rounded-xl font-semibold text-lg py-6"
+            className="btn btn-primary rounded-xl xl:font-semibold text-lg py-6"
             size={'lg'}
             onClick={() => {
               store.dispatch(setLoadMore(true));
