@@ -11,7 +11,7 @@ const Footer = ({ className }: { className: string }) => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className={clsx('footer flex flex-col px-10 lg:px-20 pt-24 pb-12', className)}>
+    <div className={clsx('footer flex flex-col px-10 lg:px-20 pt-24 pb-12', className)}>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="col-span-1 flex flex-col gap-6 pe-4">
           <HeaderLogo />
@@ -74,7 +74,7 @@ const Footer = ({ className }: { className: string }) => {
         ©<div className="">{currentYear}</div>
         Providr
       </div>
-    </footer>
+    </div>
   );
 };
 
