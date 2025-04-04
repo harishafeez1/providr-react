@@ -17,6 +17,7 @@ import {
 import { useAppSelector } from '@/redux/hooks';
 import { useLocation } from 'react-router';
 import { postDirectoryFilters } from '@/services/api/directory';
+import { Button } from '@/components/ui/button';
 
 function ServicesSkeleton() {
   return (
@@ -139,8 +140,9 @@ const DirectoryPage = () => {
 
       {pagination.currentPage < pagination.lastPage && (
         <div className="flex justify-center my-12">
-          <button
-            className="px-4 py-2 btn btn-primary rounded-lg"
+          <Button
+            className="btn btn-primary rounded-lg font-semibold text-lg py-6"
+            size={'lg'}
             onClick={() => {
               store.dispatch(setLoadMore(true));
               loadMoreProviders(pagination.currentPage + 1);
@@ -148,7 +150,7 @@ const DirectoryPage = () => {
             disabled={loadMoreLoading}
           >
             {loadMoreLoading ? 'Loading...' : 'Show More'}
-          </button>
+          </Button>
         </div>
       )}
     </Fragment>

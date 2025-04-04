@@ -11,13 +11,8 @@ const Footer = ({ className }: { className: string }) => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer
-      className={clsx(
-        'footer bg-[#eeeeee] flex flex-col px-10 lg:px-20 pt-24 pb-12 rounded-t-[52px]',
-        className
-      )}
-    >
-      <div className="grid grid-cols-1 md:grid-cols-3">
+    <footer className={clsx('footer flex flex-col px-10 lg:px-20 pt-24 pb-12', className)}>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="col-span-1 flex flex-col gap-6 pe-4">
           <HeaderLogo />
           <div className="">
@@ -51,7 +46,7 @@ const Footer = ({ className }: { className: string }) => {
         <div className="col-span-1 px-4">
           <div className="flex flex-col gap-2">
             <div className="text-1.5xl font-medium text-primary mb-4">Subscribe our newsletter</div>
-            <div className="flex gap-2 rounded-full ring-1 ring-white">
+            <div className="flex flex-col lg:flex-row gap-2 rounded-full ring-1 ring-white">
               <Input
                 className="py-8 px-8 rounded-full"
                 type="email"
@@ -60,7 +55,7 @@ const Footer = ({ className }: { className: string }) => {
               <Button className="btn-primary py-8 px-8 rounded-full">Send</Button>
             </div>
             <div className="text-1.5xl font-medium text-primary my-4">Stay connected</div>
-            <div className="flex items-center gap-2">
+            <div className="lg:flex items-center md:flex-col gap-2">
               <div className="flex items-center gap-2">
                 <Headphones className="text-primary" />
                 (+62) 345 67890

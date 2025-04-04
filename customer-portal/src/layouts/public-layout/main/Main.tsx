@@ -16,14 +16,16 @@ const Main = () => {
       <Helmet>
         <title>{menuItem?.title}</title>
       </Helmet>
-      <div className="max-w-full">
-        <div className=" flex grow flex-col px-10 lg:px-20 max-w-[2560px] mx-auto">
+      <div className="max-w-full min-h-screen mx-auto">
+        <div className=" flex grow flex-col px-10 xl:px-20 max-w-[2560px] mx-auto">
           <Header />
           <main className="grow" role="content">
             <Outlet />
           </main>
         </div>
-        <Footer className="w-full" />
+        <div className="bg-[#eeeeee] min-w-full rounded-t-[52px]">
+          <Footer className="max-w-[2560px] mx-auto" />
+        </div>
       </div>
     </Fragment>
   );
