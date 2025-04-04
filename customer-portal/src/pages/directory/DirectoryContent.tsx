@@ -61,28 +61,22 @@ const DirectoryContent = ({ providers, loading }: any) => {
           className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6"
         >
           <AnimatePresence>
-            {loading ? (
-              Array.from({ length: 10 }).map((_, index) => (
-                <motion.div key={index} variants={itemVariants} custom={index}>
-                  <ListingSkeleton />
-                </motion.div>
-              ))
-            ) : providers?.length === 0 && !loading ? (
-              <div className="col-span-6">
-                <div className="text-center text-2xl text-primary xl:my-24">Nothing to preview</div>
-              </div>
-            ) : (
-              providers.map((provider: any, index: number) => (
-                <motion.div
-                  key={provider.id}
-                  variants={itemVariants}
-                  custom={index}
-                  className="card-rounded mb-2"
-                >
-                  <PropertyCard data={provider} />
-                </motion.div>
-              ))
-            )}
+            {loading
+              ? Array.from({ length: 10 }).map((_, index) => (
+                  <motion.div key={index} variants={itemVariants} custom={index}>
+                    <ListingSkeleton />
+                  </motion.div>
+                ))
+              : providers.map((provider: any, index: number) => (
+                  <motion.div
+                    key={provider.id}
+                    variants={itemVariants}
+                    custom={index}
+                    className="card-rounded mb-2"
+                  >
+                    <PropertyCard data={provider} />
+                  </motion.div>
+                ))}
           </AnimatePresence>
         </motion.div>
       </main>

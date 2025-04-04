@@ -24,7 +24,7 @@ const Main = () => {
           </main>
         </div>
         <footer className="bg-[#eeeeee] w-full rounded-t-[52px] mt-auto">
-          <div className="max-w-[2560px] mx-auto px-4 sm:px-6 md:px-10 xl:px-20">
+          <div className="max-w-[2560px] mx-auto">
             <Footer className="" />
           </div>
         </footer>

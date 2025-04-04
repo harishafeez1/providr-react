@@ -53,9 +53,9 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
 
   const allFilters = useAppSelector((state) => state.directory);
 
-  useEffect(() => {
-    getAllServices();
-  }, []);
+  // useEffect(() => {
+  //   getAllServices();
+  // }, []);
 
   const handleLocationChange = async (address: any) => {
     const location: {
