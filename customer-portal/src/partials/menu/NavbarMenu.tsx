@@ -125,7 +125,7 @@ const NavbarMenu: React.FC<NavbarMenuProps> = ({ type, items, loading }) => {
     setTimeout(() => {
       setCanScrollLeft(container.scrollLeft > 0);
       setCanScrollRight(container.scrollLeft < container.scrollWidth - container.clientWidth);
-    }, 300); // Delay to match scroll animation
+    }, 300);
   };
 
   const buildMenu = (services: TMenuConfig) => {

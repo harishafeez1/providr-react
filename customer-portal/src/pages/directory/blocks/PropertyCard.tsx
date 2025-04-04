@@ -13,7 +13,7 @@ export function PropertyCard({ data }: any) {
   return (
     <div className="cursor-pointers">
       <Link to={`/provider-profile/${data?.id}`}>
-        <div className="relative aspect-square overflow-hidden rounded-xl w-[270px] h-[260px]">
+        <div className="relative rounded-xl">
           <img
             src={
               data?.photo_gallery?.[0]
@@ -21,7 +21,7 @@ export function PropertyCard({ data }: any) {
                 : `${import.meta.env.VITE_APP_AWS_URL}/man-helping-woman-for-carrier.png`
             }
             alt={'company name'}
-            className="h-full w-full object-fill transition group-hover:scale-105"
+            className=" w-[270px] h-[260px] rounded-xl"
           />
           <button
             onClick={(e) => {
