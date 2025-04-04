@@ -46,6 +46,7 @@ const NavbarMenu: React.FC<NavbarMenuProps> = ({ type, items, loading }) => {
   const { isFilterModalOpen, loadMore } = useAppSelector((state) => state.directoryListing);
 
   const handleAllBtnFilter = async () => {
+    store.dispatch(setLoading(true));
     store.dispatch(setResetFilters());
     try {
       const res = await postDirectoryFilters({ ...allFilters, service_id: '' });
@@ -198,7 +199,6 @@ const NavbarMenu: React.FC<NavbarMenuProps> = ({ type, items, loading }) => {
               <div
                 className="mt-[2px]"
                 onClick={() => {
-                  store.dispatch(setLoading(true));
                   setActiveItem('All'), handleAllBtnFilter();
                 }}
               >

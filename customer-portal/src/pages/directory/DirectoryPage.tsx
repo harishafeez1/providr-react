@@ -133,12 +133,12 @@ const DirectoryPage = () => {
 
   return (
     <Fragment>
-      <div className="">
+      <div className="my-6">
         <DirectoryContent providers={allProviders} loading={pagination.loading} />
       </div>
 
       {pagination.currentPage < pagination.lastPage && (
-        <div className="flex justify-center mt-8">
+        <div className="flex justify-center my-12">
           <button
             className="px-4 py-2 btn btn-primary rounded-lg"
             onClick={() => {

@@ -51,7 +51,7 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
   }
 
   return (
-    <div className="min-h-screen bg-white ">
+    <div className="min-h-screen bg-white text-black">
       <ConnectProviderModal open={isModalOpen} onOpenChange={handleModalClose} />
       {/* Property title section */}
       <div className="px-4 pt-6">
@@ -230,24 +230,22 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
           <div className="lg:col-span-1">
             <div className="border rounded-xl p-6 shadow-lg bg-white z-10">
               <div className="flex justify-center flex-col gap-4 mb-4">
-                <Button variant={'destructive'} size={'sm'} onClick={handleModalOpen}>
+                <Button className="bg-primary" onClick={handleModalOpen}>
                   Connect with this provider
                 </Button>
-                <Button variant={'outline'} size={'sm'}>
-                  Write A Review
-                </Button>
+                <Button variant={'outline'}>Write A Review</Button>
 
                 <div className="flex gap-6 justify-center items-center border card-rounded p-2">
                   <Phone className="text-primary" size={16} />
-                  <span className="text-sm">{data?.company_phone || 'N/A'}</span>
+                  <span className="">{data?.company_phone || 'N/A'}</span>
                 </div>
                 <div className="flex gap-6 justify-center items-center border card-rounded p-2">
                   <Mail className="text-primary" size={16} />
-                  <span className="text-sm">{data?.company_email || 'N/A'}</span>
+                  <span className="">{data?.company_email || 'N/A'}</span>
                 </div>
                 <div className="flex gap-6 justify-center items-center border card-rounded p-2">
                   <Globe className="text-primary" size={16} />
-                  <span className="text-sm">{data?.company_website || 'N/A'}</span>
+                  <span className="">{data?.company_website || 'N/A'}</span>
                 </div>
 
                 <div className="flex justify-around">
@@ -285,7 +283,7 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
                 <div className="flex flex-col gap-2 truncate p-2">
                   {Array.isArray(data?.addresses_collection) &&
                     (data?.addresses_collection || [])?.map((item: any, index: number) => (
-                      <div key={index} className="badge bg-gray-200">
+                      <div key={index} className="badge bg-white border border-gray-300 text-sm">
                         {item || ''}
                       </div>
                     ))}
@@ -298,7 +296,7 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
               <div className="flex flex-col gap-2 truncate p-2">
                 {Array.isArray(data?.access_method_collection) &&
                   (data?.access_method_collection || [])?.map((item: any, index: number) => (
-                    <div key={index} className="badge bg-gray-200">
+                    <div key={index} className="badge bg-white border border-gray-300 text-sm">
                       {item || ''}
                     </div>
                   ))}
@@ -310,7 +308,7 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
               <div className="flex flex-col gap-2 truncate p-2">
                 {Array.isArray(data?.age_group_collection) &&
                   (data?.age_group_collection || [])?.map((item: any, index: number) => (
-                    <div key={index} className="badge bg-gray-200">
+                    <div key={index} className="badge bg-white border border-gray-300 text-sm">
                       {item || ''}
                     </div>
                   ))}
@@ -322,7 +320,7 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
               <div className="flex flex-col gap-2 truncate p-2">
                 {Array.isArray(data?.language_collection) &&
                   data.language_collection.map((item: string, index: number) => (
-                    <div key={index} className="badge bg-gray-200">
+                    <div key={index} className="badge bg-white border border-gray-300 text-sm">
                       {item}
                     </div>
                   ))}
