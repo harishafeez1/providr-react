@@ -46,7 +46,7 @@ const Footer = ({ className }: { className: string }) => {
         <div className="col-span-1 px-4">
           <div className="flex flex-col gap-2">
             <div className="text-1.5xl font-medium text-primary mb-4">Subscribe our newsletter</div>
-            <div className="flex flex-col lg:flex-row gap-2 rounded-full ring-1 ring-white">
+            <div className="flex flex-col xl:flex-row gap-2 rounded-full ring-1 ring-white">
               <Input
                 className="py-8 px-8 rounded-full"
                 type="email"
@@ -55,7 +55,7 @@ const Footer = ({ className }: { className: string }) => {
               <Button className="btn-primary py-8 px-8 rounded-full">Send</Button>
             </div>
             <div className="text-1.5xl font-medium text-primary my-4">Stay connected</div>
-            <div className="lg:flex items-center md:flex-col gap-2">
+            <div className="flex xl:flex-row items-center flex-col gap-2">
               <div className="flex items-center gap-2">
                 <Headphones className="text-primary" />
                 (+62) 345 67890
