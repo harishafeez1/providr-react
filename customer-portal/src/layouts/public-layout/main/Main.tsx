@@ -16,16 +16,18 @@ const Main = () => {
       <Helmet>
         <title>{menuItem?.title}</title>
       </Helmet>
-      <div className="max-w-full min-h-screen mx-auto">
-        <div className="flex flex-col px-10 xl:px-20 max-w-[2560px] mx-auto">
+      <div className="flex flex-col min-h-screen w-full">
+        <div className="flex-1 px-4 sm:px-6 md:px-10 xl:px-20 max-w-[2560px] mx-auto w-full">
           <Header />
-          <main className="">
+          <main className="flex-1">
             <Outlet />
           </main>
         </div>
-        <div className="bg-[#eeeeee] min-w-full rounded-t-[52px] mt-auto">
-          <Footer className="max-w-[2560px] mx-auto" />
-        </div>
+        <footer className="bg-[#eeeeee] w-full rounded-t-[52px] mt-auto">
+          <div className="max-w-[2560px] mx-auto px-4 sm:px-6 md:px-10 xl:px-20">
+            <Footer className="" />
+          </div>
+        </footer>
       </div>
     </Fragment>
   );

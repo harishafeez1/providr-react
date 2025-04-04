@@ -26,15 +26,14 @@ import { useAuthContext } from '@/auth';
 import { PageMenu } from '@/pages/directory/blocks/PageMenu';
 import { getAllServices } from '@/services/api/all-services';
 import { FilterModal } from '@/pages/directory';
+import { Services } from '@/pages/company-profile';
 
 function ServicesSkeleton() {
   return (
-    <div className="">
-      <div className="animate-pulse">
-        <div className="h-12 w-12 bg-gray-200 mb-2 rounded-full"></div>
-        <div className="space-y-1">
-          <div className="h-4 w-12 bg-gray-200 rounded"></div>
-        </div>
+    <div className="animate-pulse">
+      <div className="h-12 w-12 bg-gray-200 mb-2 rounded-full"></div>
+      <div className="space-y-1">
+        <div className="h-4 w-12 bg-gray-200 rounded"></div>
       </div>
     </div>
   );
@@ -397,21 +396,20 @@ const Header = () => {
       {locationCheck?.pathname?.includes('directory') && (
         <Navbar>
           <div className="flex w-full items-center justify-between pt-5">
-            {servicesLoading ? (
-              Array.from({ length: 20 }).map((_, index) => <ServicesSkeleton key={index} />)
-            ) : (
-              <PageMenu services={allServices} loading={servicesLoading} />
+            <PageMenu services={allServices} loading={servicesLoading} />
+
+            {!servicesLoading && (
+              <NavbarActions>
+                <button
+                  onClick={() => setIsFilterOpen(true)}
+                  className="flex items-center gap-2 rounded-xl border px-4 py-2 hover:shadow-md transition"
+                >
+                  <KeenIcon icon="filter" className="w-5 h-5" />
+                  <span>Filters</span>
+                </button>
+                <FilterModal open={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
+              </NavbarActions>
             )}
-            <NavbarActions>
-              <button
-                onClick={() => setIsFilterOpen(true)}
-                className="flex items-center gap-2 rounded-xl border px-4 py-2 hover:shadow-md transition"
-              >
-                <KeenIcon icon="filter" className="w-5 h-5" />
-                <span>Filters</span>
-              </button>
-              <FilterModal open={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
-            </NavbarActions>
           </div>
         </Navbar>
       )}

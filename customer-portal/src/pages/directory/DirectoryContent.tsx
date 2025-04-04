@@ -67,7 +67,7 @@ const DirectoryContent = ({ providers, loading }: any) => {
                   <ListingSkeleton />
                 </motion.div>
               ))
-            ) : providers.length === 0 ? (
+            ) : providers?.length === 0 && !loading ? (
               <div className="col-span-6">
                 <div className="text-center text-2xl text-primary xl:my-24">Nothing to preview</div>
               </div>
