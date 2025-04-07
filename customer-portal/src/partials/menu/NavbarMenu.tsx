@@ -234,14 +234,16 @@ const NavbarMenu: React.FC<NavbarMenuProps> = ({ type, items, loading }) => {
         </div>
 
         {/* Right Arrow Button */}
-        <button
-          onClick={() => scroll('right')}
-          className={`absolute right-2 2xl:-right-12 top-6 -translate-y-1/2 z-10 p-2 bg-white rounded-full shadow-[-20px_0px_30px_20px_#ffffff] border border-gray-400 cursor
+        {items?.length > 0 && (
+          <button
+            onClick={() => scroll('right')}
+            className={`absolute right-2 2xl:-right-12 top-6 -translate-y-1/2 z-10 p-2 bg-white rounded-full shadow-[-20px_0px_30px_20px_#ffffff] border border-gray-400 cursor
           ${!canScrollRight ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
-          disabled={!canScrollRight}
-        >
-          <ChevronRight size={15} />
-        </button>
+            disabled={!canScrollRight}
+          >
+            <ChevronRight size={15} />
+          </button>
+        )}
       </div>
     </>
   );
