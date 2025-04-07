@@ -5,10 +5,16 @@ import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { ConnectProviderModal } from './ConnectProviderModal';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Dialog, DialogContent, DialogHeader, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@radix-ui/react-dropdown-menu';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { StarRating } from '@/components';
 
 interface ProviderDetailPageProps {
   data: any;
@@ -17,6 +23,8 @@ interface ProviderDetailPageProps {
 
 const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }) => {
   const [isFavorite, setIsFavorite] = useState(false);
+  const [userRating, setUserRating] = useState(5);
+  const [userRatingDescription, setUserRatingDescription] = useState('');
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -52,6 +60,21 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
       </div>
     );
   }
+
+  const handleRating = (rating: number) => {
+    setUserRating(rating);
+  };
+
+  const handleReviewDescription = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setUserRatingDescription(e.target.value);
+  };
+
+  const handleReviewSubmission = () => {
+    const reviewdata = {
+      rating: userRating,
+      content: userRatingDescription
+    };
+  };
 
   return (
     <div className="min-h-screen bg-white text-black">
@@ -240,10 +263,23 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
                   <DialogTrigger asChild>
                     <Button variant={'outline'}>Write A Review</Button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
+                  <DialogContent className="max-w-2xl ">
+                    <DialogTitle></DialogTitle>
                     <DialogHeader className="text-lg font-bold">Review</DialogHeader>
                     <div className="flex flex-col justify-center flex-wrap p-4">
-                      <Textarea placeholder="Write A Review..." className="h-40" />
+                      <div className="mb-4">
+                        <div className="form-label mb-2">Please rate your experience:</div>
+                        <StarRating onRatingChange={handleRating} initialRating={5} />
+                      </div>
+                      <div className="form-label mb-2">Please tell us about your experience:</div>
+                      <Textarea
+                        placeholder="Write a review..."
+                        className="h-40"
+                        onChange={handleReviewDescription}
+                      />
+                      <div className="flex justify-center mt-4">
+                        <Button onClick={handleReviewSubmission}>Submit</Button>
+                      </div>
                     </div>
                   </DialogContent>
                 </Dialog>

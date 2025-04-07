@@ -108,7 +108,7 @@ const NavbarMenu: React.FC<NavbarMenuProps> = ({ type, items, loading }) => {
 
   // Scroll handler
   const scroll = (direction: any) => {
-    const container = scrollRef.current as unknown as HTMLElement;
+    const container = scrollRef.current as any as HTMLElement;
     if (!container) return;
 
     const scrollAmount = container.clientWidth * 0.8;
