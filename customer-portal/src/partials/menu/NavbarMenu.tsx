@@ -129,49 +129,62 @@ const NavbarMenu: React.FC<NavbarMenuProps> = ({ type, items, loading }) => {
     }, 300);
   };
 
+  function ServicesSkeleton() {
+    return (
+      <div className="animate-pulse">
+        <div className="h-12 w-12 bg-gray-200 mb-2 rounded-full"></div>
+        <div className="space-y-1">
+          <div className="h-4 w-12 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    );
+  }
+
   const buildMenu = (services: TMenuConfig) => {
     return services.map((item) => {
       if (type) {
         return (
-          <div
-            // className="hover:border-b-2 border-gray-300"
-            key={item?.id}
-            onClick={async () => {
-              setActiveItem('');
-              setSelectedId(item?.id);
-              store.dispatch(setServiceId(item?.id));
-            }}
-          >
-            <MenuItem
-              className={`flex flex-col items-center gap-2 px-2 transition whitespace-nowrap cursor-pointer py-2  
-              ${selectedId === item.id && activeItem !== 'All' ? 'border-b-3 border-b-primary' : 'border-b-transparent'}`}
-              toggle="dropdown"
-              trigger="hover"
-              dropdownProps={{
-                placement: isRTL() ? 'bottom-end' : 'bottom-start',
-                modifiers: [
-                  {
-                    name: 'offset',
-                    options: {
-                      offset: [0, 0] // [skid, distance]
-                    }
-                  }
-                ]
+          <>
+            <div
+              // className="hover:border-b-2 border-gray-300"
+              key={item?.id}
+              onClick={async () => {
+                setActiveItem('');
+                setSelectedId(item?.id);
+                store.dispatch(setServiceId(item?.id));
               }}
             >
-              {item.service_icon ? (
-                <div
-                  className="h-6 w-6"
-                  dangerouslySetInnerHTML={{ __html: item.service_icon }}
-                ></div>
-              ) : (
-                ''
-              )}
-              <MenuTitle className="text-nowrap text-sm text-gray-700 menu-item-active:text-primary menu-item-active:font-medium menu-item-here:text-primary menu-item-here:font-medium menu-item-show:text-primary menu-link-hover:border-b ">
-                {item.name || ''}
-              </MenuTitle>
-            </MenuItem>
-          </div>
+              <MenuItem
+                className={`flex flex-col items-center gap-2 px-2 transition whitespace-nowrap cursor-pointer py-2  
+              ${selectedId === item.id && activeItem !== 'All' ? 'border-b-3 border-b-primary' : 'border-b-transparent'}`}
+                toggle="dropdown"
+                trigger="hover"
+                dropdownProps={{
+                  placement: isRTL() ? 'bottom-end' : 'bottom-start',
+                  modifiers: [
+                    {
+                      name: 'offset',
+                      options: {
+                        offset: [0, 0] // [skid, distance]
+                      }
+                    }
+                  ]
+                }}
+              >
+                {item.service_icon ? (
+                  <div
+                    className="h-6 w-6"
+                    dangerouslySetInnerHTML={{ __html: item.service_icon }}
+                  ></div>
+                ) : (
+                  ''
+                )}
+                <MenuTitle className="text-nowrap text-sm text-gray-700 menu-item-active:text-primary menu-item-active:font-medium menu-item-here:text-primary menu-item-here:font-medium menu-item-show:text-primary menu-link-hover:border-b ">
+                  {item.name || ''}
+                </MenuTitle>
+              </MenuItem>
+            </div>
+          </>
         );
       }
       // Other conditions or menu item variants can be handled here.
@@ -214,14 +227,16 @@ const NavbarMenu: React.FC<NavbarMenuProps> = ({ type, items, loading }) => {
                 </MenuItem>
               </div>
             )}
-            {buildMenu(items)}
+            {loading
+              ? Array.from({ length: 50 }).map((_, index) => <ServicesSkeleton key={index} />)
+              : buildMenu(items)}
           </Menu>
         </div>
 
         {/* Right Arrow Button */}
         <button
           onClick={() => scroll('right')}
-          className={`absolute -right-12 top-6 -translate-y-1/2 z-10 p-2 bg-white rounded-full shadow-[-20px_0px_30px_20px_#ffffff] border border-gray-400 cursor
+          className={`absolute right-2 2xl:-right-12 top-6 -translate-y-1/2 z-10 p-2 bg-white rounded-full shadow-[-20px_0px_30px_20px_#ffffff] border border-gray-400 cursor
           ${!canScrollRight ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
           disabled={!canScrollRight}
         >
