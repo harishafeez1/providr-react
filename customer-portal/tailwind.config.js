@@ -1,3 +1,5 @@
+const { default: breakpoints } = require('./src/plugins/components/breakpoints');
+
 module.exports = {
   content: ['index.html', './src/**/*.{ts,tsx}'],
   safelist: [
@@ -197,7 +199,7 @@ module.exports = {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
-        airbnb: ['Cereal', 'sans-serif'],
+        airbnb: ['Cereal', 'sans-serif']
       },
       colors: {
         //begin: Shadcn UI Colors
@@ -414,7 +416,9 @@ module.exports = {
         md: '768px',
         lg: '1024px',
         xl: '1280px',
-        '2xl': '1536px'
+        '2xl': '1536px',
+        '3xl': '1630px',
+        '4xl': '1880px'
       },
       //begin: Shadcn UI Animations
       keyframes: {
