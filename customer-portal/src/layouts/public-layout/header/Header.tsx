@@ -180,7 +180,7 @@ const Header = () => {
             <Link to="/services">
               <span
                 className={clsx({
-                  'py-2 font-semibold tracking-wider text-black/65':
+                  'py-2 font-semibold tracking-wider text-black/80':
                     checkLoaction.pathname.includes('services'),
                   'text-gray-600 font-medium hover:bg-gray-200 p-4 rounded-full hover:text-gray-700 tracking-wider':
                     !checkLoaction.pathname.includes('services')
@@ -192,7 +192,7 @@ const Header = () => {
             <Link to="/directory">
               <span
                 className={clsx({
-                  'py-2 font-semibold tracking-wider text-black/65':
+                  'py-2 font-semibold tracking-wider text-black/80':
                     checkLoaction.pathname.includes('directory'),
                   'text-gray-600 font-medium hover:bg-gray-200 p-4 rounded-full hover:text-gray-700 tracking-wider':
                     !checkLoaction.pathname.includes('directory')
@@ -260,7 +260,7 @@ const Header = () => {
                           letterSpacing: '0.3px',
 
                           // Hide placeholder on small screens
-                          '@media (max-width: 425px)': {
+                          '@media (max-width: 550px)': {
                             display: 'none'
                           }
                         }),
@@ -335,7 +335,7 @@ const Header = () => {
                       letterSpacing: '0.3px',
 
                       // Hide placeholder on small screens
-                      '@media (max-width: 425px)': {
+                      '@media (max-width: 550px)': {
                         display: 'none'
                       }
                     }),
