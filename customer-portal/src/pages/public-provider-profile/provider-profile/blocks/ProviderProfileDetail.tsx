@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Heart, Star, Share, Phone, Mail, Globe, Facebook, Instagram } from 'lucide-react';
 
 import { format } from 'date-fns';
@@ -15,6 +15,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { StarRating } from '@/components';
+import { WriteAReviewModal } from './WriteAReviewModal';
 
 interface ProviderDetailPageProps {
   data: any;
@@ -23,10 +24,9 @@ interface ProviderDetailPageProps {
 
 const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }) => {
   const [isFavorite, setIsFavorite] = useState(false);
-  const [userRating, setUserRating] = useState(5);
-  const [userRatingDescription, setUserRatingDescription] = useState('');
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
 
   const handleModalOpen = () => {
     setIsModalOpen(true);
@@ -34,6 +34,13 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
 
   const handleModalClose = () => {
     setIsModalOpen(false);
+  };
+  const handleReviewModalOpen = () => {
+    setIsReviewModalOpen(true);
+  };
+
+  const handleReviewModalClose = () => {
+    setIsReviewModalOpen(false);
   };
 
   const toggleFavorite = () => {
@@ -61,24 +68,14 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
     );
   }
 
-  const handleRating = (rating: number) => {
-    setUserRating(rating);
-  };
-
-  const handleReviewDescription = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setUserRatingDescription(e.target.value);
-  };
-
-  const handleReviewSubmission = () => {
-    const reviewdata = {
-      rating: userRating,
-      content: userRatingDescription
-    };
-  };
-
   return (
     <div className="min-h-screen bg-white text-black">
       <ConnectProviderModal open={isModalOpen} onOpenChange={handleModalClose} />
+      <WriteAReviewModal
+        open={isReviewModalOpen}
+        onOpenChange={handleReviewModalClose}
+        data={data}
+      />
       {/* Property title section */}
       <div className="px-4 pt-6">
         <div className="flex items-start justify-between mb-4">
@@ -259,30 +256,12 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
                 <Button className="bg-primary" onClick={handleModalOpen}>
                   Connect with this provider
                 </Button>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant={'outline'}>Write A Review</Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl ">
-                    <DialogTitle></DialogTitle>
-                    <DialogHeader className="text-lg font-bold">Review</DialogHeader>
-                    <div className="flex flex-col justify-center flex-wrap p-4">
-                      <div className="mb-4">
-                        <div className="form-label mb-2">Please rate your experience:</div>
-                        <StarRating onRatingChange={handleRating} initialRating={5} />
-                      </div>
-                      <div className="form-label mb-2">Please tell us about your experience:</div>
-                      <Textarea
-                        placeholder="Write a review..."
-                        className="h-40"
-                        onChange={handleReviewDescription}
-                      />
-                      <div className="flex justify-center mt-4">
-                        <Button onClick={handleReviewSubmission}>Submit</Button>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+
+                {/* Write A Review */}
+
+                <Button variant={'outline'} onClick={handleReviewModalOpen}>
+                  Write A Review
+                </Button>
 
                 <div className="flex gap-6 justify-center items-center border card-rounded p-2">
                   <Phone className="text-primary flex-shrink-0" size={18} />

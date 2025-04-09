@@ -17,6 +17,7 @@ export const GET_SERVICE_REQUEST_STORE_URL = `${API_URL}/store_service_request`;
 
 // Reviews
 export const GET_REVIEWS_URL = `${API_URL}/reviews`;
+export const POST_REVIEW_URL = `${API_URL}/store_review`;
 
 // Documents
 export const GET_DOCUMENTS_URL = `${API_URL}/all_documents`;
