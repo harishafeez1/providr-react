@@ -68,6 +68,7 @@ const WriteAReviewModal = forwardRef<HTMLDivElement, ReviewProps>(
     };
 
     const ReviewSchema = Yup.object().shape({
+      service_offering_id: Yup.string().required('* Service is Required'),
       rating: Yup.number().min(1, '* Rating is required')
     });
 
@@ -146,17 +147,27 @@ const WriteAReviewModal = forwardRef<HTMLDivElement, ReviewProps>(
               <div className="my-4">
                 <div className="form-label mb-2">Please select a service:</div>
                 <CustomSelect
+                  isDisabled={!isLoggedIn}
                   options={options || []}
                   value={formik.values.service_offering_id}
                   onChange={(obj: any) => {
                     formik.setFieldValue('service_offering_id', obj.value);
                   }}
                 />
+                {isLoggedIn && formik.errors.service_offering_id && (
+                  <span role="alert" className="text-danger text-xs mt-1">
+                    {formik.errors.service_offering_id}
+                  </span>
+                )}
               </div>
               <div className="mb-4">
                 <div className="form-label mb-2">Please rate your experience:</div>
-                <StarRating onRatingChange={handleRating} initialRating={0} />
-                {formik.errors.rating && (
+                <StarRating
+                  onRatingChange={handleRating}
+                  initialRating={0}
+                  isDisabled={!isLoggedIn}
+                />
+                {isLoggedIn && formik.errors.rating && (
                   <span role="alert" className="text-danger text-xs mt-1">
                     {formik.errors.rating}
                   </span>
@@ -166,6 +177,7 @@ const WriteAReviewModal = forwardRef<HTMLDivElement, ReviewProps>(
               <Textarea
                 placeholder="Write a review..."
                 className="h-40"
+                disabled={!isLoggedIn}
                 value={formik.values.content}
                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                   formik.setFieldValue('content', e.target.value)
@@ -173,7 +185,14 @@ const WriteAReviewModal = forwardRef<HTMLDivElement, ReviewProps>(
               />
               <div className="flex justify-center mt-4">
                 {isLoggedIn ? (
-                  <Button type="submit" disabled={formik.values.rating === 0 || loading}>
+                  <Button
+                    type="submit"
+                    disabled={
+                      formik.values.rating === 0 ||
+                      loading ||
+                      formik.values.service_offering_id === ''
+                    }
+                  >
                     {loading ? 'Submitting' : 'Submit'}
                   </Button>
                 ) : (
