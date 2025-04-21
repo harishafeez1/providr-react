@@ -287,11 +287,11 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
                   <span className="truncate overflow-hidden whitespace-nowrap">
                     {(showPhoneNumber && (
                       <a
-                        href={`tel:${data.company_phone}`}
+                        href={`tel:${data?.company_phone}`}
                         className="text-primary"
                         title="Call this number"
                       >
-                        {data.company_phone}
+                        {data?.company_phone}
                       </a>
                     )) ||
                       '********************'}
@@ -316,11 +316,11 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
                   <span className="truncate overflow-hidden whitespace-nowrap">
                     {(showEmail && (
                       <a
-                        href={`mailto:${data.company_email}?subject=Inquiry about ${data?.name} service&body=Hello, I am reaching out regarding your services.`}
+                        href={`mailto:${data?.company_email}?subject=Inquiry about ${data?.name} service&body=Hello, I am reaching out regarding your services.`}
                         className="text-primary"
                         title="Send email"
                       >
-                        {data.company_email}
+                        {data?.company_email}
                       </a>
                     )) ||
                       '********************'}
