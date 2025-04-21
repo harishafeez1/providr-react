@@ -144,47 +144,45 @@ const NavbarMenu: React.FC<NavbarMenuProps> = ({ type, items, loading }) => {
     return services.map((item) => {
       if (type) {
         return (
-          <>
-            <div
-              // className="hover:border-b-2 border-gray-300"
-              key={item?.id}
-              onClick={async () => {
-                setActiveItem('');
-                setSelectedId(item?.id);
-                store.dispatch(setServiceId(item?.id));
+          <div
+            // className="hover:border-b-2 border-gray-300"
+            key={item?.id}
+            onClick={async () => {
+              setActiveItem('');
+              setSelectedId(item?.id);
+              store.dispatch(setServiceId(item?.id));
+            }}
+          >
+            <MenuItem
+              className={`flex flex-col items-center gap-2 px-2 transition whitespace-nowrap cursor-pointer py-2  
+              ${selectedId === item.id && activeItem !== 'All' ? 'border-b-3 border-b-primary' : 'border-b-transparent'}`}
+              toggle="dropdown"
+              trigger="hover"
+              dropdownProps={{
+                placement: isRTL() ? 'bottom-end' : 'bottom-start',
+                modifiers: [
+                  {
+                    name: 'offset',
+                    options: {
+                      offset: [0, 0] // [skid, distance]
+                    }
+                  }
+                ]
               }}
             >
-              <MenuItem
-                className={`flex flex-col items-center gap-2 px-2 transition whitespace-nowrap cursor-pointer py-2  
-              ${selectedId === item.id && activeItem !== 'All' ? 'border-b-3 border-b-primary' : 'border-b-transparent'}`}
-                toggle="dropdown"
-                trigger="hover"
-                dropdownProps={{
-                  placement: isRTL() ? 'bottom-end' : 'bottom-start',
-                  modifiers: [
-                    {
-                      name: 'offset',
-                      options: {
-                        offset: [0, 0] // [skid, distance]
-                      }
-                    }
-                  ]
-                }}
-              >
-                {item.service_icon ? (
-                  <div
-                    className="h-6 w-6"
-                    dangerouslySetInnerHTML={{ __html: item.service_icon }}
-                  ></div>
-                ) : (
-                  ''
-                )}
-                <MenuTitle className="text-nowrap text-sm text-gray-700 menu-item-active:text-primary menu-item-active:font-medium menu-item-here:text-primary menu-item-here:font-medium menu-item-show:text-primary menu-link-hover:border-b ">
-                  {item.name || ''}
-                </MenuTitle>
-              </MenuItem>
-            </div>
-          </>
+              {item.service_icon ? (
+                <div
+                  className="h-6 w-6"
+                  dangerouslySetInnerHTML={{ __html: item.service_icon }}
+                ></div>
+              ) : (
+                ''
+              )}
+              <MenuTitle className="text-nowrap text-sm text-gray-700 menu-item-active:text-primary menu-item-active:font-medium menu-item-here:text-primary menu-item-here:font-medium menu-item-show:text-primary menu-link-hover:border-b ">
+                {item.name || ''}
+              </MenuTitle>
+            </MenuItem>
+          </div>
         );
       }
       // Other conditions or menu item variants can be handled here.

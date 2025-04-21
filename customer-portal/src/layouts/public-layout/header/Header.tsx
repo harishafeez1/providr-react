@@ -3,7 +3,7 @@ import ReactSelect from 'react-select';
 import { Navbar, NavbarActions } from '@/partials/navbar';
 
 import clsx from 'clsx';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { HeaderLogo } from './HeaderLogo';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import GooglePlacesAutocomplete, {
@@ -27,6 +27,7 @@ import { PageMenu } from '@/pages/directory/blocks/PageMenu';
 import { getAllServices } from '@/services/api/all-services';
 import { FilterModal } from '@/pages/directory';
 import { Services } from '@/pages/company-profile';
+import { useScroll, useTransform } from 'motion/react';
 
 function ServicesSkeleton() {
   return (
@@ -167,7 +168,70 @@ const Header = () => {
     fetchData();
   }, []);
 
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [defaultAddress, setDefaultAddress] = useState<{ label: string; value: string } | null>(
+    null
+  );
+  const [selectedPlace, setSelectedPlace] = useState<{ label: string; value: string } | null>(null);
+
+  useEffect(() => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          setUserLocation({ lat: latitude, lng: longitude });
+
+          // Step 2: Reverse geocode to get Australian address
+          try {
+            const response = await fetch(
+              `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${import.meta.env.VITE_APP_GOOGLE_API_KEY}`
+            );
+            const data = await response.json();
+            if (data.results && data.results.length > 0) {
+              // Find address component with suburb (locality) and format address
+              const addressComponents = data.results[0].address_components;
+              let suburb = '';
+              let state = '';
+              let postcode = '';
+              let country = '';
+
+              addressComponents.forEach((component: any) => {
+                if (component.types.includes('locality')) {
+                  suburb = component.long_name;
+                }
+                if (component.types.includes('administrative_area_level_1')) {
+                  state = component.short_name;
+                }
+                if (component.types.includes('postal_code')) {
+                  postcode = component.long_name;
+                }
+                if (component.types.includes('country')) {
+                  country = component.long_name;
+                }
+              });
+
+              // Format address starting with suburb
+              const formattedAddress = `${suburb}, ${state} ${postcode}, ${country}`;
+              setDefaultAddress({
+                label: formattedAddress,
+                value: formattedAddress
+              });
+            }
+          } catch (error) {
+            console.error('Error reverse geocoding:', error);
+          }
+        },
+        (error) => {
+          console.error('Error getting location:', error.message);
+        }
+      );
+    } else {
+      console.log('Geolocation is not supported by this browser.');
+    }
+  }, []);
+
   const checkLoaction = useLocation();
+
   return (
     <header className="sticky top-[2px] z-50 bg-white shadow-[0px_-50px_50px_0px_#ffffff]">
       <div className="mx-auto flex flex-col h-30 items-center justify-between md:px-0 px-8 pb-2 relative">
@@ -224,15 +288,22 @@ const Header = () => {
               <div className="w-full text-sm ">
                 <div className="cursor-pointer">
                   <GooglePlacesAutocomplete
+                    key={defaultAddress?.label || 'no-address'}
                     apiKey={import.meta.env.VITE_APP_GOOGLE_API_KEY}
                     autocompletionRequest={{
+                      location: userLocation ?? undefined,
+                      // radius: 20000,
                       componentRestrictions: {
-                        country: 'aus'
+                        country: 'au'
                       },
-                      types: ['address']
+                      types: ['(regions)']
                     }}
                     debounce={300}
+                    apiOptions={{
+                      region: 'AU'
+                    }}
                     selectProps={{
+                      defaultValue: defaultAddress,
                       placeholder: 'Search location...',
                       styles: {
                         control: (provided) => ({
