@@ -45,6 +45,8 @@ interface IModalDeleteConfirmationProps {
 
 const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
   const [localServiceId, setLocalServiceId] = useState('');
+  const [autocompleteKey, setAutocompleteKey] = useState(0);
+  const [serviceAutocompleteKey, setServiceAutocompleteKey] = useState(0);
   const { services } = useAppSelector((state) => state.services);
   const { ndis_register, age_group } = useAppSelector((state) => state.directory);
   const {
@@ -143,7 +145,7 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="w-full max-w-xl">
+        <DialogContent className="w-full max-w-2xl">
           <DialogHeader className="justify-between border-0 pt-5">
             <DialogTitle>Filters</DialogTitle>
             <DialogDescription></DialogDescription>
@@ -155,15 +157,21 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
                 <div className="flex items-baseline flex-wrap  gap-2.5 mb-4">
                   <div className="w-full text-sm">
                     <GooglePlacesAutocomplete
+                      key={autocompleteKey}
                       apiKey={import.meta.env.VITE_APP_GOOGLE_API_KEY}
                       onLoadFailed={(err) => {
                         console.error('Could not load google places autocomplete', err);
                       }}
                       autocompletionRequest={{
+                        // location: userLocation,
+                        // radius: 20000,
                         componentRestrictions: {
-                          country: 'aus'
+                          country: 'au'
                         },
-                        types: ['address']
+                        types: ['(regions)']
+                      }}
+                      apiOptions={{
+                        region: 'AU'
                       }}
                       selectProps={{
                         isClearable: true,
@@ -177,6 +185,7 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
                 <h3 className="text-lg font-semibold">Service</h3>
                 <div className="flex items-baseline flex-wrap  gap-2.5 mb-4">
                   <ReactSelect
+                    key={serviceAutocompleteKey}
                     options={services}
                     onChange={(item: any) => {
                       setLocalServiceId(item.value);
@@ -185,7 +194,7 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
                   />
                 </div>
 
-                <h3 className="text-lg font-semibold">NDIS Register</h3>
+                <h3 className="text-lg font-semibold">NDIS Registration Type</h3>
                 <div className="flex items-baseline flex-wrap  gap-2.5 mb-4 ">
                   <label className=" input flex checkbox checkbox-sm gap-1 w-full cursor-pointer">
                     <div className="flex gap-4">
@@ -339,7 +348,10 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
           <DialogFooter className="justify-end gap-4">
             <Button
               onClick={async () => {
+                setServiceAutocompleteKey((prevKey) => prevKey + 1); // Reset the key to force re-render
+                setAutocompleteKey((prevKey) => prevKey + 1); // Reset the key to force re-render
                 store.dispatch(setResetFilters());
+
                 // const res = await getListoftProvider(1);
                 // if (res) {
                 //   if (res.directories.current_page === 1) {
