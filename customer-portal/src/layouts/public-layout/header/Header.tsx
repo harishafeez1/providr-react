@@ -28,6 +28,14 @@ import { getAllServices } from '@/services/api/all-services';
 import { FilterModal } from '@/pages/directory';
 import { Services } from '@/pages/company-profile';
 import { useScroll, useTransform } from 'motion/react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
 
 function ServicesSkeleton() {
   return (
@@ -267,13 +275,33 @@ const Header = () => {
           </div>
           <div className="" />
           <div className="" />
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="flex  items-center gap-4 rounded-full border px-3 py-2 hover:shadow-md"
-          >
-            <KeenIcon icon="burger-menu-5" className="text-xl" />
-            <KeenIcon icon="profile-circle" className="text-2xl text-gray-500" />
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex  items-center gap-4 rounded-full border px-3 py-2 hover:shadow-md">
+                <KeenIcon icon="burger-menu-5" className="text-xl" />
+                <KeenIcon icon="profile-circle" className="text-2xl text-gray-500" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-72" align="end">
+              <DropdownMenuItem className="flex flex-col ps-4 items-start group cursor-pointer gap-0">
+                <span className="text-lg font-semibold group-hover:text-primary">
+                  I am an NDIS participant
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  Find supports, track service requests, and connect with providers.
+                </span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="flex flex-col ps-4 items-start group cursor-pointer gap-0">
+                <span className="text-lg font-semibold group-hover:text-primary">
+                  I am a Provider
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  Manage your listings, respond to enquiries, and grow your services.
+                </span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* Search */}
