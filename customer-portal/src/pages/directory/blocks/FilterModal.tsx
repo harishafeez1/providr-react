@@ -45,6 +45,7 @@ interface IModalDeleteConfirmationProps {
 
 const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
   const [localServiceId, setLocalServiceId] = useState('');
+  const [unregisteredProvider, setUnregisteredProvider] = useState(0);
   const [autocompleteKey, setAutocompleteKey] = useState(0);
   const [serviceAutocompleteKey, setServiceAutocompleteKey] = useState(0);
   const { services } = useAppSelector((state) => state.services);
@@ -222,6 +223,20 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
                       <span className="switch-label">NDIS Early Childhood Registered</span>
                     </div>
                   </label>
+                  <label className=" input flex checkbox checkbox-sm gap-1 w-full cursor-pointer">
+                    <div className="flex gap-4">
+                      <input
+                        type="checkbox"
+                        checked={unregisteredProvider === 1}
+                        name="ndis_childhood_registerd"
+                        readOnly
+                        onChange={(e) => {
+                          setUnregisteredProvider(e.target.checked ? 1 : 0);
+                        }}
+                      />
+                      <span className="switch-label">Unregistered Providers</span>
+                    </div>
+                  </label>
                 </div>
 
                 <h3 className="text-lg font-semibold">Age Group</h3>
@@ -350,6 +365,7 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
               onClick={async () => {
                 setServiceAutocompleteKey((prevKey) => prevKey + 1); // Reset the key to force re-render
                 setAutocompleteKey((prevKey) => prevKey + 1); // Reset the key to force re-render
+                setUnregisteredProvider(0);
                 store.dispatch(setResetFilters());
 
                 // const res = await getListoftProvider(1);
