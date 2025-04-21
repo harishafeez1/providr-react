@@ -1,5 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Heart, Star, Share, Phone, Mail, Globe, Facebook, Instagram } from 'lucide-react';
+import {
+  Heart,
+  Star,
+  Share,
+  Phone,
+  Mail,
+  Globe,
+  Facebook,
+  Instagram,
+  Eye,
+  EyeOff
+} from 'lucide-react';
 
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
@@ -25,6 +36,8 @@ interface ProviderDetailPageProps {
 
 const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }) => {
   const [isFavorite, setIsFavorite] = useState(false);
+  const [showPhoneNumber, setShowPhoneNumber] = useState(false);
+  const [showEmail, setShowEmail] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
@@ -272,14 +285,60 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
                 <div className="flex gap-6 justify-center items-center border card-rounded p-2">
                   <Phone className="text-primary flex-shrink-0" size={18} />
                   <span className="truncate overflow-hidden whitespace-nowrap">
-                    {data?.company_phone || 'N/A'}
+                    {(showPhoneNumber && (
+                      <a
+                        href={`tel:${data.company_phone}`}
+                        className="text-primary"
+                        title="Call this number"
+                      >
+                        {data.company_phone}
+                      </a>
+                    )) ||
+                      '********************'}
                   </span>
+                  {!showPhoneNumber && (
+                    <Eye
+                      size={18}
+                      onClick={() => setShowPhoneNumber(!showPhoneNumber)}
+                      className="flex-shrink-0 text-primary cursor-pointer"
+                    />
+                  )}
+                  {showPhoneNumber && (
+                    <EyeOff
+                      size={18}
+                      onClick={() => setShowPhoneNumber(!showPhoneNumber)}
+                      className="flex-shrink-0 text-primary cursor-pointer"
+                    />
+                  )}
                 </div>
                 <div className="flex gap-6 justify-center items-center border card-rounded p-2">
                   <Mail className="text-primary flex-shrink-0" size={18} />
                   <span className="truncate overflow-hidden whitespace-nowrap">
-                    {data?.company_email || 'N/A'}
+                    {(showEmail && (
+                      <a
+                        href={`mailto:${data.company_email}?subject=Inquiry about ${data?.name} service&body=Hello, I am reaching out regarding your services.`}
+                        className="text-primary"
+                        title="Send email"
+                      >
+                        {data.company_email}
+                      </a>
+                    )) ||
+                      '********************'}
                   </span>
+                  {!showEmail && (
+                    <Eye
+                      size={18}
+                      onClick={() => setShowEmail(!showEmail)}
+                      className="flex-shrink-0 text-primary cursor-pointer"
+                    />
+                  )}
+                  {showEmail && (
+                    <EyeOff
+                      size={18}
+                      onClick={() => setShowEmail(!showEmail)}
+                      className="flex-shrink-0 text-primary cursor-pointer"
+                    />
+                  )}
                 </div>
                 <TooltipProvider>
                   <Tooltip>
