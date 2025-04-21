@@ -172,7 +172,6 @@ const Header = () => {
   const [defaultAddress, setDefaultAddress] = useState<{ label: string; value: string } | null>(
     null
   );
-  const [selectedPlace, setSelectedPlace] = useState<{ label: string; value: string } | null>(null);
 
   useEffect(() => {
     if ('geolocation' in navigator) {

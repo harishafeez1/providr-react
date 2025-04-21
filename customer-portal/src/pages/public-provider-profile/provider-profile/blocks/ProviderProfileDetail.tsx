@@ -16,6 +16,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { StarRating } from '@/components';
 import { WriteAReviewModal } from './WriteAReviewModal';
+import useSharePageUrl from '@/hooks/useShareUrl';
 
 interface ProviderDetailPageProps {
   data: any;
@@ -27,6 +28,7 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const { sharePage, isShareSupported } = useSharePageUrl();
 
   const handleModalOpen = () => {
     setIsModalOpen(true);
@@ -83,10 +85,14 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
             <h1 className="text-2xl font-bold">{data?.name || ''}</h1>
           </div>
           <div className="flex items-center space-x-4">
-            <button className="flex items-center text-sm font-medium hover:underline">
+            <button
+              className="flex items-center text-sm font-medium hover:underline"
+              onClick={sharePage}
+            >
               <Share size={16} className="mr-1" />
               Share
             </button>
+            {!isShareSupported && <small>Your browser doesn't support sharing.</small>}
             <button
               onClick={toggleFavorite}
               className="flex items-center text-sm font-medium hover:underline"
