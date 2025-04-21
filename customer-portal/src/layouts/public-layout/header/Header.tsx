@@ -277,28 +277,38 @@ const Header = () => {
           <div className="" />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex  items-center gap-4 rounded-full border px-3 py-2 hover:shadow-md">
+              <div className="flex items-center gap-4 rounded-full border px-3 py-2 hover:shadow-md">
                 <KeenIcon icon="burger-menu-5" className="text-xl" />
                 <KeenIcon icon="profile-circle" className="text-2xl text-gray-500" />
-              </button>
+              </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-72" align="end">
-              <DropdownMenuItem className="flex flex-col ps-4 items-start group cursor-pointer gap-0">
-                <span className="text-lg font-semibold group-hover:text-primary">
-                  I am an NDIS participant
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  Find supports, track service requests, and connect with providers.
-                </span>
+              <DropdownMenuItem>
+                <Link
+                  to={'/login'}
+                  className="flex flex-col ps-2 items-start group cursor-pointer gap-0"
+                >
+                  <span className="text-lg font-semibold group-hover:text-primary">
+                    I am an NDIS participant
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    Find supports, track service requests, and connect with providers.
+                  </span>
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="flex flex-col ps-4 items-start group cursor-pointer gap-0">
-                <span className="text-lg font-semibold group-hover:text-primary">
-                  I am a Provider
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  Manage your listings, respond to enquiries, and grow your services.
-                </span>
+              <DropdownMenuItem className="">
+                <a
+                  href={`/provider-portal/auth/login`}
+                  className="flex flex-col ps-2 items-start group cursor-pointer gap-0"
+                >
+                  <span className="text-lg font-semibold group-hover:text-primary">
+                    I am a Provider
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    Manage your listings, respond to enquiries, and grow your services.
+                  </span>
+                </a>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -467,28 +477,6 @@ const Header = () => {
           </button>
         </div>
       </div>
-
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="absolute right-4 top-20 w-64 rounded-xl border bg-white shadow-lg">
-          <div className="flex flex-col p-2">
-            <Link
-              to={'/login'}
-              className="w-full rounded-lg px-4 py-3 text-left hover:bg-gray-100 hover:text-primary font-medium"
-            >
-              Login as Participant
-            </Link>
-            <a
-              href={`/provider-portal/auth/login`}
-              className="w-full rounded-lg px-4 py-3 text-left hover:bg-gray-100 hover:text-primary font-medium"
-              target="_blank"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Login as Provider
-            </a>
-          </div>
-        </div>
-      )}
 
       <div className="border-b absolute left-0 right-0"></div>
       {locationCheck?.pathname?.includes('directory') && (
