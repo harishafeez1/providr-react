@@ -296,7 +296,7 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
                     )) ||
                       '************'}
                   </span>
-                  {!showPhoneNumber && (
+                  {!showPhoneNumber && data?.company_phone && (
                     <Eye
                       size={18}
                       onClick={() => setShowPhoneNumber(!showPhoneNumber)}
@@ -325,7 +325,7 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
                     )) ||
                       '************'}
                   </span>
-                  {!showEmail && (
+                  {!showEmail && data?.company_email && (
                     <Eye
                       size={18}
                       onClick={() => setShowEmail(!showEmail)}
