@@ -277,7 +277,7 @@ const Header = () => {
           <div className="" />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <div className="flex items-center gap-4 rounded-full border px-3 py-2 hover:shadow-md">
+              <div className="flex items-center gap-4 rounded-full border px-3 py-2 hover:shadow-md cursor-pointer">
                 <KeenIcon icon="burger-menu-5" className="text-xl" />
                 <KeenIcon icon="profile-circle" className="text-2xl text-gray-500" />
               </div>
