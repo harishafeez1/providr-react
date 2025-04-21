@@ -328,7 +328,7 @@ const Header = () => {
                     key={defaultAddress?.label || 'no-address'}
                     apiKey={import.meta.env.VITE_APP_GOOGLE_API_KEY}
                     autocompletionRequest={{
-                      location: userLocation ?? undefined,
+                      // location: userLocation ?? undefined,
                       // radius: 20000,
                       componentRestrictions: {
                         country: 'au'
