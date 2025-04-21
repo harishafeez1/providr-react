@@ -294,7 +294,7 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
                         {data?.company_phone}
                       </a>
                     )) ||
-                      '********************'}
+                      '************'}
                   </span>
                   {!showPhoneNumber && (
                     <Eye
@@ -323,7 +323,7 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
                         {data?.company_email}
                       </a>
                     )) ||
-                      '********************'}
+                      '************'}
                   </span>
                   {!showEmail && (
                     <Eye
