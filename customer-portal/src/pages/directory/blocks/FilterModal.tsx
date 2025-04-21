@@ -46,6 +46,8 @@ interface IModalDeleteConfirmationProps {
 const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
   const [localServiceId, setLocalServiceId] = useState('');
   const [unregisteredProvider, setUnregisteredProvider] = useState(0);
+  const [immediate, setImmediate] = useState(0);
+  const [within24, setWithin24] = useState(0);
   const [autocompleteKey, setAutocompleteKey] = useState(0);
   const [serviceAutocompleteKey, setServiceAutocompleteKey] = useState(0);
   const { services } = useAppSelector((state) => state.services);
@@ -239,6 +241,36 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
                   </label>
                 </div>
 
+                <h3 className="text-lg font-semibold">Availability</h3>
+                <div className="flex items-baseline flex-wrap  gap-2.5 mb-4 ">
+                  <label className=" input flex checkbox checkbox-sm gap-1 w-full cursor-pointer">
+                    <div className="flex gap-4">
+                      <input
+                        type="checkbox"
+                        checked={immediate === 1}
+                        onChange={(e) => {
+                          setImmediate(e.target.checked ? 1 : 0);
+                        }}
+                      />
+                      <span className="switch-label">Immediate / Emergency Capacity</span>
+                    </div>
+                  </label>
+                  <label className=" input flex checkbox checkbox-sm gap-1 w-full cursor-pointer">
+                    <div className="flex gap-4">
+                      <input
+                        type="checkbox"
+                        checked={within24 === 1}
+                        name="ndis_childhood_registerd"
+                        readOnly
+                        onChange={(e) => {
+                          setWithin24(e.target.checked ? 1 : 0);
+                        }}
+                      />
+                      <span className="switch-label"> Within 24 hours</span>
+                    </div>
+                  </label>
+                </div>
+
                 <h3 className="text-lg font-semibold">Age Group</h3>
                 <div className="flex items-baseline flex-wrap gap-2.5 mb-4 cursor-pointer">
                   {[
@@ -366,6 +398,8 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
                 setServiceAutocompleteKey((prevKey) => prevKey + 1); // Reset the key to force re-render
                 setAutocompleteKey((prevKey) => prevKey + 1); // Reset the key to force re-render
                 setUnregisteredProvider(0);
+                setImmediate(0);
+                setWithin24(0);
                 store.dispatch(setResetFilters());
 
                 // const res = await getListoftProvider(1);
