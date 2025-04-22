@@ -361,7 +361,13 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
                       <div className="flex gap-6 justify-center items-center border card-rounded p-2">
                         <Globe className="text-primary flex-shrink-0" size={18} />
                         <span className="truncate overflow-hidden whitespace-nowrap">
-                          {data?.company_website || 'N/A'}
+                          {data?.company_website ? (
+                            <a href={data?.company_website} target="_blank">
+                              {data?.company_website}
+                            </a>
+                          ) : (
+                            'N/A'
+                          )}
                         </span>
                       </div>
                     </TooltipTrigger>
