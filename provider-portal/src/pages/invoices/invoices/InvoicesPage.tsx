@@ -15,7 +15,7 @@ const InvoicesPage = () => {
 
         <div className="flex flex-col ">
           <div className="py-2">
-            <Alert variant="warning">No invoices available.</Alert>
+            <Alert variant="warning">coming soon</Alert>
           </div>
         </div>
       </Container>

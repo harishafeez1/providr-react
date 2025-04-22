@@ -34,8 +34,7 @@ const ReviewsTablePage = () => {
                 <span className="btn btn-primary">Invite</span>
               </div>
               <label className="form-label max-w-80 py-2">
-                share this URL with your client:
-                https://clickability.com.au/provider/helping-hands#review
+                share this URL with your client: https://app.providr.au/directory
               </label>
             </div>
           </div>

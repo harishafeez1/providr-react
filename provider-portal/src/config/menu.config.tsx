@@ -5,6 +5,24 @@ export const MENU_SIDEBAR: TMenuConfig = [
     heading: 'Dashboard'
   },
   {
+    title: 'Company Profile',
+    icon: 'user-square',
+    path: '/company-profile/add-profile',
+    permission: ['admin', 'editor', 'intake', 'review']
+  },
+  {
+    title: 'Premises',
+    icon: 'geolocation',
+    path: '/premises',
+    permission: ['admin', 'editor']
+  },
+  {
+    title: 'Specialisations',
+    icon: 'shield-tick',
+    path: '/specialisations',
+    permission: ['admin', 'editor']
+  },
+  {
     title: 'Service Offerings',
     icon: 'ki-solid ki-tag',
     path: '/',
@@ -23,33 +41,15 @@ export const MENU_SIDEBAR: TMenuConfig = [
   //   permission: ['admin', 'intake']
   // },
   {
-    title: 'Analytics',
-    icon: 'graph-2',
-    path: '/analytics',
-    permission: ['admin', 'editor']
-  },
-  {
-    title: 'Company Profile',
-    icon: 'user-square',
-    path: '/company-profile/add-profile',
-    permission: ['admin', 'editor', 'intake', 'review']
-  },
-  {
     title: 'Reviews',
     icon: 'heart-circle',
     path: '/reviews',
     permission: ['admin', 'review']
   },
   {
-    title: 'Premises',
-    icon: 'geolocation',
-    path: '/premises',
-    permission: ['admin', 'editor']
-  },
-  {
-    title: 'Specialisations',
-    icon: 'shield-tick',
-    path: '/specialisations',
+    title: 'Analytics',
+    icon: 'graph-2',
+    path: '/analytics',
     permission: ['admin', 'editor']
   },
   {

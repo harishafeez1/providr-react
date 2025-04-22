@@ -83,7 +83,7 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
               First Name
               <DefaultTooltip
                 title={
-                  'These are the items related to the NDIS participant, whether it is yourself or someone you are acting on behalf of. We do not currently support the option to act on behalf of multiple participants from a single Clickability user account.'
+                  'These are the items related to the NDIS participant, whether it is yourself or someone you are acting on behalf of. We do not currently support the option to act on behalf of multiple participants from a single user account.'
                 }
                 placement={'top'}
               >

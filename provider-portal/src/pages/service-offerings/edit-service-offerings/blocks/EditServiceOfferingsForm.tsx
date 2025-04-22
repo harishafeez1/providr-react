@@ -140,6 +140,14 @@ const EditServiceOfferingsForm = () => {
     setSelectedPlace(null);
   };
 
+  const handleCheckAll = (values: any, setFieldValue: any) => {
+    const allChecked = values.age_group_options.length === options1.length;
+    const newValue = allChecked ? [] : [...options1];
+
+    // Update Formik field
+    setFieldValue('age_group_options', newValue);
+  };
+
   if (isLoading) {
     return <ProgressBarLoader />;
   }
@@ -306,6 +314,15 @@ const EditServiceOfferingsForm = () => {
                         <span className="checkbox-label">{option}</span>
                       </label>
                     ))}
+                    <label className="checkbox-group flex items-center gap-2 cursor-pointer mb-2">
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-sm"
+                        checked={values.age_group_options.length === options1.length}
+                        onChange={() => handleCheckAll(values, setFieldValue)}
+                      />
+                      <span className="checkbox-label">Check All</span>
+                    </label>
                   </div>
                 </div>
               </div>

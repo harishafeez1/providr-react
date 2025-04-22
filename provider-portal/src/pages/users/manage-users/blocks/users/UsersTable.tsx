@@ -216,7 +216,7 @@ const UsersTable = () => {
                   to="#"
                   className="text-2sm text-gray-700 font-normal hover:text-primary-active"
                 >
-                  {`${row.original.first_name} ${row.original.last_name}`}
+                  {`${row.original.first_name || ''} ${row.original.last_name || ''}`}
                 </Link>
               </div>
             </div>

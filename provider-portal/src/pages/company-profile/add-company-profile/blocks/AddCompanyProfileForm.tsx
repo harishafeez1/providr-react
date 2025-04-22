@@ -170,12 +170,13 @@ const AddCompanyProfileForm = () => {
               <div className="flex items-baseline flex-wrap gap-2.5">
                 <label className="form-label max-w-70 gap-1">
                   <KeenIcon icon="subtitle" className="text-sm" />
-                  Write a short description of this specific service
+                  Write a short company introduction that will appear on your public profile
                 </label>
                 <p className="text-2sm text-gray-700">
-                  Start with something simple, read our guide on creating a company profile and for
-                  help and book in a complementary profile optimisation session here and we can help
-                  you writing a description.
+                  This description is what visitors will see when they first land on your profile.
+                  Briefly explain who you are, what services you provide, and what makes your
+                  business unique. Keep it clear and friendly — like you're introducing your
+                  business to someone for the first time.
                 </p>
                 <div className="w-full">
                   <Editor
@@ -250,7 +251,7 @@ const AddCompanyProfileForm = () => {
                     Are you registered for NDIS?
                   </label>
                   <p className="text-2sm text-gray-700">
-                    You don't need to be registered for NDIS to be listed on Clickability.
+                    You don't need to be registered for NDIS to be listed on Providr hub.
                   </p>
                   <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-7.5">
@@ -302,7 +303,7 @@ const AddCompanyProfileForm = () => {
                     Are you registered for NDIS Early Childhood?
                   </label>
                   <p className="text-2sm text-gray-700">
-                    You don't need to be registered to be listed on Clickability.
+                    You don't need to be registered to be listed on Providr hub.
                   </p>
                   <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-7.5">

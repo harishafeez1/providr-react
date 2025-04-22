@@ -105,6 +105,14 @@ const AddServiceOfferingsForm = () => {
     setSelectedPlace(null); // Optional, if you're clearing the input
   };
 
+  const handleCheckAll = (values: any, setFieldValue: any) => {
+    const allChecked = values.age_group_options.length === options1.length;
+    const newValue = allChecked ? [] : [...options1]; // If all are checked, uncheck all; otherwise, check all
+
+    // Update Formik field
+    setFieldValue('age_group_options', newValue);
+  };
+
   return (
     <>
       <Formik
@@ -267,7 +275,7 @@ const AddServiceOfferingsForm = () => {
                               'age_group_options',
                               isChecked
                                 ? [...values.age_group_options, option]
-                                : values.age_group_options.filter((item: string) => item !== option) // Remove the option
+                                : values.age_group_options.filter((item: string) => item !== option)
                             );
 
                             // Optionally, update any other state if needed
@@ -282,6 +290,15 @@ const AddServiceOfferingsForm = () => {
                         <span className="checkbox-label">{option}</span>
                       </label>
                     ))}
+                    <label className="checkbox-group flex items-center gap-2 cursor-pointer mb-2">
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-sm"
+                        checked={values.age_group_options.length === options1.length}
+                        onChange={() => handleCheckAll(values, setFieldValue)}
+                      />
+                      <span className="checkbox-label">Check All</span>
+                    </label>
                   </div>
                 </div>
                 {touched.age_group_options && errors.age_group_options && (
