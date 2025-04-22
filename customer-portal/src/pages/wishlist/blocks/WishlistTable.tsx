@@ -20,6 +20,7 @@ import { deleteDocument, getDocuments } from '@/services/api/documents';
 import { Button } from '@/components/ui/button';
 import { IDocumentsData } from '@/pages/documents/manage-documents/blocks';
 import { getCustomerWishlist } from '@/services/api/wishlist-favourite';
+import { ICompanyProfile, IWishlistTableProps } from './types';
 
 interface IColumnFilterProps<TData, TValue> {
   column: Column<TData, TValue>;
@@ -29,7 +30,7 @@ const WishlistTable = () => {
   const { currentUser } = useAuthContext();
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const DropdownCard2 = (row: any) => {
+  const DropdownCard2 = (row: IWishlistTableProps) => {
     return (
       <MenuSub className="menu-default" rootClassName="w-full max-w-[200px]">
         <MenuItem
@@ -48,7 +49,7 @@ const WishlistTable = () => {
         >
           <MenuLink>
             <a
-              href={`${import.meta.env.VITE_APP_AWS_URL}/${row.document_path}`}
+              href={`/provider-profile/${row.provider_company.id}`}
               className="flex"
               target="_blank"
             >
@@ -131,8 +132,8 @@ const WishlistTable = () => {
       const response = await getCustomerWishlist(currentUser?.id, `${queryParams.toString()}`);
 
       return {
-        data: response.data,
-        totalCount: response.total
+        data: response,
+        totalCount: response?.total
       };
     } catch (error) {
       console.error(error);
@@ -151,7 +152,7 @@ const WishlistTable = () => {
     }
   };
 
-  const columns = useMemo<ColumnDef<IDocumentsData>[]>(
+  const columns = useMemo<ColumnDef<IWishlistTableProps>[]>(
     () => [
       {
         accessorFn: (row: IDocumentsData) => row.id,
@@ -184,8 +185,8 @@ const WishlistTable = () => {
         }
       },
       {
-        accessorFn: (row) => row.customer_id,
-        id: 'document_name',
+        accessorFn: (row) => row.provider_company_id,
+        id: 'provider_company_id',
         header: ({ column }) => (
           <DataGridColumnHeader
             title="Provider"
@@ -196,7 +197,49 @@ const WishlistTable = () => {
         cell: (info) => {
           return (
             <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.document_name}
+              {info.row.original.provider_company.name || ''}
+            </div>
+          );
+        },
+        meta: {
+          headerClassName: 'min-w-[180px]'
+        }
+      },
+      {
+        accessorFn: (row) => row.provider_company.company_email,
+        id: 'provider_company.company_email',
+        header: ({ column }) => (
+          <DataGridColumnHeader
+            title="Provider Email"
+            column={column}
+            icon={<i className="ki-filled ki-user"></i>}
+          />
+        ),
+        cell: (info) => {
+          return (
+            <div className="flex items-center flex-wrap text-gray-800 font-normal gap-1.5 break-all min-w-0">
+              {info.row.original.provider_company.company_email || ''}
+            </div>
+          );
+        },
+        meta: {
+          headerClassName: 'min-w-[180px]'
+        }
+      },
+      {
+        accessorFn: (row) => row.provider_company.company_phone,
+        id: 'provider_company.company_phone',
+        header: ({ column }) => (
+          <DataGridColumnHeader
+            title="Provider Phone"
+            column={column}
+            icon={<i className="ki-filled ki-user"></i>}
+          />
+        ),
+        cell: (info) => {
+          return (
+            <div className="flex items-center flex-wrap text-gray-800 font-normal gap-1.5 break-all min-w-0">
+              {info.row.original.provider_company.company_phone || ''}
             </div>
           );
         },
@@ -277,12 +320,6 @@ const WishlistTable = () => {
       </div>
     );
   };
-
-  //   useEffect(() => {
-  //     getCustomerWishlist(1, 'page: 1').then((res) => {
-  //       console.log('-------------', res);
-  //     });
-  //   }, []);
 
   return (
     <>

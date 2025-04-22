@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { GET_ADD_WISHLIST_FAVOUTIE_URL } from '../endpoints';
+import { GET_ADD_WISHLIST_FAVOUTIE_URL, GET_ALL_WISHLIST_FAVOUTIE_URL } from '../endpoints';
 
 
 const addFavouriteProvider = async (  provider_id: number, customer_id:number | undefined) => {
@@ -14,7 +14,7 @@ const addFavouriteProvider = async (  provider_id: number, customer_id:number | 
 
 const getCustomerWishlist = async (  customer_id:number | undefined,params?: string) => {
   try {
-    const response = await axios.get(`${GET_ADD_WISHLIST_FAVOUTIE_URL}/${customer_id}?${params}`);
+    const response = await axios.get(`${GET_ALL_WISHLIST_FAVOUTIE_URL}/${customer_id}?${params}`);
     return response.data;
   } catch (err) {
     console.error('Error fetching wishlist:', err);
