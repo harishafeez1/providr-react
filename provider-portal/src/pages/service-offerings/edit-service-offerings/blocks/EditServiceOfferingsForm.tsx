@@ -129,9 +129,15 @@ const EditServiceOfferingsForm = () => {
     }
   };
 
-  const handlePlaceChange = (address: any) => {
+  const handlePlaceChange = (address: any, values: any, setFieldValue: any) => {
     setSelectedPlace(address);
-    console.log('Selected Address:', address);
+
+    if (!values.address_options.includes(address?.label)) {
+      const updatedAddresses = [...(values.address_options || []), address?.label];
+      setFieldValue('address_options', updatedAddresses);
+    }
+
+    setSelectedPlace(null);
   };
 
   if (isLoading) {
@@ -148,7 +154,8 @@ const EditServiceOfferingsForm = () => {
           handleSubmit(formData, { resetForm, setFieldValue })
         }
       >
-        {({ setFieldValue, values, isSubmitting }) => (
+        {({ setFieldValue, values, isSubmitting, touched, errors }) => (
+          // console.log('---values----', values),
           <Form className="card p-4">
             <div className="grid gap-5">
               {/* <div className="flex items-baseline flex-wrap gap-2.5">
@@ -345,88 +352,44 @@ const EditServiceOfferingsForm = () => {
                           {...field}
                           name="address_options"
                           value={selectedPlace}
-                          onChange={handlePlaceChange}
+                          onChange={(address) => handlePlaceChange(address, values, setFieldValue)}
                         />
                       )}
                     </Field>
                   </div>
-                  {selectedPlace ? (
-                    <label className="input justify-between">
-                      <div className="">{selectedPlace.label}</div>
-                      <div
-                        className="relative"
-                        title={
-                          values.address_options.includes(selectedPlace.label)
-                            ? 'This address is already added'
-                            : undefined
-                        }
-                      >
-                        <Button
-                          className=""
-                          variant="default"
-                          size="sm"
-                          disabled={values.address_options.includes(selectedPlace.label)}
-                          onClick={() => {
-                            const updatedAddresses = [
-                              ...(values.address_options || []),
-                              selectedPlace.label
-                            ];
-
-                            setFieldValue('address_options', updatedAddresses);
-                            setSelectedPlace(null);
-                          }}
-                        >
-                          Add
-                        </Button>
-                      </div>
-                    </label>
-                  ) : (
-                    <div className={`badge badge-sm badge-warning badge-outline my-3`}>
-                      No physical address attached
-                    </div>
-                  )}
 
                   <div className="my-4">
                     <strong className="py-6">List of Added Addresses:</strong>
-                    <div className="pl-8 py-2 flex flex-col">
-                      {(offeringsData?.address_options || values.address_options || []).map(
-                        (option: string, index: number) => (
-                          <div key={index} className="py-1 flex items-center gap-8">
-                            {option}
-                            <div
-                              className="badge badge-sm badge-danger badge-outline cursor-pointer"
-                              onClick={() => {
-                                const sourceArray = offeringsData
-                                  ? offeringsData.address_options
-                                  : values.address_options;
-                                const updatedAddresses = (sourceArray || []).filter(
-                                  (_: string, i: number) => i !== index
-                                );
-
-                                // Update the Formik state
-                                setFieldValue('address_options', updatedAddresses);
-
-                                // If offeringsData is being used, update it as well
-                                if (offeringsData) {
-                                  setOfferingsData({
-                                    ...offeringsData,
-                                    address_options: updatedAddresses
-                                  });
-                                }
-                              }}
-                            >
-                              ✖
-                            </div>
-                            {selectedPlace && selectedPlace.label === option && (
-                              <div className="badge badge-pill badge-danger">
-                                This address is already added
-                              </div>
-                            )}
+                    <div className="py-2 flex flex-col">
+                      {(values.address_options || []).map((option: string, index: number) => (
+                        <div key={index} className="py-1 flex items-center gap-8">
+                          <div className="badge badge-pill badge-primary badge-lg">{option}</div>
+                          <div
+                            className="badge badge-sm badge-danger badge-outline cursor-pointer rounded-full"
+                            onClick={() => {
+                              const updatedAddresses = values.address_options.filter(
+                                (_: string, i: number) => i !== index
+                              );
+                              setFieldValue('address_options', updatedAddresses);
+                            }}
+                          >
+                            ✖
                           </div>
-                        )
-                      )}
+                          {selectedPlace && selectedPlace.label === option && (
+                            <div className="badge badge-pill badge-danger">
+                              This address is already added
+                            </div>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   </div>
+
+                  {touched.address_options && errors.address_options && (
+                    <span role="alert" className="text-danger text-xs mt-1">
+                      {errors?.address_options as any}
+                    </span>
+                  )}
                 </div>
               </div>
               <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]">
