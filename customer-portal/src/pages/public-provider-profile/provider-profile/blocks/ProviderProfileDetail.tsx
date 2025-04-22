@@ -28,6 +28,10 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { StarRating } from '@/components';
 import { WriteAReviewModal } from './WriteAReviewModal';
 import useSharePageUrl from '@/hooks/useShareUrl';
+import { useAuthContext } from '@/auth';
+import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
+import { addFavouriteProvider } from '@/services/api/wishlist-favourite';
 
 interface ProviderDetailPageProps {
   data: any;
@@ -42,6 +46,7 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const { sharePage, isShareSupported } = useSharePageUrl();
+  const { auth } = useAuthContext();
 
   const handleModalOpen = () => {
     setIsModalOpen(true);
@@ -58,8 +63,13 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
     setIsReviewModalOpen(false);
   };
 
-  const toggleFavorite = () => {
-    setIsFavorite(!isFavorite);
+  const toggleFavorite = async () => {
+    if (!auth?.token) {
+      toast.error('Please login to favorite this provider');
+    } else {
+      await addFavouriteProvider(data?.id, auth?.customer?.id);
+      setIsFavorite(!isFavorite);
+    }
   };
 
   function ListingSkeleton() {
@@ -116,6 +126,11 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
               />
               Save
             </button>
+            {auth?.token && (
+              <Link to={'/wishlist'} className="text-sm font-medium hover:underline cursor-pointer">
+                My Wishlist
+              </Link>
+            )}
           </div>
         </div>
       </div>

@@ -31,3 +31,8 @@ export const GET_CONNECT_PROVIDER_URL = `${API_URL}/connect_provider`;
 export const GET_DIRECT_CONNECT_PROVIDER_URL = `${API_URL}/direct_connect_provider`; 
 export const GET_DIRECTORY_PROVIDER_URL = `${API_URL}/directory`;
 export const GET_ALL_SERVICES_PUBLIC_URL = `${API_URL}/all_services`;
+
+
+// WishList Routes
+export const GET_ALL_WISHLIST_FAVOUTIE_URL = `${API_URL}/customer_favs`;
+export const GET_ADD_WISHLIST_FAVOUTIE_URL = `${API_URL}/fav_provider`;
