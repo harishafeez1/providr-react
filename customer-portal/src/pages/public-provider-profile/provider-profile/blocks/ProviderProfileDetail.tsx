@@ -126,11 +126,11 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
               />
               Save
             </button>
-            {auth?.token && (
+            {/* {auth?.token && (
               <Link to={'/wishlist'} className="text-sm font-medium hover:underline cursor-pointer">
                 My Wishlist
               </Link>
-            )}
+            )} */}
           </div>
         </div>
       </div>

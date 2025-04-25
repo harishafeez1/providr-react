@@ -48,6 +48,14 @@ const DropdownUser = ({ menuItemRef }: IDropdownUserProps) => {
               <MenuTitle>My Reviews</MenuTitle>
             </MenuLink>
           </MenuItem>
+          <MenuItem>
+            <MenuLink path="/wishlist">
+              <MenuIcon className="setting-2">
+                <KeenIcon icon="heart" />
+              </MenuIcon>
+              <MenuTitle>My Wishlist</MenuTitle>
+            </MenuLink>
+          </MenuItem>
         </div>
       </Fragment>
     );

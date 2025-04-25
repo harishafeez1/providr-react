@@ -278,28 +278,59 @@ const Header = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <div className="flex items-center gap-4 rounded-full border px-3 py-2 hover:shadow-md cursor-pointer">
-                <KeenIcon icon="burger-menu-5" className="text-xl" />
+                {auth ? (
+                  <div className="font-medium ">
+                    {`${auth?.customer?.first_name || ''} ${auth?.customer?.last_name || ''}`}
+                  </div>
+                ) : (
+                  <KeenIcon icon="burger-menu-5" className="text-xl" />
+                )}
                 <KeenIcon icon="profile-circle" className="text-2xl text-gray-500" />
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-72" align="end">
-              <DropdownMenuItem>
-                <Link
-                  to={'/login'}
-                  className="flex flex-col ps-2 items-start group cursor-pointer gap-0"
-                >
-                  <span className="text-lg font-semibold group-hover:text-primary">
-                    I am an NDIS participant
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    Find supports, track service requests, and connect with providers.
-                  </span>
-                </Link>
-              </DropdownMenuItem>
+              {!auth && (
+                <DropdownMenuItem>
+                  <Link
+                    to={'/login'}
+                    className="flex flex-col ps-2 items-start group cursor-pointer gap-0"
+                  >
+                    <span className="text-lg font-semibold group-hover:text-primary">
+                      I am an NDIS participant
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      Find supports, track service requests, and connect with providers.
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
+              )}
+              {auth && (
+                <>
+                  {/* <DropdownMenuLabel className="mb-2 text-right">{`${auth?.customer?.first_name || ''} ${auth?.customer?.last_name || ''} `}</DropdownMenuLabel> */}
+                  {/* <DropdownMenuSeparator /> */}
+                  <Link
+                    to={'/service-request'}
+                    className="flex flex-col items-start gap-0 w-full group"
+                  >
+                    <DropdownMenuItem className="w-full cursor-pointer group-hover:text-primary">
+                      <span className="text-lg font-semibold group-hover:text-primary">
+                        My Service Requests
+                      </span>
+                    </DropdownMenuItem>
+                  </Link>
+                  <DropdownMenuSeparator />
+                  <Link to="/wishlist" className="flex flex-col items-start gap-0 w-full group">
+                    <DropdownMenuItem className="w-full cursor-pointer group-hover:text-primary">
+                      <span className="text-lg font-semibold ">My Wishlist</span>
+                    </DropdownMenuItem>
+                  </Link>
+                </>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem className="">
                 <a
                   href={`/provider-portal/auth/login`}
+                  target="_blank"
                   className="flex flex-col ps-2 items-start group cursor-pointer gap-0"
                 >
                   <span className="text-lg font-semibold group-hover:text-primary">

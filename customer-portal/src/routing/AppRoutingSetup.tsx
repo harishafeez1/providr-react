@@ -23,19 +23,20 @@ const AppRoutingSetup = (): ReactElement => {
     <Routes>
       <Route element={<Demo2Layout />}>
         <Route element={<RequireAuth />}>
+          <Route index element={<Navigate to="/directory" replace />} />
           {/* <Route index path="/" element={<ServiceRequestsTablePage />} /> */}
           <Route path="/service-request" element={<ServiceRequestsTablePage />} />
           <Route path="/service-request/request/:id" element={<RequestViewPage />} />
           <Route path="/documents" element={<DocumentsTablePage />} />
           <Route path="/settings" element={<AccountSettingsPlainPage />} />
           <Route path="/reviews" element={<ReviewsTablePage />} />
+          <Route path="/wishlist" element={<WishlistPage />} />
         </Route>
       </Route>
       <Route path="error/*" element={<ErrorsRouting />} />
       <Route path="*" element={<AuthPage />} />
       <Route path="*" element={<Navigate to="/error/404" />} />
       <Route element={<PublicLayout />}>
-        <Route path="/wishlist" element={<WishlistPage />} />
         <Route path="/directory" element={<DirectoryPage />} />
         <Route path="/services" element={<ServicesPage />} />
         <Route path="/provider-profile/:id" element={<ProviderProfilePage />} />
