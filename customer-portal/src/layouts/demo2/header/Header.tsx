@@ -3,9 +3,12 @@ import { Container } from '@/components/container';
 import { HeaderLogo, HeaderTopbar } from '.';
 import { useDemo2Layout } from '../';
 import { useEffect } from 'react';
+import { useLocation } from 'react-router';
+import { Link } from 'react-router-dom';
 
 const Header = () => {
   const { headerSticky } = useDemo2Layout();
+  // const checkLoaction = useLocation();
 
   useEffect(() => {
     if (headerSticky) {
@@ -25,6 +28,32 @@ const Header = () => {
     >
       <Container className="flex justify-between items-center lg:gap-4">
         <HeaderLogo />
+        {/* <div className="lg:flex hidden items-center gap-4 pe-14">
+          <Link to="/services">
+            <span
+              className={clsx({
+                'py-2 font-semibold tracking-wider text-black/80':
+                  checkLoaction.pathname.includes('services'),
+                'text-gray-600 font-medium hover:bg-gray-200 p-4 rounded-full hover:text-gray-700 tracking-wider':
+                  !checkLoaction.pathname.includes('services')
+              })}
+            >
+              Services
+            </span>
+          </Link>
+          <Link to="/directory">
+            <span
+              className={clsx({
+                'py-2 font-semibold tracking-wider text-black/80':
+                  checkLoaction.pathname.includes('directory'),
+                'text-gray-600 font-medium hover:bg-gray-200 p-4 rounded-full hover:text-gray-700 tracking-wider':
+                  !checkLoaction.pathname.includes('directory')
+              })}
+            >
+              Directory
+            </span>
+          </Link>
+        </div> */}
         <HeaderTopbar />
       </Container>
     </header>

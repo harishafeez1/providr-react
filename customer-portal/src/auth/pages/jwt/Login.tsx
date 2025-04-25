@@ -32,7 +32,7 @@ const Login = () => {
   const { login, googleLogin } = useAuthContext();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || '/service-request';
+  const from = '/';
   const [showPassword, setShowPassword] = useState(false);
 
   const formik = useFormik({
