@@ -366,7 +366,6 @@ const Header = () => {
                       },
                       types: ['(regions)']
                     }}
-                    debounce={300}
                     apiOptions={{
                       region: 'AU'
                     }}
@@ -429,7 +428,7 @@ const Header = () => {
             </label>
           </div>
 
-          <div className="flex flex-col border-l gap-1 px-5 border-gray-300 w-full">
+          {/* <div className="flex flex-col border-l gap-1 px-5 border-gray-300 w-full">
             <label className="form-label text-gray-900 ps-[0.6rem] font-semibold tracking-wide">
               Age Group
             </label>
@@ -498,7 +497,7 @@ const Header = () => {
                 />
               </div>
             </label>
-          </div>
+          </div> */}
           <button
             className="flex items-center justify-center rounded-full bg-primary px-3 py-2 m-1 cursor-pointer"
             onClick={handleFilters}
