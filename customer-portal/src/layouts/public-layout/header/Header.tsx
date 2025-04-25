@@ -8,6 +8,7 @@ import { HeaderLogo } from './HeaderLogo';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import GooglePlacesAutocomplete, {
   geocodeByAddress,
+  geocodeByLatLng,
   geocodeByPlaceId,
   getLatLng
 } from 'react-google-places-autocomplete';
@@ -76,45 +77,33 @@ const Header = () => {
     } = {};
 
     if (address) {
-      const results = await geocodeByPlaceId(address.value.place_id);
-      const latLng = await getLatLng(results[0]);
+      const placeResults = await geocodeByPlaceId(address.value.place_id);
+      const latLng = await getLatLng(placeResults[0]);
       location.latitude = String(latLng.lat);
       location.longitude = String(latLng.lng);
       location.address = address.label;
 
-      // Extract address components
-      const addressComponents = results[0].address_components;
+      // Store suburb, state, etc. from suburb place data
+      const suburbComponents = placeResults[0].address_components;
+      const findComponent = (type: string) =>
+        suburbComponents.find((component) => component.types.includes(type))?.long_name;
 
-      // Extract suburb (usually stored as "locality" or "sublocality")
-      const suburbComponent = addressComponents.find(
-        (component) =>
-          component.types.includes('locality') || component.types.includes('sublocality')
-      );
-      if (suburbComponent) {
-        location.suburb = suburbComponent.long_name;
-      }
+      location.suburb = findComponent('locality') || findComponent('sublocality');
+      location.state = findComponent('administrative_area_level_1');
+      location.country = findComponent('country');
 
-      // Optionally, extract state, country, and postal code if needed:
-      const stateComponent = addressComponents.find((component) =>
-        component.types.includes('administrative_area_level_1')
-      );
-      if (stateComponent) {
-        location.state = stateComponent.long_name;
-      }
-      const countryComponent = addressComponents.find((component) =>
-        component.types.includes('country')
-      );
-      if (countryComponent) {
-        location.country = countryComponent.long_name;
-      }
-      const zipComponent = addressComponents.find((component) =>
-        component.types.includes('postal_code')
-      );
-      if (zipComponent) {
-        location.zip_code = zipComponent.long_name;
-      }
+      // ⬇️ Now reverse geocode lat/lng to get nearby street-level info
+      const reverseResults = await geocodeByLatLng(latLng);
+      const reverseComponents = reverseResults[0]?.address_components || [];
 
-      store.dispatch(setLocation(location?.suburb));
+      const postalCode = reverseComponents.find((comp) =>
+        comp.types.includes('postal_code')
+      )?.long_name;
+
+      location.zip_code = postalCode;
+
+      console.log('Final Location:', location);
+      store.dispatch(setLocation(location.suburb || ''));
     } else {
       store.dispatch(setLocation(''));
     }
@@ -216,6 +205,8 @@ const Header = () => {
                   country = component.long_name;
                 }
               });
+
+              store.dispatch(setLocation(suburb));
 
               // Format address starting with suburb
               const formattedAddress = `${suburb}, ${state} ${postcode}, ${country}`;
