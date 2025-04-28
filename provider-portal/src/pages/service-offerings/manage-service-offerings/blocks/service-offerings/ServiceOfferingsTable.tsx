@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { DataGrid, DataGridColumnHeader, KeenIcon, TDataGridRequestParams } from '@/components';
 import { ColumnDef, Column, RowSelectionState } from '@tanstack/react-table';
-import { format, set } from 'date-fns';
+import { format } from 'date-fns';
 
 import { MenuIcon, MenuLink, MenuSub, MenuTitle } from '@/components';
 import { IServiceOfferingsData } from './';
