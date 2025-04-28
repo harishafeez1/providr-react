@@ -10,6 +10,7 @@ import { UPDATE_COMPANY_PROFILE_URL } from '@/services/endpoints';
 import { useAuthContext } from '@/auth';
 import { Editor } from '../../../../components/editor/Editor';
 import * as Yup from 'yup';
+import { ProgressBar } from '../ProgressBar';
 
 // ABN Lookup API validation
 const validateABN = async (abn: string, guid: string) => {
@@ -23,6 +24,12 @@ const validateABN = async (abn: string, guid: string) => {
     console.error('ABN validation failed:', error);
     return false;
   }
+};
+
+const stripHtml = (html: string) => {
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  return div.textContent || div.innerText || '';
 };
 
 // Yup validation schema
@@ -50,8 +57,12 @@ const validationSchema = Yup.object({
   //   return await validateABN(value, 'your-guid-here');
   // })
   description: Yup.string()
-    .min(10, 'Description must be at least 300 characters')
-    .required('Description is required'),
+    .required('Description is required')
+    .test('min-text-length', 'Description must be at least 100 characters', (value) => {
+      if (!value) return false;
+      const text = stripHtml(value);
+      return text.length >= 100;
+    }),
   organisation_type: Yup.string()
     .oneOf(['sole_trader', 'company'], 'Invalid organisation type')
     .required('Organisation type is required'),
@@ -135,7 +146,7 @@ const AddCompanyProfileForm = () => {
   };
 
   const initialValues = {
-    business_logo: null,
+    business_logo: currentUser?.provider_company?.business_logo || null,
     name: currentUser?.provider_company?.name || '',
     abn: currentUser?.provider_company?.abn || '',
     description: currentUser?.provider_company?.description || '',
@@ -175,7 +186,7 @@ const AddCompanyProfileForm = () => {
     );
     formData.append('twitter_url', values.twitter_url || '');
 
-    if (values.business_logo) {
+    if (typeof values.business_logo !== 'string') {
       formData.append('business_logo', values.business_logo);
     }
 
@@ -211,388 +222,398 @@ const AddCompanyProfileForm = () => {
       onSubmit={handleSubmit}
     >
       {({ setFieldValue, values, isSubmitting, errors, touched }) => (
-        <Form className="card p-4">
-          <div className="grid gap-5">
-            <div className="flex items-center gap-2.5">
-              <div className="flex items-center flex-col gap-2.5 flex-2 justify-center mx-auto">
-                <CrudAvatarUpload onChange={(image) => handleAvatarChange(image, setFieldValue)} />
-                <label className="flex justify-start items-center gap-1.5">
-                  <KeenIcon icon="picture" className="text-md" />
-                  Upload your business logo
-                </label>
-                <span className="text-2sm font-medium text-gray-600">
-                  150x150px JPEG, PNG Image
-                </span>
-                <ErrorMessage
-                  name="business_logo"
-                  component="div"
-                  className="text-red-500 text-xs mt-1"
-                />
+        <>
+          <ProgressBar />
+
+          <Form className="card p-4">
+            <div className="grid gap-5">
+              <div className="flex items-center gap-2.5">
+                <div className="flex items-center flex-col gap-2.5 flex-2 justify-center mx-auto">
+                  <CrudAvatarUpload
+                    onChange={(image) => handleAvatarChange(image, setFieldValue)}
+                  />
+                  <label className="flex justify-start items-center gap-1.5">
+                    <KeenIcon icon="picture" className="text-md" />
+                    Upload your business logo
+                  </label>
+                  <span className="text-2sm font-medium text-gray-600">
+                    150x150px JPEG, PNG Image
+                  </span>
+                  <p className="text-xs text-destructive">
+                    * Image size should not be more than 5MB
+                  </p>
+                  <ErrorMessage
+                    name="business_logo"
+                    component="div"
+                    className="text-red-500 text-xs mt-1"
+                  />
+                </div>
               </div>
-            </div>
-            <div className="flex items-baseline flex-wrap gap-2.5">
-              <label className="form-label max-w-70 gap-1">
-                <KeenIcon icon="text" className="text-sm" />
-                Name of your business
+              <div className="flex items-baseline flex-wrap gap-2.5">
+                <label className="form-label max-w-70 gap-1">
+                  <KeenIcon icon="text" className="text-sm" />
+                  Name of your business
+                </label>
+                <label className="input">
+                  <Field
+                    name="name"
+                    type="text"
+                    placeholder="Enter your business name"
+                    className={`input-field ${errors.name && touched.name ? 'border-red-500' : ''}`}
+                  />
+                  <ErrorMessage name="name" component="div" className="text-red-500 text-xs mt-1" />
+                </label>
+              </div>
+              <div className="flex items-baseline flex-wrap gap-2.5">
+                <label className="form-label max-w-70 gap-1">
+                  <KeenIcon icon="shop" className="text-sm" /> ABN
+                </label>
+                <p className="text-2sm text-gray-700">
+                  <a
+                    href="https://abr.business.gov.au/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-blue-500 text-xs"
+                  >
+                    <span className="text-danger mx-2">*</span>
+                    <span>Find your ABN here.</span>
+                    <span className="text-danger mx-2">(numbers only)</span>
+                  </a>
+                </p>
+                <label className="input">
+                  <Field
+                    name="abn"
+                    type="text"
+                    placeholder="00 000 000 000"
+                    className={`input-field ${errors.abn && touched.abn ? 'border-red-500' : ''}`}
+                  />
+                  <ErrorMessage name="abn" component="div" className="text-red-500 text-xs mt-1" />
+                </label>
+              </div>
+              <div className="flex items-baseline flex-wrap gap-2.5">
+                <label className="form-label max-w-70 gap-1">
+                  <KeenIcon icon="subtitle" className="text-sm" />
+                  Write a short company introduction that will appear on your public profile
+                </label>
+                <p className="text-2sm text-gray-700">
+                  This description is what visitors will see when they first land on your profile.
+                  Briefly explain who you are, what services you provide, and what makes your
+                  business unique. Keep it clear and friendly — like you're introducing your
+                  business to someone for the first time.
+                </p>
+                <div className="w-full">
+                  <Editor
+                    className="h-80"
+                    value={values.description}
+                    onChange={(value) => setFieldValue('description', value)}
+                  />
+                  <ErrorMessage
+                    name="description"
+                    component="div"
+                    className="text-red-500 text-xs mt-1"
+                  />
+                </div>
+              </div>
+              <div className="grid gap-2.5">
+                <label className="form-label max-w-70 gap-1">
+                  <KeenIcon icon="briefcase" className="text-sm" />
+                  What is your organisation type?
+                </label>
+                <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-7.5">
+                    <label
+                      className={`input ${values.organisation_type === 'sole_trader' ? 'bg-blue-100' : ''}`}
+                    >
+                      <div className="flex flex-col place-items-center justify-center rounded-xl grow">
+                        <span>Sole Trader</span>
+                        <Field
+                          className="appearance-none"
+                          name="organisation_type"
+                          type="radio"
+                          value="sole_trader"
+                        />
+                      </div>
+                    </label>
+                    <label
+                      className={`input ${values.organisation_type === 'company' ? 'bg-blue-100' : ''}`}
+                    >
+                      <div className="flex flex-col place-items-center justify-center rounded-xl grow">
+                        <span>Company</span>
+                        <Field
+                          className="appearance-none"
+                          name="organisation_type"
+                          type="radio"
+                          value="company"
+                        />
+                      </div>
+                    </label>
+                  </div>
+                  <ErrorMessage
+                    name="organisation_type"
+                    component="div"
+                    className="text-red-500 text-xs mt-1"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-7.5">
+                <div className="grid gap-2.5">
+                  <label className="form-label max-w-70 gap-1">
+                    <KeenIcon icon="question" className="text-md" />
+                    Are you registered for NDIS?
+                  </label>
+                  <p className="text-2sm text-gray-700">
+                    You don't need to be registered for NDIS to be listed on Providr hub.
+                  </p>
+                  <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-7.5">
+                      <label
+                        className={`input ${values.registered_for_ndis === '1' ? 'bg-blue-100' : ''}`}
+                      >
+                        <div className="flex flex-col place-items-center place-content-center rounded-xl grow">
+                          <span>Yes</span>
+                          <Field
+                            className="appearance-none"
+                            name="registered_for_ndis"
+                            type="radio"
+                            value="1"
+                          />
+                        </div>
+                      </label>
+                      <label
+                        className={`input ${values.registered_for_ndis === '0' ? 'bg-blue-100' : ''}`}
+                      >
+                        <div className="flex flex-col place-items-center place-content-center rounded-xl grow">
+                          <span>No</span>
+                          <Field
+                            className="appearance-none"
+                            name="registered_for_ndis"
+                            type="radio"
+                            value="0"
+                          />
+                        </div>
+                      </label>
+                    </div>
+                    <ErrorMessage
+                      name="registered_for_ndis"
+                      component="div"
+                      className="text-red-500 text-xs mt-1"
+                    />
+                  </div>
+                </div>
+                <div className="grid gap-2.5">
+                  <label className="form-label max-w-70 gap-1">
+                    <KeenIcon icon="question" className="text-md" />
+                    Are you registered for NDIS Early Childhood?
+                  </label>
+                  <p className="text-2sm text-gray-700">
+                    You don't need to be registered to be listed on Providr hub.
+                  </p>
+                  <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-7.5">
+                      <label
+                        className={`input ${values.registered_for_ndis_early_childhood === '1' ? 'bg-blue-100' : ''}`}
+                      >
+                        <div className="flex flex-col place-items-center place-content-center rounded-xl grow">
+                          <span>Yes</span>
+                          <Field
+                            className="appearance-none"
+                            name="registered_for_ndis_early_childhood"
+                            type="radio"
+                            value="1"
+                          />
+                        </div>
+                      </label>
+                      <label
+                        className={`input ${values.registered_for_ndis_early_childhood === '0' ? 'bg-blue-100' : ''}`}
+                      >
+                        <div className="flex flex-col place-items-center place-content-center rounded-xl grow">
+                          <span>No</span>
+                          <Field
+                            className="appearance-none"
+                            name="registered_for_ndis_early_childhood"
+                            type="radio"
+                            value="0"
+                          />
+                        </div>
+                      </label>
+                    </div>
+                    <ErrorMessage
+                      name="registered_for_ndis_early_childhood"
+                      component="div"
+                      className="text-red-500 text-xs mt-1"
+                    />
+                  </div>
+                </div>
+              </div>
+              <Separator />
+              <label className="label">Information Displayed on The Profile</label>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-7.5">
+                <div className="flex items-baseline flex-wrap gap-2.5">
+                  <div className="flex w-max gap-1">
+                    <KeenIcon icon="phone" className="text-md" />
+                    <label className="form-label">Company Phone Number</label>
+                  </div>
+                  <label className="input">
+                    <Field
+                      name="company_phone"
+                      type="text"
+                      placeholder="Enter your phone number"
+                      className={`input-field ${errors.company_phone && touched.company_phone ? 'border-red-500' : ''}`}
+                    />
+                    <ErrorMessage
+                      name="company_phone"
+                      component="div"
+                      className="text-red-500 text-xs mt-1"
+                    />
+                  </label>
+                </div>
+                <div className="flex items-baseline flex-wrap gap-2.5">
+                  <label className="form-label max-w-70 gap-1">
+                    <KeenIcon icon="sms" className="text-sm" /> Company Email
+                  </label>
+                  <label className="input">
+                    <Field
+                      name="company_email"
+                      type="email"
+                      placeholder="Enter your email"
+                      className={`input-field ${errors.company_email && touched.company_email ? 'border-red-500' : ''}`}
+                    />
+                    <ErrorMessage
+                      name="company_email"
+                      component="div"
+                      className="text-red-500 text-xs mt-1"
+                    />
+                  </label>
+                </div>
+              </div>
+              <div className="flex items-baseline flex-wrap gap-2.5">
+                <label className="form-label gap-1">
+                  <KeenIcon icon="icon" className="text-sm" />
+                  Company website
+                </label>
+                <label className="input">
+                  <Field
+                    name="company_website"
+                    type="url"
+                    placeholder="Enter your website URL"
+                    className={`input-field ${errors.company_website && touched.company_website ? 'border-red-500' : ''}`}
+                  />
+                  <ErrorMessage
+                    name="company_website"
+                    component="div"
+                    className="text-red-500 text-xs mt-1"
+                  />
+                </label>
+              </div>
+              <Separator />
+              <label className="label">Social Media Presence (Optional)</label>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-7.5">
+                <div className="flex items-baseline flex-wrap gap-2.5">
+                  <label className="form-label max-w-70 gap-1">
+                    <KeenIcon icon="facebook" className="text-sm" /> Select your service Facebook
+                    URL
+                  </label>
+                  <label className="input">
+                    <Field
+                      name="facebook_url"
+                      type="text"
+                      placeholder="https://www.facebook.com/your-company"
+                      className={`input-field ${errors.facebook_url && touched.facebook_url ? 'border-red-500' : ''}`}
+                    />
+                    <ErrorMessage
+                      name="facebook_url"
+                      component="div"
+                      className="text-red-500 text-xs mt-1"
+                    />
+                  </label>
+                </div>
+                <div className="flex items-baseline flex-wrap gap-2.5">
+                  <label className="form-label max-w-70 gap-1">
+                    <KeenIcon icon="behance" className="text-sm" /> Select your service LinkedIn URL
+                  </label>
+                  <label className="input">
+                    <Field
+                      name="linkedin_url"
+                      type="text"
+                      placeholder="https://www.linkedin.com/company/your-company"
+                      className={`input-field ${errors.linkedin_url && touched.linkedin_url ? 'border-red-500' : ''}`}
+                    />
+                    <ErrorMessage
+                      name="linkedin_url"
+                      component="div"
+                      className="text-red-500 text-xs mt-1"
+                    />
+                  </label>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-7.5">
+                <div className="flex items-baseline flex-wrap gap-2.5">
+                  <label className="form-label max-w-70 gap-1">
+                    <KeenIcon icon="instagram" className="text-sm" /> Select your service Instagram
+                    URL
+                  </label>
+                  <label className="input">
+                    <Field
+                      name="instagram_url"
+                      type="text"
+                      placeholder="https://www.instagram.com/your-company"
+                      className={`input-field ${errors.instagram_url && touched.instagram_url ? 'border-red-500' : ''}`}
+                    />
+                    <ErrorMessage
+                      name="instagram_url"
+                      component="div"
+                      className="text-red-500 text-xs mt-1"
+                    />
+                  </label>
+                </div>
+                <div className="flex items-baseline flex-wrap gap-2.5">
+                  <label className="form-label max-w-70 gap-1">
+                    <KeenIcon icon="twitter" className="text-sm" /> Select your service Twitter URL
+                  </label>
+                  <label className="input">
+                    <Field
+                      name="twitter_url"
+                      type="text"
+                      placeholder="https://www.twitter.com/your-company"
+                      className={`input-field ${errors.twitter_url && touched.twitter_url ? 'border-red-500' : ''}`}
+                    />
+                    <ErrorMessage
+                      name="twitter_url"
+                      component="div"
+                      className="text-red-500 text-xs mt-1"
+                    />
+                  </label>
+                </div>
+              </div>
+              <Separator />
+              <label className="label">
+                <KeenIcon icon="picture" className="text-sm" /> Media (Optional)
               </label>
-              <label className="input">
-                <Field
-                  name="name"
-                  type="text"
-                  placeholder="Enter your business name"
-                  className={`input-field ${errors.name && touched.name ? 'border-red-500' : ''}`}
-                />
-                <ErrorMessage name="name" component="div" className="text-red-500 text-xs mt-1" />
-              </label>
-            </div>
-            <div className="flex items-baseline flex-wrap gap-2.5">
-              <label className="form-label max-w-70 gap-1">
-                <KeenIcon icon="shop" className="text-sm" /> ABN
-              </label>
-              <p className="text-2sm text-gray-700">
-                <a
-                  href="https://abr.business.gov.au/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-blue-500 text-xs"
+              <div className="flex items-baseline flex-wrap gap-2.5">
+                <label className="form-label max-w-70 gap-1">Photo Gallery</label>
+                <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]">
+                  <CrudMultiImageUpload
+                    onChange={(image) => handleImagesChange(image, setFieldValue)}
+                  />
+                  <ErrorMessage
+                    name="photo_gallery"
+                    component="div"
+                    className="text-red-500 text-xs mt-1"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  className="btn btn-primary flex justify-center"
+                  disabled={loading || isSubmitting}
                 >
-                  <span className="text-danger mx-2">*</span>
-                  <span>Find your ABN here.</span>
-                  <span className="text-danger mx-2">(numbers only)</span>
-                </a>
-              </p>
-              <label className="input">
-                <Field
-                  name="abn"
-                  type="text"
-                  placeholder="00 000 000 000"
-                  className={`input-field ${errors.abn && touched.abn ? 'border-red-500' : ''}`}
-                />
-                <ErrorMessage name="abn" component="div" className="text-red-500 text-xs mt-1" />
-              </label>
-            </div>
-            <div className="flex items-baseline flex-wrap gap-2.5">
-              <label className="form-label max-w-70 gap-1">
-                <KeenIcon icon="subtitle" className="text-sm" />
-                Write a short company introduction that will appear on your public profile
-              </label>
-              <p className="text-2sm text-gray-700">
-                This description is what visitors will see when they first land on your profile.
-                Briefly explain who you are, what services you provide, and what makes your business
-                unique. Keep it clear and friendly — like you're introducing your business to
-                someone for the first time.
-              </p>
-              <div className="w-full">
-                <Editor
-                  className="h-80"
-                  value={values.description}
-                  onChange={(value) => setFieldValue('description', value)}
-                />
-                <ErrorMessage
-                  name="description"
-                  component="div"
-                  className="text-red-500 text-xs mt-1"
-                />
+                  {loading ? 'Please wait...' : 'Save Changes'}
+                </button>
               </div>
             </div>
-            <div className="grid gap-2.5">
-              <label className="form-label max-w-70 gap-1">
-                <KeenIcon icon="briefcase" className="text-sm" />
-                What is your organisation type?
-              </label>
-              <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-7.5">
-                  <label
-                    className={`input ${values.organisation_type === 'sole_trader' ? 'bg-blue-100' : ''}`}
-                  >
-                    <div className="flex flex-col place-items-center justify-center rounded-xl grow">
-                      <span>Sole Trader</span>
-                      <Field
-                        className="appearance-none"
-                        name="organisation_type"
-                        type="radio"
-                        value="sole_trader"
-                      />
-                    </div>
-                  </label>
-                  <label
-                    className={`input ${values.organisation_type === 'company' ? 'bg-blue-100' : ''}`}
-                  >
-                    <div className="flex flex-col place-items-center justify-center rounded-xl grow">
-                      <span>Company</span>
-                      <Field
-                        className="appearance-none"
-                        name="organisation_type"
-                        type="radio"
-                        value="company"
-                      />
-                    </div>
-                  </label>
-                </div>
-                <ErrorMessage
-                  name="organisation_type"
-                  component="div"
-                  className="text-red-500 text-xs mt-1"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-7.5">
-              <div className="grid gap-2.5">
-                <label className="form-label max-w-70 gap-1">
-                  <KeenIcon icon="question" className="text-md" />
-                  Are you registered for NDIS?
-                </label>
-                <p className="text-2sm text-gray-700">
-                  You don't need to be registered for NDIS to be listed on Providr hub.
-                </p>
-                <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-7.5">
-                    <label
-                      className={`input ${values.registered_for_ndis === '1' ? 'bg-blue-100' : ''}`}
-                    >
-                      <div className="flex flex-col place-items-center place-content-center rounded-xl grow">
-                        <span>Yes</span>
-                        <Field
-                          className="appearance-none"
-                          name="registered_for_ndis"
-                          type="radio"
-                          value="1"
-                        />
-                      </div>
-                    </label>
-                    <label
-                      className={`input ${values.registered_for_ndis === '0' ? 'bg-blue-100' : ''}`}
-                    >
-                      <div className="flex flex-col place-items-center place-content-center rounded-xl grow">
-                        <span>No</span>
-                        <Field
-                          className="appearance-none"
-                          name="registered_for_ndis"
-                          type="radio"
-                          value="0"
-                        />
-                      </div>
-                    </label>
-                  </div>
-                  <ErrorMessage
-                    name="registered_for_ndis"
-                    component="div"
-                    className="text-red-500 text-xs mt-1"
-                  />
-                </div>
-              </div>
-              <div className="grid gap-2.5">
-                <label className="form-label max-w-70 gap-1">
-                  <KeenIcon icon="question" className="text-md" />
-                  Are you registered for NDIS Early Childhood?
-                </label>
-                <p className="text-2sm text-gray-700">
-                  You don't need to be registered to be listed on Providr hub.
-                </p>
-                <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-7.5">
-                    <label
-                      className={`input ${values.registered_for_ndis_early_childhood === '1' ? 'bg-blue-100' : ''}`}
-                    >
-                      <div className="flex flex-col place-items-center place-content-center rounded-xl grow">
-                        <span>Yes</span>
-                        <Field
-                          className="appearance-none"
-                          name="registered_for_ndis_early_childhood"
-                          type="radio"
-                          value="1"
-                        />
-                      </div>
-                    </label>
-                    <label
-                      className={`input ${values.registered_for_ndis_early_childhood === '0' ? 'bg-blue-100' : ''}`}
-                    >
-                      <div className="flex flex-col place-items-center place-content-center rounded-xl grow">
-                        <span>No</span>
-                        <Field
-                          className="appearance-none"
-                          name="registered_for_ndis_early_childhood"
-                          type="radio"
-                          value="0"
-                        />
-                      </div>
-                    </label>
-                  </div>
-                  <ErrorMessage
-                    name="registered_for_ndis_early_childhood"
-                    component="div"
-                    className="text-red-500 text-xs mt-1"
-                  />
-                </div>
-              </div>
-            </div>
-            <Separator />
-            <label className="label">Information Displayed on The Profile</label>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-7.5">
-              <div className="flex items-baseline flex-wrap gap-2.5">
-                <div className="flex w-max gap-1">
-                  <KeenIcon icon="phone" className="text-md" />
-                  <label className="form-label">Company Phone Number</label>
-                </div>
-                <label className="input">
-                  <Field
-                    name="company_phone"
-                    type="text"
-                    placeholder="Enter your phone number"
-                    className={`input-field ${errors.company_phone && touched.company_phone ? 'border-red-500' : ''}`}
-                  />
-                  <ErrorMessage
-                    name="company_phone"
-                    component="div"
-                    className="text-red-500 text-xs mt-1"
-                  />
-                </label>
-              </div>
-              <div className="flex items-baseline flex-wrap gap-2.5">
-                <label className="form-label max-w-70 gap-1">
-                  <KeenIcon icon="sms" className="text-sm" /> Company Email
-                </label>
-                <label className="input">
-                  <Field
-                    name="company_email"
-                    type="email"
-                    placeholder="Enter your email"
-                    className={`input-field ${errors.company_email && touched.company_email ? 'border-red-500' : ''}`}
-                  />
-                  <ErrorMessage
-                    name="company_email"
-                    component="div"
-                    className="text-red-500 text-xs mt-1"
-                  />
-                </label>
-              </div>
-            </div>
-            <div className="flex items-baseline flex-wrap gap-2.5">
-              <label className="form-label gap-1">
-                <KeenIcon icon="icon" className="text-sm" />
-                Company website
-              </label>
-              <label className="input">
-                <Field
-                  name="company_website"
-                  type="url"
-                  placeholder="Enter your website URL"
-                  className={`input-field ${errors.company_website && touched.company_website ? 'border-red-500' : ''}`}
-                />
-                <ErrorMessage
-                  name="company_website"
-                  component="div"
-                  className="text-red-500 text-xs mt-1"
-                />
-              </label>
-            </div>
-            <Separator />
-            <label className="label">Social Media Presence (Optional)</label>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-7.5">
-              <div className="flex items-baseline flex-wrap gap-2.5">
-                <label className="form-label max-w-70 gap-1">
-                  <KeenIcon icon="facebook" className="text-sm" /> Select your service Facebook URL
-                </label>
-                <label className="input">
-                  <Field
-                    name="facebook_url"
-                    type="text"
-                    placeholder="https://www.facebook.com/your-company"
-                    className={`input-field ${errors.facebook_url && touched.facebook_url ? 'border-red-500' : ''}`}
-                  />
-                  <ErrorMessage
-                    name="facebook_url"
-                    component="div"
-                    className="text-red-500 text-xs mt-1"
-                  />
-                </label>
-              </div>
-              <div className="flex items-baseline flex-wrap gap-2.5">
-                <label className="form-label max-w-70 gap-1">
-                  <KeenIcon icon="behance" className="text-sm" /> Select your service LinkedIn URL
-                </label>
-                <label className="input">
-                  <Field
-                    name="linkedin_url"
-                    type="text"
-                    placeholder="https://www.linkedin.com/company/your-company"
-                    className={`input-field ${errors.linkedin_url && touched.linkedin_url ? 'border-red-500' : ''}`}
-                  />
-                  <ErrorMessage
-                    name="linkedin_url"
-                    component="div"
-                    className="text-red-500 text-xs mt-1"
-                  />
-                </label>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-7.5">
-              <div className="flex items-baseline flex-wrap gap-2.5">
-                <label className="form-label max-w-70 gap-1">
-                  <KeenIcon icon="instagram" className="text-sm" /> Select your service Instagram
-                  URL
-                </label>
-                <label className="input">
-                  <Field
-                    name="instagram_url"
-                    type="text"
-                    placeholder="https://www.instagram.com/your-company"
-                    className={`input-field ${errors.instagram_url && touched.instagram_url ? 'border-red-500' : ''}`}
-                  />
-                  <ErrorMessage
-                    name="instagram_url"
-                    component="div"
-                    className="text-red-500 text-xs mt-1"
-                  />
-                </label>
-              </div>
-              <div className="flex items-baseline flex-wrap gap-2.5">
-                <label className="form-label max-w-70 gap-1">
-                  <KeenIcon icon="twitter" className="text-sm" /> Select your service Twitter URL
-                </label>
-                <label className="input">
-                  <Field
-                    name="twitter_url"
-                    type="text"
-                    placeholder="https://www.twitter.com/your-company"
-                    className={`input-field ${errors.twitter_url && touched.twitter_url ? 'border-red-500' : ''}`}
-                  />
-                  <ErrorMessage
-                    name="twitter_url"
-                    component="div"
-                    className="text-red-500 text-xs mt-1"
-                  />
-                </label>
-              </div>
-            </div>
-            <Separator />
-            <label className="label">
-              <KeenIcon icon="picture" className="text-sm" /> Media (Optional)
-            </label>
-            <div className="flex items-baseline flex-wrap gap-2.5">
-              <label className="form-label max-w-70 gap-1">Photo Gallery</label>
-              <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]">
-                <CrudMultiImageUpload
-                  onChange={(image) => handleImagesChange(image, setFieldValue)}
-                />
-                <ErrorMessage
-                  name="photo_gallery"
-                  component="div"
-                  className="text-red-500 text-xs mt-1"
-                />
-              </div>
-            </div>
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                className="btn btn-primary flex justify-center"
-                disabled={loading || isSubmitting}
-              >
-                {loading ? 'Please wait...' : 'Save Changes'}
-              </button>
-            </div>
-          </div>
-        </Form>
+          </Form>
+        </>
       )}
     </Formik>
   );
