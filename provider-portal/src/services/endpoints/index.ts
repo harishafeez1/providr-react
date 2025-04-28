@@ -11,6 +11,7 @@ export const GET_USER_URL = `${API_URL}/provider_user_profile`;
 export const GET_UPDATE_USER_URL = `${API_URL}/provider_user_profile/update`;
 
 // Service Offerings Routes
+export const SERVICE_OFFERING_ACT_DEACTIVATE_URL = `${API_URL}/service_offerings/update_active`;
 export const SERVICE_OFFERING_ADD_URL = `${API_URL}/service_offerings`;
 export const GET_ALL_SERVICE_OFFERING_URL = `${API_URL}/service_offerings/all_service_offerings`;
 export const GET_SINGLE_SERVICE_OFFERING_URL = `${API_URL}/service_offerings`;

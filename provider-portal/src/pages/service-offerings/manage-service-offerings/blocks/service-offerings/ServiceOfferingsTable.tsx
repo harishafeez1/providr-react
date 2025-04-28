@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { DataGrid, DataGridColumnHeader, KeenIcon, TDataGridRequestParams } from '@/components';
 import { ColumnDef, Column, RowSelectionState } from '@tanstack/react-table';
-import { format } from 'date-fns';
+import { format, set } from 'date-fns';
 
 import { MenuIcon, MenuLink, MenuSub, MenuTitle } from '@/components';
 import { IServiceOfferingsData } from './';
@@ -11,15 +11,24 @@ import { Input } from '@/components/ui/input';
 import { Menu, MenuItem, MenuToggle } from '@/components';
 import { useLanguage } from '@/i18n';
 import { useAuthContext } from '@/auth';
-import { deleteServiceOfferings, getAllServiceOfferings } from '@/services/api/service-offerings';
+import {
+  activeDeactiveServiceOffering,
+  deleteServiceOfferings,
+  getAllServiceOfferings
+} from '@/services/api/service-offerings';
 import { ModalDeleteConfirmation } from '@/partials/modals/delete-confirmation';
 
 interface IColumnFilterProps<TData, TValue> {
   column: Column<TData, TValue>;
 }
 
-const DropdownCard2 = (id: any, handleModalOpen: any) => {
+const DropdownCard2 = (id: any, handleModalOpen: any, row: any, setRefreshKey: any) => {
   const { isRTL } = useLanguage();
+
+  const handleActiveDeactive = (row: any) => {
+    activeDeactiveServiceOffering(row?.id, row?.active ? 0 : 1);
+    setRefreshKey((prev: any) => prev + 1);
+  };
 
   return (
     <MenuSub className="menu-default" rootClassName="w-full max-w-[200px]">
@@ -67,6 +76,31 @@ const DropdownCard2 = (id: any, handleModalOpen: any) => {
               <KeenIcon icon="trash" />
             </MenuIcon>
             <MenuTitle>Delete</MenuTitle>
+          </a>
+        </MenuLink>
+      </MenuItem>
+
+      <MenuItem
+        onClick={() => handleActiveDeactive(row)}
+        toggle="dropdown"
+        dropdownProps={{
+          placement: isRTL() ? 'left-start' : 'right-start',
+          modifiers: [
+            {
+              name: 'offset',
+              options: {
+                offset: isRTL() ? [15, 0] : [-15, 0] // [skid, distance]
+              }
+            }
+          ]
+        }}
+      >
+        <MenuLink>
+          <a className="flex">
+            <MenuIcon>
+              <KeenIcon icon="toggle-off-circle" />
+            </MenuIcon>
+            <MenuTitle>{row?.active === 1 ? 'Deactivate' : 'Activate'}</MenuTitle>
           </a>
         </MenuLink>
       </MenuItem>
@@ -319,7 +353,12 @@ const ServiceOfferingsTable = () => {
               <MenuToggle className="btn btn-sm btn-icon btn-light btn-clear">
                 <KeenIcon icon="dots-vertical" />
               </MenuToggle>
-              {DropdownCard2(info.row.original.id, handleModalOpen)}
+              {DropdownCard2(
+                info.row.original.id,
+                handleModalOpen,
+                info.row.original,
+                setRefreshKey
+              )}
             </MenuItem>
           </Menu>
         ),

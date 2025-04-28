@@ -4,7 +4,8 @@ import {
   GET_ALL_SERVICES_URL,
   GET_DELETE_SERVICE_OFFERING_URL,
   GET_SINGLE_SERVICE_OFFERING_URL,
-  GET_UPDATE_SERVICE_OFFERING_URL
+  GET_UPDATE_SERVICE_OFFERING_URL,
+  SERVICE_OFFERING_ACT_DEACTIVATE_URL
 } from '../endpoints';
 
 const updateServiceOfferings = async (ServiceOfferingsId: string | undefined, data: any) => {
@@ -50,6 +51,16 @@ const getSingleServiceOfferings = async (ServiceOfferingsId: string | undefined)
   }
 };
 
+const activeDeactiveServiceOffering = async (ServiceOfferingsId: string | undefined, status: number) => {
+  try {
+    const response = await axios.get(`${SERVICE_OFFERING_ACT_DEACTIVATE_URL}/${ServiceOfferingsId}/${status}`);
+    return response.data;
+  } catch (err) {
+    console.error('Error updating ServiceOfferings :', err);
+    throw err;
+  }
+};
+
 const getAllServices = async () => {
   try {
     const response = await axios.get(`${GET_ALL_SERVICES_URL}`);
@@ -65,5 +76,6 @@ export {
   deleteServiceOfferings,
   updateServiceOfferings,
   getAllServiceOfferings,
-  getSingleServiceOfferings
+  getSingleServiceOfferings,
+  activeDeactiveServiceOffering
 };
