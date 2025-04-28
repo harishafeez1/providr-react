@@ -3,13 +3,23 @@ import { GET_DIRECT_CONNECT_PROVIDER_URL, GET_DIRECTORY_PROVIDER_URL, GET_PUBLIC
 import { store } from '@/redux/store';
 import { setProviderProfile, setProviderProfileDirectory } from '@/redux/slices/service-request-slice';
 
-const getPublicProviderProfile = async (providerId: any) => {
+const getPublicProviderProfile = async (providerId: any, customer_id?: any) => {
   try {
-    const response = await axios.get(`${GET_PUBLIC_PROVIDER_URL}/${providerId}`, {
-      headers: { public: true } 
-    });
-    store.dispatch(setProviderProfile(response.data));
-    return response.data;
+    if (customer_id) {
+      const response = await axios.get(`${GET_PUBLIC_PROVIDER_URL}/${providerId}?customer_id=${customer_id}`, {
+        headers: { public: true } 
+      });
+      store.dispatch(setProviderProfile(response.data));
+      return response.data;
+      
+    }else{
+
+      const response = await axios.get(`${GET_PUBLIC_PROVIDER_URL}/${providerId}`, {
+        headers: { public: true } 
+      });
+      store.dispatch(setProviderProfile(response.data));
+      return response.data;
+    }
   } catch (err) {
     console.error('Error fetching public provider Profile:', err);
     throw err;

@@ -72,6 +72,12 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
     }
   };
 
+  useEffect(() => {
+    if (data?.is_favourite) {
+      setIsFavorite(data.is_favourite);
+    }
+  }, [data?.is_favourite]);
+
   function ListingSkeleton() {
     return (
       <div className="animate-pulse">
@@ -124,7 +130,7 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
                 size={16}
                 className={`mr-1 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`}
               />
-              Save
+              {isFavorite ? 'Saved' : 'Save'}
             </button>
             {/* {auth?.token && (
               <Link to={'/wishlist'} className="text-sm font-medium hover:underline cursor-pointer">

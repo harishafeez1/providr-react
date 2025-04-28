@@ -155,6 +155,11 @@ const AddServiceOfferingsForm = () => {
                   Active
                 </label>
               </div>
+              <p className="text-xs text-pretty">
+                This service offering will undergo a manual vetting process. Providers will be
+                contacted by our review manager to verify suitability, including a review of your
+                service capacity, staff readiness, and emergency protocols.
+              </p>
               <div className="flex flex-col items-baseline flex-wrap gap-2.5">
                 <label className="form-label max-w-56 gap-1">
                   <KeenIcon icon="delivery-3" className="text-sm" /> Select your service
@@ -253,7 +258,10 @@ const AddServiceOfferingsForm = () => {
               <div className="flex items-baseline flex-wrap gap-2.5">
                 <label className="form-label max-w-70 gap-1">
                   <KeenIcon icon="people" className="text-sm" />
-                  Which age groups are supported?
+                  Which age groups do you support?
+                  <span className="text-xs text-pretty">
+                    (Selections will be reviewed by the Review Manager during vetting)
+                  </span>
                 </label>
                 <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]">
                   <div className="grid grid-cols-2 gap-4">

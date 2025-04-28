@@ -3,18 +3,23 @@ import { useEffect, useState } from 'react';
 import { getPublicProviderProfile } from '@/services/api/provider-profile';
 import { useParams } from 'react-router-dom';
 import ProviderDetailPage from './blocks/ProviderProfileDetail';
+import { useAuthContext } from '@/auth';
 
 const ProviderProfileContent = () => {
   const { id } = useParams();
-
+  const { auth } = useAuthContext();
   const [loading, setLoading] = useState<boolean>(false);
   const [resData, setResData] = useState<any>();
 
   useEffect(() => {
     const fetchProvider = async () => {
-      const res = await getPublicProviderProfile(id);
-
-      setResData(res);
+      if (auth?.customer?.id) {
+        const res = await getPublicProviderProfile(id, auth?.customer?.id);
+        setResData(res);
+      } else {
+        const res = await getPublicProviderProfile(id);
+        setResData(res);
+      }
     };
     try {
       setLoading(true);
