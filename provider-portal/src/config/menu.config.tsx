@@ -7,7 +7,7 @@ export const MENU_SIDEBAR: TMenuConfig = [
   {
     title: 'Company Profile',
     icon: 'user-square',
-    path: '/company-profile/add-profile',
+    path: '/',
     permission: ['admin', 'editor', 'intake', 'review']
   },
   {
@@ -25,7 +25,7 @@ export const MENU_SIDEBAR: TMenuConfig = [
   {
     title: 'Service Offerings',
     icon: 'ki-solid ki-tag',
-    path: '/',
+    path: '/service-offerings',
     permission: ['admin', 'editor']
   },
   {
@@ -81,14 +81,14 @@ export const MENU_SIDEBAR: TMenuConfig = [
     icon: 'book',
     path: '/resources',
     disabled: true
-  },
-  {
-    title: 'See Provider Profile',
-    icon: 'book',
-    path: '/company-profile',
-    isButton: true,
-    permission: ['admin', 'editor', 'intake', 'review']
   }
+  // {
+  //   title: 'See Provider Profile',
+  //   icon: 'book',
+  //   path: '/company-profile',
+  //   isButton: true,
+  //   permission: ['admin', 'editor', 'intake', 'review']
+  // }
 ];
 
 export const MENU_MEGA: TMenuConfig = [

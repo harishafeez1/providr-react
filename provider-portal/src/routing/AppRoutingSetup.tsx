@@ -34,6 +34,14 @@ const AppRoutingSetup = (): ReactElement => {
           <Route
             path="/"
             element={
+              <PermissionWrapper requiredPermissions={['admin', 'editor', 'intake', 'review']}>
+                <AddCompanyProfilePage />
+              </PermissionWrapper>
+            }
+          />
+          <Route
+            path="/service-offerings"
+            element={
               <PermissionWrapper requiredPermissions={['admin', 'editor']}>
                 <ServiceOfferingsTablePage />
               </PermissionWrapper>
@@ -114,14 +122,6 @@ const AppRoutingSetup = (): ReactElement => {
             element={
               <PermissionWrapper requiredPermissions={['admin', 'billing']}>
                 <AccountPlansPage />
-              </PermissionWrapper>
-            }
-          />
-          <Route
-            path="/company-profile/add-profile"
-            element={
-              <PermissionWrapper requiredPermissions={['admin', 'editor', 'intake', 'review']}>
-                <AddCompanyProfilePage />
               </PermissionWrapper>
             }
           />
