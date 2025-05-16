@@ -126,7 +126,7 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
                     <label className="form-label text-gray-900">First Name</label>
                     <Input
                       type="text"
-                      placeholder=""
+                      placeholder="John Smith"
                       size={'sm'}
                       {...formik.getFieldProps('first_name')}
                     />
@@ -156,7 +156,7 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
                     <label className="form-label text-gray-900">Email</label>
                     <Input
                       type="email"
-                      placeholder=""
+                      placeholder="john@example.com"
                       size={'sm'}
                       {...formik.getFieldProps('email')}
                     />
@@ -171,7 +171,7 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
                     <label className="form-label text-gray-900">Phone</label>
                     <Input
                       type="text"
-                      placeholder=""
+                      placeholder="0400 123 456"
                       size={'sm'}
                       {...formik.getFieldProps('phone')}
                     />
