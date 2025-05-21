@@ -45,20 +45,11 @@ const DirectoryContent = ({ providers, loading }: any) => {
   return (
     <>
       <main className="w-full">
-        {/* <div className="grid grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6">
-          {loading
-            ? Array.from({ length: 10 }).map((_, index) => <ListingSkeleton key={index} />)
-            : providers.map((provider: any) => (
-                <div key={provider.id} className="card-rounded my-2">
-                  <PropertyCard data={provider} />
-                </div>
-              ))}
-        </div> */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 4xl:grid-cols-6"
+          className="grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7"
         >
           <AnimatePresence>
             {loading

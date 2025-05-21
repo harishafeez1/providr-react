@@ -199,7 +199,8 @@ module.exports = {
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
-        airbnb: ['Cereal', 'sans-serif']
+        airbnb: ['Cereal', 'sans-serif'],
+        montserrat: ['Montserrat','system-ui','sans-serif']
       },
       colors: {
         //begin: Shadcn UI Colors

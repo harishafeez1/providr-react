@@ -1,5 +1,6 @@
 import '@/components/keenicons/assets/styles.css';
 import './styles/globals.css';
+import '@fontsource/montserrat';
 
 import axios from 'axios';
 import ReactDOM from 'react-dom/client';
@@ -23,12 +24,11 @@ const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 root.render(
   <GoogleOAuthProvider clientId={import.meta.env.VITE_APP_GOOGLE_CLIENT_ID}>
     <Provider store={store}>
-    {/* <React.StrictMode> */}
+      {/* <React.StrictMode> */}
       <ProvidersWrapper>
         <App />
       </ProvidersWrapper>
-    {/* </React.StrictMode> */}
-
+      {/* </React.StrictMode> */}
     </Provider>
   </GoogleOAuthProvider>
 );

@@ -66,6 +66,7 @@ const StarRating: React.FC<StarRatingProps> = ({
           <div key={index} className="focus:outline-none">
             <Star
               size={size}
+              strokeWidth={1}
               fill={isFilled ? '#FFD700' : 'none'}
               stroke={isFilled ? '#FFD700' : 'gray'}
               className="transition-all duration-200"

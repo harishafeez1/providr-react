@@ -231,7 +231,7 @@ const Header = () => {
   const checkLoaction = useLocation();
 
   return (
-    <header className="sticky top-[2px] z-50 bg-white shadow-[0px_-50px_50px_0px_#ffffff]">
+    <header className="sticky top-[2px] z-50 bg-white shadow-[0px_-50px_50px_0px_#ffffff] font-montserrat">
       <div className="mx-auto flex flex-col h-30 items-center justify-between md:px-0 px-8 pb-2 relative">
         {/* Logo */}
         <div className="flex justify-between pt-4 w-full ">
@@ -244,7 +244,7 @@ const Header = () => {
                 className={clsx({
                   'py-2 font-semibold tracking-wider text-black/80':
                     checkLoaction.pathname.includes('services'),
-                  'text-gray-600 font-medium hover:bg-gray-200 p-4 rounded-full hover:text-gray-700 tracking-wider':
+                  'text-gray-500 font-semibold hover:bg-gray-200 p-4 rounded-full hover:text-gray-700 tracking-wider':
                     !checkLoaction.pathname.includes('services')
                 })}
               >
@@ -256,7 +256,7 @@ const Header = () => {
                 className={clsx({
                   'py-2 font-semibold tracking-wider text-black/80':
                     checkLoaction.pathname.includes('directory'),
-                  'text-gray-600 font-medium hover:bg-gray-200 p-4 rounded-full hover:text-gray-700 tracking-wider':
+                  'text-gray-500 font-semibold hover:bg-gray-200 p-4 rounded-full hover:text-gray-700 tracking-wider':
                     !checkLoaction.pathname.includes('directory')
                 })}
               >
@@ -270,7 +270,7 @@ const Header = () => {
             <DropdownMenuTrigger asChild>
               <div className="flex items-center gap-4 rounded-full border px-3 py-2 hover:shadow-md cursor-pointer">
                 {auth ? (
-                  <div className="font-medium ">
+                  <div className="font-semibold ">
                     {`${auth?.customer?.first_name || ''} ${auth?.customer?.last_name || ''}`}
                   </div>
                 ) : (
@@ -341,7 +341,7 @@ const Header = () => {
         <div className="relative flex md:w-[70%] xl:w-[49%] items-center gap-4 rounded-full border border-gray-300 px-2 py-2 shadow-default hover:shadow-md transition duration-200 m-3 w-full">
           <div className="flex flex-col gap-1 ps-4 w-full">
             <label className="form-label text-gray-900 ps-[0.6rem] font-semibold tracking-wide">
-              Location
+              Where
             </label>
             <label className="input bg-transparent leading-none p-0 m-0 border-none w-full h-4">
               <div className="w-full text-sm ">
@@ -362,7 +362,7 @@ const Header = () => {
                     }}
                     selectProps={{
                       defaultValue: defaultAddress,
-                      placeholder: 'Search location...',
+                      placeholder: 'Search destinations...',
                       styles: {
                         control: (provided) => ({
                           ...provided,
@@ -419,9 +419,9 @@ const Header = () => {
             </label>
           </div>
 
-          {/* <div className="flex flex-col border-l gap-1 px-5 border-gray-300 w-full">
+          <div className="flex flex-col border-l gap-1 px-5 border-gray-300 w-full">
             <label className="form-label text-gray-900 ps-[0.6rem] font-semibold tracking-wide">
-              Age Group
+              Type of Service
             </label>
             <label className="input bg-transparent leading-none p-0 m-0 border-none w-full h-4">
               <div className="w-full text-sm ">
@@ -436,7 +436,7 @@ const Header = () => {
                     }
                   }}
                   isClearable
-                  placeholder={'Select Age Group'}
+                  placeholder={'Add Service'}
                   styles={{
                     control: (provided) => ({
                       ...provided,
@@ -488,7 +488,7 @@ const Header = () => {
                 />
               </div>
             </label>
-          </div> */}
+          </div>
           <button
             className="flex items-center justify-center rounded-full bg-primary px-3 py-2 m-1 cursor-pointer"
             onClick={handleFilters}
@@ -500,7 +500,7 @@ const Header = () => {
       </div>
 
       <div className="border-b absolute left-0 right-0"></div>
-      {locationCheck?.pathname?.includes('directory') && (
+      {/* {locationCheck?.pathname?.includes('directory') && (
         <Navbar>
           <div className="flex w-full items-center justify-between pt-5">
             <PageMenu services={allServices} loading={servicesLoading} />
@@ -519,7 +519,7 @@ const Header = () => {
             )}
           </div>
         </Navbar>
-      )}
+      )} */}
     </header>
   );
 };

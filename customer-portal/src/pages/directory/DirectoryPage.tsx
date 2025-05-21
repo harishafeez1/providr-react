@@ -36,7 +36,9 @@ const DirectoryPage = () => {
   const location = useLocation();
   const [loadMoreLoading, setLoadMoreLoading] = useState(false);
 
-  const { allProviders, pagination } = useAppSelector((state) => state.directoryListing);
+  const { allProviders, pagination, allServices } = useAppSelector(
+    (state) => state.directoryListing
+  );
   const allFilters = useAppSelector((state) => state.directory);
 
   useEffect(() => {
@@ -132,10 +134,38 @@ const DirectoryPage = () => {
     }
   };
 
+  const locationCheck = useLocation();
+
   return (
     <Fragment>
-      <div className="my-6">
-        <DirectoryContent providers={allProviders} loading={pagination.loading} />
+      <div className="my-6 font-montserrat">
+        {locationCheck?.pathname?.includes('directory') && (
+          <Navbar>
+            <div className="flex w-full items-center justify-between">
+              <PageMenu services={allServices} />
+
+              {/* {!servicesLoading && (
+              <NavbarActions>
+                <button
+                  onClick={() => setIsFilterOpen(true)}
+                  className="flex items-center gap-2 rounded-xl border px-4 py-2 hover:shadow-md transition"
+                >
+                  <KeenIcon icon="filter" className="w-5 h-5" />
+                  <span>Filters</span>
+                </button>
+                <FilterModal open={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
+              </NavbarActions>
+            )} */}
+            </div>
+          </Navbar>
+        )}
+        <div className="mt-4 flex flex-col gap-2 text-black ">
+          <div className="text-2xl font-semibold my-2">Discover services on Providr</div>
+          <div className="flex flex-col gap-4">
+            <div className="text-lg font-semibold">{`Cleaning >`}</div>
+            <DirectoryContent providers={allProviders} loading={pagination.loading} />
+          </div>
+        </div>
       </div>
 
       {pagination.currentPage < pagination.lastPage && (

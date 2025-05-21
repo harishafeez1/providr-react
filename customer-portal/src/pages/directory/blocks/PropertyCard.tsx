@@ -1,3 +1,4 @@
+import { StarRating } from '@/components';
 import clsx from 'clsx';
 import { Heart, MessageCircleMore, Star } from 'lucide-react';
 import { useState } from 'react';
@@ -39,39 +40,11 @@ export function PropertyCard({ data }: any) {
           </button>
         </div>
         <div className="mt-4">
-          {/* {data?.review_stats && (
-            <p className="my-2 px-2 text-center">
-              <MessageCircleMore color="#752c84" className="inline-block mx-2" />
-              {data?.review_stats ? data?.review_stats?.total_reviews : 0} reviews
-            </p>
-          )} */}
-          <div className="flex items-center justify-between">
-            <div className="flex gap-2 items-center">
-              <img
-                src={
-                  data?.business_logo
-                    ? `${import.meta.env.VITE_APP_AWS_URL}/${data?.business_logo}`
-                    : `${import.meta.env.VITE_APP_AWS_URL}/man-helping-woman-for-carrier.png`
-                }
-                alt={'Provider Name'}
-                className="h-8 w-8 rounded-full object-cover"
-              />
-              <h3 className="font-medium text-[#222222] text-md truncate max-w-48">
-                {data?.name || ''}
-              </h3>
-            </div>
-            <div className="flex items-center gap-1">
-              <Star className="h-3 w-3 fill-[#222222]" />
-              <span>{data?.review_stats ? data?.review_stats?.average_rating : 0}</span>
-            </div>
+          <div className="flex flex-col gap-1">
+            <div className="font-semibold truncate text-black">{data?.name || ''}</div>
+
+            <StarRating initialRating={5} size={18} isDisabled />
           </div>
-          <p className="text-sm text-gray-500">{data?.location || ''}</p>
-          {/* <div className="ql-content">
-            <div
-              className="mt-2 truncate text-[#6a6a6a] text-sm text-pretty"
-              dangerouslySetInnerHTML={{ __html: truncateText(data?.description || '', 100) }}
-            ></div>
-          </div> */}
         </div>
       </Link>
     </div>
