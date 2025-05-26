@@ -92,7 +92,7 @@ const SliderListing = ({ heading, providerData, defaultKey }: SliderProps) => {
                     />
                     <Link to={`/provider-profile/${item?.id}`}>
                       <div className="p-1">
-                        <Card className="rounded-2xl border-none h-58 relative overflow-hidden">
+                        <Card className="rounded-2xl border-none h-56 relative overflow-hidden">
                           <img
                             src={
                               item?.photo_gallery?.[0]
