@@ -28,6 +28,8 @@ interface ServiceLocation {
 interface ServicesState {
   wizardData: Record<string, any>; 
   services: Service[];
+  servicesList: any[];
+  paginatedServicesList: any[];
   selectedServiceId: number;
   serviceLocation: ServiceLocation;
   participantData: ServiceParticipant; 
@@ -37,6 +39,8 @@ interface ServicesState {
 const initialState: ServicesState = {
   wizardData: {},
   services: [],
+  servicesList: [],
+  paginatedServicesList: [],
   selectedServiceId: 0,
   serviceLocation: {   
     latitude: "",
@@ -60,15 +64,24 @@ export const servicesSlice = createSlice({
   name: 'services',
   initialState,
   reducers: {
-    setServices: (state, action: PayloadAction<any[]>) => {
-      const servicesList = action.payload;
-      const transformedServices = servicesList.map((service) => ({
-        label: service.name,
-        value: service.id
-      }));
+setAllServices: (state, action: PayloadAction<any>) => {
+  const newServicesList = action.payload;
 
-      state.services = transformedServices;
-    },
+  state.servicesList = newServicesList;
+
+  if (newServicesList?.current_page === 1) {
+    // First page: reset pagination list
+    state.paginatedServicesList = newServicesList.data || [];
+  } else if (newServicesList?.data?.length) {
+    // Append new data if available
+    state.paginatedServicesList = [
+      ...state.paginatedServicesList,
+      ...newServicesList.data,
+    ];
+  }
+}
+,
+
 
     setSelectedServiceId: (state, action: PayloadAction<any>)=>{
       state.selectedServiceId = action.payload
@@ -122,6 +135,6 @@ export const servicesSlice = createSlice({
   }
 });
 
-export const { setServices, setSelectedServiceId, setServiceDetails, setServiceLocation, setServiceParticipantData, setUpdateWizardData, setResetServiceState } = servicesSlice.actions;
+export const { setAllServices, setSelectedServiceId, setServiceDetails, setServiceLocation, setServiceParticipantData, setUpdateWizardData, setResetServiceState } = servicesSlice.actions;
 
 export default servicesSlice.reducer;

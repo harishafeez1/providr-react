@@ -1,76 +1,55 @@
 import { AnimatePresence, motion } from 'motion/react';
 
 import { PropertyCard } from './blocks';
+import SliderListing from './blocks/SliderListing';
+import { useAppSelector } from '@/redux/hooks';
+import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
+import { Card } from '@/components/ui/card';
 
 const DirectoryContent = ({ providers, loading }: any) => {
-  function ListingSkeleton() {
-    return (
-      <div className="animate-pulse">
-        <div className="h-[250px] bg-gray-200 rounded-xl mb-4"></div>
-        <div className="flex items-center">
-          <div className="h-[32px] w-[32px] bg-gray-200 rounded-full me-4"></div>
-          <div className="h-[20px] w-[70px] bg-gray-200 rounded-xl"></div>
-          <div className="h-[20px] w-[30px] bg-gray-200 rounded-xl ms-auto"></div>
-        </div>
-      </div>
-    );
-  }
+  const { directorySettings } = useAppSelector((state) => state.directoryListing);
 
-  // Animation variants
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: (i: any) => ({
-      opacity: 1,
-      y: 0,
-      transition: {
-        delay: i === 0 ? 0 : i * 0.1, // First item has no delay
-        duration: 0.3,
-        ease: 'easeOut'
-      }
-    })
-  };
+  const discoverServicesSetting = directorySettings?.find(
+    (item: any) => item.key === 'discover_services'
+  );
 
-  // Container variants for immediate start
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1, // Controls the stagger between children
-        delayChildren: 0 // No initial delay before starting
-      }
-    }
-  };
+  const discoverServiceNames = discoverServicesSetting?.value || [];
 
   return (
     <>
-      <main className="w-full">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7"
-        >
-          <AnimatePresence>
-            {loading
-              ? Array.from({ length: 10 }).map((_, index) => (
-                  <motion.div key={index} variants={itemVariants} custom={index}>
-                    <ListingSkeleton />
-                  </motion.div>
-                ))
-              : providers.map((provider: any, index: number) => (
-                  <motion.div
-                    key={provider.id}
-                    variants={itemVariants}
-                    custom={index}
-                    className="card-rounded mb-2"
-                  >
-                    <PropertyCard data={provider} />
-                  </motion.div>
-                ))}
-          </AnimatePresence>
-        </motion.div>
-      </main>
+      <Carousel
+        opts={{
+          align: 'start'
+        }}
+        className="w-full"
+      >
+        <CarouselContent className="mt-2">
+          {providers?.length === 0 &&
+            [...Array(10)].map((_, index) => (
+              <CarouselItem
+                key={index}
+                className="basis-[50%] sm:basis-1/2 md:basis-[25%] lg:basis-[20%] xl:basis-[14%]"
+              >
+                <div className="p-1 animate-pulse">
+                  <Card className="card-rounded h-48 bg-gray-200 rounded-lg" />
+                  <div className="flex flex-col mt-2 gap-2">
+                    <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                    <div className="h-3 bg-gray-300 rounded w-1/2"></div>
+                  </div>
+                </div>
+              </CarouselItem>
+            ))}
+        </CarouselContent>
+      </Carousel>
+
+      {providers?.map((item: any, index: number) => (
+        <div key={index}>
+          <SliderListing
+            providerData={item}
+            heading={discoverServiceNames[index]?.name || 'Service'}
+          />
+        </div>
+      ))}
     </>
   );
 };

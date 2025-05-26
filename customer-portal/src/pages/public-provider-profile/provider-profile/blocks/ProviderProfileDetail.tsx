@@ -228,10 +228,13 @@ const ProviderDetailPage: React.FC<ProviderDetailPageProps> = ({ data, loading }
                         <div className="flex gap-2 items-start truncate me-6">
                           <div className="space-y-2 mr-4">
                             {item.service.service_icon ? (
-                              <div
-                                className="h-10 w-12"
-                                dangerouslySetInnerHTML={{ __html: item.service.service_icon }}
-                              ></div>
+                              <div className="w-12 h-12 rounded-full overflow-hidden">
+                                <img
+                                  src={`${import.meta.env.VITE_APP_AWS_URL}/service-images/${item.service.service_icon}`}
+                                  alt="service icon"
+                                  className="w-full h-full object-cover rounded-full"
+                                />
+                              </div>
                             ) : (
                               ''
                             )}

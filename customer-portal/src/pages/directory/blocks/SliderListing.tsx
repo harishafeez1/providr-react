@@ -1,3 +1,4 @@
+import { useAuthContext } from '@/auth';
 import { StarRating } from '@/components';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -7,13 +8,42 @@ import {
   CarouselNext,
   CarouselPrevious
 } from '@/components/ui/carousel';
+import { getProvidersByServiceId } from '@/services/api/all-services';
+import { addFavouriteProvider } from '@/services/api/wishlist-favourite';
+import { Heart } from 'lucide-react';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 interface SliderProps {
-  heading: string;
-  providerData: any;
+  heading?: string;
+  providerData?: any;
 }
 
 const SliderListing = ({ heading, providerData }: SliderProps) => {
+  const { currentUser } = useAuthContext();
+
+  const [favouritedIds, setFavouritedIds] = useState<Set<number>>(new Set());
+
+  const handleFavourtie = async (providerId: number) => {
+    const newFavouritedIds = new Set(favouritedIds);
+    if (newFavouritedIds.has(providerId)) {
+      newFavouritedIds.delete(providerId);
+    } else {
+      newFavouritedIds.add(providerId);
+    }
+    setFavouritedIds(newFavouritedIds);
+    const res = await addFavouriteProvider(providerId, currentUser?.id);
+    if (res?.status === 200) {
+      console.log('Provider added to favourites:', res);
+    } else {
+      console.error('Failed to add provider to favourites:', res);
+    }
+  };
+
+  const handleNextPage = async () => {
+    // await getProvidersByServiceId(item.value.id, 'page=1');
+  };
+
   return (
     <div className="relative w-full text-black">
       <Carousel
@@ -22,67 +52,74 @@ const SliderListing = ({ heading, providerData }: SliderProps) => {
         }}
         className="w-full"
       >
-        <div className="text-xl font-semibold">Service in {heading || ''}</div>
-        <div className="absolute top-0 right-0 z-10">
+        <div className="text-xl font-semibold mt-4"> {heading ? `${heading} >` : ''}</div>
+        <div className="absolute top-0 right-0 z-10 flex items-center">
           <CarouselPrevious className="relative h-8 w-8 translate-x-8 translate-y-0" />
-          <CarouselNext className="relative h-8 w-8 -translate-x-14 translate-y-0" />
+          <div onClick={handleNextPage}>
+            <CarouselNext className="relative h-8 w-8 -translate-x-14 translate-y-0" />
+          </div>
         </div>
 
         <CarouselContent className="mt-2">
-          {providerData?.map((item: any, index: number) => {
-            <CarouselItem
-              key={index}
-              className="basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-[10%]"
-            >
-              <div className="p-1">
-                <Card>
-                  <CardContent className="flex aspect-square items-center justify-center">
-                    <img
-                      src={
-                        item?.photo_gallery?.[0]
-                          ? `${import.meta.env.VITE_APP_AWS_URL}/${item?.photo_gallery?.[0]}`
-                          : `${import.meta.env.VITE_APP_AWS_URL}/man-helping-woman-for-carrier.png`
-                      }
-                      alt={'provider name'}
-                      className="h-full w-full object-cover"
-                    />
-                  </CardContent>
-                </Card>
-                <div className="mt-4">
-                  <div className="flex flex-col gap-1">
-                    <div className="font-semibold truncate text-black">
-                      {item?.name ? `${item?.name} >` : ''}
+          {providerData?.length === 0
+            ? [...Array(10)].map((_, index) => (
+                <CarouselItem
+                  key={index}
+                  className="basis-[15%]  md:basis-[25%] lg:basis-[20%] xl:basis-[14%]"
+                >
+                  <div className="p-1 animate-pulse">
+                    <Card className="rounded-2xl h-48 bg-gray-200"></Card>
+                    <div className="flex flex-col mt-2 gap-2">
+                      <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                      <div className="h-3 bg-gray-300 rounded w-1/2"></div>
                     </div>
-
-                    <StarRating
-                      initialRating={item?.review_stats?.average_rating || 0}
-                      size={18}
-                      isDisabled
+                  </div>
+                </CarouselItem>
+              ))
+            : providerData?.map((item: any, index: number) => {
+                return (
+                  <CarouselItem
+                    key={index}
+                    className="basis-[15%]  md:basis-[25%] lg:basis-[20%] xl:basis-[14%] cursor-pointer relative"
+                  >
+                    <Heart
+                      className={`text-white absolute top-2 right-4 ${favouritedIds.has(item?.id) ? 'fill-red-500' : ''}`}
+                      onClick={() => handleFavourtie(item?.id)}
+                      stroke={favouritedIds.has(item?.id) ? 'red' : 'white'}
+                      strokeWidth={2}
                     />
-                  </div>
-                </div>
-              </div>
-            </CarouselItem>;
-          })}
-          {!providerData &&
-            Array.from({ length: 20 }).map((_, index) => (
-              <CarouselItem
-                key={index}
-                className="basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-[10%]"
-              >
-                <div className="p-1">
-                  <Card>
-                    <CardContent className="flex aspect-square items-center justify-center p-6">
-                      <span className="text-3xl font-semibold">{index + 1}</span>
-                    </CardContent>
-                  </Card>
-                  <div className="flex flex-col mt-2">
-                    <div className="font-semibold">Cleaning</div>
-                    <div className="text-[#7B7171]">3 available</div>
-                  </div>
-                </div>
-              </CarouselItem>
-            ))}
+                    <Link to={`/provider-profile/${item?.id}`}>
+                      <div className="p-1">
+                        <Card className="rounded-2xl border-none ">
+                          <img
+                            src={
+                              item?.photo_gallery?.[0]
+                                ? `${import.meta.env.VITE_APP_AWS_URL}/${item?.photo_gallery?.[0]}`
+                                : `${import.meta.env.VITE_APP_AWS_URL}/man-helping-woman-for-carrier.png`
+                            }
+                            alt={'provider name'}
+                            className="h-full w-full object-cover rounded-2xl "
+                            loading="lazy"
+                          />
+                        </Card>
+                        <div className="mt-4">
+                          <div className="flex flex-col gap-1">
+                            <div className="font-semibold truncate text-black">
+                              {item?.name ? `${item?.name}` : ''}
+                            </div>
+
+                            <StarRating
+                              initialRating={item?.review_stats?.average_rating || 0}
+                              size={18}
+                              isDisabled
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  </CarouselItem>
+                );
+              })}
         </CarouselContent>
       </Carousel>
     </div>

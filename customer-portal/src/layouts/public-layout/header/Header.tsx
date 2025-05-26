@@ -144,26 +144,26 @@ const Header = () => {
     { value: 'Mature Age (60+ years)', label: 'Mature Age (60+ years)' }
   ];
 
-  useEffect(() => {
-    // Define and invoke the async function
-    const fetchData = async () => {
-      if (allServices.length <= 1) {
-        try {
-          setServicesLoading(true);
+  // useEffect(() => {
+  //   // Define and invoke the async function
+  //   const fetchData = async () => {
+  //     if (allServices.length <= 1) {
+  //       try {
+  //         setServicesLoading(true);
 
-          const servicesRes = await getAllServices();
-          if (servicesRes) {
-            store.dispatch(setAllServices(servicesRes));
-          }
-        } catch (error) {
-          console.error('Error fetching data:', error);
-        } finally {
-          setServicesLoading(false);
-        }
-      }
-    };
-    fetchData();
-  }, []);
+  //         const servicesRes = await getAllServices(`page=${}`);
+  //         if (servicesRes) {
+  //           store.dispatch(setAllServices(servicesRes));
+  //         }
+  //       } catch (error) {
+  //         console.error('Error fetching data:', error);
+  //       } finally {
+  //         setServicesLoading(false);
+  //       }
+  //     }
+  //   };
+  //   fetchData();
+  // }, []);
 
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [defaultAddress, setDefaultAddress] = useState<{ label: string; value: string } | null>(
@@ -338,7 +338,7 @@ const Header = () => {
 
         {/* Search */}
 
-        <div className="relative flex md:w-[70%] xl:w-[49%] items-center gap-4 rounded-full border border-gray-300 px-2 py-2 shadow-default hover:shadow-md transition duration-200 m-3 w-full">
+        <div className="hidden relative md:flex w-[60%] md:w-[70%] xl:w-[49%] items-center gap-4 rounded-full border border-gray-300 px-2 py-2 shadow-default hover:shadow-md transition duration-200 m-3">
           <div className="flex flex-col gap-1 ps-4 w-full">
             <label className="form-label text-gray-900 ps-[0.6rem] font-semibold tracking-wide">
               Where
@@ -499,7 +499,6 @@ const Header = () => {
         </div>
       </div>
 
-      <div className="border-b absolute left-0 right-0"></div>
       {/* {locationCheck?.pathname?.includes('directory') && (
         <Navbar>
           <div className="flex w-full items-center justify-between pt-5">

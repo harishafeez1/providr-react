@@ -30,7 +30,9 @@ export const GET_PUBLIC_PROVIDER_URL = `${API_URL}/public_provider_profile`;
 export const GET_CONNECT_PROVIDER_URL = `${API_URL}/connect_provider`; 
 export const GET_DIRECT_CONNECT_PROVIDER_URL = `${API_URL}/direct_connect_provider`; 
 export const GET_DIRECTORY_PROVIDER_URL = `${API_URL}/directory`;
-export const GET_ALL_SERVICES_PUBLIC_URL = `${API_URL}/all_services`;
+export const GET_ALL_SERVICES_PUBLIC_URL = `${API_URL}/get_services`;
+export const GET_PROVIDE_BY_SERVICE_ID_URL = `${API_URL}/get_providers_by_service_id`; //id
+export const GET_SETTINGS_URL = `${API_URL}/get_settings`; //id
 
 
 // WishList Routes

@@ -52,7 +52,7 @@ const StarRating: React.FC<StarRatingProps> = ({
 
   return (
     <div
-      className={`flex space-x-1 ${isDisabled ? 'cursor-not-allowed' : 'cursor-pointer'} ${className}`}
+      className={`flex space-x-1 ${className}`}
       onClick={handleClick}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}

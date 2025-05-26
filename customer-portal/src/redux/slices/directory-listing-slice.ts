@@ -1,3 +1,4 @@
+
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface DirectoryState {
@@ -10,6 +11,10 @@ interface DirectoryState {
   };
   isFilterModalOpen: boolean,
   loadMore: boolean,
+  directorySettings: any[],
+  directoryDefaultProviders: any[],
+  directoryDiscoverProviders: any[],
+
 }
 
 const initialState: DirectoryState = {
@@ -21,16 +26,17 @@ const initialState: DirectoryState = {
     loading: false
   },
   isFilterModalOpen: false,
-  loadMore: false
+  loadMore: false,
+  directorySettings:[],
+  directoryDefaultProviders: [],
+  directoryDiscoverProviders: []
 };
 
 export const directoryListingSlice = createSlice({
   name: 'directoryListing',
   initialState,
   reducers: {
-    setAllServices: (state, action: PayloadAction<any[]>) => {
-      state.allServices = action.payload;
-    },
+
     setAllProviders: (state, action: PayloadAction<any[]>) => {
       state.allProviders = action.payload;
       
@@ -53,17 +59,37 @@ export const directoryListingSlice = createSlice({
     setIsFilterModalOpen: (state, action) => {
         state.isFilterModalOpen = action.payload;
       },
+
+    
+    setDirectoryDefaultProviders: (state, action) => {
+        state.directoryDefaultProviders = action.payload;
+        
+      },
+
+      setDirectoryDiscoverProviders: (state, action) => {
+        state.directoryDiscoverProviders = action.payload;
+        
+      },
+
+      setDirectorySettings: (state, action) => {
+
+        state.directorySettings = action.payload;
+        
+      }
   },
 });
 
 export const { 
-  setAllServices,
   setAllProviders, 
   appendProviders, 
   setPagination,
   setLoading,
   setIsFilterModalOpen,
-  setLoadMore
+  setLoadMore,
+  setDirectorySettings,
+  setDirectoryDefaultProviders,
+  setDirectoryDiscoverProviders
+
 } = directoryListingSlice.actions;
 
 export default directoryListingSlice.reducer;

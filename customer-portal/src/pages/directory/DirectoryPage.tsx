@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, Suspense, useEffect, useState } from 'react';
 import { DirectoryContent, FilterModal } from './';
 import { Navbar, NavbarActions } from '@/partials/navbar';
 import { PageMenu } from './blocks/PageMenu';
@@ -12,12 +12,17 @@ import {
   setPagination,
   setLoading,
   setLoadMore,
-  setAllServices
+  setDirectorySettings,
+  setDirectoryDefaultProviders,
+  setDirectoryDiscoverProviders
 } from '@/redux/slices/directory-listing-slice';
 import { useAppSelector } from '@/redux/hooks';
 import { useLocation } from 'react-router';
 import { postDirectoryFilters } from '@/services/api/directory';
 import { Button } from '@/components/ui/button';
+import SliderListing from './blocks/SliderListing';
+import { getSettings } from '@/services/api/settings';
+import { getAllServices, getProvidersByServiceId } from '@/services/api/all-services';
 
 function ServicesSkeleton() {
   return (
@@ -36,103 +41,61 @@ const DirectoryPage = () => {
   const location = useLocation();
   const [loadMoreLoading, setLoadMoreLoading] = useState(false);
 
-  const { allProviders, pagination, allServices } = useAppSelector(
-    (state) => state.directoryListing
-  );
-  const allFilters = useAppSelector((state) => state.directory);
+  const {
+    allProviders,
+    pagination,
+    allServices,
+    directoryDefaultProviders,
+    directoryDiscoverProviders,
+    directorySettings
+  } = useAppSelector((state) => state.directoryListing);
+
+  const { paginatedServicesList } = useAppSelector((state) => state.services);
+
+  const fetchSettings = async () => {
+    const res = await getSettings();
+    if (res) {
+      store.dispatch(setDirectorySettings(res));
+    }
+  };
 
   useEffect(() => {
-    if (location.pathname.includes('directory')) {
-      const fromServicePage = sessionStorage.getItem('fromService');
-      if (fromServicePage === 'true') {
-        sessionStorage.removeItem('fromService');
+    // Define and invoke the async function
+    const fetchData = async () => {
+      await getAllServices(`page=${1}&per_page=${12}`);
+    };
+    fetchData();
+  }, []);
 
-        // Define and invoke the async function
-        const fetchData = async () => {
-          try {
-            store.dispatch(setLoading(true));
+  useEffect(() => {
+    fetchSettings();
+  }, []);
 
-            // Fetch filtered directory data
-            const res = await postDirectoryFilters(allFilters);
-
-            // Update providers and pagination based on directory response
-            if (res) {
-              if (res.directories.current_page === 1) {
-                store.dispatch(setAllProviders(res.directories.data));
-              } else {
-                store.dispatch(appendProviders(res.directories.data));
-              }
-
-              store.dispatch(
-                setPagination({
-                  currentPage: res.directories.current_page,
-                  lastPage: res.directories.last_page
-                })
-              );
-            }
-          } catch (error) {
-            console.error('Error fetching data:', error);
-          } finally {
-            store.dispatch(setLoading(false));
-          }
-        };
-
-        fetchData();
-      } else {
-        fetchProviders(1);
-      }
-    }
-  }, [location.pathname]);
-
-  const fetchProviders = async (page: number) => {
-    store.dispatch(setLoading(true));
-    try {
-      const res = await getListoftProvider(page);
-      if (res) {
-        store.dispatch(setAllServices(res.services));
-        if (page === 1) {
-          store.dispatch(setAllProviders(res.directories.data));
-        } else {
-          store.dispatch(appendProviders(res.directories.data));
+  useEffect(() => {
+    const fetchServiceProviders = async () => {
+      for (const item of directorySettings || []) {
+        if (item.key === 'default_active_service') {
+          const res = await getProvidersByServiceId(item.value.id, 'page=1');
+          store.dispatch(setDirectoryDefaultProviders(res.data));
         }
-        store.dispatch(
-          setPagination({
-            currentPage: res.directories.current_page,
-            lastPage: res.directories.last_page
-          })
-        );
-      }
-    } catch (error) {
-      console.error('Error fetching providers:', error);
-    } finally {
-      store.dispatch(setLoading(false));
-    }
-  };
 
-  const loadMoreProviders = async (page: number) => {
-    setLoadMoreLoading(true);
-    try {
-      const res = await getListoftProvider(page);
-      if (res) {
-        store.dispatch(setAllServices(res.services));
-        if (page === 1) {
-          store.dispatch(setAllProviders(res.directories.data));
-        } else {
-          store.dispatch(appendProviders(res.directories.data));
+        if (item.key === 'discover_services') {
+          const promises = item.value.map((service: any) =>
+            getProvidersByServiceId(service.id, 'page=1')
+          );
+
+          const results = await Promise.all(promises);
+          const providers = results.map((res: any) => res.data);
+
+          store.dispatch(setDirectoryDiscoverProviders(providers));
         }
-        store.dispatch(
-          setPagination({
-            currentPage: res.directories.current_page,
-            lastPage: res.directories.last_page
-          })
-        );
       }
-    } catch (error) {
-      console.error('Error fetching providers:', error);
-    } finally {
-      setLoadMoreLoading(false);
+    };
+
+    if (directorySettings) {
+      fetchServiceProviders();
     }
-  };
+  }, [directorySettings]);
 
   const locationCheck = useLocation();
 
@@ -142,47 +105,19 @@ const DirectoryPage = () => {
         {locationCheck?.pathname?.includes('directory') && (
           <Navbar>
             <div className="flex w-full items-center justify-between">
-              <PageMenu services={allServices} />
-
-              {/* {!servicesLoading && (
-              <NavbarActions>
-                <button
-                  onClick={() => setIsFilterOpen(true)}
-                  className="flex items-center gap-2 rounded-xl border px-4 py-2 hover:shadow-md transition"
-                >
-                  <KeenIcon icon="filter" className="w-5 h-5" />
-                  <span>Filters</span>
-                </button>
-                <FilterModal open={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
-              </NavbarActions>
-            )} */}
+              <PageMenu services={paginatedServicesList} />
             </div>
           </Navbar>
         )}
-        <div className="mt-4 flex flex-col gap-2 text-black ">
+        <SliderListing
+          providerData={directoryDefaultProviders}
+          heading={directorySettings?.[0]?.value?.name || ''}
+        />
+        <div className="mt-4 flex flex-col text-black ">
           <div className="text-2xl font-semibold my-2">Discover services on Providr</div>
-          <div className="flex flex-col gap-4">
-            <div className="text-lg font-semibold">{`Cleaning >`}</div>
-            <DirectoryContent providers={allProviders} loading={pagination.loading} />
-          </div>
+          <DirectoryContent providers={directoryDiscoverProviders} />
         </div>
       </div>
-
-      {pagination.currentPage < pagination.lastPage && (
-        <div className="flex justify-center my-12">
-          <Button
-            className="btn btn-primary rounded-xl xl:font-semibold text-lg py-6"
-            size={'lg'}
-            onClick={() => {
-              store.dispatch(setLoadMore(true));
-              loadMoreProviders(pagination.currentPage + 1);
-            }}
-            disabled={loadMoreLoading}
-          >
-            {loadMoreLoading ? 'Loading...' : 'Show More'}
-          </Button>
-        </div>
-      )}
     </Fragment>
   );
 };
