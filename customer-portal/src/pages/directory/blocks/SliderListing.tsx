@@ -85,14 +85,14 @@ const SliderListing = ({ heading, providerData, defaultKey }: SliderProps) => {
                     className="basis-[15%]  md:basis-[25%] lg:basis-[20%] xl:basis-[14%] cursor-pointer relative"
                   >
                     <Heart
-                      className={`text-white absolute top-4 right-4 ${favouritedIds.has(item?.id) || item?.is_favourite ? 'fill-red-500' : ''}`}
+                      className={`text-white absolute z-10 top-4 right-4 ${favouritedIds.has(item?.id) || item?.is_favourite ? 'fill-red-500' : ''}`}
                       onClick={() => handleFavourtie(item?.id)}
                       stroke={favouritedIds.has(item?.id) || item?.is_favourite ? 'red' : 'white'}
                       strokeWidth={2}
                     />
                     <Link to={`/provider-profile/${item?.id}`}>
                       <div className="p-1">
-                        <Card className="rounded-2xl border-none ">
+                        <Card className="rounded-2xl border-none h-58 relative overflow-hidden">
                           <img
                             src={
                               item?.photo_gallery?.[0]
