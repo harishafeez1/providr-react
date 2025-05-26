@@ -17,9 +17,10 @@ import { Link } from 'react-router-dom';
 interface SliderProps {
   heading?: string;
   providerData?: any;
+  key?: string;
 }
 
-const SliderListing = ({ heading, providerData }: SliderProps) => {
+const SliderListing = ({ heading, providerData, key }: SliderProps) => {
   const { currentUser } = useAuthContext();
 
   const [favouritedIds, setFavouritedIds] = useState<Set<number>>(new Set());
@@ -40,9 +41,7 @@ const SliderListing = ({ heading, providerData }: SliderProps) => {
     }
   };
 
-  const handleNextPage = async () => {
-    // await getProvidersByServiceId(item.value.id, 'page=1');
-  };
+  const handleNextPage = async () => {};
 
   return (
     <div className="relative w-full text-black">
@@ -83,7 +82,7 @@ const SliderListing = ({ heading, providerData }: SliderProps) => {
                     className="basis-[15%]  md:basis-[25%] lg:basis-[20%] xl:basis-[14%] cursor-pointer relative"
                   >
                     <Heart
-                      className={`text-white absolute top-2 right-4 ${favouritedIds.has(item?.id) ? 'fill-red-500' : ''}`}
+                      className={`text-white absolute top-4 right-4 ${favouritedIds.has(item?.id) ? 'fill-red-500' : ''}`}
                       onClick={() => handleFavourtie(item?.id)}
                       stroke={favouritedIds.has(item?.id) ? 'red' : 'white'}
                       strokeWidth={2}

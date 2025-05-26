@@ -75,6 +75,13 @@ export const directoryListingSlice = createSlice({
 
         state.directorySettings = action.payload;
         
+      },
+
+      setDefaultServiceName: (state, action) => {
+        const serviceName = action.payload;
+        if (state.directorySettings.length > 0) {
+          state.directorySettings[0].value.name = serviceName;
+        }
       }
   },
 });
@@ -87,6 +94,7 @@ export const {
   setIsFilterModalOpen,
   setLoadMore,
   setDirectorySettings,
+  setDefaultServiceName,
   setDirectoryDefaultProviders,
   setDirectoryDiscoverProviders
 

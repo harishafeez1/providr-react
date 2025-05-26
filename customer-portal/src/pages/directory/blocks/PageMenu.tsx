@@ -8,7 +8,10 @@ import {
 } from '@/components/ui/carousel';
 import { NavbarMenu } from '@/partials/menu/NavbarMenu';
 import { useAppSelector } from '@/redux/hooks';
-import { setDirectoryDefaultProviders } from '@/redux/slices/directory-listing-slice';
+import {
+  setDefaultServiceName,
+  setDirectoryDefaultProviders
+} from '@/redux/slices/directory-listing-slice';
 import { store } from '@/redux/store';
 import { getAllServices, getProvidersByServiceId } from '@/services/api/all-services';
 import React from 'react';
@@ -18,6 +21,7 @@ export interface IServices {
   name: string;
   service_image: string;
   service_icon: string;
+  provider_companies_count: string;
 }
 
 interface PageMenuProps {
@@ -27,12 +31,14 @@ interface PageMenuProps {
 
 const PageMenu: React.FC<PageMenuProps> = ({ services }) => {
   const { location } = useAppSelector((state) => state.directory);
+  const { directorySettings } = useAppSelector((state) => state.directoryListing);
   const { servicesList } = useAppSelector((state) => state.services);
 
-  const handleServiceClick = async (id: number) => {
+  const handleServiceClick = async (id: number, serviceName: string) => {
     if (id) {
       const res = await getProvidersByServiceId(id, 'page=1');
       if (res?.data && res.data.length > 0) {
+        store.dispatch(setDefaultServiceName(serviceName));
         store.dispatch(setDirectoryDefaultProviders(res.data));
       }
     }
@@ -84,7 +90,7 @@ const PageMenu: React.FC<PageMenuProps> = ({ services }) => {
                   <CarouselItem
                     key={index}
                     className="basis-[10%] md:basis-[20%] lg:basis-[15%] xl:basis-[10%] cursor-pointer"
-                    onClick={() => handleServiceClick(service.id)}
+                    onClick={() => handleServiceClick(service.id, service.name)}
                   >
                     <div className="p-1">
                       <Card className="rounded-xl border-none">
@@ -101,7 +107,9 @@ const PageMenu: React.FC<PageMenuProps> = ({ services }) => {
                       </Card>
                       <div className="flex flex-col mt-2">
                         <div className="font-semibold">{service.name || ''}</div>
-                        <div className="text-[#7B7171]">3 available</div>
+                        <div className="text-[#7B7171]">
+                          {service.provider_companies_count} available
+                        </div>
                       </div>
                     </div>
                   </CarouselItem>

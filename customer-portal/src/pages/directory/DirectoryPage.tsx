@@ -112,6 +112,7 @@ const DirectoryPage = () => {
         <SliderListing
           providerData={directoryDefaultProviders}
           heading={directorySettings?.[0]?.value?.name || ''}
+          key={'default_active_service'}
         />
         <div className="mt-4 flex flex-col text-black ">
           <div className="text-2xl font-semibold my-2">Discover services on Providr</div>
