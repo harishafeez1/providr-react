@@ -1,3 +1,4 @@
+import { useAuthContext } from '@/auth';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Carousel,
@@ -33,10 +34,11 @@ const PageMenu: React.FC<PageMenuProps> = ({ services }) => {
   const { location } = useAppSelector((state) => state.directory);
   const { directorySettings } = useAppSelector((state) => state.directoryListing);
   const { servicesList } = useAppSelector((state) => state.services);
+  const { auth } = useAuthContext();
 
   const handleServiceClick = async (id: number, serviceName: string) => {
     if (id) {
-      const res = await getProvidersByServiceId(id, 'page=1');
+      const res = await getProvidersByServiceId(id, 'page=1', auth?.token ? true : false);
       if (res?.data && res.data.length > 0) {
         store.dispatch(setDefaultServiceName(serviceName));
         store.dispatch(setDirectoryDefaultProviders(res.data));

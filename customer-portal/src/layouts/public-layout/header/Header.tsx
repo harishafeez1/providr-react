@@ -19,7 +19,6 @@ import { postDirectoryFilters } from '@/services/api/directory';
 import {
   appendProviders,
   setAllProviders,
-  setAllServices,
   setLoading,
   setPagination
 } from '@/redux/slices/directory-listing-slice';

@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/button';
 import SliderListing from './blocks/SliderListing';
 import { getSettings } from '@/services/api/settings';
 import { getAllServices, getProvidersByServiceId } from '@/services/api/all-services';
+import { useAuthContext } from '@/auth';
 
 function ServicesSkeleton() {
   return (
@@ -38,6 +39,7 @@ function ServicesSkeleton() {
 }
 
 const DirectoryPage = () => {
+  const { auth } = useAuthContext();
   const location = useLocation();
   const [loadMoreLoading, setLoadMoreLoading] = useState(false);
 
@@ -75,13 +77,17 @@ const DirectoryPage = () => {
     const fetchServiceProviders = async () => {
       for (const item of directorySettings || []) {
         if (item.key === 'default_active_service') {
-          const res = await getProvidersByServiceId(item.value.id, 'page=1');
+          const res = await getProvidersByServiceId(
+            item.value.id,
+            'page=1',
+            auth?.token ? true : false
+          );
           store.dispatch(setDirectoryDefaultProviders(res.data));
         }
 
         if (item.key === 'discover_services') {
           const promises = item.value.map((service: any) =>
-            getProvidersByServiceId(service.id, 'page=1')
+            getProvidersByServiceId(service.id, 'page=1', auth?.token ? true : false)
           );
 
           const results = await Promise.all(promises);
@@ -112,7 +118,7 @@ const DirectoryPage = () => {
         <SliderListing
           providerData={directoryDefaultProviders}
           heading={directorySettings?.[0]?.value?.name || ''}
-          key={'default_active_service'}
+          defaultKey={'default_active_service'}
         />
         <div className="mt-4 flex flex-col text-black ">
           <div className="text-2xl font-semibold my-2">Discover services on Providr</div>

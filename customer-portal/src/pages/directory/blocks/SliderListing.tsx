@@ -17,22 +17,25 @@ import { Link } from 'react-router-dom';
 interface SliderProps {
   heading?: string;
   providerData?: any;
-  key?: string;
+  defaultKey?: string;
 }
 
-const SliderListing = ({ heading, providerData, key }: SliderProps) => {
+const SliderListing = ({ heading, providerData, defaultKey }: SliderProps) => {
   const { currentUser } = useAuthContext();
 
   const [favouritedIds, setFavouritedIds] = useState<Set<number>>(new Set());
 
   const handleFavourtie = async (providerId: number) => {
-    const newFavouritedIds = new Set(favouritedIds);
-    if (newFavouritedIds.has(providerId)) {
-      newFavouritedIds.delete(providerId);
-    } else {
-      newFavouritedIds.add(providerId);
-    }
-    setFavouritedIds(newFavouritedIds);
+    setFavouritedIds((prev) => {
+      const updated = new Set(prev);
+      if (updated.has(providerId)) {
+        updated.delete(providerId);
+      } else {
+        updated.add(providerId);
+      }
+      return new Set(updated); // Always return a *new* Set
+    });
+
     const res = await addFavouriteProvider(providerId, currentUser?.id);
     if (res?.status === 200) {
       console.log('Provider added to favourites:', res);
@@ -82,9 +85,9 @@ const SliderListing = ({ heading, providerData, key }: SliderProps) => {
                     className="basis-[15%]  md:basis-[25%] lg:basis-[20%] xl:basis-[14%] cursor-pointer relative"
                   >
                     <Heart
-                      className={`text-white absolute top-4 right-4 ${favouritedIds.has(item?.id) ? 'fill-red-500' : ''}`}
+                      className={`text-white absolute top-4 right-4 ${favouritedIds.has(item?.id) || item?.is_favourite ? 'fill-red-500' : ''}`}
                       onClick={() => handleFavourtie(item?.id)}
-                      stroke={favouritedIds.has(item?.id) ? 'red' : 'white'}
+                      stroke={favouritedIds.has(item?.id) || item?.is_favourite ? 'red' : 'white'}
                       strokeWidth={2}
                     />
                     <Link to={`/provider-profile/${item?.id}`}>
