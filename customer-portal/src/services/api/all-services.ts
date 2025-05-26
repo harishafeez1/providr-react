@@ -1,14 +1,26 @@
 import axios from 'axios';
 import { GET_ALL_SERVICES_PUBLIC_URL, GET_PROVIDE_BY_SERVICE_ID_URL } from '../endpoints';
 import { store } from '@/redux/store';
-import { setAllServices } from '@/redux/slices/services-slice';
+import { setAllServices, setTransformedServicesList } from '@/redux/slices/services-slice';
 
 const getAllServices = async (params: string) => {
   try {
-
       const response = await axios.get(`${GET_ALL_SERVICES_PUBLIC_URL}?${params}`, {headers: {public :true}});
       
       store.dispatch(setAllServices(response.data))
+      return response.data;
+    
+  } catch (err) {
+    console.error('Error fetching Services:', err);
+    throw err;
+  }
+};
+
+const getAllServicesToTransform = async (params: string) => {
+  try {
+      const response = await axios.get(`${GET_ALL_SERVICES_PUBLIC_URL}?${params}`, {headers: {public :true}});
+      
+      store.dispatch(setTransformedServicesList(response.data))
       return response.data;
     
   } catch (err) {
@@ -35,4 +47,4 @@ const getProvidersByServiceId = async (id: number, params: string, userSession: 
   }
 }
 
-export { getAllServices,getProvidersByServiceId };
+export { getAllServices,getProvidersByServiceId, getAllServicesToTransform };

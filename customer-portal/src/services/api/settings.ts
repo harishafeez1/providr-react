@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { store } from '@/redux/store';
-import { setServices } from '@/redux/slices/services-slice';
 import { GET_SETTINGS_URL } from '../endpoints';
 
 

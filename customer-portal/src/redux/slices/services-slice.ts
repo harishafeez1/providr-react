@@ -29,6 +29,7 @@ interface ServicesState {
   wizardData: Record<string, any>; 
   services: Service[];
   servicesList: any[];
+  transformedServicesList: any[];
   paginatedServicesList: any[];
   selectedServiceId: number;
   serviceLocation: ServiceLocation;
@@ -41,6 +42,7 @@ const initialState: ServicesState = {
   services: [],
   servicesList: [],
   paginatedServicesList: [],
+  transformedServicesList: [],
   selectedServiceId: 0,
   serviceLocation: {   
     latitude: "",
@@ -79,9 +81,16 @@ setAllServices: (state, action: PayloadAction<any>) => {
       ...newServicesList.data,
     ];
   }
-}
-,
+},
 
+setTransformedServicesList: (state, action: PayloadAction<any>) => {
+  const transformedList = action.payload?.data?.map((service: any) => ({
+    label: service.name,
+    value: service.id,
+  }));
+
+  state.transformedServicesList = transformedList || [];
+},
 
     setSelectedServiceId: (state, action: PayloadAction<any>)=>{
       state.selectedServiceId = action.payload
@@ -135,6 +144,6 @@ setAllServices: (state, action: PayloadAction<any>) => {
   }
 });
 
-export const { setAllServices, setSelectedServiceId, setServiceDetails, setServiceLocation, setServiceParticipantData, setUpdateWizardData, setResetServiceState } = servicesSlice.actions;
+export const { setAllServices,setTransformedServicesList, setSelectedServiceId, setServiceDetails, setServiceLocation, setServiceParticipantData, setUpdateWizardData, setResetServiceState } = servicesSlice.actions;
 
 export default servicesSlice.reducer;

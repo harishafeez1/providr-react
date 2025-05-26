@@ -259,7 +259,7 @@ export default function AirbnbWizard() {
   );
 }
 function BasicInfoStep() {
-  const { services } = useAppSelector((state) => state.services);
+  const { transformedServicesList } = useAppSelector((state) => state.services);
 
   return (
     <div className="space-y-6">
@@ -267,7 +267,7 @@ function BasicInfoStep() {
         <h3 className="text-lg font-semibold pb-2">Service Information</h3>
         <div className="flex items-baseline flex-wrap gap-2.5 mb-4">
           <ReactSelect
-            options={services}
+            options={transformedServicesList}
             onChange={(item: any) => store.dispatch(setSelectedServiceId(item.value))}
             className="w-full text-sm"
           />
