@@ -54,10 +54,8 @@ const SliderListing = ({ heading, providerData }: SliderProps) => {
       >
         <div className="text-xl font-semibold mt-4"> {heading ? `${heading} >` : ''}</div>
         <div className="absolute top-0 right-0 z-10 flex items-center">
-          <CarouselPrevious className="relative h-6 w-6 translate-x-8 translate-y-0">
-            <ChevronLeft size={16} />
-          </CarouselPrevious>
-          <CarouselNext className="relative h-6 w-6 -translate-x-14 translate-y-0" />
+          <CarouselPrevious className="relative h-6 w-6 translate-x-8 translate-y-0 bg-gray-200 disabled:text-gray-500 disabled:bg-gray-100" />
+          <CarouselNext className="relative h-6 w-6 -translate-x-14 translate-y-0 bg-gray-200 disabled:text-gray-500 disabled:bg-gray-100" />
         </div>
 
         <CarouselContent className="mt-2 -ms-2">
@@ -65,7 +63,7 @@ const SliderListing = ({ heading, providerData }: SliderProps) => {
             ? [...Array(10)].map((_, index) => (
                 <CarouselItem
                   key={index}
-                  className="basis-[15%]  md:basis-[25%] lg:basis-[20%] xl:basis-[14%]"
+                  className="basis-[15%]  md:basis-[25%] lg:basis-[20%] xl:basis-[14.3%]"
                 >
                   <div className="p-1 animate-pulse">
                     <Card className="rounded-2xl h-48 bg-gray-200"></Card>

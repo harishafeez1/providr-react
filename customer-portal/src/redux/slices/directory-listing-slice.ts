@@ -14,6 +14,7 @@ interface DirectoryState {
   directorySettings: any[],
   directoryDefaultProviders: any[],
   directoryDiscoverProviders: any[],
+  serviceNamechanged: boolean
 
 }
 
@@ -29,7 +30,9 @@ const initialState: DirectoryState = {
   loadMore: false,
   directorySettings:[],
   directoryDefaultProviders: [],
-  directoryDiscoverProviders: []
+  directoryDiscoverProviders: [],
+  serviceNamechanged: false
+  
 };
 
 export const directoryListingSlice = createSlice({
@@ -81,7 +84,11 @@ export const directoryListingSlice = createSlice({
         const serviceName = action.payload;
         if (state.directorySettings.length > 0) {
           state.directorySettings[0].value.name = serviceName;
+          state.serviceNamechanged = true
         }
+      },
+      setChangeServiceName: (state, action) =>{
+        state.serviceNamechanged = action.payload
       }
   },
 });
@@ -96,7 +103,8 @@ export const {
   setDirectorySettings,
   setDefaultServiceName,
   setDirectoryDefaultProviders,
-  setDirectoryDiscoverProviders
+  setDirectoryDiscoverProviders,
+  setChangeServiceName
 
 } = directoryListingSlice.actions;
 

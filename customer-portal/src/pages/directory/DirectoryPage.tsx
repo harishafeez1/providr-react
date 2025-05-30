@@ -14,7 +14,8 @@ import {
   setLoadMore,
   setDirectorySettings,
   setDirectoryDefaultProviders,
-  setDirectoryDiscoverProviders
+  setDirectoryDiscoverProviders,
+  setChangeServiceName
 } from '@/redux/slices/directory-listing-slice';
 import { useAppSelector } from '@/redux/hooks';
 import { useLocation } from 'react-router';
@@ -49,7 +50,8 @@ const DirectoryPage = () => {
     allServices,
     directoryDefaultProviders,
     directoryDiscoverProviders,
-    directorySettings
+    directorySettings,
+    serviceNamechanged
   } = useAppSelector((state) => state.directoryListing);
 
   const { paginatedServicesList } = useAppSelector((state) => state.services);
@@ -98,11 +100,9 @@ const DirectoryPage = () => {
       }
     };
 
-    // const servicechanged = sessionStorage.getItem('setting-name-changed');
-
-    if (directorySettings) {
+    if (directorySettings && !serviceNamechanged) {
       fetchServiceProviders();
-      sessionStorage.removeItem('setting-name-changed');
+      store.dispatch(setChangeServiceName(false));
     }
   }, [directorySettings]);
 

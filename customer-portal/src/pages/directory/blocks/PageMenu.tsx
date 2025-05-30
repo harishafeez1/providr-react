@@ -40,7 +40,6 @@ const PageMenu: React.FC<PageMenuProps> = ({ services }) => {
     if (id) {
       const res = await getProvidersByServiceId(id, 'page=1', auth?.token ? true : false);
       if (res?.data && res.data.length > 0) {
-        sessionStorage.setItem('setting-name-changed', 'true');
         store.dispatch(setDefaultServiceName(serviceName));
         store.dispatch(setDirectoryDefaultProviders(res.data));
       }
@@ -69,13 +68,13 @@ const PageMenu: React.FC<PageMenuProps> = ({ services }) => {
             {location ? `Service in ${location}` : 'Services'}
           </div>
           <div className="absolute top-0 right-0 z-10 flex items-center justify-center">
-            <CarouselPrevious className="relative h-6 w-6 translate-x-8 translate-y-0" />
-            <CarouselNext className="relative h-6 w-6 -translate-x-14 translate-y-0" />
+            <CarouselPrevious className="relative h-6 w-6 translate-x-8 translate-y-0 bg-gray-200 disabled:text-gray-500 disabled:bg-gray-100" />
+            <CarouselNext className="relative h-6 w-6 -translate-x-14 translate-y-0 bg-gray-200 disabled:text-gray-500 disabled:bg-gray-100" />
             {/* <div onClick={handleNext}>
             </div> */}
           </div>
 
-          <CarouselContent className="mt-2 -ms-2">
+          <CarouselContent className="mt-2 ms-0">
             {services?.length === 0
               ? [...Array(10)].map((_, index) => (
                   <CarouselItem
