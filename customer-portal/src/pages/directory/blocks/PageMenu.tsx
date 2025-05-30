@@ -80,17 +80,17 @@ const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
             </div> */}
           </div>
 
-          <CarouselContent className="mt-2 -ms-2">
+          <CarouselContent className={`mt-2 ${loading ? '-ms-1' : '-ms-2'}`}>
             {loading
               ? [...Array(10)].map((_, index) => (
                   <CarouselItem
                     key={index}
-                    className="basis-[10%] md:basis-[20%] lg:basis-[15%] xl:basis-[10%] -pl-2"
+                    className="basis-[10%] md:basis-[20%] lg:basis-[15%] xl:basis-[10%] pl-0"
                   >
                     <div className="p-1 animate-pulse">
                       <Card className="rounded-xl h-[170px] w-full bg-gray-200" />
                       <div className="flex flex-col mt-2 gap-2">
-                        <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                        <div className="h-5 bg-gray-300 rounded w-3/4"></div>
                         <div className="h-3 bg-gray-300 rounded w-1/2"></div>
                       </div>
                     </div>
