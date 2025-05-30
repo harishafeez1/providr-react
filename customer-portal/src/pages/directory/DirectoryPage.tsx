@@ -98,8 +98,11 @@ const DirectoryPage = () => {
       }
     };
 
+    // const servicechanged = sessionStorage.getItem('setting-name-changed');
+
     if (directorySettings) {
       fetchServiceProviders();
+      sessionStorage.removeItem('setting-name-changed');
     }
   }, [directorySettings]);
 
@@ -110,14 +113,14 @@ const DirectoryPage = () => {
       <div className="my-6 font-montserrat">
         {locationCheck?.pathname?.includes('directory') && (
           <Navbar>
-            <div className="flex w-full items-center justify-between">
+            <div className="flex">
               <PageMenu services={paginatedServicesList} />
             </div>
           </Navbar>
         )}
         <SliderListing
           providerData={directoryDefaultProviders}
-          heading={directorySettings?.[0]?.value?.name || ''}
+          heading={directorySettings?.[0]?.value?.name || 'Cleaning'}
           defaultKey={'default_active_service'}
         />
         <div className="mt-4 flex flex-col text-black ">

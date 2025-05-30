@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/carousel';
 import { getProvidersByServiceId } from '@/services/api/all-services';
 import { addFavouriteProvider } from '@/services/api/wishlist-favourite';
-import { Heart } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, Heart } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -20,7 +20,7 @@ interface SliderProps {
   defaultKey?: string;
 }
 
-const SliderListing = ({ heading, providerData, defaultKey }: SliderProps) => {
+const SliderListing = ({ heading, providerData }: SliderProps) => {
   const { currentUser } = useAuthContext();
 
   const [favouritedIds, setFavouritedIds] = useState<Set<number>>(new Set());
@@ -44,8 +44,6 @@ const SliderListing = ({ heading, providerData, defaultKey }: SliderProps) => {
     }
   };
 
-  const handleNextPage = async () => {};
-
   return (
     <div className="relative w-full text-black">
       <Carousel
@@ -56,13 +54,13 @@ const SliderListing = ({ heading, providerData, defaultKey }: SliderProps) => {
       >
         <div className="text-xl font-semibold mt-4"> {heading ? `${heading} >` : ''}</div>
         <div className="absolute top-0 right-0 z-10 flex items-center">
-          <CarouselPrevious className="relative h-8 w-8 translate-x-8 translate-y-0" />
-          <div onClick={handleNextPage}>
-            <CarouselNext className="relative h-8 w-8 -translate-x-14 translate-y-0" />
-          </div>
+          <CarouselPrevious className="relative h-6 w-6 translate-x-8 translate-y-0">
+            <ChevronLeft size={16} />
+          </CarouselPrevious>
+          <CarouselNext className="relative h-6 w-6 -translate-x-14 translate-y-0" />
         </div>
 
-        <CarouselContent className="mt-2">
+        <CarouselContent className="mt-2 -ms-2">
           {providerData?.length === 0
             ? [...Array(10)].map((_, index) => (
                 <CarouselItem
@@ -82,7 +80,7 @@ const SliderListing = ({ heading, providerData, defaultKey }: SliderProps) => {
                 return (
                   <CarouselItem
                     key={index}
-                    className="basis-[15%]  md:basis-[25%] lg:basis-[20%] xl:basis-[14%] cursor-pointer relative"
+                    className="basis-[15%]  md:basis-[25%] lg:basis-[20%] xl:basis-[14.3%] cursor-pointer relative pl-2"
                   >
                     <Heart
                       className={`text-white absolute z-10 top-4 right-4 ${favouritedIds.has(item?.id) || item?.is_favourite ? 'fill-red-500' : ''}`}
@@ -91,8 +89,8 @@ const SliderListing = ({ heading, providerData, defaultKey }: SliderProps) => {
                       strokeWidth={2}
                     />
                     <Link to={`/provider-profile/${item?.id}`}>
-                      <div className="p-1">
-                        <Card className="rounded-2xl border-none h-56 relative overflow-hidden">
+                      <div className="">
+                        <Card className="rounded-2xl border-none h-[240px] relative overflow-hidden">
                           <img
                             src={
                               item?.photo_gallery?.[0]

@@ -47,6 +47,7 @@ const DirectoryContent = ({ providers, loading }: any) => {
           <SliderListing
             providerData={item}
             heading={discoverServiceNames[index]?.name || 'Service'}
+            defaultKey={`discover-providers-${index}`}
           />
         </div>
       ))}
