@@ -30,7 +30,7 @@ interface PageMenuProps {
   loading?: boolean;
 }
 
-const PageMenu: React.FC<PageMenuProps> = ({ services }) => {
+const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
   const { location } = useAppSelector((state) => state.directory);
   const { directorySettings } = useAppSelector((state) => state.directoryListing);
   const { servicesList } = useAppSelector((state) => state.services);
@@ -75,7 +75,7 @@ const PageMenu: React.FC<PageMenuProps> = ({ services }) => {
           </div>
 
           <CarouselContent className="mt-2 ms-0">
-            {services?.length === 0
+            {loading
               ? [...Array(10)].map((_, index) => (
                   <CarouselItem
                     key={index}

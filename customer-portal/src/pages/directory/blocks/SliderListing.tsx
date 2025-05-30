@@ -81,7 +81,7 @@ const SliderListing = ({ heading, providerData }: SliderProps) => {
                     className="basis-[15%]  md:basis-[25%] lg:basis-[20%] xl:basis-[14.3%] cursor-pointer relative pl-2"
                   >
                     <Heart
-                      className={`text-white absolute z-10 top-4 right-4 ${favouritedIds.has(item?.id) || item?.is_favourite ? 'fill-red-500' : ''}`}
+                      className={`text-white absolute z-10 top-4 right-4 ${favouritedIds.has(item?.id) || item?.is_favourite ? 'fill-danger' : ''}`}
                       onClick={() => handleFavourtie(item?.id)}
                       stroke={favouritedIds.has(item?.id) || item?.is_favourite ? 'red' : 'white'}
                       strokeWidth={2}

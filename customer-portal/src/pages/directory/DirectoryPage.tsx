@@ -42,7 +42,7 @@ function ServicesSkeleton() {
 const DirectoryPage = () => {
   const { auth } = useAuthContext();
   const location = useLocation();
-  const [loadMoreLoading, setLoadMoreLoading] = useState(false);
+  const [loadingservice, setLoadingService] = useState(false);
 
   const {
     allProviders,
@@ -66,7 +66,11 @@ const DirectoryPage = () => {
   useEffect(() => {
     // Define and invoke the async function
     const fetchData = async () => {
-      await getAllServices(`page=${1}&per_page=${12}`);
+      setLoadingService(true);
+      const res = await getAllServices(`page=${1}&per_page=${12}`);
+      if (res) {
+        setLoadingService(false);
+      }
     };
     fetchData();
   }, []);
@@ -114,7 +118,7 @@ const DirectoryPage = () => {
         {locationCheck?.pathname?.includes('directory') && (
           <Navbar>
             <div className="flex">
-              <PageMenu services={paginatedServicesList} />
+              <PageMenu services={paginatedServicesList} loading={loadingservice} />
             </div>
           </Navbar>
         )}
