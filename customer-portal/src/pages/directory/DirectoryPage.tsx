@@ -116,11 +116,9 @@ const DirectoryPage = () => {
     <Fragment>
       <div className="my-6 font-montserrat">
         {locationCheck?.pathname?.includes('directory') && (
-          <Navbar>
-            <div className="flex">
-              <PageMenu services={paginatedServicesList} loading={loadingservice} />
-            </div>
-          </Navbar>
+          <div className="flex">
+            <PageMenu services={paginatedServicesList} loading={loadingservice} />
+          </div>
         )}
         <SliderListing
           providerData={directoryDefaultProviders}

@@ -15,7 +15,7 @@ import {
 } from '@/redux/slices/directory-listing-slice';
 import { store } from '@/redux/store';
 import { getAllServices, getProvidersByServiceId } from '@/services/api/all-services';
-import React from 'react';
+import React, { useState } from 'react';
 
 export interface IServices {
   id: number;
@@ -55,6 +55,12 @@ const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
     await getAllServices(`page=${nextPage}&per_page=10`);
   };
 
+  const [loadedImages, setLoadedImages] = useState(new Set());
+
+  const handleImageLoad = (index: any) => {
+    setLoadedImages((prev) => new Set([...prev, index]));
+  };
+
   return (
     <>
       <div className="relative w-full text-black">
@@ -79,10 +85,10 @@ const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
               ? [...Array(10)].map((_, index) => (
                   <CarouselItem
                     key={index}
-                    className="basis-[10%] md:basis-[20%] lg:basis-[15%] xl:basis-[10%] -pl-2 "
+                    className="basis-[10%] md:basis-[20%] lg:basis-[15%] xl:basis-[10%] -pl-2"
                   >
                     <div className="p-1 animate-pulse">
-                      <Card className="rounded-xl h-[170px] w-[175px] bg-gray-200" />
+                      <Card className="rounded-xl h-[170px] w-full bg-gray-200" />
                       <div className="flex flex-col mt-2 gap-2">
                         <div className="h-4 bg-gray-300 rounded w-3/4"></div>
                         <div className="h-3 bg-gray-300 rounded w-1/2"></div>
@@ -96,19 +102,19 @@ const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
                     className="basis-[10%] md:basis-[20%] lg:basis-[15%] xl:basis-[10%] cursor-pointer pl-2"
                     onClick={() => handleServiceClick(service.id, service.name)}
                   >
-                    <Card className="rounded-xl border-none h-[170px] w-full">
+                    <Card className="rounded-xl border-none h-[170px] w-full overflow-hidden">
                       <img
                         src={
                           service?.service_image
                             ? service?.service_image
                             : `${import.meta.env.VITE_APP_AWS_URL}/man-helping-woman-for-carrier.png`
                         }
-                        alt={'Service name'}
-                        className="h-full w-full object-cover rounded-xl"
+                        alt={service.name || 'Service'}
+                        className="h-full w-full object-cover rounded-xl block"
                         loading="lazy"
                         style={{
-                          minHeight: '170px', // Prevent collapse
-                          aspectRatio: '1/1'
+                          minHeight: '170px',
+                          backgroundColor: '#f3f4f6' // fallback background while loading
                         }}
                       />
                     </Card>
