@@ -74,7 +74,7 @@ const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
             </div> */}
           </div>
 
-          <CarouselContent className="mt-2 ms-0">
+          <CarouselContent className="mt-2 -ms-2">
             {loading
               ? [...Array(10)].map((_, index) => (
                   <CarouselItem
@@ -106,6 +106,10 @@ const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
                         alt={'Service name'}
                         className="h-full w-full object-cover rounded-xl"
                         loading="lazy"
+                        style={{
+                          minHeight: '170px', // Prevent collapse
+                          aspectRatio: '1/1'
+                        }}
                       />
                     </Card>
                     <div className="flex flex-col mt-2">
