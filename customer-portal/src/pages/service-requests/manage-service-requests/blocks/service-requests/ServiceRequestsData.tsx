@@ -15,6 +15,7 @@ interface IServiceRequestsData {
   provider_company: ProviderCompany;
   address: string;
   actioned_at: string;
+  email: string;
 }
 
 export { type IServiceRequestsData };

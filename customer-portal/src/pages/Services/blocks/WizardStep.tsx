@@ -63,15 +63,16 @@ export default function AirbnbWizard() {
   ];
 
   const handleStroeRequest = async () => {
-    if (getAuth()?.token) {
-      const wizardWithCustomerId = { ...wizardData, customer_id: currentUser?.id };
-      setFinishLoading(true);
-      const res = await getStoreRequest(wizardWithCustomerId);
-      if (res) {
-        setFinishLoading(false);
-        store.dispatch(setResetServiceState());
-        setCurrentStep(0);
-      }
+    const hasToken = getAuth()?.token;
+    const payload = hasToken ? { ...wizardData, customer_id: currentUser?.id } : wizardData;
+
+    setFinishLoading(true);
+    const res = await getStoreRequest(payload);
+
+    if (res) {
+      setFinishLoading(false);
+      store.dispatch(setResetServiceState());
+      setCurrentStep(0);
     }
   };
 
@@ -90,73 +91,9 @@ export default function AirbnbWizard() {
     }
   };
 
-  useEffect(() => {
-    if (getAuth()?.token) {
-      getUser().then(() => {
-        const auth = getAuth();
-        saveAuth(auth);
-        setCurrentUser(auth?.customer);
-      });
-    }
-  }, [isLoggedIn]);
-
-  const checkAuthKey = () => {
-    const authToken = localStorage.getItem(import.meta.env.VITE_APP_NAME);
-    setIsLoggedIn(!!authToken);
-  };
-
-  useEffect(() => {
-    checkAuthKey();
-
-    // Handle storage changes from other tabs/windows
-    const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === import.meta.env.VITE_APP_NAME) {
-        checkAuthKey();
-      }
-    };
-
-    // Add the storage event listener
-    window.addEventListener('storage', handleStorageChange);
-
-    // Cleanup the event listener on component unmount
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
-  }, []);
-
-  const nextStep = () => {
+  const nextStep = async () => {
     if (currentStep === steps.length - 1) {
-      const token = getAuth()?.token;
-      if (!token) {
-        const width = 600;
-        const height = 600;
-
-        const left = window.screen.width / 2 - width / 2;
-        const top = window.screen.height / 2 - height / 2;
-
-        const loginTab = window.open(
-          '/login',
-          '_blank',
-          `width=${width},height=${height},top=${top},left=${left}`
-        );
-
-        if (!loginTab) {
-          console.error('❌ Failed to open login tab. Make sure pop-ups are not blocked.');
-          return;
-        }
-        window.addEventListener('message', (event) => {
-          if (event.data === 'closeLogin' && loginTab) {
-            loginTab.close();
-          }
-        });
-
-        console.log('✅ Login tab opened. Waiting for authentication...');
-
-        return;
-      }
-      if (token) {
-        handleStroeRequest();
-      }
+      await handleStroeRequest();
     }
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
@@ -224,17 +161,11 @@ export default function AirbnbWizard() {
               disabled={currentStep === steps.length || isNextDisabled() || finishLoading}
               className="btn btn-primary "
             >
-              {currentStep === steps.length - 1
-                ? isLoggedIn
-                  ? finishLoading
-                    ? 'Please wait...'
-                    : 'Complete'
-                  : 'Login'
-                : 'Next'}
+              {currentStep === steps.length - 1 ? 'Complete' : 'Next'}
               {/* <ChevronRight className="w-4 h-4 ml-2" /> */}
             </Button>
 
-            {currentStep === steps.length - 1 && !getAuth()?.token && (
+            {/* {currentStep === steps.length - 1 && !getAuth()?.token && (
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger className="">
@@ -251,7 +182,7 @@ export default function AirbnbWizard() {
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-            )}
+            )} */}
           </div>
         </CardFooter>
       </Card>
@@ -273,20 +204,6 @@ function BasicInfoStep() {
           />
         </div>
       </div>
-      {/* <div>
-        <h4 className="text-sm font-medium mb-2">Suggestions</h4>
-        <div className="flex flex-wrap gap-2">
-          {suggestions.map((suggestion) => (
-            <button
-              key={suggestion}
-              className="btn btn-primary"
-              onClick={() => setService(suggestion)}
-            >
-              {suggestion}
-            </button>
-          ))}
-        </div>
-      </div> */}
     </div>
   );
 }

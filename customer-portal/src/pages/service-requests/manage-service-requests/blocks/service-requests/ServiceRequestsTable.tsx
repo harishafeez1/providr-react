@@ -156,6 +156,36 @@ const ServiceRequestsTable = () => {
         }
       },
       {
+        accessorFn: (row: IServiceRequestsData) => row.email,
+        id: 'email',
+        header: ({ column }) => (
+          <DataGridColumnHeader
+            title="Email"
+            filter={<ColumnInputFilter column={column} />}
+            column={column}
+            icon={<i className="ki-filled ki-mail text-lg"></i>}
+          />
+        ),
+        cell: ({ row }) => {
+          return (
+            <div className="flex items-center gap-4">
+              <div className="flex flex-col gap-0.5">
+                <Link
+                  to="#"
+                  className="text-2sm text-gray-700 font-normal hover:text-primary-active"
+                >
+                  {row.original.email || ''}
+                </Link>
+              </div>
+            </div>
+          );
+        },
+        meta: {
+          className: 'min-w-[400px]',
+          cellClassName: 'text-gray-800 font-normal'
+        }
+      },
+      {
         accessorFn: (row) => row.status,
         id: 'status',
         header: ({ column }) => (
