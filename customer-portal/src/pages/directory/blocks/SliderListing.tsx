@@ -52,7 +52,7 @@ const SliderListing = ({ heading, providerData }: SliderProps) => {
         }}
         className="w-full"
       >
-        <div className="text-xl font-semibold mt-4"> {heading ? `${heading} >` : ''}</div>
+        <div className="text-xl font-semibold mb-[24px]">{heading ? `${heading} >` : ''}</div>
         <div className="absolute top-0 right-0 z-10 flex items-center">
           <CarouselPrevious className="relative h-6 w-6 translate-x-8 translate-y-0 bg-gray-200 disabled:text-gray-500 disabled:bg-gray-100" />
           <CarouselNext className="relative h-6 w-6 -translate-x-14 translate-y-0 bg-gray-200 disabled:text-gray-500 disabled:bg-gray-100" />
@@ -78,7 +78,7 @@ const SliderListing = ({ heading, providerData }: SliderProps) => {
                 return (
                   <CarouselItem
                     key={index}
-                    className="basis-[15%]  md:basis-[25%] lg:basis-[20%] xl:basis-[14.3%] cursor-pointer relative pl-2"
+                    className="basis-[15%]  md:basis-[25%] lg:basis-[20%] xl:basis-[14.3%] cursor-pointer relative pl-[11px]"
                   >
                     <Heart
                       className={`text-white absolute z-10 top-4 right-4 ${favouritedIds.has(item?.id) || item?.is_favourite ? 'fill-danger' : ''}`}

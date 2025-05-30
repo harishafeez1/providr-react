@@ -120,13 +120,17 @@ const DirectoryPage = () => {
             <PageMenu services={paginatedServicesList} loading={loadingservice} />
           </div>
         )}
-        <SliderListing
-          providerData={directoryDefaultProviders}
-          heading={directorySettings?.[0]?.value?.name || 'Cleaning'}
-          defaultKey={'default_active_service'}
-        />
+        <div className="mt-[12px]">
+          <SliderListing
+            providerData={directoryDefaultProviders}
+            heading={directorySettings?.[0]?.value?.name || 'Cleaning'}
+            defaultKey={'default_active_service'}
+          />
+        </div>
         <div className="mt-4 flex flex-col text-black ">
-          <div className="text-2xl font-semibold my-2">Discover services on Providr</div>
+          <div className="text-[32px] font-semibold mt-[30px] mb-[10px]">
+            Discover services on Providr
+          </div>
           <DirectoryContent providers={directoryDiscoverProviders} />
         </div>
       </div>

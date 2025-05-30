@@ -70,7 +70,7 @@ const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
           }}
           className="w-full"
         >
-          <div className="text-xl font-semibold">
+          <div className="text-xl font-semibold mb-[12px]">
             {location ? `Service in ${location}` : 'Services'}
           </div>
           <div className="absolute top-0 right-0 z-10 flex items-center justify-center">
@@ -99,7 +99,7 @@ const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
               : services?.map((service, index) => (
                   <CarouselItem
                     key={index}
-                    className="basis-[10%] md:basis-[20%] lg:basis-[15%] xl:basis-[10%] cursor-pointer pl-2"
+                    className="basis-[10%] md:basis-[20%] lg:basis-[15%] xl:basis-[10%] cursor-pointer pl-[10px]"
                     onClick={() => handleServiceClick(service.id, service.name)}
                   >
                     <Card className="rounded-xl border-none h-[170px] w-full overflow-hidden">

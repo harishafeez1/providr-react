@@ -43,7 +43,7 @@ const DirectoryContent = ({ providers, loading }: any) => {
       </Carousel>
 
       {providers?.map((item: any, index: number) => (
-        <div key={index}>
+        <div key={index} className="mt-[22px]">
           <SliderListing
             providerData={item}
             heading={discoverServiceNames[index]?.name || 'Service'}
