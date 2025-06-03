@@ -33,7 +33,7 @@ const initialValues = {
   service_id: '',
   first_name: '',
   last_name: '',
-  preferredMethod: 'email',
+  preferred_method: 'email',
   email: '',
   phone: ''
 };
@@ -41,7 +41,7 @@ const initialValues = {
 const contactSchema = Yup.object().shape({
   // service_id: Yup.string().required('Service is required'),
   first_name: Yup.string().required('First Name is required'),
-  preferredMethod: Yup.string()
+  preferred_method: Yup.string()
     .oneOf(['email', 'phone'], 'Select a valid method')
     .required('Select a method'),
 
@@ -49,7 +49,7 @@ const contactSchema = Yup.object().shape({
     .email('Wrong email format')
     .min(3, 'Minimum 3 symbols')
     .max(50, 'Maximum 50 symbols')
-    .when('preferredMethod', {
+    .when('preferred_method', {
       is: 'email',
       then: (schema) => schema.required('Email is required'),
       otherwise: (schema) => schema.notRequired()
@@ -59,7 +59,7 @@ const contactSchema = Yup.object().shape({
     .matches(/^[0-9]+$/, 'Phone number must be digits only')
     .min(10, 'Minimum 10 digits')
     .max(15, 'Maximum 15 digits')
-    .when('preferredMethod', {
+    .when('preferred_method', {
       is: 'phone',
       then: (schema) => schema.required('Phone number is required'),
       otherwise: (schema) => schema.notRequired()
@@ -157,9 +157,9 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
                       <label className="flex items-center gap-1 cursor-pointer">
                         <Input
                           type="radio"
-                          name="preferredMethod"
+                          name="preferred_method"
                           value="email"
-                          checked={formik.values.preferredMethod === 'email'}
+                          checked={formik.values.preferred_method === 'email'}
                           onChange={formik.handleChange}
                         />
                         Email
@@ -167,9 +167,9 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
                       <label className="flex items-center gap-1 cursor-pointer">
                         <Input
                           type="radio"
-                          name="preferredMethod"
+                          name="preferred_method"
                           value="phone"
-                          checked={formik.values.preferredMethod === 'phone'}
+                          checked={formik.values.preferred_method === 'phone'}
                           onChange={formik.handleChange}
                         />
                         Phone
@@ -177,7 +177,7 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
                     </div>
                   </div>
 
-                  {formik.values.preferredMethod === 'email' && (
+                  {formik.values.preferred_method === 'email' && (
                     <div className="flex flex-col gap-1">
                       <label className="form-label text-gray-900">Email</label>
                       <Input
@@ -193,7 +193,7 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
                       )}
                     </div>
                   )}
-                  {formik.values.preferredMethod === 'phone' && (
+                  {formik.values.preferred_method === 'phone' && (
                     <div className="flex flex-col gap-1">
                       <label className="form-label text-gray-900">Phone</label>
                       <Input
