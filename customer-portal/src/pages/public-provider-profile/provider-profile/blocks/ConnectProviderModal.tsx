@@ -33,6 +33,7 @@ const initialValues = {
   service_id: '',
   first_name: '',
   last_name: '',
+  preferredMethod: 'email',
   email: '',
   phone: ''
 };
@@ -40,23 +41,36 @@ const initialValues = {
 const contactSchema = Yup.object().shape({
   // service_id: Yup.string().required('Service is required'),
   first_name: Yup.string().required('First Name is required'),
-  last_name: Yup.string().required('Last Name is required'),
+  preferredMethod: Yup.string()
+    .oneOf(['email', 'phone'], 'Select a valid method')
+    .required('Select a method'),
+
   email: Yup.string()
     .email('Wrong email format')
     .min(3, 'Minimum 3 symbols')
     .max(50, 'Maximum 50 symbols')
-    .required('Email is required'),
+    .when('preferredMethod', {
+      is: 'email',
+      then: (schema) => schema.required('Email is required'),
+      otherwise: (schema) => schema.notRequired()
+    }),
+
   phone: Yup.string()
     .matches(/^[0-9]+$/, 'Phone number must be digits only')
     .min(10, 'Minimum 10 digits')
     .max(15, 'Maximum 15 digits')
-    .required('Phone number is required')
+    .when('preferredMethod', {
+      is: 'phone',
+      then: (schema) => schema.required('Phone number is required'),
+      otherwise: (schema) => schema.notRequired()
+    })
 });
 
 const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProps>(
   ({ open, onOpenChange }, ref) => {
     const { id } = useParams();
     const [loading, setLoading] = useState(false);
+    const [prefferedMethod, setPreferredMethod] = useState('');
     const [selectedServiceName, setSelectedServiceName] = useState('Select Service');
     const { providerProfile } = useAppSelector((state) => state.serviceRequest);
 
@@ -123,7 +137,7 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
                   </div>
 
                   <div className="flex flex-col gap-1">
-                    <label className="form-label text-gray-900">First Name</label>
+                    <label className="form-label text-gray-900">Full Name</label>
                     <Input
                       type="text"
                       placeholder="John Smith"
@@ -138,49 +152,63 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
                   </div>
 
                   <div className="flex flex-col gap-1">
-                    <label className="form-label text-gray-900">Last Name</label>
-                    <Input
-                      type="text"
-                      placeholder=""
-                      size={'sm'}
-                      {...formik.getFieldProps('last_name')}
-                    />
-                    {formik.touched.last_name && formik.errors.last_name && (
-                      <span role="alert" className="text-danger text-xs mt-1">
-                        {formik.errors.last_name}
-                      </span>
-                    )}
+                    <label className="form-label text-gray-900">Preferred Contact Method</label>
+                    <div className="flex items-center gap-4">
+                      <label className="flex items-center gap-1 cursor-pointer">
+                        <Input
+                          type="radio"
+                          name="preferredMethod"
+                          value="email"
+                          checked={formik.values.preferredMethod === 'email'}
+                          onChange={formik.handleChange}
+                        />
+                        Email
+                      </label>
+                      <label className="flex items-center gap-1 cursor-pointer">
+                        <Input
+                          type="radio"
+                          name="preferredMethod"
+                          value="phone"
+                          checked={formik.values.preferredMethod === 'phone'}
+                          onChange={formik.handleChange}
+                        />
+                        Phone
+                      </label>
+                    </div>
                   </div>
 
-                  <div className="flex flex-col gap-1">
-                    <label className="form-label text-gray-900">Email</label>
-                    <Input
-                      type="email"
-                      placeholder="john@example.com"
-                      size={'sm'}
-                      {...formik.getFieldProps('email')}
-                    />
-                    {formik.touched.email && formik.errors.email && (
-                      <span role="alert" className="text-danger text-xs mt-1">
-                        {formik.errors.email}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex flex-col gap-1">
-                    <label className="form-label text-gray-900">Phone</label>
-                    <Input
-                      type="text"
-                      placeholder="0400 123 456"
-                      size={'sm'}
-                      {...formik.getFieldProps('phone')}
-                    />
-                    {formik.touched.phone && formik.errors.phone && (
-                      <span role="alert" className="text-danger text-xs mt-1">
-                        {formik.errors.phone}
-                      </span>
-                    )}
-                  </div>
+                  {formik.values.preferredMethod === 'email' && (
+                    <div className="flex flex-col gap-1">
+                      <label className="form-label text-gray-900">Email</label>
+                      <Input
+                        type="email"
+                        placeholder="john@example.com"
+                        size={'sm'}
+                        {...formik.getFieldProps('email')}
+                      />
+                      {formik.touched.email && formik.errors.email && (
+                        <span role="alert" className="text-danger text-xs mt-1">
+                          {formik.errors.email}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  {formik.values.preferredMethod === 'phone' && (
+                    <div className="flex flex-col gap-1">
+                      <label className="form-label text-gray-900">Phone</label>
+                      <Input
+                        type="text"
+                        placeholder="0400 123 456"
+                        size={'sm'}
+                        {...formik.getFieldProps('phone')}
+                      />
+                      {formik.touched.phone && formik.errors.phone && (
+                        <span role="alert" className="text-danger text-xs mt-1">
+                          {formik.errors.phone}
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </DialogBody>
               <DialogFooter className="flex justify-center">

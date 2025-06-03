@@ -99,7 +99,7 @@ const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
               : services?.map((service, index) => (
                   <CarouselItem
                     key={index}
-                    className="basis-[10%] md:basis-[20%] lg:basis-[15%] xl:basis-[10%] cursor-pointer pl-[10px]"
+                    className="basis-[11%] md:basis-[20%] lg:basis-[15%] xl:basis-[10%] cursor-pointer pl-[10px] md:w-full"
                     onClick={() => handleServiceClick(service.id, service.name)}
                   >
                     <Card className="rounded-xl border-none h-[170px] w-full overflow-hidden">

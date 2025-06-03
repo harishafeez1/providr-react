@@ -13,6 +13,7 @@ import { addFavouriteProvider } from '@/services/api/wishlist-favourite';
 import { ArrowLeft, ChevronLeft, Heart } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 
 interface SliderProps {
   heading?: string;
@@ -21,26 +22,30 @@ interface SliderProps {
 }
 
 const SliderListing = ({ heading, providerData }: SliderProps) => {
-  const { currentUser } = useAuthContext();
+  const { currentUser, auth } = useAuthContext();
 
   const [favouritedIds, setFavouritedIds] = useState<Set<number>>(new Set());
 
   const handleFavourtie = async (providerId: number) => {
-    setFavouritedIds((prev) => {
-      const updated = new Set(prev);
-      if (updated.has(providerId)) {
-        updated.delete(providerId);
-      } else {
-        updated.add(providerId);
-      }
-      return new Set(updated); // Always return a *new* Set
-    });
-
-    const res = await addFavouriteProvider(providerId, currentUser?.id);
-    if (res?.status === 200) {
-      console.log('Provider added to favourites:', res);
+    if (!auth?.token) {
+      toast.error('Please Login first', { position: 'top-right' });
     } else {
-      console.error('Failed to add provider to favourites:', res);
+      setFavouritedIds((prev) => {
+        const updated = new Set(prev);
+        if (updated.has(providerId)) {
+          updated.delete(providerId);
+        } else {
+          updated.add(providerId);
+        }
+        return new Set(updated); // Always return a *new* Set
+      });
+
+      const res = await addFavouriteProvider(providerId, currentUser?.id);
+      if (res?.status === 200) {
+        console.log('Provider added to favourites:', res);
+      } else {
+        console.error('Failed to add provider to favourites:', res);
+      }
     }
   };
 
@@ -78,7 +83,7 @@ const SliderListing = ({ heading, providerData }: SliderProps) => {
                 return (
                   <CarouselItem
                     key={index}
-                    className="basis-[15%]  md:basis-[25%] lg:basis-[20%] xl:basis-[14.3%] cursor-pointer relative pl-[11px]"
+                    className="basis-[15%]  md:basis-[25%] lg:basis-[20%] xl:basis-[14.3%] cursor-pointer relative pl-[11px] md:w-full"
                   >
                     <Heart
                       className={`text-white absolute z-10 top-4 right-4 ${favouritedIds.has(item?.id) || item?.is_favourite ? 'fill-danger' : ''}`}
