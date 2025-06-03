@@ -50,12 +50,12 @@ const SliderListing = ({ heading, providerData }: SliderProps) => {
   };
 
   return (
-    <div className="relative w-[100vw] md:w-full text-black">
+    <div className="w-[92vw] xl:w-full text-black">
       <Carousel
         opts={{
           align: 'start'
         }}
-        className="w-full"
+        className="relative"
       >
         <div className="text-xl font-semibold mb-[24px]">{heading ? `${heading} >` : ''}</div>
         <div className="absolute top-0 right-5 md:right-0 z-10 flex items-center">

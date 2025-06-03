@@ -63,12 +63,12 @@ const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
 
   return (
     <>
-      <div className="relative w-[100vw] md:w-full text-black">
+      <div className=" w-[92vw] xl:w-full text-black">
         <Carousel
           opts={{
             align: 'start'
           }}
-          className="w-full"
+          className="relative"
         >
           <div className="text-xl font-semibold mb-[12px]">
             {location ? `Service in ${location}` : 'Services'}
@@ -76,8 +76,6 @@ const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
           <div className="absolute top-0 right-5 md:right-0 z-10 flex items-center justify-center">
             <CarouselPrevious className="relative h-6 w-6 translate-x-8 translate-y-0 bg-gray-200 disabled:text-gray-500 disabled:bg-gray-100" />
             <CarouselNext className="relative h-6 w-6 -translate-x-14 translate-y-0 bg-gray-200 disabled:text-gray-500 disabled:bg-gray-100" />
-            {/* <div onClick={handleNext}>
-            </div> */}
           </div>
 
           <CarouselContent className={`mt-2 ${loading ? '-ms-1' : '-ms-2'}`}>
