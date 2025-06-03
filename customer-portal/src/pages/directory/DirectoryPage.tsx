@@ -128,7 +128,7 @@ const DirectoryPage = () => {
           />
         </div>
         <div className="mt-4 flex flex-col text-black ">
-          <div className="text-[32px] font-semibold mt-[30px] mb-[10px]">
+          <div className="text-[32px] font-semibold mt-[30px] mb-[10px] leading-normal">
             Discover services on Providr
           </div>
           <DirectoryContent providers={directoryDiscoverProviders} />

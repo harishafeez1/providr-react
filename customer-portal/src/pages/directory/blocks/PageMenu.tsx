@@ -63,7 +63,7 @@ const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
 
   return (
     <>
-      <div className="relative w-full text-black">
+      <div className="relative w-[100vw] md:w-full text-black">
         <Carousel
           opts={{
             align: 'start'
@@ -73,7 +73,7 @@ const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
           <div className="text-xl font-semibold mb-[12px]">
             {location ? `Service in ${location}` : 'Services'}
           </div>
-          <div className="absolute top-0 right-0 z-10 flex items-center justify-center">
+          <div className="absolute top-0 right-5 md:right-0 z-10 flex items-center justify-center">
             <CarouselPrevious className="relative h-6 w-6 translate-x-8 translate-y-0 bg-gray-200 disabled:text-gray-500 disabled:bg-gray-100" />
             <CarouselNext className="relative h-6 w-6 -translate-x-14 translate-y-0 bg-gray-200 disabled:text-gray-500 disabled:bg-gray-100" />
             {/* <div onClick={handleNext}>
@@ -85,7 +85,7 @@ const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
               ? [...Array(10)].map((_, index) => (
                   <CarouselItem
                     key={index}
-                    className="basis-[10%] md:basis-[20%] lg:basis-[15%] xl:basis-[10%] pl-0"
+                    className="basis-[50%] md:basis-[20%] lg:basis-[15%] xl:basis-[10%] pl-0"
                   >
                     <div className="p-1 animate-pulse">
                       <Card className="rounded-xl h-[170px] w-full bg-gray-200" />
@@ -99,7 +99,7 @@ const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
               : services?.map((service, index) => (
                   <CarouselItem
                     key={index}
-                    className="basis-[11%] md:basis-[20%] lg:basis-[15%] xl:basis-[10%] cursor-pointer pl-[10px] md:w-full"
+                    className="basis-[50%] md:basis-[20%] lg:basis-[15%] xl:basis-[10%] cursor-pointer pl-[10px] md:w-full"
                     onClick={() => handleServiceClick(service.id, service.name)}
                   >
                     <Card className="rounded-xl border-none h-[170px] w-full overflow-hidden">

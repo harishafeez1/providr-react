@@ -50,7 +50,7 @@ const SliderListing = ({ heading, providerData }: SliderProps) => {
   };
 
   return (
-    <div className="relative w-full text-black">
+    <div className="relative w-[100vw] md:w-full text-black">
       <Carousel
         opts={{
           align: 'start'
@@ -58,7 +58,7 @@ const SliderListing = ({ heading, providerData }: SliderProps) => {
         className="w-full"
       >
         <div className="text-xl font-semibold mb-[24px]">{heading ? `${heading} >` : ''}</div>
-        <div className="absolute top-0 right-0 z-10 flex items-center">
+        <div className="absolute top-0 right-5 md:right-0 z-10 flex items-center">
           <CarouselPrevious className="relative h-6 w-6 translate-x-8 translate-y-0 bg-gray-200 disabled:text-gray-500 disabled:bg-gray-100" />
           <CarouselNext className="relative h-6 w-6 -translate-x-14 translate-y-0 bg-gray-200 disabled:text-gray-500 disabled:bg-gray-100" />
         </div>
@@ -68,7 +68,7 @@ const SliderListing = ({ heading, providerData }: SliderProps) => {
             ? [...Array(10)].map((_, index) => (
                 <CarouselItem
                   key={index}
-                  className="basis-[15%]  md:basis-[25%] lg:basis-[20%] xl:basis-[14.3%]"
+                  className="basis-[80%]  md:basis-[25%] lg:basis-[20%] xl:basis-[14.3%]"
                 >
                   <div className="p-1 animate-pulse">
                     <Card className="rounded-2xl h-48 bg-gray-200"></Card>
@@ -83,7 +83,7 @@ const SliderListing = ({ heading, providerData }: SliderProps) => {
                 return (
                   <CarouselItem
                     key={index}
-                    className="basis-[15%]  md:basis-[25%] lg:basis-[20%] xl:basis-[14.3%] cursor-pointer relative pl-[11px] md:w-full"
+                    className="basis-[80%] md:basis-[25%] lg:basis-[20%] xl:basis-[14.3%] cursor-pointer relative pl-[11px] md:w-full"
                   >
                     <Heart
                       className={`text-white absolute z-10 top-4 right-4 ${favouritedIds.has(item?.id) || item?.is_favourite ? 'fill-danger' : ''}`}
