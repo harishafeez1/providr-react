@@ -67,7 +67,7 @@ const ProviderMap = () => {
         attributionControl={false}
         className="rounded-xl w-full h-[400px]"
       >
-        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" maxZoom={23} />
         <Marker position={[40.724716, -73.984789]} icon={customIcon} />
         <MapControls />
       </MapContainer>
