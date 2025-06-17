@@ -66,7 +66,7 @@ const ProfileInfo = ({ ProfileData }: any) => {
         <img src={NDIS} alt="NDIS Registered" />
       </div>
 
-      <p className="text-[#7B7171] px-20 mt-16">
+      <p className="text-[#7B7171] px-4 lg:px-20 mb-4 md:mb-0 mt-16">
         Transforming you backyards into cozy outdoor spaces has never been easier with Must Have
         Maintenance at your service! As a family-owned landscaping company, we understand that your
         outdoor space is more than just a yard. It is an extension of your home where you can relax
