@@ -63,7 +63,7 @@ const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
 
   return (
     <>
-      <div className=" w-[92vw] xl:w-full text-black">
+      <div className="w-[90vw] xl:w-full text-black">
         <Carousel
           opts={{
             align: 'start'

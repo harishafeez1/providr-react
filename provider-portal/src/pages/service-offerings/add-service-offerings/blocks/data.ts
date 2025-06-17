@@ -101,6 +101,8 @@ export const languages = [
   { value: 'Dari', label: 'Dari' },
   { value: 'Dzongkha', label: 'Dzongkha' },
   { value: 'English', label: 'English' },
+  { value: 'EnglishGB', label: 'English-GB' },
+  { value: 'EnglishUS', label: 'English-US' },
   { value: 'Fijian', label: 'Fijian' },
   { value: 'French', label: 'French' },
   { value: 'Fulu', label: 'Fulu' },

@@ -1,16 +1,16 @@
-import { Fragment } from 'react';
 import { Container } from '@/components/container';
 
 import { ProviderProfileContent } from '.';
-import { Provider } from '@radix-ui/react-tooltip';
+import { Separator } from '@/components/ui/separator';
 
 const ProviderProfilePage = () => {
   return (
-    <Fragment>
+    <>
+      <Separator className="my-4 bg-black" />
       <Container>
         <ProviderProfileContent />
       </Container>
-    </Fragment>
+    </>
   );
 };
 

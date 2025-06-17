@@ -39,7 +39,7 @@ const initialValues = {
 };
 
 const contactSchema = Yup.object().shape({
-  // service_id: Yup.string().required('Service is required'),
+  service_id: Yup.string().required('Service is required'),
   first_name: Yup.string().required('First Name is required'),
   preferred_method: Yup.string()
     .oneOf(['email', 'phone'], 'Select a valid method')
@@ -134,6 +134,11 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
                         ))}
                       </SelectContent>
                     </Select>
+                    {formik.errors.service_id && (
+                      <span role="alert" className="text-danger text-xs mt-1">
+                        {formik.errors.service_id}
+                      </span>
+                    )}
                   </div>
 
                   <div className="flex flex-col gap-1">
@@ -217,7 +222,7 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
                   className="btn btn-primary flex justify-center"
                   disabled={loading || formik.isSubmitting}
                 >
-                  {loading ? 'Please wait...' : 'Submit'}
+                  {loading ? 'Please wait...' : 'Connect'}
                 </button>
               </DialogFooter>
             </form>
