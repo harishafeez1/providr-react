@@ -33,7 +33,7 @@ export const ImageCarouselModal = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-screen h-full p-0 bg-white">
         <DialogHeader className="flex justify-center">
-          <DialogTitle className="font-montserrat">{`${currentIndex} of ${images?.length || 0}`}</DialogTitle>
+          <DialogTitle className="font-montserrat">{`${currentIndex + 1} of ${images?.length || 0}`}</DialogTitle>
         </DialogHeader>
         <div className="relative w-full h-[80vh] flex items-center justify-center bg-white">
           <button onClick={handlePrev} className="absolute left-4 text-black text-2xl z-10">
