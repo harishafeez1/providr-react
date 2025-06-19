@@ -10,6 +10,8 @@ import OurQualifications from './blocks/OurQualifications';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ProviderMap } from './blocks/ProviderMap';
+import { AgeGroups } from './blocks/AgeGroups';
+import { Reviews } from './blocks/Reviews';
 
 const ProviderProfileContent = () => {
   const { id } = useParams();
@@ -43,6 +45,26 @@ const ProviderProfileContent = () => {
     setIsModalOpen(!isModalOpen);
   };
 
+  function ServicesSkeleton() {
+    return (
+      <div className="animate-pulse">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div className="flex gap-4 items-center mb-4">
+            {/* Left box */}
+            <div className="h-[120px] w-[140px] bg-gray-200 rounded-3xl" />
+
+            {/* Right box with stacked lines */}
+            <div className="flex flex-col space-y-3">
+              <div className="h-[30px] w-[150px] bg-gray-200 rounded-lg" />
+              <div className="h-[20px] lg:w-[200%] bg-gray-200 rounded-lg" />
+              <div className="h-[20px] lg:w-[200%] bg-gray-200 rounded-lg" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white text-black font-montserrat">
       <ConnectProviderModal open={isModalOpen} onOpenChange={handleModalchange} />
@@ -52,7 +74,7 @@ const ProviderProfileContent = () => {
           <ProfileInfo ProfileData={resData} />
         </div>
         <div className="col-span-2 md:col-span-1">
-          <ServicesSection Services={resData} />
+          {resData ? <ServicesSection Services={resData} /> : <ServicesSkeleton />}
           <Separator className="my-8 bg-black" />
           <div className="flex justify-center gap-1">
             {/* <OurQualifications /> */}
@@ -68,6 +90,13 @@ const ProviderProfileContent = () => {
           <MyPortfolio PortfolioImages={resData} />
           <Separator className="my-8 bg-black" />
           <ProviderMap />
+          <div className="my-4">
+            <AgeGroups data={resData} />
+          </div>
+          .
+        </div>
+        <div className="col-span-2">
+          <Reviews data={resData} />
         </div>
       </div>
     </div>

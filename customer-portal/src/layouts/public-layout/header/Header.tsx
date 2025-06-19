@@ -55,7 +55,7 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [servicesLoading, setServicesLoading] = useState(false);
 
-  const { auth } = useAuthContext();
+  const { auth, logout } = useAuthContext();
 
   const { allServices } = useAppSelector((state) => state.directoryListing);
 
@@ -296,8 +296,6 @@ const Header = () => {
               )}
               {auth && (
                 <>
-                  {/* <DropdownMenuLabel className="mb-2 text-right">{`${auth?.customer?.first_name || ''} ${auth?.customer?.last_name || ''} `}</DropdownMenuLabel> */}
-                  {/* <DropdownMenuSeparator /> */}
                   <Link
                     to={'/service-request'}
                     className="flex flex-col items-start gap-0 w-full group"
@@ -314,23 +312,33 @@ const Header = () => {
                       <span className="text-lg font-semibold ">My Wishlist</span>
                     </DropdownMenuItem>
                   </Link>
+                  <DropdownMenuItem
+                    className="w-full cursor-pointer group-hover:text-primary"
+                    onClick={logout}
+                  >
+                    <span className="text-lg font-semibold group-hover:text-primary">Log Out</span>
+                  </DropdownMenuItem>
                 </>
               )}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="">
-                <a
-                  href={`/provider-portal/auth/login`}
-                  target="_blank"
-                  className="flex flex-col ps-2 items-start group cursor-pointer gap-0"
-                >
-                  <span className="text-lg font-semibold group-hover:text-primary">
-                    I am a Provider
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    Manage your listings, respond to enquiries, and grow your services.
-                  </span>
-                </a>
-              </DropdownMenuItem>
+              {!auth && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem className="">
+                    <a
+                      href={`/provider-portal/auth/login`}
+                      target="_blank"
+                      className="flex flex-col ps-2 items-start group cursor-pointer gap-0"
+                    >
+                      <span className="text-lg font-semibold group-hover:text-primary">
+                        I am a Provider
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        Manage your listings, respond to enquiries, and grow your services.
+                      </span>
+                    </a>
+                  </DropdownMenuItem>
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -418,7 +426,7 @@ const Header = () => {
             </label>
           </div>
 
-          <div className="flex flex-col border-l gap-1 px-5 border-gray-300 w-full">
+          {/* <div className="flex flex-col border-l gap-1 px-5 border-gray-300 w-full">
             <label className="form-label text-gray-900 ps-[0.6rem] font-semibold tracking-wide">
               Type of Service
             </label>
@@ -487,7 +495,7 @@ const Header = () => {
                 />
               </div>
             </label>
-          </div>
+          </div> */}
           <button
             className="flex items-center justify-center rounded-full bg-primary px-3 py-2 m-1 cursor-pointer"
             onClick={handleFilters}

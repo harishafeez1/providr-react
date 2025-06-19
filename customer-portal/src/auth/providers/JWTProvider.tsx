@@ -181,6 +181,7 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
         authHelper.removeAuth();
         saveAuth(undefined);
         setCurrentUser(undefined);
+        window.location.reload();
       }
     } catch (err) {
       throw new Error(`Logout Error ${err}`);
