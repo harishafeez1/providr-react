@@ -92,19 +92,22 @@ const ConnectAndDetails = ({ DetailsData }: any) => {
 
               <div className="flex items-center justify-between pe-6 space-x-2">
                 <span className="truncate text-sm">
-                  {(showEmail && (
-                    <ScrollArea className="w-[300px]">
-                      <a
-                        href={`mailto:${DetailsData?.company_email}?subject=Inquiry about ${DetailsData?.name} service&body=Hello, I am reaching out regarding your services.`}
-                        className="text-primary"
-                        title="Send email"
-                      >
-                        {DetailsData?.company_email}
-                      </a>
-                      <ScrollBar orientation="horizontal" className="mt-2" />
+                  {showEmail ? (
+                    <ScrollArea className="w-[220px]">
+                      <div className="pb-4">
+                        <a
+                          href={`mailto:${DetailsData?.company_email}?subject=Inquiry about ${DetailsData?.name} service&body=Hello, I am reaching out regarding your services.`}
+                          className="text-primary text-sm block truncate"
+                          title="Send email"
+                        >
+                          {DetailsData?.company_email}
+                        </a>
+                      </div>
+                      <ScrollBar orientation="horizontal" className="mt-1" />
                     </ScrollArea>
-                  )) ||
-                    '************'}
+                  ) : (
+                    <span className="text-sm text-gray-500">************</span>
+                  )}
                 </span>
 
                 {!showEmail && DetailsData?.company_email && (
@@ -135,9 +138,11 @@ const ConnectAndDetails = ({ DetailsData }: any) => {
                 <span className="truncate text-sm">
                   {DetailsData?.company_website ? (
                     <ScrollArea className="w-[300px]">
-                      <a href={DetailsData?.company_website} target="_blank">
-                        {DetailsData?.company_website}
-                      </a>
+                      <div className="pb-4">
+                        <a href={DetailsData?.company_website} target="_blank">
+                          {DetailsData?.company_website}
+                        </a>
+                      </div>
                       <ScrollBar orientation="horizontal" className="mt-2" />
                     </ScrollArea>
                   ) : (
