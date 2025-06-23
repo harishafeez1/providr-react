@@ -69,35 +69,38 @@ const ProviderProfileContent = () => {
     <div className="min-h-screen bg-white text-black font-montserrat">
       <ConnectProviderModal open={isModalOpen} onOpenChange={handleModalchange} />
       {/* <ProviderDetailPage data={resData} loading={loading} /> */}
-      <div className="grid grid-cols-2 gap-2 my-6">
-        <div className="col-span-2 md:col-span-1">
-          <ProfileInfo ProfileData={resData} />
+      <div className="grid grid-cols-12 gap-10 my-2">
+        <div className="col-span-12 md:col-span-5">
+          <div className="sticky top-44">
+            <ProfileInfo ProfileData={resData} />
+          </div>
         </div>
-        <div className="col-span-2 md:col-span-1">
+        <div className="col-span-12 md:col-span-7">
           {resData ? <ServicesSection Services={resData} /> : <ServicesSkeleton />}
-          <Separator className="my-8 bg-black" />
-          <div className="flex justify-center gap-1">
-            {/* <OurQualifications /> */}
+          <Separator className="mt-6 " />
+          <div className="flex justify-center items-center gap-1">
+            <OurQualifications data={resData} />
             <ConnectAndDetails DetailsData={resData} />
           </div>
           <Button
-            className="w-full font-semibold text-black bg-[#D9D9D9D6]"
+            className="w-full mt-1 font-semibold text-black bg-[#F2F2F2] hover:bg-[#F7F7F7] transition"
             onClick={handleModalchange}
           >
             Connect with provider
           </Button>
-          <Separator className="my-8 bg-black" />
+          <Separator className="my-9 " />
           <MyPortfolio PortfolioImages={resData} />
-          <Separator className="my-8 bg-black" />
-          <ProviderMap />
-          <div className="my-4">
-            <AgeGroups data={resData} />
-          </div>
-          .
-        </div>
-        <div className="col-span-2">
+          <Separator className="my-10 " />
+
           <Reviews data={resData} />
+
+          <Separator className="my-10 " />
+          <ProviderMap />
+          <Separator className="my-10 " />
+
+          <AgeGroups data={resData} />
         </div>
+        <div className="col-span-12"></div>
       </div>
     </div>
   );

@@ -43,7 +43,7 @@ export const ImageCarouselModal = ({
           <img
             src={images[currentIndex]}
             alt={`Image ${currentIndex + 1}`}
-            className="max-h-[70vh] max-w-full object-contain"
+            className="max-h-[70vh] max-w-full object-contain rounded-2xl"
           />
 
           <button onClick={handleNext} className="absolute right-4 text-black text-2xl z-10">

@@ -113,7 +113,7 @@ const DirectoryPage = () => {
   const locationCheck = useLocation();
 
   return (
-    <Fragment>
+    <div className="col-span-12">
       <div className="my-6 font-montserrat">
         {locationCheck?.pathname?.includes('directory') && (
           <div className="flex">
@@ -134,7 +134,7 @@ const DirectoryPage = () => {
           <DirectoryContent providers={directoryDiscoverProviders} />
         </div>
       </div>
-    </Fragment>
+    </div>
   );
 };
 

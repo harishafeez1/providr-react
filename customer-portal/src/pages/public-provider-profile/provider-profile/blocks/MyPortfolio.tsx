@@ -17,16 +17,16 @@ const MyPortfolio = ({ PortfolioImages }: any) => {
 
   return (
     <>
-      <h3 className="font-semibold">My Portfolio</h3>
+      <h2 className="font-bold text-xl my-6 text-[#222222]">My Portfolio</h2>
 
-      <div className="grid grid-cols-3 gap-2 rounded-2xl overflow-hidden h-[442px] my-2">
+      <div className="grid grid-cols-3 gap-1 rounded-[36px] overflow-hidden h-[442px] my-2">
         {images.slice(0, 3).map((src: string, idx: number) => (
           <div
             key={idx}
             className={`${idx === 0 ? 'col-span-2 row-span-2' : 'col-span-1'} cursor-pointer`}
             onClick={() => handleImageClick(idx)}
           >
-            <img src={src} alt="" className="w-full h-full object-cover" />
+            <img src={src} alt="" className="w-full h-full object-cover rounded-md" />
           </div>
         ))}
       </div>

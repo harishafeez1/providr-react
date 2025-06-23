@@ -19,7 +19,7 @@ const Main = () => {
       <div className="flex flex-col min-h-screen w-full">
         <div className="flex-1 px-4 sm:px-6 md:px-8 xl:px-12 4xl:px-0 max-w-[1824px] mx-auto w-full">
           <Header />
-          <main className="flex-1">
+          <main className="grid grid-cols-12">
             <Outlet />
           </main>
         </div>

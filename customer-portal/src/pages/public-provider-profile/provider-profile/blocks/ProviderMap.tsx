@@ -59,13 +59,14 @@ const MapControls = () => {
 const ProviderMap = () => {
   return (
     <div className="w-full">
+      <h2 className="font-bold text-xl my-6 text-[#222222]">My Locations</h2>
       <MapContainer
         center={[40.724716, -73.984789]}
         zoom={18}
         scrollWheelZoom={true}
         zoomControl={true}
         attributionControl={false}
-        className="rounded-xl w-full h-[400px]"
+        className="rounded-2xl w-full h-[400px]"
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" maxZoom={20} />
         <Marker position={[40.724716, -73.984789]} icon={customIcon} />

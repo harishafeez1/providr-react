@@ -9,7 +9,7 @@ const ServicesSection = ({ Services }: any) => {
   return (
     <>
       {Services?.service_offerings?.map((item: any) => (
-        <div key={item.id} className="mb-4">
+        <div key={item.id} className="mb-7">
           <div className="flex gap-6 items-center truncate me-6">
             <div className="space-y-2">
               {item.service.service_icon ? (
@@ -37,16 +37,17 @@ const ServicesSection = ({ Services }: any) => {
                         </div>
                       </div>
                     </DialogContent>
-                    6
                   </Dialog>
                 </div>
               ) : (
                 ''
               )}
             </div>
-            <div className="">
-              <h3 className="font-semibold">{item?.service?.name || ''}</h3>
-              <p className="text-sm break-words">{item?.description || ''}</p>
+            <div className="flex flex-col gap-1">
+              <h3 className="font-semibold ">{item?.service?.name || ''}</h3>
+              <p className="text-sm break-words text-[#6A6A6A] line-clamp-1">
+                {item?.description || ''}
+              </p>
               <div className="flex items-center">
                 <Dialog>
                   <DialogTrigger asChild>
@@ -64,7 +65,7 @@ const ServicesSection = ({ Services }: any) => {
                     <div className="grid grid-cols-2 p-4 items-start gap-4">
                       {Services?.access_method_collection?.map((option: any, index: number) => (
                         <div key={index} className="badge badge-gray-100 text-center">
-                          <div className="flex-1">{option}</div>
+                          <div className="flex-1 text-black font-semibold">{option}</div>
                         </div>
                       ))}
                     </div>
@@ -81,7 +82,7 @@ const ServicesSection = ({ Services }: any) => {
                     <div className="grid grid-cols-2 p-4 items-center gap-4">
                       {item?.service_available_options?.map((option: any, index: number) => (
                         <div key={index} className="badge badge-gray-100 text-center">
-                          <span>{option}</span>
+                          <span className="text-black font-semibold">{option}</span>
                         </div>
                       ))}
                     </div>
@@ -99,7 +100,7 @@ const ServicesSection = ({ Services }: any) => {
                       <div className="grid grid-cols-2 p-4 items-center gap-4">
                         {Services?.language_collection?.map((option: any, index: number) => (
                           <div key={index} className="badge badge-gray-100 text-center">
-                            <span>{option}</span>
+                            <span className="text-black font-semibold">{option}</span>
                           </div>
                         ))}
                       </div>

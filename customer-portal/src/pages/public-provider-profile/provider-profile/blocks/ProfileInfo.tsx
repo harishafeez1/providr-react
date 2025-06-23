@@ -13,7 +13,7 @@ const ProfileInfo = ({ ProfileData }: any) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const toggleFavorite = async () => {
     if (!auth?.token) {
-      toast.error('Please login to favorite this provider', { position: 'top-right' });
+      toast.error('Please log in to favourite this provider.', { position: 'top-right' });
     } else {
       await addFavouriteProvider(ProfileData?.id, auth?.customer?.id);
       setIsFavorite(!isFavorite);
@@ -26,9 +26,9 @@ const ProfileInfo = ({ ProfileData }: any) => {
     }
   }, [ProfileData?.is_favourite]);
   return (
-    <div className="flex flex-col items-center">
-      <div className="relative">
-        <div className="w-[259px] h-[181px] aspect-auto">
+    <div className="sticky flex flex-col items-center">
+      <div className="relative flex items-center">
+        <div className="w-[434px] h-[212px] aspect-auto">
           <img
             src={
               ProfileData?.photo_gallery?.[0]
@@ -36,11 +36,11 @@ const ProfileInfo = ({ ProfileData }: any) => {
                 : `${import.meta.env.VITE_APP_AWS_URL}/man-helping-woman-for-carrier.png`
             }
             alt=""
-            className="w-full h-full object-cover block"
+            className="w-full h-full object-cover block rounded-3xl"
           />
         </div>
         {ProfileData?.business_logo && (
-          <div className="w-[140px] h-[140px] overflow-hidden absolute left-14 top-28">
+          <div className="w-[86px] h-[86px] absolute left-[175px] top-[170px]">
             <img
               src={
                 ProfileData?.business_logo
@@ -48,32 +48,43 @@ const ProfileInfo = ({ ProfileData }: any) => {
                   : ''
               }
               alt=""
-              className="h-full w-full object-cover rounded-full"
+              className="h-full w-full object-cover rounded-full border-white border-2"
             />
           </div>
         )}
       </div>
-      <div className="text-2xl font-semibold mt-20 break-words w-80 flex justify-center">
+      <div className="text-2xl font-semibold mt-16 break-words w-80 text-center">
         {ProfileData?.name || ''}
       </div>
-      <div className="flex items-center my-2">
-        <Star size={20} className="text-black mb-1" />
-        <span className="ml-2 text-lg font-bold">{ProfileData?.average_rating} </span>
-        <span className="ml-2 text-lg font-bold">-</span>
-        <span className="ml-2 text-lg font-bold">{ProfileData?.total_reviews} reviews</span>
+      <div className="font-normal text-base text-[#6A6A6A] mt-5 break-words w-80 text-center">
+        Ride through Rome in a vintage Fiat 500, capturing authentic, fun moments.
       </div>
-      <div className="flex items-center space-x-4 mt-2">
-        <button className="flex items-center font-medium hover:underline" onClick={sharePage}>
-          <Share size={20} className="text-black font-bold" />
+      <div className="flex items-center text-[#222222] text-xs mt-5">
+        <Star size={11} fill="#222222" />
+        <span className="ml-2 font-bold">{ProfileData?.average_rating} </span>
+        <span className="ml-2 font-bold">-</span>
+        <span className="ml-2 font-bold">{ProfileData?.total_reviews} reviews</span>
+      </div>
+      <div className="flex items-center space-x-4 mt-5">
+        <button
+          onClick={sharePage}
+          className="flex items-center px-2 py-2 rounded-full font-medium hover:bg-gray-100 transition"
+        >
+          <Share size={16} className="text-black" />
         </button>
-        <button onClick={toggleFavorite} className="flex items-center font-medium hover:underline">
+
+        <button
+          onClick={toggleFavorite}
+          className="flex items-center px-2 py-2 font-medium hover:bg-gray-100 rounded-full transition"
+        >
           <Heart
-            size={20}
-            className={`text-black font-bold ${isFavorite ? 'fill-red-500 text-red-500' : ''}`}
+            size={16}
+            className={`text-black ${isFavorite ? 'fill-red-500 text-red-500' : ''}`}
           />
         </button>
       </div>
-      <div className="flex items-center space-x-6 mt-6">
+
+      {/* <div className="flex items-center space-x-6 mt-6">
         {ProfileData?.facebook_url ? (
           <a href={ProfileData?.facebook_url} target="_blank">
             <Facebook
@@ -121,13 +132,13 @@ const ProfileInfo = ({ ProfileData }: any) => {
         <div className="my-6">
           <img src={NDIS} alt="NDIS Registered" />
         </div>
-      )}
+      )} */}
 
-      <ScrollArea className="w-full h-[800px] p-4">
+      {/* <ScrollArea className="w-full h-[800px] p-4">
         <div className="ql-content text-[#7B7171]  mb-4 md:mb-0 mt-16">
           <div dangerouslySetInnerHTML={{ __html: ProfileData?.description || '' }}></div>
         </div>
-      </ScrollArea>
+      </ScrollArea> */}
     </div>
   );
 };

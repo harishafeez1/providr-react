@@ -5,12 +5,11 @@ import { Separator } from '@/components/ui/separator';
 
 const ProviderProfilePage = () => {
   return (
-    <>
-      <Separator className="my-4 bg-black" />
+    <div className="col-span-12">
       <Container>
         <ProviderProfileContent />
       </Container>
-    </>
+    </div>
   );
 };
 

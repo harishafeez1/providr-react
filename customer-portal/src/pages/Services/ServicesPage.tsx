@@ -12,9 +12,9 @@ const ServicesPage = () => {
   }, []);
 
   return (
-    <Fragment>
+    <div className="col-span-12">
       <ServicesContent />
-    </Fragment>
+    </div>
   );
 };
 

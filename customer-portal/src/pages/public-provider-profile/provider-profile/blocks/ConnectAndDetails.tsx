@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Eye, EyeOff, Facebook, Globe, Instagram, Mail, Phone } from 'lucide-react';
 import { useState } from 'react';
@@ -28,7 +28,7 @@ const ConnectAndDetails = ({ DetailsData }: any) => {
     setIsReviewModalOpen(false);
   };
   return (
-    <div className="flex-1">
+    <div className="flex-1 mt-16">
       <ConnectProviderModal open={isModalOpen} onOpenChange={handleModalClose} />
       <WriteAReviewModal
         open={isReviewModalOpen}
@@ -38,121 +38,114 @@ const ConnectAndDetails = ({ DetailsData }: any) => {
       <div className="p-6 z-10">
         <div className="flex justify-center flex-col gap-4 mb-4">
           <Button
-            variant={'outline'}
             onClick={handleReviewModalOpen}
-            className="font-semibold text-xs"
+            className="font-semibold text-xs text-black bg-[#F2F2F2] hover:bg-[#F7F7F7] transition"
           >
             Write A Review
           </Button>
 
-          <div className="flex gap-6 justify-center items-center border card-rounded p-2">
-            <Phone className="text-primary flex-shrink-0" size={18} />
-            <span className="truncate overflow-hidden whitespace-nowrap">
-              {(showPhoneNumber && (
-                <a
-                  href={`tel:${DetailsData?.company_phone}`}
-                  className="text-primary"
-                  title="Call this number"
-                >
-                  {DetailsData?.company_phone}
-                </a>
-              )) ||
-                '************'}
-            </span>
-            {!showPhoneNumber && DetailsData?.company_phone && (
-              <Eye
-                size={18}
-                onClick={() => setShowPhoneNumber(!showPhoneNumber)}
-                className="flex-shrink-0 text-primary cursor-pointer"
-              />
-            )}
-            {showPhoneNumber && (
-              <EyeOff
-                size={18}
-                onClick={() => setShowPhoneNumber(!showPhoneNumber)}
-                className="flex-shrink-0 text-primary cursor-pointer"
-              />
-            )}
+          <div className="grid grid-cols-12 gap-2 items-start">
+            <div className="col-span-2 flex items-start pt-1">
+              <Phone className="flex-shrink-0" strokeWidth={1.5} size={24} />
+            </div>
+            <div className="col-span-10 flex flex-col space-y-2">
+              <span className="text-sm font-semibold">Phone Number</span>
+
+              <div className="flex items-center justify-between pe-6 space-x-2">
+                <span className="truncate text-sm">
+                  {showPhoneNumber ? (
+                    <a
+                      href={`tel:${DetailsData?.company_phone}`}
+                      className="hover:underline text-primary"
+                      title="Call this number"
+                    >
+                      {DetailsData?.company_phone}
+                    </a>
+                  ) : (
+                    '************'
+                  )}
+                </span>
+
+                {DetailsData?.company_phone && !showPhoneNumber && (
+                  <Eye
+                    size={18}
+                    onClick={() => setShowPhoneNumber(true)}
+                    className="cursor-pointer hover:text-gray-600"
+                  />
+                )}
+                {showPhoneNumber && (
+                  <EyeOff
+                    size={18}
+                    onClick={() => setShowPhoneNumber(false)}
+                    className="cursor-pointer hover:text-gray-600"
+                  />
+                )}
+              </div>
+            </div>
           </div>
-          <div className="flex gap-6 justify-center items-center border card-rounded p-2">
-            <Mail className="text-primary flex-shrink-0" size={18} />
-            <span className="truncate overflow-hidden whitespace-nowrap">
-              {(showEmail && (
-                <a
-                  href={`mailto:${DetailsData?.company_email}?subject=Inquiry about ${DetailsData?.name} service&body=Hello, I am reaching out regarding your services.`}
-                  className="text-primary"
-                  title="Send email"
-                >
-                  {DetailsData?.company_email}
-                </a>
-              )) ||
-                '************'}
-            </span>
-            {!showEmail && DetailsData?.company_email && (
-              <Eye
-                size={18}
-                onClick={() => setShowEmail(!showEmail)}
-                className="flex-shrink-0 text-primary cursor-pointer"
-              />
-            )}
-            {showEmail && (
-              <EyeOff
-                size={18}
-                onClick={() => setShowEmail(!showEmail)}
-                className="flex-shrink-0 text-primary cursor-pointer"
-              />
-            )}
+          <div className="grid grid-cols-12 gap-2 items-start">
+            <div className="col-span-2 flex items-start pt-1">
+              <Mail className=" flex-shrink-0" strokeWidth={1.5} size={24} />
+            </div>
+            <div className="col-span-10 flex flex-col space-y-2">
+              <span className="text-sm font-semibold">Email</span>
+
+              <div className="flex items-center justify-between pe-6 space-x-2">
+                <span className="truncate text-sm">
+                  {(showEmail && (
+                    <ScrollArea className="w-[300px]">
+                      <a
+                        href={`mailto:${DetailsData?.company_email}?subject=Inquiry about ${DetailsData?.name} service&body=Hello, I am reaching out regarding your services.`}
+                        className="text-primary"
+                        title="Send email"
+                      >
+                        {DetailsData?.company_email}
+                      </a>
+                      <ScrollBar orientation="horizontal" className="mt-2" />
+                    </ScrollArea>
+                  )) ||
+                    '************'}
+                </span>
+
+                {!showEmail && DetailsData?.company_email && (
+                  <Eye
+                    size={18}
+                    onClick={() => setShowEmail(!showEmail)}
+                    className="cursor-pointer hover:text-gray-600"
+                  />
+                )}
+                {showEmail && (
+                  <EyeOff
+                    size={18}
+                    onClick={() => setShowEmail(!showEmail)}
+                    className="cursor-pointer hover:text-gray-600 shrink-0"
+                  />
+                )}
+              </div>
+            </div>
           </div>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex gap-6 justify-center items-center border card-rounded p-2">
-                  <Globe className="text-primary flex-shrink-0" size={18} />
-                  <span className="truncate overflow-hidden whitespace-nowrap">
-                    {DetailsData?.company_website ? (
+          <div className="grid grid-cols-12 gap-2 items-start">
+            <div className="col-span-2 flex items-start pt-1">
+              <Globe className=" flex-shrink-0" strokeWidth={1.5} size={24} />
+            </div>
+            <div className="col-span-10 flex flex-col space-y-2">
+              <span className="text-sm font-semibold">Website</span>
+
+              <div className="flex items-center justify-between pe-6 space-x-2">
+                <span className="truncate text-sm">
+                  {DetailsData?.company_website ? (
+                    <ScrollArea className="w-[300px]">
                       <a href={DetailsData?.company_website} target="_blank">
                         {DetailsData?.company_website}
                       </a>
-                    ) : (
-                      'N/A'
-                    )}
-                  </span>
-                </div>
-              </TooltipTrigger>
-              {DetailsData?.company_website && (
-                <TooltipContent>
-                  <p className="text-sm">{DetailsData?.company_website || 'N/A'}</p>
-                </TooltipContent>
-              )}
-            </Tooltip>
-          </TooltipProvider>
-
-          <div className="flex justify-around">
-            {DetailsData?.facebook_url ? (
-              <a
-                href={DetailsData.facebook_url}
-                className="cursor-pointer"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Facebook className="text-primary" size={22} />
-              </a>
-            ) : (
-              <Facebook className="text-primary" size={22} />
-            )}
-
-            {DetailsData?.instagram_url ? (
-              <a
-                href={DetailsData.instagram_url}
-                className="cursor-pointer"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Instagram className="text-primary" size={22} />
-              </a>
-            ) : (
-              <Instagram className="text-primary" size={22} />
-            )}
+                      <ScrollBar orientation="horizontal" className="mt-2" />
+                    </ScrollArea>
+                  ) : (
+                    'N/A'
+                  )}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
