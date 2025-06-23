@@ -25,19 +25,34 @@ const ProfileInfo = ({ ProfileData }: any) => {
       setIsFavorite(ProfileData.is_favourite);
     }
   }, [ProfileData?.is_favourite]);
+
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const imageUrl = ProfileData?.photo_gallery?.[0]
+    ? `${import.meta.env.VITE_APP_AWS_URL}/${ProfileData?.photo_gallery?.[0]}`
+    : null;
   return (
     <div className="sticky flex flex-col items-center">
       <div className="relative flex items-center">
         <div className="w-[300px] lg:w-[434px] h-[212px]">
-          <img
-            src={
-              ProfileData?.photo_gallery?.[0]
-                ? `${import.meta.env.VITE_APP_AWS_URL}/${ProfileData?.photo_gallery?.[0]}`
-                : `${import.meta.env.VITE_APP_AWS_URL}/man-helping-woman-for-carrier.png`
-            }
-            alt=""
-            className="w-full h-full object-cover block rounded-3xl"
-          />
+          {/* Skeleton fallback */}
+          {!imgLoaded && imageUrl && (
+            <div className="w-full h-full bg-gray-200 animate-pulse rounded-3xl" />
+          )}
+
+          {/* Render image if available */}
+          {imageUrl && (
+            <img
+              src={imageUrl}
+              alt=""
+              onLoad={() => setImgLoaded(true)}
+              className={`w-full h-full object-cover block rounded-3xl transition-opacity duration-500 ${
+                imgLoaded ? 'opacity-100' : 'opacity-0 absolute'
+              }`}
+            />
+          )}
+
+          {/* If imageUrl is null (no image), show static skeleton */}
+          {!imageUrl && <div className="w-full h-full bg-gray-200 animate-pulse rounded-3xl" />}
         </div>
         {ProfileData?.business_logo && (
           <div className="w-[86px] h-[86px] absolute left-[110px] lg:left-[175px] top-[170px]">

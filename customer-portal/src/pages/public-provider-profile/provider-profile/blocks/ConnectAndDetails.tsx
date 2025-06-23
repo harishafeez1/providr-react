@@ -106,7 +106,7 @@ const ConnectAndDetails = ({ DetailsData }: any) => {
                       <ScrollBar orientation="horizontal" className="mt-1" />
                     </ScrollArea>
                   ) : (
-                    <span className="text-sm text-gray-500">************</span>
+                    <span className="text-sm">************</span>
                   )}
                 </span>
                 <div className="pb-4">
