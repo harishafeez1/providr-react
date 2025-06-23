@@ -109,21 +109,22 @@ const ConnectAndDetails = ({ DetailsData }: any) => {
                     <span className="text-sm text-gray-500">************</span>
                   )}
                 </span>
-
-                {!showEmail && DetailsData?.company_email && (
-                  <Eye
-                    size={18}
-                    onClick={() => setShowEmail(!showEmail)}
-                    className="cursor-pointer hover:text-gray-600"
-                  />
-                )}
-                {showEmail && (
-                  <EyeOff
-                    size={18}
-                    onClick={() => setShowEmail(!showEmail)}
-                    className="cursor-pointer hover:text-gray-600 shrink-0"
-                  />
-                )}
+                <div className="pb-4">
+                  {!showEmail && DetailsData?.company_email && (
+                    <Eye
+                      size={18}
+                      onClick={() => setShowEmail(!showEmail)}
+                      className="cursor-pointer hover:text-gray-600"
+                    />
+                  )}
+                  {showEmail && (
+                    <EyeOff
+                      size={18}
+                      onClick={() => setShowEmail(!showEmail)}
+                      className="cursor-pointer hover:text-gray-600 shrink-0"
+                    />
+                  )}
+                </div>
               </div>
             </div>
           </div>

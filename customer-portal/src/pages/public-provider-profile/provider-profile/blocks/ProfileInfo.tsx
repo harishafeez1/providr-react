@@ -28,7 +28,7 @@ const ProfileInfo = ({ ProfileData }: any) => {
   return (
     <div className="sticky flex flex-col items-center">
       <div className="relative flex items-center">
-        <div className="w-[434px] h-[212px] aspect-auto">
+        <div className="w-[300px] lg:w-[434px] h-[212px]">
           <img
             src={
               ProfileData?.photo_gallery?.[0]
@@ -40,7 +40,7 @@ const ProfileInfo = ({ ProfileData }: any) => {
           />
         </div>
         {ProfileData?.business_logo && (
-          <div className="w-[86px] h-[86px] absolute left-[175px] top-[170px]">
+          <div className="w-[86px] h-[86px] absolute left-[110px] lg:left-[175px] top-[170px]">
             <img
               src={
                 ProfileData?.business_logo
