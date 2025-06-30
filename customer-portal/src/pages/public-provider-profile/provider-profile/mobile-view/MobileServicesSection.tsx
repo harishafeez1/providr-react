@@ -1,25 +1,27 @@
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTrigger } from '@/components/ui/dialog';
-
+import { useAppSelector } from '@/redux/hooks';
 import { MapPin } from 'lucide-react';
 import CarSvg from '/media/app/building-car.svg';
-import { CountriesFlags } from './CountriesFlags';
+import { CountriesFlags } from '../blocks';
 
-const ServicesSection = ({ Services }: any) => {
+const MobileServicesSection = () => {
+  const { providerProfile } = useAppSelector((state: any) => state.providerProfile);
+
   return (
     <>
-      {Services?.service_offerings?.map((item: any) => (
-        <div key={item.id} className="mb-7">
-          <div className="flex gap-6 items-center truncate me-6">
+      {providerProfile?.service_offerings?.map((item: any) => (
+        <div key={item.id} className="mb-5 text-black">
+          <div className="flex gap-5 items-center truncate me-6">
             <div className="space-y-2">
               {item.service.service_icon ? (
-                <div className="h-[133px] w-[136px] rounded-3xl overflow-hidden">
+                <div className="h-[104px] w-[104px] rounded-2xl overflow-hidden">
                   <Dialog>
                     <DialogTrigger asChild>
                       <img
                         src={`${import.meta.env.VITE_APP_AWS_URL}/service-images/${item.service.service_icon}`}
                         alt="service icon"
-                        className="w-full h-full object-cover rounded-3xl cursor-pointer"
+                        className="w-full h-full object-cover rounded-2xl cursor-pointer"
                       />
                     </DialogTrigger>
                     <DialogContent className="max-w-7xl font-montserrat text-black">
@@ -27,13 +29,13 @@ const ServicesSection = ({ Services }: any) => {
                         <img
                           src={`${import.meta.env.VITE_APP_AWS_URL}/service-images/${item.service.service_icon}`}
                           alt="service icon"
-                          className="w-full h-full object-cover rounded-3xl"
+                          className="w-full h-full object-cover rounded-2xl"
                         />
                         <div className="col-span-1 text-center">
                           <h3 className="font-semibold text-2xl mb-3">
                             {item?.service?.name || ''}
                           </h3>
-                          <div className="text-[#7B7171]">{item.description || ''}</div>
+                          <div className="text-[#7B7171] break-all">{item.description || ''}</div>
                         </div>
                       </div>
                     </DialogContent>
@@ -45,7 +47,7 @@ const ServicesSection = ({ Services }: any) => {
             </div>
             <div className="flex flex-col gap-1">
               <h3 className="font-semibold ">{item?.service?.name || ''}</h3>
-              <p className="text-sm break-words text-[#6A6A6A] line-clamp-1">
+              <p className="text-sm break-all overflow-hidden text-ellipsis whitespace-normal line-clamp-2 text-[#6A6A6A]">
                 {item?.description || ''}
               </p>
               <div className="flex items-center">
@@ -63,11 +65,13 @@ const ServicesSection = ({ Services }: any) => {
                   <DialogContent className="max-w-xl  font-montserrat text-black">
                     <DialogHeader className="text-lg font-bold">Access Methods</DialogHeader>
                     <div className="grid grid-cols-2 p-4 items-start gap-4">
-                      {Services?.access_method_collection?.map((option: any, index: number) => (
-                        <div key={index} className="badge badge-gray-100 text-center">
-                          <div className="flex-1 text-black font-semibold">{option}</div>
-                        </div>
-                      ))}
+                      {providerProfile?.access_method_collection?.map(
+                        (option: any, index: number) => (
+                          <div key={index} className="badge badge-gray-100 text-center">
+                            <div className="flex-1 text-black font-semibold">{option}</div>
+                          </div>
+                        )
+                      )}
                     </div>
                   </DialogContent>
                 </Dialog>
@@ -88,17 +92,17 @@ const ServicesSection = ({ Services }: any) => {
                     </div>
                   </DialogContent>
                 </Dialog>
-                <div className="">
+                {/* <div className="">
                   <Dialog>
                     <DialogTrigger asChild>
                       <div className="cursor-pointer">
-                        <CountriesFlags languages={Services?.language_collection || []} />
+                        <CountriesFlags languages={providerProfile?.language_collection || []} />
                       </div>
                     </DialogTrigger>
                     <DialogContent className="max-w-xl font-montserrat text-black">
                       <DialogHeader className="text-lg font-bold">Languages</DialogHeader>
                       <div className="grid grid-cols-2 p-4 items-center gap-4">
-                        {Services?.language_collection?.map((option: any, index: number) => (
+                        {providerProfile?.language_collection?.map((option: any, index: number) => (
                           <div key={index} className="badge badge-gray-100 text-center">
                             <span className="text-black font-semibold">{option}</span>
                           </div>
@@ -106,7 +110,7 @@ const ServicesSection = ({ Services }: any) => {
                       </div>
                     </DialogContent>
                   </Dialog>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
@@ -116,4 +120,4 @@ const ServicesSection = ({ Services }: any) => {
   );
 };
 
-export { ServicesSection };
+export { MobileServicesSection };

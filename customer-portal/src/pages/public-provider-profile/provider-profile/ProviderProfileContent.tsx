@@ -12,6 +12,8 @@ import { Separator } from '@/components/ui/separator';
 import { ProviderMap } from './blocks/ProviderMap';
 import { AgeGroups } from './blocks/AgeGroups';
 import { Reviews } from './blocks/Reviews';
+import { store } from '@/redux/store';
+import { setMobileProfileLoading, setProviderProfile } from '@/redux/slices/provider-profile-slice';
 
 const ProviderProfileContent = () => {
   const { id } = useParams();
@@ -21,11 +23,16 @@ const ProviderProfileContent = () => {
 
   useEffect(() => {
     const fetchProvider = async () => {
+      store.dispatch(setMobileProfileLoading(true));
       if (auth?.customer?.id) {
         const res = await getPublicProviderProfile(id, auth?.customer?.id);
+        store.dispatch(setProviderProfile(res));
+        store.dispatch(setMobileProfileLoading(false));
         setResData(res);
       } else {
         const res = await getPublicProviderProfile(id);
+        store.dispatch(setProviderProfile(res));
+        store.dispatch(setMobileProfileLoading(false));
         setResData(res);
       }
     };
@@ -69,7 +76,7 @@ const ProviderProfileContent = () => {
     <div className="min-h-screen bg-white text-black font-montserrat">
       <ConnectProviderModal open={isModalOpen} onOpenChange={handleModalchange} />
       {/* <ProviderDetailPage data={resData} loading={loading} /> */}
-      <div className="grid grid-cols-12 gap-10 my-2">
+      <div className="hidden md:grid grid-cols-12 gap-10 my-2">
         <div className="col-span-12 md:col-span-5">
           <div className="sticky top-44">
             <ProfileInfo ProfileData={resData} />

@@ -3,13 +3,15 @@ import servicesSlice from './slices/services-slice';
 import serviceRequestReducer from './slices/service-request-slice'
 import  directorySlice  from './slices/directory-slice';
 import  directoryListingSlice  from './slices/directory-listing-slice';
+import  providerProfileSlice  from './slices/provider-profile-slice';
 
 export const store = configureStore({
   reducer: {
     services: servicesSlice,
     serviceRequest: serviceRequestReducer,
     directory : directorySlice,
-    directoryListing: directoryListingSlice
+    directoryListing: directoryListingSlice,
+    providerProfile: providerProfileSlice
   }
 });
 
