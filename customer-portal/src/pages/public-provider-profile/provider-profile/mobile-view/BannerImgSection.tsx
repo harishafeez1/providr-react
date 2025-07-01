@@ -11,7 +11,7 @@ const BannerImgSection = () => {
     : null;
 
   return (
-    <div className="relative h-[200px]">
+    <div className="relative h-[200px] w-full max-w-full">
       {!imgLoaded && imageUrl && <div className="w-full h-full bg-gray-200 animate-pulse" />}
 
       {/* Render image if available */}
@@ -20,7 +20,7 @@ const BannerImgSection = () => {
           src={imageUrl}
           alt=""
           onLoad={() => setImgLoaded(true)}
-          className={`w-full h-full object-cover block transition-opacity duration-500 ${
+          className={`w-full h-full object-cover transition-opacity duration-500 ${
             imgLoaded ? 'opacity-100' : 'opacity-0 absolute'
           }`}
         />

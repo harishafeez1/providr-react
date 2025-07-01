@@ -10,7 +10,7 @@ const ProviderProfilePage = () => {
         <ProviderProfileContent />
       </Container>
 
-      <div className="md:hidden bg-[#f4f2ec] h-full">
+      <div className="md:hidden bg-[#f4f2ec] h-full overflow-x-hidden">
         <MobileProviderProfile />
       </div>
     </div>

@@ -438,7 +438,8 @@ module.exports = {
         'collapsible-up': {
           from: { height: 'var(--radix-collapsible-content-height)' },
           to: { height: 'o' }
-        }
+        },
+        
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -725,4 +726,6 @@ module.exports = {
     require('./src/plugins/components/apexcharts'),
     require('./src/plugins/components/leaflet')
   ]
+
+  
 };

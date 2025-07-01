@@ -22,9 +22,7 @@ const Main = () => {
         <div
           className={`flex-1 sm:px-6 md:px-8 xl:px-12 4xl:px-0 max-w-[1824px] mx-auto w-full ${isProviderProfile ? 'px-0' : 'px-4'}`}
         >
-          <div className="hidden md:block">
-            <Header />
-          </div>
+          <Header />
           <main className="grid grid-cols-12">
             <Outlet />
           </main>

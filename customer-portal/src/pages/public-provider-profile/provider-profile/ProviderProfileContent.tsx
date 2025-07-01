@@ -56,7 +56,7 @@ const ProviderProfileContent = () => {
     return (
       <div className="animate-pulse">
         {Array.from({ length: 4 }).map((_, index) => (
-          <div className="flex gap-4 items-center mb-4">
+          <div className="flex gap-4 items-center mb-4" key={index}>
             {/* Left box */}
             <div className="h-[120px] w-[140px] bg-gray-200 rounded-3xl" />
 

@@ -230,7 +230,9 @@ const Header = () => {
   const checkLoaction = useLocation();
 
   return (
-    <header className="sticky top-[2px] z-50 bg-white shadow-[0px_-50px_50px_0px_#ffffff] font-montserrat">
+    <header
+      className={`${checkLoaction.pathname.includes('provider-profile') ? 'hidden md:block' : ''} sticky top-[2px] z-50 bg-white shadow-[0px_-50px_50px_0px_#ffffff] font-montserrat`}
+    >
       <div className="mx-auto flex flex-col h-30 items-center justify-between md:px-0 px-8 pb-2 relative">
         {/* Logo */}
         <div className="flex justify-between pt-4 w-full ">

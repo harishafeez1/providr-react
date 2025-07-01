@@ -11,3 +11,4 @@ export * from './tooltip';
 export * from './alert';
 export * from './select';
 export * from './star-rating';
+export * from './ui/BottomModal';

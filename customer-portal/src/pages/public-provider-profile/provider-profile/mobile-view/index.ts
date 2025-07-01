@@ -5,3 +5,4 @@ export * from './MobileServicesSection';
 export * from './MobileQualifications';
 export * from './MobileMyPortfolio';
 export * from './MobileReviews';
+export * from './MobileAgeGroups';
