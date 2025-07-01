@@ -17,8 +17,36 @@ const MobileReviews = () => {
   };
   return (
     <div id="reviews" className="">
-      <BottomSheetDialog open={isOpen} onOpenChange={handleModalChange} className="h-[98vh]">
-        <div className="">content goes here</div>
+      <BottomSheetDialog open={isOpen} onOpenChange={handleModalChange} className="h-[97vh]">
+        <div className="max-h-[95vh] overflow-y-auto">
+          <h1 className="text-3xl font-bold flex items-center gap-2 mb-8">
+            <Star fill="black" />
+            <span className="">{providerProfile?.review_stats?.average_rating || 5}</span>
+          </h1>
+          <h1 className="text-xl font-semibold pb-[34px]">
+            {providerProfile?.review_stats?.total_reviews || 0} reviews
+          </h1>
+          {providerProfile?.reviews?.map((item: any) => (
+            <div key={item.id} className="text-sm pb-6">
+              <div className="flex gap-4">
+                <img src={PlaceholderImg} alt="" className="w-10 h-10 rounded-full" />
+                <div className="flex items-center mb-4">
+                  <div>
+                    <h3 className="font-semibold text-sm">{`${item.customer.first_name} ${item.customer.last_name || ''}`}</h3>
+                    <p className="text-gray-500 text-xs">{format(item.created_at, 'dd MM yyyy')}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center mt-2">
+                {Array.from({ length: Math.floor(item?.rating || 0) }).map((_, index) => (
+                  <Star key={index} fill="#222222" size={10} />
+                ))}
+              </div>
+              <p className="text-[#222222] mt-4 text-sm line-clamp-4">{item.content || ''}</p>
+              <div className="border-b border-gray-200 my-4"></div>
+            </div>
+          ))}
+        </div>
       </BottomSheetDialog>
       <div className="flex items-center mb-8">
         <Star size={18} fill="#262626" className="text-black" />
