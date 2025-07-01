@@ -36,14 +36,14 @@ const MobileQualifications = () => {
 
       <div className="">
         <ConnectProviderModal open={isModalOpen} onOpenChange={handleModalClose} />
-        <BottomSheetDialog open={isReviewModalOpen} onOpenChange={handleReviewModalClose}>
+        {/* <BottomSheetDialog open={isReviewModalOpen} onOpenChange={handleReviewModalClose}>
           <div className="">Content goes here</div>
-        </BottomSheetDialog>
-        {/* <WriteAReviewModal
+        </BottomSheetDialog> */}
+        <WriteAReviewModal
           open={isReviewModalOpen}
           onOpenChange={handleReviewModalClose}
           data={providerProfile}
-        /> */}
+        />
         <div className="">
           <div className="flex justify-center flex-col gap-4 mb-4">
             <Button

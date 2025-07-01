@@ -85,7 +85,7 @@ const ProviderProfileContent = () => {
         <div className="col-span-12 md:col-span-7">
           {resData ? <ServicesSection Services={resData} /> : <ServicesSkeleton />}
           <Separator className="mt-6 " />
-          <div className="flex justify-center items-center gap-1">
+          <div className="flex flex-col lg:flex-row justify-center items-center gap-1">
             <OurQualifications data={resData} />
             <ConnectAndDetails DetailsData={resData} />
           </div>

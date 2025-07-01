@@ -90,7 +90,7 @@ const MobileProviderProfile = () => {
 
   return (
     <>
-      <div className="grid grid-cols-12 font-montserrat ">
+      <div className="grid grid-cols-12 font-montserrat">
         <BottomSheetDialog open={isModalOpen} onOpenChange={handleModalchange} className="">
           <div className="">
             <form className="" onSubmit={formik.handleSubmit}>
@@ -220,12 +220,12 @@ const MobileProviderProfile = () => {
             </form>
           </div>
         </BottomSheetDialog>
-        {/* <ConnectProviderModal open={isModalOpen} onOpenChange={handleModalchange} /> */}
-        <div className="col-span-12 text-black mb-40">
-          <div className="relative">
+
+        <div className="col-span-12 text-black">
+          <div className="relative ">
             <BannerImgSection />
           </div>
-          <div className="card bg-white shadow-lg px-6 absolute top-[168px] rounded-[32px] pb-8 contain-layout w-screen ">
+          <div className="card bg-white shadow-lg px-6 sticky top-[168px] rounded-[32px] pb-8 contain-layout w-screen ">
             <div className="mb-2">
               <MobileProfileInfo />
             </div>
@@ -260,6 +260,7 @@ const MobileProviderProfile = () => {
               <MobileAgeGroups />
             </div>
           </div>
+          <div className="h-[100px]"></div>
         </div>
       </div>
     </>

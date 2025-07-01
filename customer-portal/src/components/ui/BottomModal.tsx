@@ -24,7 +24,7 @@ const BottomSheetDialog: React.FC<BottomSheetDialogProps> = ({
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent
         className={cn(
-          'h-[90vh] rounded-[32px] px-6 [&>[data-vaul-drawer-handle]]:hidden text-black',
+          'h-[90vh] rounded-t-[32px] px-6 [&>[data-vaul-drawer-handle]]:hidden text-black',
           className
         )}
       >
