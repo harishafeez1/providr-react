@@ -225,7 +225,7 @@ const MobileProviderProfile = () => {
           <div className="relative ">
             <BannerImgSection />
           </div>
-          <div className="card bg-white shadow-lg px-6 sticky top-[168px] rounded-[32px] pb-8 contain-layout w-screen ">
+          <div className="card bg-white -mt-[100px] shadow-lg px-6 sticky top-[168px] rounded-[32px] pb-8 contain-layout w-screen ">
             <div className="mb-2">
               <MobileProfileInfo />
             </div>
@@ -260,7 +260,7 @@ const MobileProviderProfile = () => {
               <MobileAgeGroups />
             </div>
           </div>
-          <div className="h-[100px]"></div>
+          <div className="h-[200px]"></div>
         </div>
       </div>
     </>
