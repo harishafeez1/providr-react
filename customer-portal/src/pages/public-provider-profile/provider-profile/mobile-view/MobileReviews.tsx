@@ -5,11 +5,21 @@ import { useAppSelector } from '@/redux/hooks';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+import { BottomSheetDialog } from '@/components';
 
 const MobileReviews = () => {
   const { providerProfile } = useAppSelector((state: any) => state.providerProfile);
+
+  const [isOpen, setIsOpen] = useState(false);
+  const handleModalChange = () => {
+    setIsOpen(!isOpen);
+  };
   return (
     <div id="reviews" className="">
+      <BottomSheetDialog open={isOpen} onOpenChange={handleModalChange} className="h-[98vh]">
+        <div className="">content goes here</div>
+      </BottomSheetDialog>
       <div className="flex items-center mb-8">
         <Star size={18} fill="#262626" className="text-black" />
         <span className="ml-2 text-xl font-semibold">
@@ -50,7 +60,10 @@ const MobileReviews = () => {
         <ScrollBar orientation="horizontal" className="" />
       </ScrollArea>
 
-      <Button className="w-full font-semibold text-black bg-[#F2F2F2] hover:bg-[#F7F7F7] transition mt-4">
+      <Button
+        className="w-full font-semibold text-black bg-[#F2F2F2] hover:bg-[#F7F7F7] transition mt-4"
+        onClick={handleModalChange}
+      >
         Show all reviews
       </Button>
     </div>

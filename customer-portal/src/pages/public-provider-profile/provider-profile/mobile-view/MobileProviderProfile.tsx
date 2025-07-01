@@ -95,9 +95,9 @@ const MobileProviderProfile = () => {
           <div className="">
             <form className="" onSubmit={formik.handleSubmit}>
               <div className="py-4">
-                <div className="flex flex-col gap-2">
-                  <div>{`Contact ${providerProfile?.name || ''}`}</div>
-                  <div>{`${providerProfile?.name || ''} will reach out via your preferred contact method.`}</div>
+                <div className="flex items-center flex-col gap-2">
+                  <div className="font-semibold">{`Contact ${providerProfile?.name || ''}`}</div>
+                  <div className="text-[#6c6c6c] text-xs">{`${providerProfile?.name || ''} will reach out via your preferred contact method.`}</div>
                 </div>
               </div>
               <div className="p-5 flex flex-col justify-center">

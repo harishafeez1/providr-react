@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import React, { useState } from 'react';
 import { ConnectProviderModal, WriteAReviewModal } from '../blocks';
+import { BottomSheetDialog } from '@/components';
 
 const MobileQualifications = () => {
   const { providerProfile } = useAppSelector((state: any) => state.providerProfile);
@@ -35,11 +36,14 @@ const MobileQualifications = () => {
 
       <div className="">
         <ConnectProviderModal open={isModalOpen} onOpenChange={handleModalClose} />
-        <WriteAReviewModal
+        <BottomSheetDialog open={isReviewModalOpen} onOpenChange={handleReviewModalClose}>
+          <div className="">Content goes here</div>
+        </BottomSheetDialog>
+        {/* <WriteAReviewModal
           open={isReviewModalOpen}
           onOpenChange={handleReviewModalClose}
           data={providerProfile}
-        />
+        /> */}
         <div className="">
           <div className="flex justify-center flex-col gap-4 mb-4">
             <Button
