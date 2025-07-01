@@ -88,12 +88,14 @@ const MobileReviews = () => {
         <ScrollBar orientation="horizontal" className="" />
       </ScrollArea>
 
-      <Button
-        className="w-full font-semibold text-black bg-[#F2F2F2] hover:bg-[#F7F7F7] transition mt-4"
-        onClick={handleModalChange}
-      >
-        Show all reviews
-      </Button>
+      {providerProfile?.total_reviews > 0 && (
+        <Button
+          className="w-full font-semibold text-black bg-[#F2F2F2] hover:bg-[#F7F7F7] transition mt-4"
+          onClick={handleModalChange}
+        >
+          Show all reviews
+        </Button>
+      )}
     </div>
   );
 };
