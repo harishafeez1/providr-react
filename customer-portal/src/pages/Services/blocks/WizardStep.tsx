@@ -29,6 +29,9 @@ import { getAuth, useAuthContext } from '@/auth';
 import { getStoreRequest } from '@/services/api/service-requests';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import ProgressBar from './ProgressBar';
+import { Modal, ModalBody, ModalContent, ModalHeader } from '@/components';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Link } from 'react-router-dom';
 
 export default function AirbnbWizard() {
   const { selectedServiceId, serviceLocation, participantData, wizardData } = useAppSelector(
@@ -37,9 +40,14 @@ export default function AirbnbWizard() {
   const { auth, currentUser, setCurrentUser, getUser, saveAuth } = useAuthContext();
   const [finishLoading, setFinishLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const [currentStep, setCurrentStep] = useState(0);
   const [availableProvidersCount, setAvailableProvidersCount] = useState(0);
+
+  const toggleModal = () => {
+    setShowModal(!showModal);
+  };
 
   const steps = [
     {
@@ -67,14 +75,17 @@ export default function AirbnbWizard() {
   const handleStroeRequest = async () => {
     const hasToken = getAuth()?.token;
     const payload = hasToken ? { ...wizardData, customer_id: currentUser?.id } : wizardData;
+    if (availableProvidersCount === 0) {
+      toggleModal();
+    } else {
+      setFinishLoading(true);
+      const res = await getStoreRequest(payload);
 
-    setFinishLoading(true);
-    const res = await getStoreRequest(payload);
-
-    if (res) {
-      setFinishLoading(false);
-      store.dispatch(setResetServiceState());
-      setCurrentStep(0);
+      if (res) {
+        setFinishLoading(false);
+        store.dispatch(setResetServiceState());
+        setCurrentStep(0);
+      }
     }
   };
 
@@ -111,30 +122,58 @@ export default function AirbnbWizard() {
   useEffect(() => {
     //apicall
     if (currentStep !== 0) {
-      setAvailableProvidersCount((prev) => prev + 1);
+      // setAvailableProvidersCount((prev) => prev + 1);
     }
   }, [currentStep]);
 
   return (
-    <div className="max-w-3xl mx-auto p-4 md:p-6">
-      <Card className="border-none shadow-lg">
-        <CardHeader className="pb-0">
-          {/* <ProgressBar currentStep={currentStep} steps={4} /> */}
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-xl font-semibold text-gray-900">Find Services</h1>
-
-            <div className="flex items-center gap-6 ">
-              <div className="font-semibold">Available Providers</div>
-              <div className="border-primary rounded-full border-2 font-semibold px-2">
-                {availableProvidersCount}
-              </div>
+    <>
+      <Dialog open={showModal} onOpenChange={toggleModal}>
+        <DialogContent className="p-8">
+          <div className="flex flex-col gap-4 justify-center items-center">
+            <img
+              src={`${import.meta.env.VITE_APP_AWS_URL}/man-helping-woman-for-carrier.png`}
+              className="object-cover h-60"
+            />
+            <div className="text-center text-lg font-semibold text-black">
+              Unfortunately, we are unable to locate any providers who can meet your current
+              requirements.
+            </div>
+            <div className="text-pretty text-sm text-gray-700">
+              Please consider modifying your requirements or browse our directory of providers to
+              find a suitable match.
+            </div>
+            <div className="flex justify-center gap-6">
+              {/* <Link className="btn btn-primary" to={'/directory'}>
+                Browse Directory
+              </Link> */}
+              <Link className="btn btn-primary" to={'/directory'}>
+                Browse Directory
+              </Link>
             </div>
           </div>
-          <div className="flex justify-between mb-8">
-            {steps.map((step, index) => (
-              <div key={index} className="flex flex-col items-center">
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center mb-2
+        </DialogContent>
+      </Dialog>
+
+      <div className="max-w-3xl mx-auto p-4 md:p-6">
+        <Card className="border-none shadow-lg">
+          <CardHeader className="pb-0">
+            {/* <ProgressBar currentStep={currentStep} steps={4} /> */}
+            <div className="flex justify-between items-center mb-6">
+              <h1 className="text-xl font-semibold text-gray-900">Find Services</h1>
+
+              <div className="flex items-center gap-6 ">
+                <div className="font-semibold">Available Providers</div>
+                <div className="border-primary rounded-full border-2 font-semibold px-2">
+                  {availableProvidersCount}
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-between mb-8">
+              {steps.map((step, index) => (
+                <div key={index} className="flex flex-col items-center">
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center mb-2
                     ${
                       index < currentStep
                         ? 'bg-primary text-white'
@@ -142,47 +181,47 @@ export default function AirbnbWizard() {
                           ? 'border-2 border-primary text-primary'
                           : 'border-2 border-gray-300 text-gray-300'
                     }`}
-                >
-                  {index < currentStep ? <Check className="w-4 h-4" /> : <span>{index + 1}</span>}
-                </div>
-                <span
-                  className={`text-xs hidden md:block
+                  >
+                    {index < currentStep ? <Check className="w-4 h-4" /> : <span>{index + 1}</span>}
+                  </div>
+                  <span
+                    className={`text-xs hidden md:block
                     ${index <= currentStep ? 'text-gray-900' : 'text-gray-400'}`}
-                >
-                  {step.title}
-                </span>
-              </div>
-            ))}
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="py-4">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">{steps[currentStep].title}</h2>
-            <p className="text-gray-500 mb-6">{steps[currentStep].description}</p>
-            {steps[currentStep].component}
-          </div>
-        </CardContent>
-        <CardFooter className=" py-6 flex justify-between">
-          <Button
-            variant="outline"
-            onClick={prevStep}
-            disabled={currentStep === 0}
-            className="btn btn-secondary"
-          >
-            <ChevronLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
-          <div className="relative">
+                  >
+                    {step.title}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="py-4">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">{steps[currentStep].title}</h2>
+              <p className="text-gray-500 mb-6">{steps[currentStep].description}</p>
+              {steps[currentStep].component}
+            </div>
+          </CardContent>
+          <CardFooter className=" py-6 flex justify-between">
             <Button
-              onClick={nextStep}
-              disabled={currentStep === steps.length || isNextDisabled() || finishLoading}
-              className="btn btn-primary "
+              variant="outline"
+              onClick={prevStep}
+              disabled={currentStep === 0}
+              className="btn btn-secondary"
             >
-              {currentStep === steps.length - 1 ? 'Complete' : 'Next'}
-              {/* <ChevronRight className="w-4 h-4 ml-2" /> */}
+              <ChevronLeft className="w-4 h-4 mr-2" />
+              Back
             </Button>
+            <div className="relative">
+              <Button
+                onClick={nextStep}
+                disabled={currentStep === steps.length || isNextDisabled() || finishLoading}
+                className="btn btn-primary "
+              >
+                {currentStep === steps.length - 1 ? 'Complete' : 'Next'}
+                {/* <ChevronRight className="w-4 h-4 ml-2" /> */}
+              </Button>
 
-            {/* {currentStep === steps.length - 1 && !getAuth()?.token && (
+              {/* {currentStep === steps.length - 1 && !getAuth()?.token && (
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger className="">
@@ -200,10 +239,11 @@ export default function AirbnbWizard() {
                 </Tooltip>
               </TooltipProvider>
             )} */}
-          </div>
-        </CardFooter>
-      </Card>
-    </div>
+            </div>
+          </CardFooter>
+        </Card>
+      </div>
+    </>
   );
 }
 function BasicInfoStep() {
