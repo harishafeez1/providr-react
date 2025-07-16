@@ -28,6 +28,7 @@ import {
 import { getAuth, useAuthContext } from '@/auth';
 import { getStoreRequest } from '@/services/api/service-requests';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import ProgressBar from './ProgressBar';
 
 export default function AirbnbWizard() {
   const { selectedServiceId, serviceLocation, participantData, wizardData } = useAppSelector(
@@ -38,6 +39,7 @@ export default function AirbnbWizard() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const [currentStep, setCurrentStep] = useState(0);
+  const [availableProvidersCount, setAvailableProvidersCount] = useState(0);
 
   const steps = [
     {
@@ -83,7 +85,7 @@ export default function AirbnbWizard() {
       case 1:
         return !serviceLocation?.address; // Disable if location is not selected
       case 2:
-        return !participantData.first_name || !participantData.email || !participantData.phone; // Disable if participant info is incomplete
+        return !participantData.first_name || !participantData.email || !participantData.phone;
       case 3:
         return wizardData?.length <= 0;
       default:
@@ -106,12 +108,27 @@ export default function AirbnbWizard() {
     }
   };
 
+  useEffect(() => {
+    //apicall
+    if (currentStep !== 0) {
+      setAvailableProvidersCount((prev) => prev + 1);
+    }
+  }, [currentStep]);
+
   return (
     <div className="max-w-3xl mx-auto p-4 md:p-6">
       <Card className="border-none shadow-lg">
         <CardHeader className="pb-0">
+          {/* <ProgressBar currentStep={currentStep} steps={4} /> */}
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-xl font-semibold text-gray-900">Find Services</h1>
+
+            <div className="flex items-center gap-6 ">
+              <div className="font-semibold">Available Providers</div>
+              <div className="border-primary rounded-full border-2 font-semibold px-2">
+                {availableProvidersCount}
+              </div>
+            </div>
           </div>
           <div className="flex justify-between mb-8">
             {steps.map((step, index) => (
@@ -190,7 +207,7 @@ export default function AirbnbWizard() {
   );
 }
 function BasicInfoStep() {
-  const { transformedServicesList } = useAppSelector((state) => state.services);
+  const { transformedServicesList, selectedServiceId } = useAppSelector((state) => state.services);
 
   return (
     <div className="space-y-6">
@@ -198,6 +215,9 @@ function BasicInfoStep() {
         <h3 className="text-lg font-semibold pb-2">Service Information</h3>
         <div className="flex items-baseline flex-wrap gap-2.5 mb-4">
           <ReactSelect
+            defaultValue={transformedServicesList.find(
+              (item: any) => item.value === selectedServiceId
+            )}
             options={transformedServicesList}
             onChange={(item: any) => store.dispatch(setSelectedServiceId(item.value))}
             className="w-full text-sm"
@@ -209,6 +229,22 @@ function BasicInfoStep() {
 }
 
 function LocationStep() {
+  const { serviceLocation } = useAppSelector((state) => state.services);
+
+  const defaultValue = serviceLocation?.address
+    ? {
+        label: serviceLocation.address,
+        value: {
+          place_id: '',
+          description: serviceLocation?.address,
+          structured_formatting: {
+            main_text: serviceLocation?.city || '',
+            secondary_text: serviceLocation?.state || ''
+          }
+        }
+      }
+    : null;
+
   const handleLocationChange = async (address: any) => {
     let location: {
       latitude?: string;
@@ -247,14 +283,21 @@ function LocationStep() {
               console.error('Could not load google places autocomplete', err);
             }}
             autocompletionRequest={{
+              // location: userLocation ?? undefined,
+              // radius: 20000,
               componentRestrictions: {
-                country: 'aus'
-              }
+                country: 'au'
+              },
+              types: ['(regions)']
+            }}
+            apiOptions={{
+              region: 'AU'
             }}
             selectProps={{
               isClearable: true,
               placeholder: 'Search for a place',
-              onChange: handleLocationChange
+              onChange: handleLocationChange,
+              defaultValue: defaultValue
             }}
           />
         </div>
@@ -303,6 +346,7 @@ function PhotosStep() {
           className="input w-full"
           placeholder="First name"
           type="text"
+          defaultValue={participantData?.first_name || ''}
           onChange={(e) => handleChange('first_name', e.target.value)}
         />
         {errors?.first_name && <p className="text-red-500 text-sm">{errors?.first_name}</p>}
@@ -314,6 +358,7 @@ function PhotosStep() {
           className="input w-full"
           placeholder="Last name"
           type="text"
+          defaultValue={participantData?.last_name || ''}
           onChange={(e) => handleChange('last_name', e.target.value)}
         />
         {errors?.last_name && <p className="text-red-500 text-sm">{errors?.last_name}</p>}
@@ -321,7 +366,10 @@ function PhotosStep() {
 
       <div className="flex items-baseline flex-wrap gap-2.5 mb-4">
         <label className="form-label flex items-center gap-1 max-w-56">Gender</label>
-        <Select onValueChange={(item) => handleChange('gender', item)}>
+        <Select
+          onValueChange={(item) => handleChange('gender', item)}
+          defaultValue={participantData?.gender || ''}
+        >
           <SelectTrigger>
             <SelectValue placeholder="Select a Gender" />
           </SelectTrigger>
@@ -342,6 +390,7 @@ function PhotosStep() {
           className="input w-full"
           placeholder="abc@gmail.com"
           type="email"
+          defaultValue={participantData?.email || ''}
           onChange={(e) => handleChange('email', e.target.value)}
         />
         {errors?.email && <p className="text-red-500 text-sm">{errors?.email}</p>}
@@ -352,6 +401,7 @@ function PhotosStep() {
         <input
           className="input w-full"
           type="text"
+          defaultValue={participantData?.phone || ''}
           onChange={(e) => handleChange('phone', e.target.value)}
         />
         {errors?.phone && <p className="text-red-500 text-sm">{errors?.phone}</p>}
@@ -361,7 +411,18 @@ function PhotosStep() {
 }
 
 function PricingStep() {
-  const [selectedAge, setSelectedAge] = useState<string>('Mature Age (60+ years)');
+  const { serviceDetails } = useAppSelector((state) => state.services);
+
+  const ageOptions = [
+    'Mature Age (60+ years)',
+    'Adults (22-59 years)',
+    'Young people (17-21 years)',
+    'Children (8-16 years)',
+    'Early Childhood (0-7 years)'
+  ];
+  const initialAge =
+    serviceDetails && serviceDetails.length > 0 ? serviceDetails[0] : ageOptions[0];
+  const [selectedAge, setSelectedAge] = useState<string>(initialAge);
 
   useEffect(() => {
     store.dispatch(setServiceDetails([selectedAge]));
@@ -371,14 +432,6 @@ function PricingStep() {
   const handleSelection = (age: string) => {
     setSelectedAge(age);
   };
-
-  const ageOptions = [
-    'Mature Age (60+ years)',
-    'Adults (22-59 years)',
-    'Young people (17-21 years)',
-    'Children (8-16 years)',
-    'Early Childhood (0-7 years)'
-  ];
 
   return (
     <div className="space-y-6">
