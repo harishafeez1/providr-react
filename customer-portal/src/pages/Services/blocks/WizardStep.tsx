@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Check, ChevronLeft, ChevronRight, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
@@ -32,6 +32,7 @@ import ProgressBar from './ProgressBar';
 import { Modal, ModalBody, ModalContent, ModalHeader } from '@/components';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Link } from 'react-router-dom';
+import { getProviderCount } from '@/services/api/directory';
 
 export default function AirbnbWizard() {
   const { selectedServiceId, serviceLocation, participantData, wizardData } = useAppSelector(
@@ -39,8 +40,9 @@ export default function AirbnbWizard() {
   );
   const { auth, currentUser, setCurrentUser, getUser, saveAuth } = useAuthContext();
   const [finishLoading, setFinishLoading] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [countQuery, setCountQuery] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [countLoading, setCountLoading] = useState(false);
 
   const [currentStep, setCurrentStep] = useState(0);
   const [availableProvidersCount, setAvailableProvidersCount] = useState(0);
@@ -120,11 +122,34 @@ export default function AirbnbWizard() {
   };
 
   useEffect(() => {
-    //apicall
-    if (currentStep !== 0) {
-      // setAvailableProvidersCount((prev) => prev + 1);
+    const fetchProviderCount = async () => {
+      if (!selectedServiceId || currentStep === 0 || currentStep > 2) return;
+
+      const location = serviceLocation?.address?.trim()?.split(' ')[0]?.toLowerCase() || '';
+      const query = location
+        ? `service_id=${selectedServiceId}&location=${location}`
+        : `service_id=${selectedServiceId}`;
+
+      setCountLoading(true);
+      try {
+        const res = await getProviderCount(query);
+        setAvailableProvidersCount(res);
+      } catch (error) {
+        console.error('Error fetching provider count:', error);
+        setAvailableProvidersCount(0);
+      } finally {
+        setCountLoading(false);
+      }
+    };
+
+    fetchProviderCount();
+  }, [selectedServiceId, serviceLocation.address, currentStep]);
+
+  useEffect(() => {
+    if (availableProvidersCount === 0) {
+      toggleModal();
     }
-  }, [currentStep]);
+  }, [availableProvidersCount]);
 
   return (
     <>
@@ -164,9 +189,13 @@ export default function AirbnbWizard() {
 
               <div className="flex items-center gap-6 ">
                 <div className="font-semibold">Available Providers</div>
-                <div className="border-primary rounded-full border-2 font-semibold px-2">
-                  {availableProvidersCount}
-                </div>
+                {countLoading ? (
+                  <div className="rounded-full h-3 w-3 bg-primary animate-ping mx-3"></div>
+                ) : (
+                  <div className="border-primary rounded-full border-2 font-semibold px-2">
+                    {availableProvidersCount}
+                  </div>
+                )}
               </div>
             </div>
             <div className="flex justify-between mb-8">
@@ -286,6 +315,9 @@ function LocationStep() {
     : null;
 
   const handleLocationChange = async (address: any) => {
+    if (!address) {
+      store.dispatch(setServiceLocation(''));
+    }
     let location: {
       latitude?: string;
       longitude?: string;
