@@ -146,7 +146,7 @@ export default function AirbnbWizard() {
   }, [selectedServiceId, serviceLocation.address, currentStep]);
 
   useEffect(() => {
-    if (availableProvidersCount === 0) {
+    if (availableProvidersCount === 0 && currentStep !== 0) {
       toggleModal();
     }
   }, [availableProvidersCount]);

@@ -1,7 +1,7 @@
 import { Facebook, Heart, Instagram, Share, Star, Twitter } from 'lucide-react';
 import NDIS from '/media/brand-logos/NDIS-Provider.png';
 import { useAuthContext } from '@/auth';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { addFavouriteProvider } from '@/services/api/wishlist-favourite';
 import { toast } from 'sonner';
 import useSharePageUrl from '@/hooks/useShareUrl';
@@ -11,6 +11,9 @@ const ProfileInfo = ({ ProfileData }: any) => {
   const { auth } = useAuthContext();
   const { sharePage, isShareSupported } = useSharePageUrl();
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [showViewMore, setShowViewMore] = useState(false);
+  const descriptionRef = useRef<HTMLDivElement>(null);
   const toggleFavorite = async () => {
     if (!auth?.token) {
       toast.error('Please log in to favourite this provider.', { position: 'top-right' });
@@ -25,6 +28,21 @@ const ProfileInfo = ({ ProfileData }: any) => {
       setIsFavorite(ProfileData.is_favourite);
     }
   }, [ProfileData?.is_favourite]);
+
+  useEffect(() => {
+    const checkTextOverflow = () => {
+      if (descriptionRef.current && ProfileData?.description) {
+        const element = descriptionRef.current;
+        const lineHeight = parseInt(getComputedStyle(element).lineHeight);
+        const maxHeight = lineHeight * 2; // Allow 2 lines
+        setShowViewMore(element.scrollHeight > maxHeight);
+      }
+    };
+
+    checkTextOverflow();
+    window.addEventListener('resize', checkTextOverflow);
+    return () => window.removeEventListener('resize', checkTextOverflow);
+  }, [ProfileData?.description]);
 
   const [imgLoaded, setImgLoaded] = useState(false);
   const imageUrl = ProfileData?.photo_gallery?.[0]
@@ -71,8 +89,22 @@ const ProfileInfo = ({ ProfileData }: any) => {
       <div className="text-2xl font-semibold mt-16 break-words w-80 text-center">
         {ProfileData?.name || ''}
       </div>
-      <div className="font-normal text-base text-[#6A6A6A] mt-5 break-words w-80 text-center">
-        Ride through Rome in a vintage Fiat 500, capturing authentic, fun moments.
+      <div className="mt-5 w-80 text-center">
+        <div
+          ref={descriptionRef}
+          className={`font-normal text-base text-[#6A6A6A] break-words ql-content ${
+            isDescriptionExpanded ? '' : 'line-clamp-2'
+          }`}
+          dangerouslySetInnerHTML={{ __html: ProfileData?.description || '' }}
+        />
+        {showViewMore && (
+          <button
+            onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+            className="text-xs text-primary hover:text-primary-800 mt-2"
+          >
+            {isDescriptionExpanded ? 'View less' : 'View more'}
+          </button>
+        )}
       </div>
       <div className="flex items-center text-[#222222] text-xs mt-5">
         <Star size={11} fill="#222222" />
