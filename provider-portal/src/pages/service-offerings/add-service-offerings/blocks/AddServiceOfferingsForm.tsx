@@ -156,7 +156,7 @@ const AddServiceOfferingsForm = () => {
                 </label>
               </div>
               <p className="text-xs text-pretty">
-                ⚠️This service offering will undergo a manual vetting process. Providers will be
+                This service offering will undergo a manual vetting process. Providers will be
                 contacted by our review manager to verify suitability, including a review of your
                 service capacity, staff readiness, and emergency protocols.
               </p>

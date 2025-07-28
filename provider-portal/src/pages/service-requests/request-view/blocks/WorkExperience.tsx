@@ -21,7 +21,7 @@ const WorkExperience = ({ data }: any) => {
   const handleContactedUser = async () => {
     if (!currentUser) return;
     if (currentUser?.provider_company_id) {
-      await getContactedServiceRequest(currentUser?.provider_company_id, data?.id);
+      const res = await getContactedServiceRequest(currentUser?.provider_company_id, data?.id);
     }
   };
 
@@ -58,7 +58,7 @@ const WorkExperience = ({ data }: any) => {
               }}
               className=""
             >
-              Revel Information
+              Reveal Information
             </Button>
           )}{' '}
         </div>
