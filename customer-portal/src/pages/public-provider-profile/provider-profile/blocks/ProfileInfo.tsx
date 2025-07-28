@@ -81,7 +81,7 @@ const ProfileInfo = ({ ProfileData }: any) => {
                   : ''
               }
               alt=""
-              className="h-full w-full object-cover rounded-full border-white border-2"
+              className="h-full w-full object-cover rounded-full border-white border-3"
             />
           </div>
         )}
