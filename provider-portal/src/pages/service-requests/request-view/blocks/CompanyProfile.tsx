@@ -19,13 +19,18 @@ const CompanyProfile = ({ data }: any) => {
         <h3 className="card-title">Requested Service</h3>
       </div>
       <div className="card-body">
-        <h3 className="text-base font-semibold text-gray-900 leading-none mb-5">
+        <h3 className="text-base font-semibold text-primary leading-none mb-5">
           {data?.service?.name || ''}
         </h3>
 
-        <div className="grid gap-2.5 mb-7">
-          <p className="text-sm text-gray-800 leading-5.5">{data?.description || ''}</p>
-        </div>
+        {data?.description && (
+          <div className="grid gap-2.5 mb-7">
+            <h3 className="text-base text-center font-semibold text-gray-900 leading-none ">
+              Customer Service Request Description
+            </h3>
+            <p className="text-sm text-gray-800 leading-5.5">{data?.description || ''}</p>
+          </div>
+        )}
       </div>
     </div>
   );

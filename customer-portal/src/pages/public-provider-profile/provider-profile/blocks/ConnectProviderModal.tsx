@@ -154,6 +154,19 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
                       </span>
                     )}
                   </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="form-label text-gray-900">Short Description</label>
+                    <Textarea
+                      name="description"
+                      placeholder="Tell us about your service request"
+                      onChange={(e) => formik.setFieldValue('description', e.target.value)}
+                    />
+                    {formik.touched.description && formik.errors.description && (
+                      <span role="alert" className="text-danger text-xs mt-1">
+                        {formik.errors.description}
+                      </span>
+                    )}
+                  </div>
 
                   <div className="flex flex-col gap-1">
                     <label className="form-label text-gray-900">Full Name</label>
@@ -166,19 +179,6 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
                     {formik.touched.first_name && formik.errors.first_name && (
                       <span role="alert" className="text-danger text-xs mt-1">
                         {formik.errors.first_name}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="form-label text-gray-900">Short Description</label>
-                    <Textarea
-                      name="description"
-                      placeholder="Tell us about your service request"
-                      onChange={(e) => formik.setFieldValue('description', e.target.value)}
-                    />
-                    {formik.touched.description && formik.errors.description && (
-                      <span role="alert" className="text-danger text-xs mt-1">
-                        {formik.errors.description}
                       </span>
                     )}
                   </div>

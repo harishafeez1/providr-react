@@ -26,7 +26,7 @@ const profileSchema = Yup.object().shape({
   first_name: Yup.string().required('First name is required'),
   last_name: Yup.string().required('Last name is required'),
   phone: Yup.string().required('Phone number is required'),
-  dob: Yup.date().required('Date of birth is required'),
+  dob: Yup.string().required('Date of birth is required'),
   ndis_number: Yup.string().required('NDIS number is required'),
   ndis_plan_type: Yup.string().required('NDIS type is required'),
   ndis_plan_date: Yup.string().required('NDIS plan date is required'),
@@ -34,7 +34,8 @@ const profileSchema = Yup.object().shape({
     .email('Wrong email format')
     .min(3, 'Minimum 3 symbols')
     .max(50, 'Maximum 50 symbols')
-    .required('Email is required')
+    .required('Email is required'),
+  password: Yup.string().optional()
 });
 
 const BasicSettings = ({ title }: IGeneralSettingsProps) => {
@@ -67,7 +68,11 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
     initialValues,
     validationSchema: profileSchema,
     onSubmit: async (values) => {
-      await updateProfile(values);
+      try {
+        await updateProfile(values);
+      } catch (error) {
+        console.error('Profile update failed:', error);
+      }
     }
   });
 
@@ -76,7 +81,7 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
       <div className="card-header" id="general_settings">
         <h3 className="card-title">{title}</h3>
       </div>
-      <form onSubmit={formik.handleSubmit} noValidate>
+      <form onSubmit={formik.handleSubmit}>
         <div className="card-body grid gap-5">
           <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
             <label className="form-label max-w-56 flex items-center">
@@ -186,7 +191,15 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
                     selected={date}
                     onSelect={(date: any) => {
                       setDate(date);
-                      formik.setFieldValue('dob', date);
+                      if (date) {
+                        // Add one day to compensate for server timezone conversion
+                        const adjustedDate = new Date(date);
+                        adjustedDate.setDate(adjustedDate.getDate() + 1);
+                        const formattedDate = adjustedDate.toISOString().split('T')[0];
+                        formik.setFieldValue('dob', formattedDate);
+                      } else {
+                        formik.setFieldValue('dob', '');
+                      }
                     }}
                   />
                 </PopoverContent>
@@ -265,10 +278,10 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
               <Popover>
                 <PopoverTrigger asChild>
                   <button
-                    id="date"
+                    id="ndis-plan-date"
                     className={cn(
                       'input data-[state=open]:border-primary',
-                      !date && 'text-muted-foreground'
+                      !ndisPlanDate && 'text-muted-foreground'
                     )}
                   >
                     <KeenIcon icon="calendar" className="-ms-0.5" />
@@ -284,7 +297,15 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
                     selected={ndisPlanDate}
                     onSelect={(date: any) => {
                       setNdisPlanDate(date);
-                      formik.setFieldValue('ndis_plan_date', date);
+                      if (date) {
+                        // Add one day to compensate for server timezone conversion
+                        const adjustedDate = new Date(date);
+                        adjustedDate.setDate(adjustedDate.getDate() + 1);
+                        const formattedDate = adjustedDate.toISOString().split('T')[0];
+                        formik.setFieldValue('ndis_plan_date', formattedDate);
+                      } else {
+                        formik.setFieldValue('ndis_plan_date', '');
+                      }
                     }}
                   />
                 </PopoverContent>

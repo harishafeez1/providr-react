@@ -23,6 +23,7 @@ import { useAuthContext } from '@/auth';
 import { getServiceRequests } from '@/services/api/service-requests';
 import { useLanguage } from '@/i18n';
 import { RotateCcw } from 'lucide-react';
+import { format } from 'date-fns';
 // import { getAllServiceRequests } from '@/services/api';
 
 interface IColumnFilterProps<TData, TValue> {
@@ -126,11 +127,11 @@ const ServiceRequestsTable = () => {
   const columns = useMemo<ColumnDef<IServiceRequestsData>[]>(
     () => [
       {
-        accessorFn: (row: IServiceRequestsData) => row.id,
-        id: 'matchId',
+        accessorFn: (row: IServiceRequestsData) => row.created_at,
+        id: 'created_at',
         header: ({ column }) => (
           <DataGridColumnHeader
-            title="ID"
+            title="Date Added"
             filter={<ColumnInputFilter column={column} />}
             column={column}
             icon={<i className="ki-filled ki-barcode text-lg"></i>}
@@ -138,14 +139,11 @@ const ServiceRequestsTable = () => {
         ),
         cell: ({ row }) => {
           return (
-            <div className="flex items-center gap-4">
-              <div className="flex flex-col gap-0.5">
-                <Link
-                  to="#"
-                  className="text-2sm text-gray-700 font-normal hover:text-primary-active"
-                >
-                  {row.original.id}
-                </Link>
+            <div className="flex items-center justify-center gap-4">
+              <div className="text-center">
+                <div className="text-2sm text-gray-700 font-normal hover:text-primary-active">
+                  {row.original.created_at ? format(row.original.created_at, 'd/m/y') : '--'}
+                </div>
               </div>
             </div>
           );
@@ -340,7 +338,7 @@ const ServiceRequestsTable = () => {
           <div onClick={() => setRefreshKey(refreshKey + 1)}>
             <RotateCcw className="cursor-pointer text-gray-500" />
           </div>
-          <div className="flex">
+          {/* <div className="flex">
             <label className="input input-sm">
               <KeenIcon icon="magnifier" />
               <input
@@ -350,7 +348,7 @@ const ServiceRequestsTable = () => {
                 onChange={(e) => setSearchInput(e.target.value)}
               />
             </label>
-          </div>
+          </div> */}
           {/*
           <div className="flex flex-wrap gap-2.5">
             <button className="btn btn-sm btn-outline btn-primary" onClick={handleModalOpen}>

@@ -19,6 +19,7 @@ import { IDocumentsData, ModalFilters } from './';
 import { useAuthContext } from '@/auth';
 import { deleteDocument, getDocuments } from '@/services/api/documents';
 import { Button } from '@/components/ui/button';
+import { format } from 'date-fns';
 
 interface IColumnFilterProps<TData, TValue> {
   column: Column<TData, TValue>;
@@ -153,11 +154,11 @@ const DocumentsTable = () => {
   const columns = useMemo<ColumnDef<IDocumentsData>[]>(
     () => [
       {
-        accessorFn: (row: IDocumentsData) => row.id,
-        id: 'matchId',
+        accessorFn: (row: IDocumentsData) => row.created_at,
+        id: 'created_at',
         header: ({ column }) => (
           <DataGridColumnHeader
-            title="ID"
+            title="Date Uploaded"
             filter={<ColumnInputFilter column={column} />}
             column={column}
             icon={<i className="ki-filled ki-barcode text-lg"></i>}
@@ -171,7 +172,7 @@ const DocumentsTable = () => {
                   to="#"
                   className="text-2sm text-gray-700 font-normal hover:text-primary-active"
                 >
-                  {row.original.id}
+                  {row.original.created_at ? format(row.original.created_at, 'd/m/y') : '--'}
                 </Link>
               </div>
             </div>
@@ -266,7 +267,7 @@ const DocumentsTable = () => {
               <KeenIcon icon="magnifier" />
               <input
                 type="text"
-                placeholder="Search users"
+                placeholder="search documents"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
               />
