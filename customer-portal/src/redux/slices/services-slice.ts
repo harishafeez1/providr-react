@@ -13,6 +13,7 @@ interface ServiceParticipant {
   description: string;
   email: string;
   phone: string;
+  zip_code: string;
 }
 
 interface ServiceLocation {
@@ -61,6 +62,7 @@ const initialState: ServicesState = {
     gender: '',
     description: '',
     email: '',
+    zip_code: '',
     phone: ''
   },
   serviceDetails: {}
@@ -139,6 +141,7 @@ export const servicesSlice = createSlice({
         last_name: '',
         gender: '',
         description: '',
+        zip_code: '',
         email: '',
         phone: ''
       };

@@ -387,6 +387,7 @@ function PhotosStep() {
     email?: string;
     phone?: string;
     gender?: string;
+    zip_code?: string;
     description?: string;
   }
   const participantData = useAppSelector((state) => state.services.participantData);
@@ -406,6 +407,7 @@ function PhotosStep() {
     first_name: Yup.string().required('First name is required'),
     last_name: Yup.string().required('Last name is required'),
     description: Yup.string(),
+    zip_code: Yup.string(),
     email: Yup.string().email('Invalid email').required('Email is required'),
     phone: Yup.string()
       .matches(/^[0-9]+$/, 'Phone must be numeric')
@@ -438,6 +440,17 @@ function PhotosStep() {
           onChange={(e) => handleChange('last_name', e.target.value)}
         />
         {errors?.last_name && <p className="text-red-500 text-sm">{errors?.last_name}</p>}
+      </div>
+      <div className="flex items-baseline flex-wrap gap-2.5 mb-4">
+        <label className="form-label flex items-center gap-1 max-w-56">Postal code</label>
+        <input
+          className="input w-full"
+          placeholder=""
+          type="text"
+          defaultValue={participantData?.zip_code || ''}
+          onChange={(e) => handleChange('zip_code', e.target.value)}
+        />
+        {errors?.zip_code && <p className="text-red-500 text-sm">{errors?.zip_code}</p>}
       </div>
 
       <div className="flex flex-col gap-1">

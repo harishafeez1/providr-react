@@ -37,6 +37,7 @@ const initialValues = {
   first_name: '',
   last_name: '',
   description: '',
+  zip_code: '',
   gender: '',
   age_group_options: '',
   service_delivered_options: '',
@@ -201,6 +202,21 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
                     </Select>
                   </div>
 
+                  <div className="flex flex-col gap-1">
+                    <label className="form-label text-gray-900">Postal Code</label>
+                    <Input
+                      type="text"
+                      placeholder=""
+                      size={'sm'}
+                      {...formik.getFieldProps('zip_code')}
+                    />
+                    {formik.touched.zip_code && formik.errors.zip_code && (
+                      <span role="alert" className="text-danger text-xs mt-1">
+                        {formik.errors.zip_code}
+                      </span>
+                    )}
+                  </div>
+
                   <div className="flex flex-col justify-center gap-1">
                     <label className="form-label text-gray-900">Age groups</label>
                     <Select
@@ -238,7 +254,9 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
                       }}
                     >
                       <SelectTrigger className="h-9 text-sm">
-                        <span>{formik.values.service_delivered_options || 'Select Age Group'}</span>
+                        <span>
+                          {formik.values.service_delivered_options || 'Select Access Method'}
+                        </span>
                       </SelectTrigger>
 
                       <SelectContent className="">

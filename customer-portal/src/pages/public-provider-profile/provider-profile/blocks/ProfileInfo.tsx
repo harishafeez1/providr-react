@@ -93,7 +93,7 @@ const ProfileInfo = ({ ProfileData }: any) => {
         <div
           ref={descriptionRef}
           className={`font-normal text-base text-[#6A6A6A] break-words ql-content ${
-            isDescriptionExpanded ? '' : 'line-clamp-2'
+            isDescriptionExpanded ? '' : 'line-clamp-6'
           }`}
           dangerouslySetInnerHTML={{ __html: ProfileData?.description || '' }}
         />
