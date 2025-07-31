@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue
@@ -23,6 +24,7 @@ import * as Yup from 'yup';
 import { useAppSelector } from '@/redux/hooks';
 import { getDirectConnectProvider } from '@/services/api/provider-profile';
 import { useParams } from 'react-router-dom';
+import { Textarea } from '@/components/ui/textarea';
 
 interface ConnectProviderModalProps {
   open: boolean;
@@ -31,15 +33,21 @@ interface ConnectProviderModalProps {
 
 const initialValues = {
   service_id: '',
+  service_offering_id: '',
   first_name: '',
   last_name: '',
+  description: '',
+  gender: '',
+  age_group_options: '',
+  service_delivered_options: '',
   preferred_method: 'email',
   email: '',
   phone: ''
 };
 
 const contactSchema = Yup.object().shape({
-  service_id: Yup.string().required('Service is required'),
+  // service_id: Yup.string().required(),
+  service_offering_id: Yup.string().required('Service is required'),
   first_name: Yup.string().required('First Name is required'),
   preferred_method: Yup.string()
     .oneOf(['email', 'phone'], 'Select a valid method')
@@ -78,10 +86,16 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
       initialValues,
       validationSchema: contactSchema,
       onSubmit: async (values, { setStatus, setSubmitting }) => {
+        const selectedService = providerProfile?.services_collection?.find(
+          (offering: any) => String(offering.id) === String(values.service_offering_id)
+        );
+
+        const dataObj = { ...values, service_id: selectedService?.service_id };
+
         try {
           setLoading(true);
           if (id) {
-            const response = await getDirectConnectProvider(id, values);
+            const response = await getDirectConnectProvider(id, dataObj);
           }
           setLoading(false);
         } catch (error) {
@@ -97,10 +111,7 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
     return (
       <>
         <Dialog open={open} onOpenChange={onOpenChange}>
-          <DialogContent
-            className="max-w-lg top-[5%] lg:top-[15%] translate-y-0 [&>button]:top-8 [&>button]:end-7"
-            ref={ref}
-          >
+          <DialogContent className="max-w-xl" ref={ref}>
             <form className="" onSubmit={formik.handleSubmit}>
               <DialogHeader className="py-4">
                 <div className="flex flex-col gap-2">
@@ -108,18 +119,20 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
                   <DialogDescription>{`${providerProfile?.name || ''} will reach out via your preferred contact method.`}</DialogDescription>
                 </div>
               </DialogHeader>
-              <DialogBody className="p-5 flex flex-col justify-center">
-                <div className="grid gap-5 lg:gap-7.5 mx-auto w-full px-6">
+              <DialogBody className="p-5 flex flex-col justify-center overflow-y-auto">
+                <div className="flex flex-col gap-4 mx-auto w-full px-6">
                   <div className="flex flex-col justify-center gap-1">
                     <label className="form-label text-gray-900">Service</label>
                     <Select
-                      value={formik.values.service_id}
+                      value={formik.values.service_offering_id}
                       onValueChange={(value) => {
                         const selectedService = providerProfile?.services_collection?.find(
-                          (service: any) => service.id === value
+                          (service: any) => String(service.id) === String(value)
                         );
-                        formik.setFieldValue('service_id', value);
-                        setSelectedServiceName(selectedService.name || 'Select Service');
+                        formik.setFieldValue('service_offering_id', value);
+                        if (selectedService) {
+                          setSelectedServiceName(selectedService.display_name || 'Select Service');
+                        }
                       }}
                     >
                       <SelectTrigger className="" size="sm">
@@ -129,14 +142,14 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
                       <SelectContent className="">
                         {providerProfile?.services_collection?.map((service: any) => (
                           <SelectItem key={service.id} value={service.id}>
-                            {service.name}
+                            {service.display_name}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    {formik.errors.service_id && (
+                    {formik.errors.service_offering_id && (
                       <span role="alert" className="text-danger text-xs mt-1">
-                        {formik.errors.service_id}
+                        {formik.errors.service_offering_id}
                       </span>
                     )}
                   </div>
@@ -152,6 +165,95 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
                     {formik.touched.first_name && formik.errors.first_name && (
                       <span role="alert" className="text-danger text-xs mt-1">
                         {formik.errors.first_name}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="form-label text-gray-900">Short Description</label>
+                    <Textarea
+                      name="description"
+                      placeholder="Tell us about your service request"
+                      onChange={(e) => formik.setFieldValue('description', e.target.value)}
+                    />
+                    {formik.touched.description && formik.errors.description && (
+                      <span role="alert" className="text-danger text-xs mt-1">
+                        {formik.errors.description}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="form-label text-gray-900">Gender</label>
+                    <Select
+                      onValueChange={(gender) => formik.setFieldValue('gender', gender)}
+                      defaultValue={''}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a Gender" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="male">MALE</SelectItem>
+                          <SelectItem value="female">FEMALE</SelectItem>
+                          <SelectItem value="others">OTHERS</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex flex-col justify-center gap-1">
+                    <label className="form-label text-gray-900">Age groups</label>
+                    <Select
+                      value={formik.values.age_group_options || ''}
+                      onValueChange={(value) => {
+                        formik.setFieldValue('age_group_options', value);
+                      }}
+                    >
+                      <SelectTrigger className="h-9 text-sm">
+                        <span>{formik.values.age_group_options || 'Select Age Group'}</span>
+                      </SelectTrigger>
+
+                      <SelectContent className="">
+                        {providerProfile?.services_collection?.[0]?.age_group_options?.map(
+                          (group: string) => (
+                            <SelectItem key={group} value={group} className="text-sm">
+                              {group}
+                            </SelectItem>
+                          )
+                        )}
+                      </SelectContent>
+                    </Select>
+                    {formik.errors.age_group_options && (
+                      <span role="alert" className="text-danger text-xs mt-1">
+                        {formik.errors.age_group_options}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-col justify-center gap-1">
+                    <label className="form-label text-gray-900">Access Method</label>
+                    <Select
+                      value={formik.values.service_delivered_options || ''}
+                      onValueChange={(value) => {
+                        formik.setFieldValue('service_delivered_options', value);
+                      }}
+                    >
+                      <SelectTrigger className="h-9 text-sm">
+                        <span>{formik.values.service_delivered_options || 'Select Age Group'}</span>
+                      </SelectTrigger>
+
+                      <SelectContent className="">
+                        {providerProfile?.services_collection?.[0]?.service_delivered_options?.map(
+                          (group: string) => (
+                            <SelectItem key={group} value={group} className="text-sm">
+                              {group}
+                            </SelectItem>
+                          )
+                        )}
+                      </SelectContent>
+                    </Select>
+                    {formik.errors.service_delivered_options && (
+                      <span role="alert" className="text-danger text-xs mt-1">
+                        {formik.errors.service_delivered_options}
                       </span>
                     )}
                   </div>

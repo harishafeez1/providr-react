@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/select';
 import { store } from '@/redux/store';
 import {
+  setAccessMethods,
   setResetServiceState,
   setSelectedServiceId,
   setServiceDetails,
@@ -33,6 +34,7 @@ import { Modal, ModalBody, ModalContent, ModalHeader } from '@/components';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Link } from 'react-router-dom';
 import { getProviderCount } from '@/services/api/directory';
+import { Textarea } from '@/components/ui/textarea';
 
 export default function AirbnbWizard() {
   const { selectedServiceId, serviceLocation, participantData, wizardData } = useAppSelector(
@@ -385,6 +387,7 @@ function PhotosStep() {
     email?: string;
     phone?: string;
     gender?: string;
+    description?: string;
   }
   const participantData = useAppSelector((state) => state.services.participantData);
   const [errors, setErrors] = useState<Errors>({});
@@ -402,6 +405,7 @@ function PhotosStep() {
   const validationSchema = Yup.object().shape({
     first_name: Yup.string().required('First name is required'),
     last_name: Yup.string().required('Last name is required'),
+    description: Yup.string(),
     email: Yup.string().email('Invalid email').required('Email is required'),
     phone: Yup.string()
       .matches(/^[0-9]+$/, 'Phone must be numeric')
@@ -434,6 +438,15 @@ function PhotosStep() {
           onChange={(e) => handleChange('last_name', e.target.value)}
         />
         {errors?.last_name && <p className="text-red-500 text-sm">{errors?.last_name}</p>}
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label className="form-label text-gray-900">Short Description</label>
+        <Textarea
+          name="description"
+          placeholder="Tell us about your service request"
+          onChange={(e) => handleChange('description', e.target.value)}
+        />
       </div>
 
       <div className="flex items-baseline flex-wrap gap-2.5 mb-4">
@@ -492,40 +505,76 @@ function PricingStep() {
     'Children (8-16 years)',
     'Early Childhood (0-7 years)'
   ];
+
+  const accessMethods = [
+    'Group',
+    'Online service',
+    'Telehealth',
+    'We come to you',
+    'You come to us'
+  ];
+
   const initialAge =
     serviceDetails && serviceDetails.length > 0 ? serviceDetails[0] : ageOptions[0];
   const [selectedAge, setSelectedAge] = useState<string>(initialAge);
+  const [selectedAccessMethod, setSelectedAccessMethod] = useState<string>(accessMethods[0]);
 
   useEffect(() => {
     store.dispatch(setServiceDetails([selectedAge]));
+    store.dispatch(setAccessMethods([selectedAccessMethod]));
     store.dispatch(setUpdateWizardData());
-  }, [selectedAge]);
-
-  const handleSelection = (age: string) => {
-    setSelectedAge(age);
-  };
+  }, [selectedAge, selectedAccessMethod]);
 
   return (
     <div className="space-y-6">
-      <label className="form-label flex items-center gap-1 max-w-56">Participants age range</label>
-      <div className="grid grid-cols-3 gap-4">
-        {ageOptions.map((age) => (
-          <label
-            key={age}
-            className={`flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl h-[70px] mb-0.5 cursor-pointer 
-            ${selectedAge === age ? 'border-primary bg-[#8a4099] text-white border-2' : ''}`}
-          >
-            <input
-              className="appearance-none"
-              type="radio"
-              name="age_option"
-              value={age}
-              checked={selectedAge === age}
-              onChange={() => handleSelection(age)}
-            />
-            <span className="text-center text-md">{age}</span>
-          </label>
-        ))}
+      {/* Age Options */}
+      <div className="space-y-2">
+        <label className="form-label flex items-center gap-1 max-w-56">
+          Participants age range
+        </label>
+        <div className="grid grid-cols-3 gap-4">
+          {ageOptions.map((age) => (
+            <label
+              key={age}
+              className={`flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl h-[70px] mb-0.5 cursor-pointer 
+              ${selectedAge === age ? 'border-primary bg-[#8a4099] text-white border-2' : ''}`}
+            >
+              <input
+                className="appearance-none"
+                type="radio"
+                name="age_option"
+                value={age}
+                checked={selectedAge === age}
+                onChange={() => setSelectedAge(age)}
+              />
+              <span className="text-center text-md">{age}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Access Methods */}
+      <div className="space-y-2">
+        <label className="form-label flex items-center gap-1 max-w-56">Service access method</label>
+        <div className="grid grid-cols-3 gap-4">
+          {accessMethods.map((method) => (
+            <label
+              key={method}
+              className={`flex items-center justify-center border text-center bg-no-repeat bg-cover border-gray-300 rounded-xl h-[70px] mb-0.5 cursor-pointer 
+              ${selectedAccessMethod === method ? 'border-primary bg-[#8a4099] text-white border-2' : ''}`}
+            >
+              <input
+                className="appearance-none"
+                type="radio"
+                name="access_method"
+                value={method}
+                checked={selectedAccessMethod === method}
+                onChange={() => setSelectedAccessMethod(method)}
+              />
+              <span className="text-center text-md">{method}</span>
+            </label>
+          ))}
+        </div>
       </div>
     </div>
   );
