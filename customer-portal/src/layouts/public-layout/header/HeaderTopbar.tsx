@@ -4,6 +4,8 @@ import { DropdownUser } from '@/partials/dropdowns/user';
 import { useLanguage } from '@/i18n';
 import { useAuthContext } from '@/auth';
 
+import placeHolderImage from '../../../../public/media/avatars/blank.png';
+
 const HeaderTopbar = () => {
   const itemUserRef = useRef<any>(null);
   const { isRTL } = useLanguage();
@@ -23,18 +25,16 @@ const HeaderTopbar = () => {
               {
                 name: 'offset',
                 options: {
-                  offset: [20, 10] // [skid, distance]
+                  offset: [5, 10] // [skid, distance]
                 }
               }
             ]
           }}
         >
           <MenuToggle className="btn btn-icon rounded-full">
-            {firstLetter && (
-              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 text-gray-700">
-                {firstLetter}
-              </div>
-            )}
+            <div className="w-10 h-10 rounded-full">
+              <img src={placeHolderImage} alt="" className="rounded-full h-full w-full" />
+            </div>
           </MenuToggle>
           {DropdownUser({ menuItemRef: itemUserRef })}
         </MenuItem>

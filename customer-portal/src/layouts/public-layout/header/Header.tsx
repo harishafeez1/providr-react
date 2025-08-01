@@ -19,6 +19,7 @@ import { postDirectoryFilters } from '@/services/api/directory';
 import {
   appendProviders,
   setAllProviders,
+  setChangeSearchedServiceName,
   setIsSearchedFromHeader,
   setLoading,
   setPagination
@@ -38,6 +39,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
+import { HeaderTopbar } from './HeaderTopbar';
 
 function ServicesSkeleton() {
   return (
@@ -128,6 +130,8 @@ const Header = () => {
     const res = await postDirectoryFilters(filtersToSend);
     if (res.directories.data.length > 0) {
       store.dispatch(setIsSearchedFromHeader(true));
+      const selectedService = transformedServicesList.find((opt) => opt.value === service_id);
+      store.dispatch(setChangeSearchedServiceName(selectedService?.label || ''));
       if (res.directories.current_page === 1) {
         store.dispatch(setAllProviders(res.directories.data));
       } else {
@@ -142,7 +146,11 @@ const Header = () => {
       );
     } else {
       store.dispatch(setIsSearchedFromHeader(false));
-      toast.error('Service is not available in your search area', { position: 'top-right' });
+      store.dispatch(setChangeSearchedServiceName(''));
+      toast.error(
+        'We were unable to locate any providers matching your search criteria in this area',
+        { position: 'top-right' }
+      );
     }
     store.dispatch(setLoading(false));
   };
@@ -269,7 +277,7 @@ const Header = () => {
           </div>
           <div className="" />
           <div className="" />
-          <DropdownMenu>
+          {/* <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <div className="flex items-center gap-4 rounded-full border px-3 py-2 hover:shadow-md cursor-pointer">
                 {auth ? (
@@ -344,7 +352,8 @@ const Header = () => {
                 </>
               )}
             </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenu> */}
+          <HeaderTopbar />
         </div>
 
         {/* Search */}

@@ -15,6 +15,7 @@ interface DirectoryState {
   directoryDiscoverProviders: any[];
   serviceNamechanged: boolean;
   searchedFromHeader: boolean;
+  changedSearchedServiceName: string;
 }
 
 const initialState: DirectoryState = {
@@ -31,7 +32,8 @@ const initialState: DirectoryState = {
   directoryDefaultProviders: [],
   directoryDiscoverProviders: [],
   serviceNamechanged: false,
-  searchedFromHeader: false
+  searchedFromHeader: false,
+  changedSearchedServiceName: ''
 };
 
 export const directoryListingSlice = createSlice({
@@ -93,11 +95,15 @@ export const directoryListingSlice = createSlice({
     },
     setIsSearchedFromHeader: (state, action) => {
       state.searchedFromHeader = action.payload;
+    },
+    setChangeSearchedServiceName: (state, action) => {
+      state.changedSearchedServiceName = action.payload;
     }
   }
 });
 
 export const {
+  setChangeSearchedServiceName,
   setIsSearchedFromHeader,
   setListOfServices,
   setAllProviders,

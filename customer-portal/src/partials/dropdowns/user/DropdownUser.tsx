@@ -10,53 +10,74 @@ interface IDropdownUserProps {
 }
 
 const DropdownUser = ({ menuItemRef }: IDropdownUserProps) => {
-  const { logout } = useAuthContext();
+  const { logout, auth } = useAuthContext();
 
   const buildMenu = () => {
     return (
       <Fragment>
-        <div className="flex flex-col">
-          <MenuItem>
-            <MenuLink path="/settings">
-              <MenuIcon className="setting-2">
-                <KeenIcon icon="setting-2" />
-              </MenuIcon>
-              <MenuTitle>Settings</MenuTitle>
-            </MenuLink>
-          </MenuItem>
-          <MenuItem>
-            <MenuLink path="/service-request">
-              <MenuIcon className="setting-2">
-                <KeenIcon icon="courier" />
-              </MenuIcon>
-              <MenuTitle>Service Requests</MenuTitle>
-            </MenuLink>
-          </MenuItem>
-          <MenuItem>
-            <MenuLink path="/documents">
-              <MenuIcon className="setting-2">
-                <KeenIcon icon="note-2" />
-              </MenuIcon>
-              <MenuTitle>Documents</MenuTitle>
-            </MenuLink>
-          </MenuItem>
-          <MenuItem>
-            <MenuLink path="/reviews">
-              <MenuIcon className="setting-2">
-                <KeenIcon icon="pencil" />
-              </MenuIcon>
-              <MenuTitle>My Reviews</MenuTitle>
-            </MenuLink>
-          </MenuItem>
-          <MenuItem>
-            <MenuLink path="/wishlist">
-              <MenuIcon className="setting-2">
-                <KeenIcon icon="heart" />
-              </MenuIcon>
-              <MenuTitle>My Wishlist</MenuTitle>
-            </MenuLink>
-          </MenuItem>
-        </div>
+        {auth ? (
+          <div className="flex flex-col">
+            <MenuItem>
+              <MenuLink path="/settings">
+                <MenuIcon className="setting-2">
+                  <KeenIcon icon="setting-2" />
+                </MenuIcon>
+                <MenuTitle>Settings</MenuTitle>
+              </MenuLink>
+            </MenuItem>
+            <MenuItem>
+              <MenuLink path="/service-request">
+                <MenuIcon className="setting-2">
+                  <KeenIcon icon="courier" />
+                </MenuIcon>
+                <MenuTitle>Service Requests</MenuTitle>
+              </MenuLink>
+            </MenuItem>
+            <MenuItem>
+              <MenuLink path="/documents">
+                <MenuIcon className="setting-2">
+                  <KeenIcon icon="note-2" />
+                </MenuIcon>
+                <MenuTitle>Documents</MenuTitle>
+              </MenuLink>
+            </MenuItem>
+            <MenuItem>
+              <MenuLink path="/reviews">
+                <MenuIcon className="setting-2">
+                  <KeenIcon icon="pencil" />
+                </MenuIcon>
+                <MenuTitle>My Reviews</MenuTitle>
+              </MenuLink>
+            </MenuItem>
+            <MenuItem>
+              <MenuLink path="/wishlist">
+                <MenuIcon className="setting-2">
+                  <KeenIcon icon="heart" />
+                </MenuIcon>
+                <MenuTitle>My Wishlist</MenuTitle>
+              </MenuLink>
+            </MenuItem>
+          </div>
+        ) : (
+          <div className="font-montserrat">
+            <MenuItem>
+              <MenuLink path={'/login'}>
+                <MenuIcon className="setting-2">
+                  <KeenIcon icon="badge" />
+                </MenuIcon>
+                <MenuTitle>I am an NDIS participant</MenuTitle>
+              </MenuLink>
+            </MenuItem>
+            <MenuItem>
+              <MenuLink path={`/provider-portal/auth/login`}>
+                <MenuIcon className="setting-2">
+                  <KeenIcon icon="security-user" />
+                </MenuIcon>
+                <MenuTitle>I am a Provider</MenuTitle>
+              </MenuLink>
+            </MenuItem>
+          </div>
+        )}
       </Fragment>
     );
   };
@@ -79,7 +100,7 @@ const DropdownUser = ({ menuItemRef }: IDropdownUserProps) => {
       rootClassName="p-0"
     >
       {buildMenu()}
-      {buildFooter()}
+      {auth && buildFooter()}
     </MenuSub>
   );
 };

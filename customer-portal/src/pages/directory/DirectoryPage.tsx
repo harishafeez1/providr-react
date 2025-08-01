@@ -47,11 +47,11 @@ const DirectoryPage = () => {
     directoryDiscoverProviders,
     directorySettings,
     serviceNamechanged,
-    searchedFromHeader
+    searchedFromHeader,
+    changedSearchedServiceName
   } = useAppSelector((state) => state.directoryListing);
 
   const { paginatedServicesList } = useAppSelector((state) => state.services);
-  const allFilters = useAppSelector((state) => state.directory);
 
   const fetchSettings = async () => {
     const res = await getSettings();
@@ -120,7 +120,7 @@ const DirectoryPage = () => {
           <div className="mt-[12px]">
             <SliderListing
               providerData={allProviders}
-              heading={directorySettings?.[0]?.value?.name || 'Cleaning'}
+              heading={changedSearchedServiceName || 'Cleaning'}
             />
           </div>
         ) : (
