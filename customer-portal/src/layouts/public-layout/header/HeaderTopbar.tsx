@@ -9,8 +9,8 @@ import placeHolderImage from '../../../../public/media/avatars/blank.png';
 const HeaderTopbar = () => {
   const itemUserRef = useRef<any>(null);
   const { isRTL } = useLanguage();
-  const profile = useAuthContext();
-  const firstName = profile.currentUser?.first_name;
+  const { currentUser, auth } = useAuthContext();
+  const firstName = currentUser?.first_name;
   const firstLetter = firstName ? firstName.charAt(0).toUpperCase() : '';
   return (
     <div className="flex items-center gap-3.5">
@@ -32,9 +32,16 @@ const HeaderTopbar = () => {
           }}
         >
           <MenuToggle className="btn btn-icon rounded-full">
-            <div className="w-10 h-10 rounded-full">
-              <img src={placeHolderImage} alt="" className="rounded-full h-full w-full" />
-            </div>
+            {!auth && (
+              <div className="w-10 h-10 rounded-full">
+                <img src={placeHolderImage} alt="" className="rounded-full h-full w-full" />
+              </div>
+            )}
+            {auth && firstLetter && (
+              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 text-gray-700">
+                {firstLetter}
+              </div>
+            )}
           </MenuToggle>
           {DropdownUser({ menuItemRef: itemUserRef })}
         </MenuItem>
