@@ -261,7 +261,7 @@ const ServiceOfferingsTable = () => {
             <div className="flex items-center text-gray-800 font-normal gap-1.5">
               {info.row.original.created_at
                 ? format(info.row.original.created_at, 'LLL dd, y')
-                : 's'}
+                : '--'}
             </div>
           );
         },

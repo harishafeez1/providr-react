@@ -16,15 +16,7 @@ export const serviceRequestSlice = createSlice({
     setServiceRequest: (state, action: PayloadAction<IServiceRequest>) => {
       state.serviceRequest = action.payload;
     },
-    setUpdateSingleServiceRequest: (state, action: PayloadAction<IServiceRequest>) => {
-      const updatedRequest = action.payload;
-      if (state.serviceRequest.provider_company_id) {
-        const matchedProvider = updatedRequest?.requested_provider_companies?.find(
-          (provider: any) =>
-            String(provider.id) === String(state.serviceRequest.provider_company_id)
-        );
-      }
-    },
+
     setProviderProfile: (state, action: PayloadAction<any>) => {
       state.providerProfile = action.payload;
     },

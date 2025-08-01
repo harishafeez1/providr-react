@@ -189,7 +189,7 @@ const CustomerServiceRequestsTable = () => {
                   to="#"
                   className="text-2sm text-gray-700 font-normal hover:text-primary-active"
                 >
-                  {row.original.created_at ? format(row.original.created_at, 'd/m/y') : '--'}
+                  {row.original.created_at ? format(row.original.created_at, 'LLL dd, y') : '--'}
                 </Link>
               </div>
             </div>
