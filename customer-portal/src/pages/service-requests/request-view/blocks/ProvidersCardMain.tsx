@@ -1,6 +1,9 @@
 import { ProviderCard } from './ProviderCard';
 
 const ProvidersCard = ({ data }: any) => {
+  const providers = Array.isArray(data?.requested_provider_companies)
+    ? data.requested_provider_companies
+    : [];
   return (
     <div className="card">
       <div className="card-header">
@@ -8,9 +11,9 @@ const ProvidersCard = ({ data }: any) => {
       </div>
       <div className="card-body">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {data?.requested_provider_companies?.map((property: any) => (
-            <div key={property.id} className="">
-              <ProviderCard data={property} comapnyId={data?.provider_company_id} />
+          {providers?.map((provider: any) => (
+            <div key={provider.id} className="">
+              <ProviderCard data={provider} comapnyId={data?.provider_company_id} />
             </div>
           ))}
         </div>

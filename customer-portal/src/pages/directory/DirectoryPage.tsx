@@ -36,7 +36,6 @@ function ServicesSkeleton() {
 
 const DirectoryPage = () => {
   const { auth } = useAuthContext();
-  const location = useLocation();
   const [loadingservice, setLoadingService] = useState(false);
 
   const {

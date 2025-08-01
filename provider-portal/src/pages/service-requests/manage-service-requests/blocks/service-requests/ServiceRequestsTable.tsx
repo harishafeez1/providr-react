@@ -23,6 +23,7 @@ import { useAuthContext } from '@/auth';
 import { getAllConnectedServiceRequests, getInteresetedInRequest } from '@/services/api';
 import { useLanguage } from '@/i18n';
 import { ICustomerServiceRequestsData } from '@/pages/service-requests/manage-customer-service-requests/blocks';
+import { format } from 'date-fns';
 
 interface IColumnFilterProps<TData, TValue> {
   column: Column<TData, TValue>;
@@ -172,10 +173,10 @@ const ServiceRequestsTable = () => {
     () => [
       {
         accessorFn: (row: ICustomerServiceRequestsData) => row.id,
-        id: 'matchId',
+        id: 'created_at',
         header: ({ column }) => (
           <DataGridColumnHeader
-            title="Match ID"
+            title="Date Added"
             filter={<ColumnInputFilter column={column} />}
             column={column}
             icon={<i className="ki-filled ki-barcode text-lg"></i>}
@@ -189,7 +190,7 @@ const ServiceRequestsTable = () => {
                   to="#"
                   className="text-2sm text-gray-700 font-normal hover:text-primary-active"
                 >
-                  {row.original.id}
+                  {row.original.created_at ? format(row.original.created_at, 'd/m/y') : '--'}
                 </Link>
               </div>
             </div>

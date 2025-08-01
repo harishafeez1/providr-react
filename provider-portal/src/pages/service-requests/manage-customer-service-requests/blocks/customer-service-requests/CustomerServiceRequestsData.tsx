@@ -23,6 +23,7 @@ interface ICustomerServiceRequestsData {
   service_id: string | number;
   address: string;
   actioned_at: string;
+  created_at: string;
   customer: UserModel;
   service: Services;
   provider_company_id?: number | string;

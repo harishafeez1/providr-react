@@ -15,13 +15,20 @@ const About = ({ data }: any) => {
     { status: 'Last Name:', info: data?.last_name || '' },
     { status: 'Gender:', info: data?.gender || '' },
     { status: 'Address:', info: data?.address || '' },
-    { status: 'City:', info: data?.city || '' },
+    // { status: 'City:', info: data?.city || '' },
     { status: 'State:', info: data?.state || '' },
     { status: 'Postcode:', info: data?.zip_code || '' },
-    { status: 'Age Range:', info: data?.age_group_options?.join(', ') },
+    {
+      status: 'Age Range:',
+      info: Array.isArray(data?.age_group_options)
+        ? data.age_group_options.join(', ')
+        : data?.age_group_options || ''
+    },
     {
       status: 'Access Method:',
-      info: data?.service_delivered_options?.join(', ')
+      info: Array.isArray(data?.service_delivered_options)
+        ? data.service_delivered_options.join(', ')
+        : data?.service_delivered_options || ''
     }
   ];
 

@@ -5,6 +5,7 @@ interface IServiceRequestsData {
   service_id: string | number;
   address: string;
   actioned_at: string;
+  created_at: string;
 }
 
 export { type IServiceRequestsData };
