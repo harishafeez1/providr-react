@@ -8,24 +8,15 @@ import {
   DialogTitle
 } from '@/components/ui/dialog';
 import GooglePlacesAutocomplete, {
-  geocodeByAddress,
   geocodeByPlaceId,
   getLatLng
 } from 'react-google-places-autocomplete';
 
 import ReactSelect from 'react-select';
 import { useAppSelector } from '@/redux/hooks';
-import { useEffect, useState } from 'react';
-import { getAllServices } from '@/services/api/all-services';
+import { useState } from 'react';
 import { store } from '@/redux/store';
-import {
-  setAgeGroup,
-  setLocation,
-  setNdisChildhoodRegistered,
-  setNdisRegistered,
-  setResetFilters,
-  setServiceId
-} from '@/redux/slices/directory-slice';
+import { setLocation, setResetFilters } from '@/redux/slices/directory-slice';
 import { postDirectoryFilters } from '@/services/api/directory';
 import {
   appendProviders,
@@ -51,7 +42,6 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
   const [autocompleteKey, setAutocompleteKey] = useState(0);
   const [serviceAutocompleteKey, setServiceAutocompleteKey] = useState(0);
   const { services } = useAppSelector((state) => state.services);
-  const { ndis_register, age_group } = useAppSelector((state) => state.directory);
   const {
     pagination: { loading }
   } = useAppSelector((state) => state.directoryListing);
@@ -198,7 +188,7 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
                 </div>
 
                 <h3 className="text-lg font-semibold">NDIS Registration Type</h3>
-                <div className="flex items-baseline flex-wrap  gap-2.5 mb-4 ">
+                {/* <div className="flex items-baseline flex-wrap  gap-2.5 mb-4 ">
                   <label className=" input flex checkbox checkbox-sm gap-1 w-full cursor-pointer">
                     <div className="flex gap-4">
                       <input
@@ -239,7 +229,7 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
                       <span className="switch-label">Unregistered Providers</span>
                     </div>
                   </label>
-                </div>
+                </div> */}
 
                 <h3 className="text-lg font-semibold">Availability</h3>
                 <div className="flex items-baseline flex-wrap  gap-2.5 mb-4 ">
@@ -272,7 +262,7 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
                 </div>
 
                 <h3 className="text-lg font-semibold">Age Group</h3>
-                <div className="flex items-baseline flex-wrap gap-2.5 mb-4 cursor-pointer">
+                {/* <div className="flex items-baseline flex-wrap gap-2.5 mb-4 cursor-pointer">
                   {[
                     { name: 'Early Childhood (0-7 years)' },
                     { name: 'Children (8-16 years)' },
@@ -296,7 +286,7 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
                       </div>
                     </label>
                   ))}
-                </div>
+                </div> */}
 
                 {/* <h3 className="text-lg font-semibold">Service type</h3>
                   <div className="flex items-baseline flex-wrap  gap-2.5 mb-4">

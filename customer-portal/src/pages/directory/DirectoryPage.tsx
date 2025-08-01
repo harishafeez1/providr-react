@@ -1,9 +1,6 @@
-import { Fragment, Suspense, useEffect, useState } from 'react';
-import { DirectoryContent, FilterModal } from './';
-import { Navbar, NavbarActions } from '@/partials/navbar';
+import { useEffect, useState } from 'react';
+import { DirectoryContent } from './';
 import { PageMenu } from './blocks/PageMenu';
-import { KeenIcon } from '@/components';
-import { getListoftProvider } from '@/services/api/provider-profile';
 
 import { store } from '@/redux/store';
 import {
@@ -19,8 +16,6 @@ import {
 } from '@/redux/slices/directory-listing-slice';
 import { useAppSelector } from '@/redux/hooks';
 import { useLocation } from 'react-router';
-import { postDirectoryFilters } from '@/services/api/directory';
-import { Button } from '@/components/ui/button';
 import SliderListing from './blocks/SliderListing';
 import { getSettings } from '@/services/api/settings';
 import { getAllServices, getProvidersByServiceId } from '@/services/api/all-services';
@@ -51,10 +46,12 @@ const DirectoryPage = () => {
     directoryDefaultProviders,
     directoryDiscoverProviders,
     directorySettings,
-    serviceNamechanged
+    serviceNamechanged,
+    searchedFromHeader
   } = useAppSelector((state) => state.directoryListing);
 
   const { paginatedServicesList } = useAppSelector((state) => state.services);
+  const allFilters = useAppSelector((state) => state.directory);
 
   const fetchSettings = async () => {
     const res = await getSettings();
@@ -64,7 +61,6 @@ const DirectoryPage = () => {
   };
 
   useEffect(() => {
-    // Define and invoke the async function
     const fetchData = async () => {
       setLoadingService(true);
       const res = await getAllServices(`page=${1}&per_page=${12}`);
@@ -120,19 +116,30 @@ const DirectoryPage = () => {
             <PageMenu services={paginatedServicesList} loading={loadingservice} />
           </div>
         )}
-        <div className="mt-[12px]">
-          <SliderListing
-            providerData={directoryDefaultProviders}
-            heading={directorySettings?.[0]?.value?.name || 'Cleaning'}
-            defaultKey={'default_active_service'}
-          />
-        </div>
-        <div className="mt-4 flex flex-col text-black ">
-          <div className="text-[32px] font-semibold mt-[30px] mb-[10px] leading-normal">
-            Discover services on Providr
+        {searchedFromHeader && allProviders.length > 0 ? (
+          <div className="mt-[12px]">
+            <SliderListing
+              providerData={allProviders}
+              heading={directorySettings?.[0]?.value?.name || 'Cleaning'}
+            />
           </div>
-          <DirectoryContent providers={directoryDiscoverProviders} />
-        </div>
+        ) : (
+          <>
+            <div className="mt-[12px]">
+              <SliderListing
+                providerData={directoryDefaultProviders}
+                heading={directorySettings?.[0]?.value?.name || 'Cleaning'}
+                defaultKey={'default_active_service'}
+              />
+            </div>
+            <div className="mt-4 flex flex-col text-black ">
+              <div className="text-[32px] font-semibold mt-[30px] mb-[10px] leading-normal">
+                Discover services on Providr
+              </div>
+              <DirectoryContent providers={directoryDiscoverProviders} />
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

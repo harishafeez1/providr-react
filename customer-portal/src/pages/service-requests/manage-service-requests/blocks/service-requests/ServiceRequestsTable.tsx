@@ -213,6 +213,30 @@ const ServiceRequestsTable = () => {
         }
       },
       {
+        accessorFn: (row) => row.id,
+        id: 'interested_providers',
+        header: ({ column }) => (
+          <DataGridColumnHeader
+            title="Interested Provider"
+            column={column}
+            icon={<i className="ki-filled ki-flag"></i>}
+          />
+        ),
+        cell: (info) => {
+          return (
+            <div className="flex items-center text-gray-800 font-normal gap-1.5">
+              {info.row.original?.provider_company_id === null ||
+              Object.keys(info.row.original.provider_company_id).length === 0
+                ? '---'
+                : info.row.original.provider_company.name || '---'}
+            </div>
+          );
+        },
+        meta: {
+          headerClassName: 'min-w-[180px]'
+        }
+      },
+      {
         accessorFn: (row) => row.provider_company_id,
         id: 'provider_company',
         header: ({ column }) => (

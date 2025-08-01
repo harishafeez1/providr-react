@@ -1,4 +1,3 @@
-
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface DirectoryState {
@@ -9,17 +8,17 @@ interface DirectoryState {
     lastPage: number;
     loading: boolean;
   };
-  isFilterModalOpen: boolean,
-  loadMore: boolean,
-  directorySettings: any[],
-  directoryDefaultProviders: any[],
-  directoryDiscoverProviders: any[],
-  serviceNamechanged: boolean
-
+  isFilterModalOpen: boolean;
+  loadMore: boolean;
+  directorySettings: any[];
+  directoryDefaultProviders: any[];
+  directoryDiscoverProviders: any[];
+  serviceNamechanged: boolean;
+  searchedFromHeader: boolean;
 }
 
 const initialState: DirectoryState = {
-  allServices:[],
+  allServices: [],
   allProviders: [],
   pagination: {
     currentPage: 1,
@@ -28,21 +27,28 @@ const initialState: DirectoryState = {
   },
   isFilterModalOpen: false,
   loadMore: false,
-  directorySettings:[],
+  directorySettings: [],
   directoryDefaultProviders: [],
   directoryDiscoverProviders: [],
-  serviceNamechanged: false
-  
+  serviceNamechanged: false,
+  searchedFromHeader: false
 };
 
 export const directoryListingSlice = createSlice({
   name: 'directoryListing',
   initialState,
   reducers: {
+    setListOfServices: (state, action: PayloadAction<any[]>) => {
+      const servicesList = action.payload;
+      state.allServices =
+        servicesList?.map((item) => ({
+          label: item.name,
+          value: item.id
+        })) || [];
+    },
 
     setAllProviders: (state, action: PayloadAction<any[]>) => {
       state.allProviders = action.payload;
-      
     },
     appendProviders: (state, action: PayloadAction<any[]>) => {
       state.allProviders = [...state.allProviders, ...action.payload];
@@ -55,47 +61,47 @@ export const directoryListingSlice = createSlice({
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.pagination.loading = action.payload;
     },
-    
+
     setLoadMore: (state, action: PayloadAction<boolean>) => {
       state.loadMore = action.payload;
     },
     setIsFilterModalOpen: (state, action) => {
-        state.isFilterModalOpen = action.payload;
-      },
+      state.isFilterModalOpen = action.payload;
+    },
 
-    
     setDirectoryDefaultProviders: (state, action) => {
-        state.directoryDefaultProviders = action.payload;
-        
-      },
+      state.directoryDefaultProviders = action.payload;
+    },
 
-      setDirectoryDiscoverProviders: (state, action) => {
-        state.directoryDiscoverProviders = action.payload;
-        
-      },
+    setDirectoryDiscoverProviders: (state, action) => {
+      state.directoryDiscoverProviders = action.payload;
+    },
 
-      setDirectorySettings: (state, action) => {
+    setDirectorySettings: (state, action) => {
+      state.directorySettings = action.payload;
+    },
 
-        state.directorySettings = action.payload;
-        
-      },
-
-      setDefaultServiceName: (state, action) => {
-        const serviceName = action.payload;
-        if (state.directorySettings.length > 0) {
-          state.directorySettings[0].value.name = serviceName;
-          state.serviceNamechanged = true
-        }
-      },
-      setChangeServiceName: (state, action) =>{
-        state.serviceNamechanged = action.payload
+    setDefaultServiceName: (state, action) => {
+      const serviceName = action.payload;
+      if (state.directorySettings.length > 0) {
+        state.directorySettings[0].value.name = serviceName;
+        state.serviceNamechanged = true;
       }
-  },
+    },
+    setChangeServiceName: (state, action) => {
+      state.serviceNamechanged = action.payload;
+    },
+    setIsSearchedFromHeader: (state, action) => {
+      state.searchedFromHeader = action.payload;
+    }
+  }
 });
 
-export const { 
-  setAllProviders, 
-  appendProviders, 
+export const {
+  setIsSearchedFromHeader,
+  setListOfServices,
+  setAllProviders,
+  appendProviders,
   setPagination,
   setLoading,
   setIsFilterModalOpen,
@@ -105,7 +111,6 @@ export const {
   setDirectoryDefaultProviders,
   setDirectoryDiscoverProviders,
   setChangeServiceName
-
 } = directoryListingSlice.actions;
 
 export default directoryListingSlice.reducer;

@@ -1,4 +1,7 @@
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 import { setServiceRequest } from '@/redux/slices/service-request-slice';
 import { store } from '@/redux/store';
 import { getConnectedProvider } from '@/services/api/service-requests';
@@ -22,86 +25,199 @@ const ProviderCard = ({ data, comapnyId }: any) => {
   };
 
   return (
-    <div className="cursor-pointer">
-      {comapnyId == null || comapnyId == '' ? (
-        <Button onClick={handleProviderConnection} className="w-full" size={'lg'}>
-          Connect
-        </Button>
-      ) : comapnyId !== null ? (
-        <div
-          className={`text-center badge ${data?.pivot?.status === 'Completed' ? 'badge-success' : ''}`}
-        >
-          {data?.pivot?.status}
+    // <div className="cursor-pointer">
+    //   {comapnyId == null || comapnyId == '' ? (
+    //     <Button onClick={handleProviderConnection} className="w-full" size={'lg'}>
+    //       Connect
+    //     </Button>
+    //   ) : comapnyId !== null ? (
+    //     <div
+    //       className={`text-center badge ${data?.pivot?.status === 'Completed' ? 'badge-success' : ''}`}
+    //     >
+    //       {data?.pivot?.status}
+    //     </div>
+    //   ) : (
+    //     ''
+    //   )}
+    //   <Link to={`/provider-profile/${data?.id}`}>
+    //     <div className="w-full px-2"></div>
+    //     <div className="relative aspect-square overflow-hidden rounded-xl">
+    //       <img
+    //         src={
+    //           data?.business_logo
+    //             ? `${import.meta.env.VITE_APP_AWS_URL}/${data?.business_logo}`
+    //             : data?.imageUrl
+    //         }
+    //         alt={'company name'}
+    //         className="h-full w-full object-cover transition group-hover:scale-105"
+    //       />
+    //       <button
+    //         onClick={(e) => {
+    //           e.preventDefault();
+    //           setIsFavorite(!isFavorite);
+    //         }}
+    //         className="absolute right-3 top-3 rounded-full p-2 transition hover:bg-white/10"
+    //       >
+    //         <Heart
+    //           className={clsx(
+    //             'h-6 w-6',
+    //             isFavorite ? 'fill-red-500 stroke-red-500' : 'stroke-white'
+    //           )}
+    //         />
+    //       </button>
+    //     </div>
+    //     <div className="mt-2">
+    //       {data?.review_stats && (
+    //         <p className="my-2 px-2 text-center">
+    //           <MessageCircleMore color="#752c84" className="inline-block mx-2" />
+    //           {data?.review_stats ? data?.review_stats?.total_reviews : 0} reviews
+    //         </p>
+    //       )}
+    //       <div className="flex items-center justify-between">
+    //         <h3 className="font-medium truncate pe-">{data?.name || ''}</h3>
+    //         <div className="flex items-center gap-1">
+    //           <Star className="h-4 w-4 fill-current" />
+    //           <span>{data?.review_stats ? data?.review_stats?.average_rating : 0}</span>
+    //         </div>
+    //       </div>
+    //       <p className="text-sm text-gray-500">{data?.location || ''}</p>
+    //       <div className="ql-content">
+    //         <div
+    //           className="mt-4"
+    //           dangerouslySetInnerHTML={{ __html: truncateText(data?.description || '', 20) }}
+    //         ></div>
+    //       </div>
+    //       {data?.pivot?.customer_contacted === 1 ? (
+    //         <div className="px-10">
+    //           <p className="mt-2 flex gap-4 rounded-full bg-success-clarity px-2 py-1 text-xs text-success text-center">
+    //             <Phone size={16} />
+    //             Already Contacted
+    //           </p>
+    //         </div>
+    //       ) : (
+    //         <div className="px-10">
+    //           <p className="mt-2 flex gap-4  rounded-full bg-primary-clarity px-2 py-1 text-xs text-white text-center">
+    //             <Phone size={16} />
+    //             Contact You Soon
+    //           </p>
+    //         </div>
+    //       )}
+    //     </div>
+    //   </Link>
+    // </div>
+
+    <Card className="group rounded-xl cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-xl bg-white">
+      <CardContent className="p-0">
+        {/* Connection Status / Button */}
+        <div className="p-4 pb-0">
+          {comapnyId == null || comapnyId == '' ? (
+            <Button onClick={handleProviderConnection} className="w-ful " size="lg">
+              Connect
+            </Button>
+          ) : comapnyId !== null ? (
+            <div className="flex justify-center">
+              <Badge
+                variant={data?.pivot?.status === 'Completed' ? 'default' : 'secondary'}
+                className={cn(
+                  'px-4 py-2 text-sm font-medium',
+                  data?.pivot?.status === 'Completed'
+                    ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                    : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
+                )}
+              >
+                {data?.pivot?.status}
+              </Badge>
+            </div>
+          ) : null}
         </div>
-      ) : (
-        ''
-      )}
-      <Link to={`/provider-profile/${data?.id}`}>
-        <div className="w-full px-2"></div>
-        <div className="relative aspect-square overflow-hidden rounded-xl">
-          <img
-            src={
-              data?.business_logo
-                ? `${import.meta.env.VITE_APP_AWS_URL}/${data?.business_logo}`
-                : data?.imageUrl
-            }
-            alt={'company name'}
-            className="h-full w-full object-cover transition group-hover:scale-105"
-          />
-          <button
-            onClick={(e) => {
-              e.preventDefault();
-              setIsFavorite(!isFavorite);
-            }}
-            className="absolute right-3 top-3 rounded-full p-2 transition hover:bg-white/10"
-          >
-            <Heart
-              className={clsx(
-                'h-6 w-6',
-                isFavorite ? 'fill-red-500 stroke-red-500' : 'stroke-white'
-              )}
-            />
-          </button>
+
+        {/* Image Section */}
+        <div className="relative p-4">
+          <div className="relative aspect-square overflow-hidden rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200">
+            <Link to={`/provider-profile/${data?.id}`}>
+              <img
+                src={
+                  data?.business_logo
+                    ? `${import.meta.env.VITE_APP_AWS_URL}/${data?.business_logo}`
+                    : data?.imageUrl
+                }
+                alt={data?.name || 'company name'}
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+            </Link>
+
+            {/* Favorite Button */}
+            <button
+              className="absolute right-3 top-3 rounded-full bg-white/20 backdrop-blur-sm p-2 transition-all duration-200 hover:bg-white/30 hover:scale-110"
+              onClick={(e) => {
+                e.preventDefault(), setIsFavorite(!isFavorite);
+              }}
+            >
+              <Heart
+                className={cn(
+                  'h-5 w-5 transition-colors duration-200',
+                  isFavorite ? 'fill-red-500 stroke-red-500' : 'stroke-white fill-white/20'
+                )}
+              />
+            </button>
+
+            {/* Reviews Badge */}
+            {data?.review_stats && (
+              <div className="absolute bottom-3 left-3 rounded-full bg-white/90 backdrop-blur-sm px-3 py-1.5 shadow-lg">
+                <div className="flex items-center gap-1.5 text-sm font-medium text-gray-700">
+                  <MessageCircleMore className="h-4 w-4 text-purple-600" />
+                  <span>{data?.review_stats ? data?.review_stats?.total_reviews : 0} reviews</span>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-        <div className="mt-2">
-          {data?.review_stats && (
-            <p className="my-2 px-2 text-center">
-              <MessageCircleMore color="#752c84" className="inline-block mx-2" />
-              {data?.review_stats ? data?.review_stats?.total_reviews : 0} reviews
-            </p>
-          )}
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium truncate pe-">{data?.name || ''}</h3>
-            <div className="flex items-center gap-1">
-              <Star className="h-4 w-4 fill-current" />
-              <span>{data?.review_stats ? data?.review_stats?.average_rating : 0}</span>
+
+        {/* Content Section */}
+        <div className="p-4 pt-0">
+          {/* Header with Name and Rating */}
+          <div className="flex items-start justify-between gap-3 mb-2">
+            <h3 className="font-bold text-lg text-gray-900 leading-tight line-clamp-2 flex-1">
+              {data?.name || ''}
+            </h3>
+            <div className="flex items-center gap-1 bg-amber-50 rounded-full px-2 py-1 shrink-0">
+              <Star className="h-4 w-4 fill-amber-400 stroke-amber-400" />
+              <span className="text-sm font-semibold text-amber-700">
+                {data?.review_stats ? data?.review_stats?.average_rating : 0}
+              </span>
             </div>
           </div>
-          <p className="text-sm text-gray-500">{data?.location || ''}</p>
-          <div className="ql-content">
+
+          {/* Location */}
+          <p className="text-sm text-gray-500 mb-3 font-medium">📍 {data?.location || ''}</p>
+
+          {/* Description */}
+          <div className="mb-4">
             <div
-              className="mt-4"
-              dangerouslySetInnerHTML={{ __html: truncateText(data?.description || '', 20) }}
-            ></div>
+              className="text-sm text-gray-600 leading-relaxed ql-content"
+              dangerouslySetInnerHTML={{
+                __html: truncateText(data?.description || '', 20)
+              }}
+            />
           </div>
-          {data?.pivot?.customer_contacted === 1 ? (
-            <div className="px-10">
-              <p className="mt-2 flex gap-4 rounded-full bg-success-clarity px-2 py-1 text-xs text-success text-center">
-                <Phone size={16} />
+
+          {/* Contact Status */}
+          <div className="flex justify-center">
+            {data?.pivot?.customer_contacted === 1 ? (
+              <div className="flex items-center gap-2 rounded-full bg-green-50 border border-green-200 px-4 py-2 text-sm font-medium text-green-700">
+                <Phone className="h-4 w-4" />
                 Already Contacted
-              </p>
-            </div>
-          ) : (
-            <div className="px-10">
-              <p className="mt-2 flex gap-4  rounded-full bg-primary-clarity px-2 py-1 text-xs text-white text-center">
-                <Phone size={16} />
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 rounded-full bg-blue-50 border border-blue-200 px-4 py-2 text-sm font-medium text-blue-700">
+                <Phone className="h-4 w-4" />
                 Contact You Soon
-              </p>
-            </div>
-          )}
+              </div>
+            )}
+          </div>
         </div>
-      </Link>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

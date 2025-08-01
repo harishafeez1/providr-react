@@ -13,18 +13,19 @@ import GooglePlacesAutocomplete, {
   getLatLng
 } from 'react-google-places-autocomplete';
 import { store } from '@/redux/store';
-import { setAgeGroup, setLocation } from '@/redux/slices/directory-slice';
+import { setLocation, setServiceId } from '@/redux/slices/directory-slice';
 import { useAppSelector } from '@/redux/hooks';
 import { postDirectoryFilters } from '@/services/api/directory';
 import {
   appendProviders,
   setAllProviders,
+  setIsSearchedFromHeader,
   setLoading,
   setPagination
 } from '@/redux/slices/directory-listing-slice';
 import { useAuthContext } from '@/auth';
 import { PageMenu } from '@/pages/directory/blocks/PageMenu';
-import { getAllServices } from '@/services/api/all-services';
+import { getAllServices, getAllServicesToTransform } from '@/services/api/all-services';
 import { FilterModal } from '@/pages/directory';
 import { Services } from '@/pages/company-profile';
 import { useScroll, useTransform } from 'motion/react';
@@ -36,6 +37,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import { toast } from 'sonner';
 
 function ServicesSkeleton() {
   return (
@@ -51,18 +53,20 @@ function ServicesSkeleton() {
 const Header = () => {
   const locationCheck = useLocation();
   const navigate = useNavigate();
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [servicesLoading, setServicesLoading] = useState(false);
 
   const { auth, logout } = useAuthContext();
 
-  const { allServices } = useAppSelector((state) => state.directoryListing);
+  const { transformedServicesList } = useAppSelector((state) => state.services);
 
-  const { age_group } = useAppSelector((state) => state.directory);
-  const {
-    pagination: { loading }
-  } = useAppSelector((state) => state.directoryListing);
+  const { service_id } = useAppSelector((state) => state.directory);
+
+  useEffect(() => {
+    const getServices = async () => {
+      await getAllServicesToTransform('page=1&per_page=100');
+    };
+
+    getServices();
+  }, []);
 
   const handleLocationChange = async (address: any) => {
     const location: {
@@ -109,6 +113,10 @@ const Header = () => {
   };
 
   const allFilters = useAppSelector((state) => state.directory);
+  const filtersToSend = {
+    service_id: allFilters.location === '' ? '' : allFilters.service_id,
+    location: allFilters.location
+  };
 
   const handleFilters = async () => {
     if (!locationCheck.pathname.includes('directory')) {
@@ -117,8 +125,9 @@ const Header = () => {
       return;
     }
     store.dispatch(setLoading(true));
-    const res = await postDirectoryFilters(allFilters);
-    if (res) {
+    const res = await postDirectoryFilters(filtersToSend);
+    if (res.directories.data.length > 0) {
+      store.dispatch(setIsSearchedFromHeader(true));
       if (res.directories.current_page === 1) {
         store.dispatch(setAllProviders(res.directories.data));
       } else {
@@ -131,17 +140,12 @@ const Header = () => {
           lastPage: res.directories.last_page
         })
       );
+    } else {
+      store.dispatch(setIsSearchedFromHeader(false));
+      toast.error('Service is not available in your search area', { position: 'top-right' });
     }
     store.dispatch(setLoading(false));
   };
-
-  const ageGroupOptions = [
-    { value: 'Early Childhood (0-7 years)', label: 'Early Childhood (0-7 years)' },
-    { value: 'Children (8-16 years)', label: 'Children (8-16 years)' },
-    { value: 'Young people (17-21 years)', label: 'Young people (17-21 years)' },
-    { value: 'Adults (22-59 years)', label: 'Adults (22-59 years)' },
-    { value: 'Mature Age (60+ years)', label: 'Mature Age (60+ years)' }
-  ];
 
   // useEffect(() => {
   //   // Define and invoke the async function
@@ -164,7 +168,6 @@ const Header = () => {
   //   fetchData();
   // }, []);
 
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [defaultAddress, setDefaultAddress] = useState<{ label: string; value: string } | null>(
     null
   );
@@ -174,7 +177,6 @@ const Header = () => {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
-          setUserLocation({ lat: latitude, lng: longitude });
 
           // Step 2: Reverse geocode to get Australian address
           try {
@@ -428,20 +430,20 @@ const Header = () => {
             </label>
           </div>
 
-          {/* <div className="flex flex-col border-l gap-1 px-5 border-gray-300 w-full">
+          <div className="flex flex-col border-l gap-1 px-5 border-gray-300 w-full">
             <label className="form-label text-gray-900 ps-[0.6rem] font-semibold tracking-wide">
               Type of Service
             </label>
             <label className="input bg-transparent leading-none p-0 m-0 border-none w-full h-4">
               <div className="w-full text-sm ">
                 <ReactSelect
-                  options={ageGroupOptions}
-                  value={ageGroupOptions.find((opt) => opt.value === age_group)}
+                  options={transformedServicesList}
+                  value={transformedServicesList.find((opt) => opt.value === service_id)}
                   onChange={(selectedOption) => {
                     if (selectedOption?.value) {
-                      store.dispatch(setAgeGroup(selectedOption?.value));
+                      store.dispatch(setServiceId(selectedOption?.value));
                     } else {
-                      store.dispatch(setAgeGroup(''));
+                      store.dispatch(setServiceId(''));
                     }
                   }}
                   isClearable
@@ -497,11 +499,11 @@ const Header = () => {
                 />
               </div>
             </label>
-          </div> */}
+          </div>
           <button
             className="flex items-center justify-center rounded-full bg-primary px-3 py-2 m-1 cursor-pointer"
             onClick={handleFilters}
-            // disabled={allFilters.age_group === '' && allFilters.location === ''}
+            // disabled={allFilters.location === ''}
           >
             <KeenIcon icon="magnifier" className="text-xl font-bold text-white" />
           </button>

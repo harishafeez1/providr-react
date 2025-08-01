@@ -9,7 +9,7 @@ const ProvidersCard = ({ data }: any) => {
       <div className="card-body">
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {data?.requested_provider_companies?.map((property: any) => (
-            <div key={property.id} className="card-border card-rounded p-1">
+            <div key={property.id} className="">
               <ProviderCard data={property} comapnyId={data?.provider_company_id} />
             </div>
           ))}
