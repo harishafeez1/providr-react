@@ -13,7 +13,7 @@ const ServiceRequestsTablePage = () => {
           <ToolbarHeading>
             <ToolbarPageTitle />
             <ToolbarDescription>
-              Manage your service offerings efficiently with real-time updates
+              Manage your service requests efficiently with real-time updates
             </ToolbarDescription>
           </ToolbarHeading>
         </Toolbar>

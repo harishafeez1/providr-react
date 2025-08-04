@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { KeenIcon } from '@/components';
 import clsx from 'clsx';
 import { Button } from '@/components/ui/button';
-import { getContactedServiceRequest } from '@/services/api';
+import { getContactedServiceRequest, getSingleServiceRequest } from '@/services/api';
 import { useAuthContext } from '@/auth';
+import { useParams } from 'react-router';
 
 interface IWorkExperienceItem {
   image?: string;
@@ -14,7 +15,8 @@ interface IWorkExperienceItem {
 }
 interface IWorkExperienceItems extends Array<IWorkExperienceItem> {}
 
-const WorkExperience = ({ data }: any) => {
+const WorkExperience = ({ data, onUpdate }: any) => {
+  const { id } = useParams();
   const [showNumber, setShowNumber] = useState(false);
   const { currentUser } = useAuthContext();
 
@@ -22,6 +24,10 @@ const WorkExperience = ({ data }: any) => {
     if (!currentUser) return;
     if (currentUser?.provider_company_id) {
       const res = await getContactedServiceRequest(currentUser?.provider_company_id, data?.id);
+      if (res && id) {
+        await getSingleServiceRequest(id);
+        onUpdate?.();
+      }
     }
   };
 
@@ -49,18 +55,27 @@ const WorkExperience = ({ data }: any) => {
                 ? '**************'
                 : data?.email}
           </div>
-          {data?.service_request_provider?.[0].customer_contacted === 1 ? (
+          {(data?.service_request_provider?.[0].customer_contacted === 1 &&
+            data?.direct_connect === 0) ||
+          (data?.direct_connect === 1 && data?.status?.toLowerCase().trim() === 'completed') ? (
             <div className="badge badge-pill badge-success">Already Contacted</div>
           ) : (
-            <Button
-              onClick={() => {
-                setShowNumber(!showNumber), handleContactedUser();
-              }}
-              className=""
-            >
-              Reveal Information
-            </Button>
-          )}{' '}
+            <>
+              <Button
+                onClick={() => {
+                  setShowNumber(!showNumber), handleContactedUser();
+                }}
+                className=""
+              >
+                Reveal Information
+              </Button>
+
+              <div className="text-xs text-danger mt-4">
+                * clicking "Reveal Information" indicates your commitment to promptly follow up with
+                the customer
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

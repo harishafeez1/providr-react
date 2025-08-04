@@ -67,7 +67,7 @@ const RequestViewContent = () => {
       <div className="col-span-1">
         {requestData?.service_request_provider?.length > 0 ? (
           <div className="grid gap-5 lg:gap-7.5">
-            <WorkExperience data={requestData} />
+            <WorkExperience data={requestData} onUpdate={() => setUpdateData(!updateData)} />
           </div>
         ) : (
           <div className="flex justify-center">

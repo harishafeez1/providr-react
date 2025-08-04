@@ -13,6 +13,7 @@ interface IServiceRequestsData {
   service: Service;
   provider_company_id: string | number;
   provider_company: ProviderCompany;
+  interested_providers: [];
   address: string;
   actioned_at: string;
   email: string;

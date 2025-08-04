@@ -3,16 +3,27 @@ import 'leaflet/dist/leaflet.css';
 import { useEffect, useState } from 'react';
 
 const ProgressbarPoints = ({ data }: any) => {
+
   const HorizontalLinearAlternativeLabelStepper = () => {
     const [activeStepTab, setActiveStepTab] = useState(0);
 
     useEffect(() => {
-      if (data?.service_request_provider?.length > 0) {
-        data.service_request_provider?.[0].status === 'In Progress'
-          ? setActiveStepTab(1)
-          : data.service_request_provider?.[0].status === 'Completed'
-            ? setActiveStepTab(2)
-            : setActiveStepTab(0);
+      if (data?.service_request_provider?.length > 0 && data?.direct_connect === 0) {
+        const provider = data.service_request_provider[0];
+
+        if (provider.status === 'In Progress' && provider.customer_contacted === 0) {
+          setActiveStepTab(1);
+        } else if (provider.customer_contacted === 1) {
+          setActiveStepTab(2);
+        } else {
+          setActiveStepTab(0);
+        }
+      } else {
+        if (data?.direct_connect === 1 && data.status === 'Pending') {
+          setActiveStepTab(1);
+        } else if (data?.direct_connect === 1 && data.status === 'Completed') {
+          setActiveStepTab(2);
+        }
       }
     }, [data]);
 

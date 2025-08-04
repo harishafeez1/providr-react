@@ -142,7 +142,7 @@ const ServiceRequestsTable = () => {
             <div className="flex items-center justify-center gap-4">
               <div className="text-center">
                 <div className="text-2sm text-gray-700 font-normal hover:text-primary-active">
-                  {row.original.created_at ? format(row.original.created_at, 'd/m/y') : '--'}
+                  {row.original.created_at ? format(row.original.created_at, 'LLL dd, y') : '--'}
                 </div>
               </div>
             </div>
@@ -188,7 +188,7 @@ const ServiceRequestsTable = () => {
         id: 'status',
         header: ({ column }) => (
           <DataGridColumnHeader
-            title="Status"
+            title="Request Status"
             column={column}
             icon={<i className="ki-filled ki-flag"></i>}
           />
@@ -213,23 +213,22 @@ const ServiceRequestsTable = () => {
         }
       },
       {
-        accessorFn: (row) => row.id,
+        accessorFn: (row) => row.interested_providers?.length || 0,
         id: 'interested_providers',
         header: ({ column }) => (
           <DataGridColumnHeader
-            title="Interested Provider"
+            title="Interested Providers"
             column={column}
             icon={<i className="ki-filled ki-flag"></i>}
           />
         ),
         cell: (info) => {
-          return (
-            <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original?.provider_company_id === null ||
-              Object.keys(info.row.original.provider_company_id).length === 0
-                ? '---'
-                : info.row.original.provider_company.name || '---'}
-            </div>
+          const count = info.getValue<number>();
+
+          return count && count > 0 ? (
+            <div className="badge badge-pill badge-success">{count}</div>
+          ) : (
+            <span>---</span>
           );
         },
         meta: {

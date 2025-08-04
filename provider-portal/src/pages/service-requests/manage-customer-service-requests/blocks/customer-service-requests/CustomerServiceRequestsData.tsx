@@ -19,7 +19,7 @@ interface ICustomerServiceRequestsData {
   first_name: string;
   last_name: string;
   customer_id: string;
-  status: 'active' | 'inactive';
+  status: 'Pending' | 'Completed';
   service_id: string | number;
   address: string;
   actioned_at: string;

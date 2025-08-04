@@ -227,7 +227,7 @@ const ServiceRequestsTable = () => {
         id: 'status',
         header: ({ column }) => (
           <DataGridColumnHeader
-            title="Status"
+            title="Request Status"
             column={column}
             icon={<i className="ki-filled ki-flag"></i>}
           />
@@ -240,11 +240,7 @@ const ServiceRequestsTable = () => {
               <span
                 className={`size-1.5 rounded-full bg-${info.row.original.status ? 'success' : 'danger'} me-1.5`}
               ></span>
-              {info.row.original.service_request_provider.length === 0
-                ? 'Open'
-                : info.row.original.service_request_provider.length > 0
-                  ? info.row.original.service_request_provider[0].status
-                  : ''}
+              {info.row.original.status === 'Pending' ? 'In Progress' : info.row.original.status}
             </span>
           );
         },
@@ -296,12 +292,12 @@ const ServiceRequestsTable = () => {
       },
       {
         accessorFn: (row) => row.address,
-        id: 'location',
+        id: 'service_request_provider',
         header: ({ column }) => (
           <DataGridColumnHeader
-            title="Contacted"
+            title="You Contacted"
             column={column}
-            icon={<i className="ki-filled ki-geolocation"></i>}
+            icon={<i className="ki-filled ki-phone"></i>}
           />
         ),
         cell: (info) => {

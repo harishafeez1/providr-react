@@ -226,7 +226,7 @@ const CustomerServiceRequestsTable = () => {
         id: 'status',
         header: ({ column }) => (
           <DataGridColumnHeader
-            title="Status"
+            title="Request Status"
             column={column}
             icon={<i className="ki-filled ki-flag"></i>}
           />
@@ -298,9 +298,9 @@ const CustomerServiceRequestsTable = () => {
         id: 'location',
         header: ({ column }) => (
           <DataGridColumnHeader
-            title="Contacted"
+            title="You Contacted"
             column={column}
-            icon={<i className="ki-filled ki-geolocation"></i>}
+            icon={<i className="ki-filled ki-phone"></i>}
           />
         ),
         cell: (info) => {

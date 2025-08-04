@@ -25,6 +25,7 @@ import { useAppSelector } from '@/redux/hooks';
 import { getDirectConnectProvider } from '@/services/api/provider-profile';
 import { useParams } from 'react-router-dom';
 import { Textarea } from '@/components/ui/textarea';
+import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 
 interface ConnectProviderModalProps {
   open: boolean;
@@ -37,6 +38,7 @@ const initialValues = {
   first_name: '',
   last_name: '',
   description: '',
+  address: '',
   zip_code: '',
   gender: '',
   age_group_options: '',
@@ -50,6 +52,7 @@ const contactSchema = Yup.object().shape({
   // service_id: Yup.string().required(),
   service_offering_id: Yup.string().required('Service is required'),
   first_name: Yup.string().required('First Name is required'),
+  address: Yup.string().required('Address is required'),
   preferred_method: Yup.string()
     .oneOf(['email', 'phone'], 'Select a valid method')
     .required('Select a method'),
@@ -109,6 +112,7 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
       }
     });
 
+    console.log('---------', formik.errors);
     return (
       <>
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -202,6 +206,63 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
                     </Select>
                   </div>
 
+                  <div className="flex flex-col gap-1">
+                    <label className="form-label text-gray-900">Address</label>
+                    <GooglePlacesAutocomplete
+                      apiKey={import.meta.env.VITE_APP_GOOGLE_API_KEY}
+                      onLoadFailed={(err) => {
+                        console.error('Could not load google places autocomplete', err);
+                      }}
+                      autocompletionRequest={{
+                        componentRestrictions: { country: 'au' },
+                        types: ['(regions)']
+                      }}
+                      apiOptions={{ region: 'AU' }}
+                      selectProps={{
+                        isClearable: true,
+                        placeholder: 'Search for a place',
+                        onChange: (loc) => {
+                          formik.setFieldValue('address', loc?.label);
+                        },
+                        styles: {
+                          control: (base, state) => ({
+                            ...base,
+                            borderColor: state.isFocused ? '#752C84' : '#d1d5db', // Primary on focus, gray otherwise
+                            boxShadow: 'none',
+                            fontSize: '0.875rem',
+                            minHeight: '2rem',
+                            '&:hover': { borderColor: '#752C84' }
+                          }),
+                          placeholder: (base) => ({
+                            ...base,
+                            fontSize: '0.775rem',
+                            color: '#9ca3af'
+                          }),
+                          option: (base, state) => ({
+                            ...base,
+                            backgroundColor: state.isFocused ? '#752C84' : 'white',
+                            color: state.isFocused ? 'white' : 'black',
+                            fontSize: '0.775rem',
+                            cursor: 'pointer'
+                            // No border override here → default border stays
+                          }),
+                          menu: (base) => ({
+                            ...base,
+                            boxShadow: 'none'
+                          }),
+                          singleValue: (base) => ({
+                            ...base,
+                            color: 'black'
+                          })
+                        }
+                      }}
+                    />
+                    {formik.errors.address && (
+                      <span role="alert" className="text-danger text-xs mt-1">
+                        {formik.errors.address}
+                      </span>
+                    )}
+                  </div>
                   <div className="flex flex-col gap-1">
                     <label className="form-label text-gray-900">Postal Code</label>
                     <Input
