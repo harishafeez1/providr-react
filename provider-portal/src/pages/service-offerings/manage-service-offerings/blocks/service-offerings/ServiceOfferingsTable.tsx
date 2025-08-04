@@ -391,7 +391,7 @@ const ServiceOfferingsTable = () => {
       <div className="card-header flex-wrap px-5 py-5 border-b-0">
         <h3 className="card-title">Service Offering</h3>
 
-        <div className="flex flex-wrap items-center gap-2.5">
+        {/* <div className="flex flex-wrap items-center gap-2.5">
           <div className="flex gap-6">
             <div className="relative">
               <KeenIcon
@@ -407,7 +407,7 @@ const ServiceOfferingsTable = () => {
               />
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     );
   };

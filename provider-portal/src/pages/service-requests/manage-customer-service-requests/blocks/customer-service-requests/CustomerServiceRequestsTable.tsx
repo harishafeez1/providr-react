@@ -232,18 +232,34 @@ const CustomerServiceRequestsTable = () => {
           />
         ),
         cell: (info) => {
+          const serviceRequestStatus = info.row.original.status;
+          const hasProviders = info.row.original.service_request_provider.length > 0;
+
+          // Determine the display status
+          let displayStatus;
+          let badgeClass;
+
+          if (serviceRequestStatus === 'Completed') {
+            displayStatus = 'Completed';
+            badgeClass = 'success';
+          } else if (hasProviders) {
+            displayStatus = info.row.original.service_request_provider[0].status;
+            badgeClass = displayStatus === 'In Progress' && 'success';
+          } else {
+            displayStatus = 'Open';
+            badgeClass = 'success';
+          }
+
           return (
             <span
-              className={`badge badge-${info.row.original.status ? 'success' : 'danger'} shrink-0 badge-outline rounded-[30px]`}
+              className={`badge badge-${badgeClass} 
+  shrink-0 badge-outline rounded-[30px]`}
             >
               <span
-                className={`size-1.5 rounded-full bg-${info.row.original.status ? 'success' : 'danger'} me-1.5`}
+                className={`size-1.5 rounded-full 
+  bg-${badgeClass} me-1.5`}
               ></span>
-              {info.row.original.service_request_provider.length === 0
-                ? 'Open'
-                : info.row.original.service_request_provider.length > 0
-                  ? info.row.original.service_request_provider[0].status
-                  : ''}
+              {displayStatus}
             </span>
           );
         },
@@ -274,7 +290,7 @@ const CustomerServiceRequestsTable = () => {
       },
       {
         accessorFn: (row) => row.address,
-        id: 'location',
+        id: 'address',
         header: ({ column }) => (
           <DataGridColumnHeader
             title="Location"
@@ -378,7 +394,7 @@ const CustomerServiceRequestsTable = () => {
       <div className="card-header flex-wrap gap-2 border-b-0 px-5">
         <h3 className="card-title font-medium text-sm">Customer Service Requests</h3>
 
-        <div className="flex flex-wrap gap-2 lg:gap-5">
+        {/* <div className="flex flex-wrap gap-2 lg:gap-5">
           <div className="flex">
             <label className="input input-sm">
               <KeenIcon icon="magnifier" />
@@ -396,7 +412,7 @@ const CustomerServiceRequestsTable = () => {
               <KeenIcon icon="setting-4" /> Filters
             </button>
           </div>
-        </div>
+        </div> */}
       </div>
     );
   };
