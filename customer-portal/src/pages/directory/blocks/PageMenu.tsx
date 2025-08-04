@@ -16,7 +16,8 @@ import {
   setIsSearchedFromHeader,
   setChangeSearchedServiceName,
   setPagination,
-  setLoading
+  setLoading,
+  setDefaultProvidersPagination
 } from '@/redux/slices/directory-listing-slice';
 import { setServiceId } from '@/redux/slices/directory-slice';
 import { store } from '@/redux/store';
@@ -52,7 +53,8 @@ const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
       if (location) {
         const filtersToSend = {
           service_id: id,
-          location: location
+          location: location,
+          page: 1
         };
         
         try {
@@ -69,28 +71,40 @@ const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
             );
           } else {
             // Fallback to regular service providers if no location-based results
-            const fallbackRes = await getProvidersByServiceId(id, 'page=1', auth?.token ? true : false);
+            const fallbackRes = await getProvidersByServiceId(id, 'page=1&per_page=10', auth?.token ? true : false);
             if (fallbackRes?.data && fallbackRes.data.length > 0) {
               store.dispatch(setDefaultServiceName(serviceName));
               store.dispatch(setDirectoryDefaultProviders(fallbackRes.data));
+              store.dispatch(setDefaultProvidersPagination({
+                currentPage: fallbackRes.current_page || 1,
+                lastPage: fallbackRes.last_page || 1
+              }));
               store.dispatch(setIsSearchedFromHeader(false));
             }
           }
         } catch (error) {
           // Fallback to regular service providers on error
-          const fallbackRes = await getProvidersByServiceId(id, 'page=1', auth?.token ? true : false);
+          const fallbackRes = await getProvidersByServiceId(id, 'page=1&per_page=10', auth?.token ? true : false);
           if (fallbackRes?.data && fallbackRes.data.length > 0) {
             store.dispatch(setDefaultServiceName(serviceName));
             store.dispatch(setDirectoryDefaultProviders(fallbackRes.data));
+            store.dispatch(setDefaultProvidersPagination({
+              currentPage: fallbackRes.current_page || 1,
+              lastPage: fallbackRes.last_page || 1
+            }));
             store.dispatch(setIsSearchedFromHeader(false));
           }
         }
       } else {
         // No location selected, use regular service provider fetch
-        const res = await getProvidersByServiceId(id, 'page=1', auth?.token ? true : false);
+        const res = await getProvidersByServiceId(id, 'page=1&per_page=10', auth?.token ? true : false);
         if (res?.data && res.data.length > 0) {
           store.dispatch(setDefaultServiceName(serviceName));
           store.dispatch(setDirectoryDefaultProviders(res.data));
+          store.dispatch(setDefaultProvidersPagination({
+            currentPage: res.current_page || 1,
+            lastPage: res.last_page || 1
+          }));
           store.dispatch(setIsSearchedFromHeader(false));
         }
       }

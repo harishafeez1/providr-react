@@ -12,13 +12,15 @@ import {
   setDirectorySettings,
   setDirectoryDefaultProviders,
   setDirectoryDiscoverProviders,
-  setChangeServiceName
+  setChangeServiceName,
+  setDefaultProvidersPagination
 } from '@/redux/slices/directory-listing-slice';
 import { useAppSelector } from '@/redux/hooks';
 import { useLocation } from 'react-router';
 import SliderListing from './blocks/SliderListing';
 import { getSettings } from '@/services/api/settings';
 import { getAllServices, getProvidersByServiceId } from '@/services/api/all-services';
+import { setServicesLoading } from '@/redux/slices/services-slice';
 import { useAuthContext } from '@/auth';
 
 function ServicesSkeleton() {
@@ -36,7 +38,6 @@ function ServicesSkeleton() {
 
 const DirectoryPage = () => {
   const { auth } = useAuthContext();
-  const [loadingservice, setLoadingService] = useState(false);
 
   const {
     allProviders,
@@ -50,7 +51,7 @@ const DirectoryPage = () => {
     changedSearchedServiceName
   } = useAppSelector((state) => state.directoryListing);
 
-  const { paginatedServicesList } = useAppSelector((state) => state.services);
+  const { paginatedServicesList, isServicesLoading } = useAppSelector((state) => state.services);
 
   const fetchSettings = async () => {
     const res = await getSettings();
@@ -61,14 +62,17 @@ const DirectoryPage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoadingService(true);
-      const res = await getAllServices(`page=${1}&per_page=${12}`);
-      if (res) {
-        setLoadingService(false);
+      // Only fetch if we don't have services data or if it's the first load
+      if (paginatedServicesList.length === 0) {
+        store.dispatch(setServicesLoading(true));
+        const res = await getAllServices(`page=${1}&per_page=${12}`);
+        if (res) {
+          store.dispatch(setServicesLoading(false));
+        }
       }
     };
     fetchData();
-  }, []);
+  }, [paginatedServicesList.length]);
 
   useEffect(() => {
     fetchSettings();
@@ -80,15 +84,21 @@ const DirectoryPage = () => {
         if (item.key === 'default_active_service') {
           const res = await getProvidersByServiceId(
             item.value.id,
-            'page=1',
+            'page=1&per_page=10',
             auth?.token ? true : false
           );
           store.dispatch(setDirectoryDefaultProviders(res.data));
+          store.dispatch(
+            setDefaultProvidersPagination({
+              currentPage: res.current_page || 1,
+              lastPage: res.last_page || 1
+            })
+          );
         }
 
         if (item.key === 'discover_services') {
           const promises = item.value.map((service: any) =>
-            getProvidersByServiceId(service.id, 'page=1', auth?.token ? true : false)
+            getProvidersByServiceId(service.id, 'page=1&per_page=10', auth?.token ? true : false)
           );
 
           const results = await Promise.all(promises);
@@ -112,7 +122,7 @@ const DirectoryPage = () => {
       <div className="my-6 font-montserrat">
         {locationCheck?.pathname?.includes('directory') && (
           <div className="flex">
-            <PageMenu services={paginatedServicesList} loading={loadingservice} />
+            <PageMenu services={paginatedServicesList} loading={isServicesLoading} />
           </div>
         )}
         {searchedFromHeader && allProviders.length > 0 ? (
@@ -129,6 +139,7 @@ const DirectoryPage = () => {
                 providerData={directoryDefaultProviders}
                 heading={directorySettings?.[0]?.value?.name || 'Cleaning'}
                 defaultKey={'default_active_service'}
+                isDefaultService={true}
               />
             </div>
             <div className="mt-4 flex flex-col text-black ">

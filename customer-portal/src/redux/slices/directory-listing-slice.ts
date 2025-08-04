@@ -8,6 +8,11 @@ interface DirectoryState {
     lastPage: number;
     loading: boolean;
   };
+  defaultProvidersPagination: {
+    currentPage: number;
+    lastPage: number;
+    loading: boolean;
+  };
   isFilterModalOpen: boolean;
   loadMore: boolean;
   directorySettings: any[];
@@ -22,6 +27,11 @@ const initialState: DirectoryState = {
   allServices: [],
   allProviders: [],
   pagination: {
+    currentPage: 1,
+    lastPage: 1,
+    loading: false
+  },
+  defaultProvidersPagination: {
     currentPage: 1,
     lastPage: 1,
     loading: false
@@ -53,7 +63,9 @@ export const directoryListingSlice = createSlice({
       state.allProviders = action.payload;
     },
     appendProviders: (state, action: PayloadAction<any[]>) => {
-      state.allProviders = [...state.allProviders, ...action.payload];
+      const existingIds = new Set(state.allProviders.map(provider => provider.id));
+      const newProviders = action.payload.filter(provider => !existingIds.has(provider.id));
+      state.allProviders = [...state.allProviders, ...newProviders];
     },
     setPagination: (state, action: PayloadAction<{ currentPage: number; lastPage: number }>) => {
       state.pagination.currentPage = action.payload.currentPage;
@@ -98,6 +110,21 @@ export const directoryListingSlice = createSlice({
     },
     setChangeSearchedServiceName: (state, action) => {
       state.changedSearchedServiceName = action.payload;
+    },
+
+    appendDirectoryDefaultProviders: (state, action: PayloadAction<any[]>) => {
+      const existingIds = new Set(state.directoryDefaultProviders.map(provider => provider.id));
+      const newProviders = action.payload.filter(provider => !existingIds.has(provider.id));
+      state.directoryDefaultProviders = [...state.directoryDefaultProviders, ...newProviders];
+    },
+
+    setDefaultProvidersPagination: (state, action: PayloadAction<{ currentPage: number; lastPage: number }>) => {
+      state.defaultProvidersPagination.currentPage = action.payload.currentPage;
+      state.defaultProvidersPagination.lastPage = action.payload.lastPage;
+    },
+
+    setDefaultProvidersLoading: (state, action: PayloadAction<boolean>) => {
+      state.defaultProvidersPagination.loading = action.payload;
     }
   }
 });
@@ -116,7 +143,10 @@ export const {
   setDefaultServiceName,
   setDirectoryDefaultProviders,
   setDirectoryDiscoverProviders,
-  setChangeServiceName
+  setChangeServiceName,
+  appendDirectoryDefaultProviders,
+  setDefaultProvidersPagination,
+  setDefaultProvidersLoading
 } = directoryListingSlice.actions;
 
 export default directoryListingSlice.reducer;

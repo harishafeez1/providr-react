@@ -37,6 +37,7 @@ interface ServicesState {
   serviceLocation: ServiceLocation;
   participantData: ServiceParticipant;
   serviceDetails: Record<string, any>;
+  isServicesLoading: boolean;
 }
 
 const initialState: ServicesState = {
@@ -65,7 +66,8 @@ const initialState: ServicesState = {
     zip_code: '',
     phone: ''
   },
-  serviceDetails: {}
+  serviceDetails: {},
+  isServicesLoading: false
 };
 
 export const servicesSlice = createSlice({
@@ -146,6 +148,10 @@ export const servicesSlice = createSlice({
         phone: ''
       };
       state.serviceDetails = {};
+    },
+
+    setServicesLoading: (state, action: PayloadAction<boolean>) => {
+      state.isServicesLoading = action.payload;
     }
   }
 });
@@ -159,7 +165,8 @@ export const {
   setServiceParticipantData,
   setUpdateWizardData,
   setResetServiceState,
-  setAccessMethods
+  setAccessMethods,
+  setServicesLoading
 } = servicesSlice.actions;
 
 export default servicesSlice.reducer;

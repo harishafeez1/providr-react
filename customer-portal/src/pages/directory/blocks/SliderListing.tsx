@@ -6,12 +6,24 @@ import {
   CarouselContent,
   CarouselItem,
   CarouselNext,
-  CarouselPrevious
+  CarouselPrevious,
+  useCarousel
 } from '@/components/ui/carousel';
+import { useAppSelector } from '@/redux/hooks';
+import { store } from '@/redux/store';
+import {
+  appendProviders,
+  setPagination,
+  setLoading,
+  appendDirectoryDefaultProviders,
+  setDefaultProvidersPagination,
+  setDefaultProvidersLoading
+} from '@/redux/slices/directory-listing-slice';
 import { getProvidersByServiceId } from '@/services/api/all-services';
+import { postDirectoryFilters } from '@/services/api/directory';
 import { addFavouriteProvider } from '@/services/api/wishlist-favourite';
-import { ArrowLeft, ChevronLeft, Heart } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowLeft, ChevronLeft, ChevronRight, Heart } from 'lucide-react';
+import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 
@@ -19,9 +31,114 @@ interface SliderProps {
   heading?: string;
   providerData?: any;
   defaultKey?: string;
+  isDefaultService?: boolean;
 }
 
-const SliderListing = ({ heading, providerData }: SliderProps) => {
+const CustomCarouselNext = ({ isDefaultService }: { isDefaultService?: boolean }) => {
+  const { scrollNext, canScrollNext } = useCarousel();
+  const { pagination, searchedFromHeader, defaultProvidersPagination, directorySettings } =
+    useAppSelector((state) => state.directoryListing);
+  const { service_id, location } = useAppSelector((state) => state.directory);
+  const { auth } = useAuthContext();
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  const handleNextClick = async () => {
+    // Always scroll first
+    scrollNext();
+
+    if (isLoadingMore) return;
+
+    // Handle filtered search pagination
+    if (searchedFromHeader && pagination.currentPage < pagination.lastPage) {
+      setIsLoadingMore(true);
+
+      try {
+        const nextPage = pagination.currentPage + 1;
+        const filtersToSend = {
+          service_id: service_id,
+          location: location,
+          page: nextPage
+        };
+
+        const res = await postDirectoryFilters(filtersToSend);
+        if (res.directories?.data && res.directories.data.length > 0) {
+          store.dispatch(appendProviders(res.directories.data));
+          store.dispatch(
+            setPagination({
+              currentPage: res.directories.current_page,
+              lastPage: res.directories.last_page
+            })
+          );
+        }
+      } catch (error) {
+        console.error('Error loading more filtered providers:', error);
+      } finally {
+        setIsLoadingMore(false);
+      }
+    }
+    // Handle default service pagination
+    else if (
+      isDefaultService &&
+      defaultProvidersPagination.currentPage < defaultProvidersPagination.lastPage
+    ) {
+      setIsLoadingMore(true);
+
+      try {
+        const nextPage = defaultProvidersPagination.currentPage + 1;
+        const defaultService = directorySettings?.find(
+          (item) => item.key === 'default_active_service'
+        );
+
+        if (defaultService) {
+          const res = await getProvidersByServiceId(
+            defaultService.value.id,
+            `page=${nextPage}&per_page=10`,
+            auth?.token ? true : false
+          );
+
+          if (res.data && res.data.length > 0) {
+            store.dispatch(appendDirectoryDefaultProviders(res.data));
+            store.dispatch(
+              setDefaultProvidersPagination({
+                currentPage: res.current_page || nextPage,
+                lastPage: res.last_page || defaultProvidersPagination.lastPage
+              })
+            );
+          }
+        }
+      } catch (error) {
+        console.error('Error loading more default providers:', error);
+      } finally {
+        setIsLoadingMore(false);
+      }
+    }
+  };
+
+  const hasMorePages = isDefaultService 
+    ? defaultProvidersPagination.currentPage < defaultProvidersPagination.lastPage
+    : searchedFromHeader 
+      ? pagination.currentPage < pagination.lastPage 
+      : false;
+
+  const shouldDisable = isLoadingMore || (!canScrollNext && !hasMorePages);
+
+  return (
+    <button
+      className="relative h-6 w-6 -translate-x-2 translate-y-0 bg-gray-200 disabled:text-gray-500 disabled:bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-300 transition-colors"
+      disabled={shouldDisable}
+      onClick={handleNextClick}
+    >
+      <ChevronRight className="h-4 w-4" />
+      {isLoadingMore && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-200 rounded-full">
+          <div className="w-3 h-3 border-2 border-gray-600 border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
+    </button>
+  );
+};
+
+const SliderListing = ({ heading, providerData, isDefaultService }: SliderProps) => {
   const { currentUser, auth } = useAuthContext();
 
   const [favouritedIds, setFavouritedIds] = useState<Set<number>>(new Set());
@@ -60,7 +177,7 @@ const SliderListing = ({ heading, providerData }: SliderProps) => {
         <div className="text-xl font-semibold mb-[24px]">{heading ? `${heading} >` : ''}</div>
         <div className="absolute top-0 right-5 md:right-0 z-10 flex items-center">
           <CarouselPrevious className="relative h-6 w-6 translate-x-8 translate-y-0 bg-gray-200 disabled:text-gray-500 disabled:bg-gray-100" />
-          <CarouselNext className="relative h-6 w-6 -translate-x-14 translate-y-0 bg-gray-200 disabled:text-gray-500 disabled:bg-gray-100" />
+          <CustomCarouselNext isDefaultService={isDefaultService} />
         </div>
 
         <CarouselContent className="mt-2 -ms-2">

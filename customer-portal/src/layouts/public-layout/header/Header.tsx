@@ -117,7 +117,8 @@ const Header = () => {
   const allFilters = useAppSelector((state) => state.directory);
   const filtersToSend = {
     service_id: allFilters.service_id,
-    location: allFilters.location
+    location: allFilters.location,
+    page: 1
   };
 
   const handleFilters = async () => {
