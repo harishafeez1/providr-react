@@ -232,22 +232,34 @@ const CustomerServiceRequestsTable = () => {
           />
         ),
         cell: (info) => {
-          const serviceRequestStatus = info.row.original.status;
-          const hasProviders = info.row.original.service_request_provider.length > 0;
-
-          // Determine the display status
+          const serviceRequestProvider = info.row.original.service_request_provider;
           let displayStatus;
           let badgeClass;
 
-          if (serviceRequestStatus === 'Completed') {
-            displayStatus = 'Completed';
-            badgeClass = 'success';
-          } else if (hasProviders) {
-            displayStatus = info.row.original.service_request_provider[0].status;
-            badgeClass = displayStatus === 'In Progress' && 'success';
-          } else {
+          if (serviceRequestProvider.length === 0) {
             displayStatus = 'Open';
-            badgeClass = 'success';
+            badgeClass = 'success'; // or whatever color for
+            open;
+          } else {
+            const providerStatus = serviceRequestProvider[0].status;
+
+            switch (providerStatus) {
+              case 'In Progress':
+                displayStatus = 'In Progress';
+                badgeClass = 'success';
+                break;
+              case 'Completed':
+                displayStatus = 'Completed';
+                badgeClass = 'success';
+                break;
+              case 'Closed':
+                displayStatus = 'Closed';
+                badgeClass = 'success';
+                break;
+              default:
+                displayStatus = providerStatus;
+                badgeClass = 'secondary';
+            }
           }
 
           return (
@@ -338,9 +350,9 @@ const CustomerServiceRequestsTable = () => {
         id: 'click',
         header: () => '',
         enableSorting: false,
-        cell: (row) =>
-          row.row.original.provider_company_id !== null &&
-          row.row.original.provider_company_id !== '' ? (
+        cell: (row) => {
+          const providerStatus = row.row.original.service_request_provider?.[0]?.status;
+          return providerStatus === 'Closed' ? (
             ''
           ) : (
             <Menu className="items-stretch">
@@ -353,19 +365,23 @@ const CustomerServiceRequestsTable = () => {
                     {
                       name: 'offset',
                       options: {
-                        offset: isRTL() ? [0, -10] : [0, 10] // [skid, distance]
+                        offset: isRTL() ? [0, -10] : [0, 10]
                       }
                     }
                   ]
                 }}
               >
-                <MenuToggle className="btn btn-sm btn-icon btn-light btn-clear">
+                <MenuToggle
+                  className="btn btn-sm btn-icon      
+  btn-light btn-clear"
+                >
                   <KeenIcon icon="dots-vertical" />
                 </MenuToggle>
                 {DropdownCard2(handleInterestedRequest, row.row.original)}
               </MenuItem>
             </Menu>
-          ),
+          );
+        },
         meta: {
           headerClassName: 'w-[60px]'
         }

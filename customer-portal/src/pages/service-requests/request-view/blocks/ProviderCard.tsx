@@ -15,8 +15,6 @@ const ProviderCard = ({ data, comapnyId }: any) => {
   };
   const { id } = useParams();
 
-  const providerCantContact = String(data?.id) === String(comapnyId);
-
   const handleProviderConnection = async () => {
     const res = await getConnectedProvider(data?.id, data?.pivot?.service_request_id);
     if (res) {
@@ -129,7 +127,8 @@ const ProviderCard = ({ data, comapnyId }: any) => {
                 Already Contacted
               </div>
             ) : (
-              providerCantContact && (
+              data?.pivot?.customer_contacted === 0 &&
+              data?.pivot?.status !== 'Closed' && (
                 <div className="flex items-center gap-2 rounded-full bg-blue-50 border border-blue-200 px-4 py-2 text-sm font-medium text-blue-700">
                   <Phone className="h-4 w-4" />
                   Contact You Soon
