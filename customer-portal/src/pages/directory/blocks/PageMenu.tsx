@@ -11,10 +11,17 @@ import { NavbarMenu } from '@/partials/menu/NavbarMenu';
 import { useAppSelector } from '@/redux/hooks';
 import {
   setDefaultServiceName,
-  setDirectoryDefaultProviders
+  setDirectoryDefaultProviders,
+  setAllProviders,
+  setIsSearchedFromHeader,
+  setChangeSearchedServiceName,
+  setPagination,
+  setLoading
 } from '@/redux/slices/directory-listing-slice';
+import { setServiceId } from '@/redux/slices/directory-slice';
 import { store } from '@/redux/store';
 import { getAllServices, getProvidersByServiceId } from '@/services/api/all-services';
+import { postDirectoryFilters } from '@/services/api/directory';
 import React, { useState } from 'react';
 
 export interface IServices {
@@ -38,11 +45,57 @@ const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
 
   const handleServiceClick = async (id: number, serviceName: string) => {
     if (id) {
-      const res = await getProvidersByServiceId(id, 'page=1', auth?.token ? true : false);
-      if (res?.data && res.data.length > 0) {
-        store.dispatch(setDefaultServiceName(serviceName));
-        store.dispatch(setDirectoryDefaultProviders(res.data));
+      store.dispatch(setLoading(true));
+      store.dispatch(setServiceId(id));
+      
+      // If location is selected, use the filter API to get location-based results
+      if (location) {
+        const filtersToSend = {
+          service_id: id,
+          location: location
+        };
+        
+        try {
+          const res = await postDirectoryFilters(filtersToSend);
+          if (res.directories?.data && res.directories.data.length > 0) {
+            store.dispatch(setIsSearchedFromHeader(true));
+            store.dispatch(setChangeSearchedServiceName(serviceName));
+            store.dispatch(setAllProviders(res.directories.data));
+            store.dispatch(
+              setPagination({
+                currentPage: res.directories.current_page,
+                lastPage: res.directories.last_page
+              })
+            );
+          } else {
+            // Fallback to regular service providers if no location-based results
+            const fallbackRes = await getProvidersByServiceId(id, 'page=1', auth?.token ? true : false);
+            if (fallbackRes?.data && fallbackRes.data.length > 0) {
+              store.dispatch(setDefaultServiceName(serviceName));
+              store.dispatch(setDirectoryDefaultProviders(fallbackRes.data));
+              store.dispatch(setIsSearchedFromHeader(false));
+            }
+          }
+        } catch (error) {
+          // Fallback to regular service providers on error
+          const fallbackRes = await getProvidersByServiceId(id, 'page=1', auth?.token ? true : false);
+          if (fallbackRes?.data && fallbackRes.data.length > 0) {
+            store.dispatch(setDefaultServiceName(serviceName));
+            store.dispatch(setDirectoryDefaultProviders(fallbackRes.data));
+            store.dispatch(setIsSearchedFromHeader(false));
+          }
+        }
+      } else {
+        // No location selected, use regular service provider fetch
+        const res = await getProvidersByServiceId(id, 'page=1', auth?.token ? true : false);
+        if (res?.data && res.data.length > 0) {
+          store.dispatch(setDefaultServiceName(serviceName));
+          store.dispatch(setDirectoryDefaultProviders(res.data));
+          store.dispatch(setIsSearchedFromHeader(false));
+        }
       }
+      
+      store.dispatch(setLoading(false));
     }
   };
 

@@ -116,7 +116,7 @@ const Header = () => {
 
   const allFilters = useAppSelector((state) => state.directory);
   const filtersToSend = {
-    service_id: allFilters.location === '' ? '' : allFilters.service_id,
+    service_id: allFilters.service_id,
     location: allFilters.location
   };
 
@@ -128,7 +128,7 @@ const Header = () => {
     }
     store.dispatch(setLoading(true));
     const res = await postDirectoryFilters(filtersToSend);
-    if (res.directories.data.length > 0) {
+    if (res.directories?.data && res.directories.data.length > 0) {
       store.dispatch(setIsSearchedFromHeader(true));
       const selectedService = transformedServicesList.find((opt) => opt.value === service_id);
       store.dispatch(setChangeSearchedServiceName(selectedService?.label || ''));
