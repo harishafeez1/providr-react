@@ -14,6 +14,14 @@ interface ServiceRequestProvider {
   status: String;
 }
 
+interface RequestedProviderCompanyPivot {
+  customer_contacted: number;
+}
+
+interface RequestedProviderCompany {
+  pivot: RequestedProviderCompanyPivot;
+}
+
 interface ICustomerServiceRequestsData {
   id: string | number;
   first_name: string;
@@ -28,6 +36,7 @@ interface ICustomerServiceRequestsData {
   service: Services;
   provider_company_id?: number | string;
   service_request_provider: ServiceRequestProvider[];
+  requested_provider_companies: RequestedProviderCompany[];
 }
 
 export { type ICustomerServiceRequestsData };

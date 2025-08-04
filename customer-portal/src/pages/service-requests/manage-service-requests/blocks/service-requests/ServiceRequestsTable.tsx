@@ -213,7 +213,7 @@ const ServiceRequestsTable = () => {
         }
       },
       {
-        accessorFn: (row) => row.interested_providers?.length || 0,
+        accessorFn: (row) => row.interested_providers,
         id: 'interested_providers',
         header: ({ column }) => (
           <DataGridColumnHeader
@@ -223,9 +223,10 @@ const ServiceRequestsTable = () => {
           />
         ),
         cell: (info) => {
-          const count = info.getValue<number>();
+          const interestedProviders = info.getValue<any[]>();
+          const count = interestedProviders?.length || 0;
 
-          return count && count > 0 ? (
+          return count > 0 ? (
             <div className="badge badge-pill badge-success">{count}</div>
           ) : (
             <span>---</span>

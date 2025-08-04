@@ -6,6 +6,7 @@ import { getConnectedProvider, getSingleServiceRequests } from '@/services/api/s
 import { Heart, MessageCircleMore, Phone, Star } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const ProviderCard = ({ data, comapnyId }: any) => {
   const [isFavorite, setIsFavorite] = useState(false);
@@ -16,9 +17,16 @@ const ProviderCard = ({ data, comapnyId }: any) => {
   const { id } = useParams();
 
   const handleProviderConnection = async () => {
-    const res = await getConnectedProvider(data?.id, data?.pivot?.service_request_id);
-    if (res) {
-      await getSingleServiceRequests(id);
+    if (data?.pivot?.customer_contacted === 0) {
+      toast.error(
+        'Please wait for the provider to contact you. To connect directly, use the Direct Connect option on their profile.',
+        { position: 'top-right', dismissible: true, duration: 10000 }
+      );
+    } else {
+      const res = await getConnectedProvider(data?.id, data?.pivot?.service_request_id);
+      if (res) {
+        await getSingleServiceRequests(id);
+      }
     }
   };
 

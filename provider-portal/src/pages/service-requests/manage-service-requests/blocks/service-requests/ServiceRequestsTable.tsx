@@ -33,7 +33,7 @@ const DropdownCard2 = (handleInterestedRequest: any, row: any) => {
   const { isRTL } = useLanguage();
   return (
     <MenuSub className="menu-default" rootClassName="w-full max-w-[200px]">
-      {row.service_request_provider.length <= 0 && (
+      {row?.service_request_provider?.length <= 0 && (
         <MenuItem
           onClick={() => handleInterestedRequest(row.id)}
           toggle="dropdown"
@@ -303,7 +303,8 @@ const ServiceRequestsTable = () => {
         cell: (info) => {
           return (
             <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.service_request_provider?.[0]?.customer_contacted ? (
+              {info.row.original?.requested_provider_companies?.[0]?.pivot?.customer_contacted ===
+              1 ? (
                 <div className="badge badge-pill badge-success">Yes</div>
               ) : (
                 <div className="badge badge-pill badge-danger">No</div>

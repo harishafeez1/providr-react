@@ -69,7 +69,7 @@ const DropdownUser = ({ menuItemRef }: IDropdownUserProps) => {
               </MenuLink>
             </MenuItem>
             <MenuItem>
-              <MenuLink newTab path={`/provider-portal/auth/login`}>
+              <MenuLink externalLink newTab path={`/provider-portal/auth/login`}>
                 <MenuIcon className="setting-2">
                   <KeenIcon icon="security-user" />
                 </MenuIcon>
