@@ -111,8 +111,6 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
         }
       }
     });
-
-    console.log('---------', formik.errors);
     return (
       <>
         <Dialog open={open} onOpenChange={onOpenChange}>

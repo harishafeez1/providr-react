@@ -240,7 +240,7 @@ const ServiceRequestsTable = () => {
         id: 'provider_company',
         header: ({ column }) => (
           <DataGridColumnHeader
-            title="Connected Provider"
+            title="Connected"
             column={column}
             icon={<i className="ki-filled ki-flag"></i>}
           />

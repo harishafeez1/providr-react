@@ -16,7 +16,7 @@ const About = ({ data }: any) => {
     { status: 'Gender:', info: data?.gender || '' },
     { status: 'Address:', info: data?.address || '' },
     // { status: 'City:', info: data?.city || '' },
-    { status: 'State:', info: data?.state || '' },
+    // { status: 'State:', info: data?.state || '' },
     { status: 'Postcode:', info: data?.zip_code || '' },
     {
       status: 'Age Range:',
