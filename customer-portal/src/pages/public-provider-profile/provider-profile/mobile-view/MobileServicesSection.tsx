@@ -12,6 +12,10 @@ const MobileServicesSection = () => {
   const [activeService, setActiveService] = useState<any | null>(null);
   const [showAccessMethods, setShowAccessMethods] = useState<any | null>(null);
   const [showServiceAreas, setShowServiceAreas] = useState<any | null>(null);
+  const [showLanguages, setShowLanguages] = useState(false);
+
+  // Missing variables from desktop version now available
+  const languageCollection = providerProfile?.language_collection;
 
   return (
     <>

@@ -44,11 +44,13 @@ const DirectoryContent = ({ providers, loading }: any) => {
 
       {providers?.map((item: any, index: number) => (
         <div key={index} className="mt-[22px]">
-          <SliderListing
-            providerData={item}
-            heading={discoverServiceNames[index]?.name || 'Service'}
-            defaultKey={`discover-providers-${index}`}
-          />
+          {item && item.length > 0 && (
+            <SliderListing
+              providerData={item}
+              heading={discoverServiceNames[index]?.name || 'Service'}
+              defaultKey={`discover-providers-${index}`}
+            />
+          )}
         </div>
       ))}
     </>

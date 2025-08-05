@@ -32,6 +32,7 @@ interface SliderProps {
   providerData?: any;
   defaultKey?: string;
   isDefaultService?: boolean;
+  loading?: boolean;
 }
 
 const CustomCarouselNext = ({ isDefaultService }: { isDefaultService?: boolean }) => {
@@ -138,7 +139,7 @@ const CustomCarouselNext = ({ isDefaultService }: { isDefaultService?: boolean }
   );
 };
 
-const SliderListing = ({ heading, providerData, isDefaultService }: SliderProps) => {
+const SliderListing = ({ heading, providerData, isDefaultService, loading }: SliderProps) => {
   const { currentUser, auth } = useAuthContext();
 
   const [favouritedIds, setFavouritedIds] = useState<Set<number>>(new Set());
@@ -166,6 +167,11 @@ const SliderListing = ({ heading, providerData, isDefaultService }: SliderProps)
     }
   };
 
+  // Don't render anything if not loading and no providers available
+  if (!loading && (!providerData || providerData.length === 0)) {
+    return null;
+  }
+
   return (
     <div className="w-[90vw] xl:w-full text-black">
       <Carousel
@@ -181,7 +187,7 @@ const SliderListing = ({ heading, providerData, isDefaultService }: SliderProps)
         </div>
 
         <CarouselContent className="mt-2 -ms-2">
-          {providerData?.length === 0
+          {loading
             ? [...Array(10)].map((_, index) => (
                 <CarouselItem
                   key={index}

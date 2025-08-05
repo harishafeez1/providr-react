@@ -11,6 +11,10 @@ import { BottomSheetDialog } from '@/components';
 const MobileReviews = () => {
   const { providerProfile } = useAppSelector((state: any) => state.providerProfile);
 
+  // Missing variables from desktop version now available
+  const averageRating = providerProfile?.average_rating;
+  const totalReviews = providerProfile?.total_reviews;
+
   const [isOpen, setIsOpen] = useState(false);
   const handleModalChange = () => {
     setIsOpen(!isOpen);

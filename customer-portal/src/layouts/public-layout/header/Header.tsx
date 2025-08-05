@@ -61,6 +61,7 @@ const Header = () => {
   const { transformedServicesList } = useAppSelector((state) => state.services);
 
   const { service_id } = useAppSelector((state) => state.directory);
+  const isSearchLoading = useAppSelector((state) => state.directoryListing.pagination.loading);
 
   useEffect(() => {
     const getServices = async () => {
@@ -110,7 +111,9 @@ const Header = () => {
       console.log('Final Location:', location);
       store.dispatch(setLocation(location.suburb || ''));
     } else {
+      // Clear both Redux location and default address when field is cleared
       store.dispatch(setLocation(''));
+      setDefaultAddress(null);
     }
   };
 
@@ -146,12 +149,10 @@ const Header = () => {
         })
       );
     } else {
-      store.dispatch(setIsSearchedFromHeader(false));
-      store.dispatch(setChangeSearchedServiceName(''));
-      toast.error(
-        'We were unable to locate any providers matching your search criteria in this area',
-        { position: 'top-right' }
-      );
+      store.dispatch(setIsSearchedFromHeader(true));
+      const selectedService = transformedServicesList.find((opt) => opt.value === service_id);
+      store.dispatch(setChangeSearchedServiceName(selectedService?.label || ''));
+      store.dispatch(setAllProviders([]));
     }
     store.dispatch(setLoading(false));
   };
@@ -511,9 +512,11 @@ const Header = () => {
             </label>
           </div>
           <button
-            className="flex items-center justify-center rounded-full bg-primary px-3 py-2 m-1 cursor-pointer"
+            className={`flex items-center justify-center rounded-full px-3 py-2 m-1 ${
+              isSearchLoading ? 'bg-[#7b4f84] cursor-not-allowed' : 'bg-primary cursor-pointer'
+            }`}
             onClick={handleFilters}
-            // disabled={allFilters.location === ''}
+            disabled={isSearchLoading}
           >
             <KeenIcon icon="magnifier" className="text-xl font-bold text-white" />
           </button>

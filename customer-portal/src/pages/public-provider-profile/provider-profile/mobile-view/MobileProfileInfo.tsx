@@ -1,8 +1,59 @@
 import { useAppSelector } from '@/redux/hooks';
-import { Star } from 'lucide-react';
+import { Facebook, Heart, Instagram, Share, Star, Twitter } from 'lucide-react';
+import NDIS from '/media/brand-logos/NDIS-Provider.png';
+import { useAuthContext } from '@/auth';
+import { useEffect, useState, useRef } from 'react';
+import { addFavouriteProvider } from '@/services/api/wishlist-favourite';
+import { toast } from 'sonner';
+import useSharePageUrl from '@/hooks/useShareUrl';
 
 const MobileProfileInfo = () => {
   const { providerProfile } = useAppSelector((state: any) => state.providerProfile);
+  const { auth } = useAuthContext();
+  const { sharePage, isShareSupported } = useSharePageUrl();
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [showViewMore, setShowViewMore] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const descriptionRef = useRef<HTMLDivElement>(null);
+
+  // Missing variables from desktop version now available
+  const registeredForNdis = providerProfile?.registered_for_ndis;
+  const facebookUrl = providerProfile?.facebook_url;
+  const instagramUrl = providerProfile?.instagram_url;
+  const twitterUrl = providerProfile?.twitter_url;
+  const description = providerProfile?.description;
+  const isFavourite = providerProfile?.is_favourite;
+
+  const toggleFavorite = async () => {
+    if (!auth?.token) {
+      toast.error('Please log in to favourite this provider.', { position: 'top-right' });
+    } else {
+      await addFavouriteProvider(providerProfile?.id, auth?.customer?.id);
+      setIsFavorite(!isFavorite);
+    }
+  };
+
+  useEffect(() => {
+    if (isFavourite) {
+      setIsFavorite(isFavourite);
+    }
+  }, [isFavourite]);
+
+  useEffect(() => {
+    const checkTextOverflow = () => {
+      if (descriptionRef.current && description) {
+        const element = descriptionRef.current;
+        const lineHeight = parseInt(getComputedStyle(element).lineHeight);
+        const maxHeight = lineHeight * 2; // Allow 2 lines
+        setShowViewMore(element.scrollHeight > maxHeight);
+      }
+    };
+
+    if (description) {
+      checkTextOverflow();
+    }
+  }, [description]);
   return (
     <div className="text-black relative">
       {providerProfile?.business_logo && (
@@ -21,18 +72,30 @@ const MobileProfileInfo = () => {
       <h1 className="text-center text-2xl font-semibold my-[10px] pt-[32px]">
         {providerProfile?.name}
       </h1>
-      <p className="text-center text-sm text-[#6c6c6c] mb-[10px]">
-        Enjoy playful interpretations of classic American, French, Italian, and German cuisine.
-      </p>
+      <div className="text-center text-sm text-[#6c6c6c] mb-[10px] px-4">
+        <div
+          ref={descriptionRef}
+          className={`break-words ${isDescriptionExpanded ? '' : 'line-clamp-3'}`}
+          dangerouslySetInnerHTML={{ __html: description || '' }}
+        />
+        {showViewMore && (
+          <button
+            onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+            className="text-xs text-primary hover:text-primary-800 mt-2"
+          >
+            {isDescriptionExpanded ? 'View less' : 'View more'}
+          </button>
+        )}
+      </div>
       <div className="flex items-center justify-center text-[#222222] text-xs mt-[14px]">
         <Star size={11} fill="#222222" />
         <span className="ml-2 ">{providerProfile?.average_rating} </span>
         <span className="ml-2 ">-</span>
         <span className="ml-2 ">{providerProfile?.total_reviews} reviews</span>
-        <span className="ml-2 ">-</span>
-        <span className="ml-2 ">Provider location</span>
+        {/* <span className="ml-2 ">-</span>
+        <span className="ml-2 ">Provider location</span> */}
       </div>
-      <div className="text-[#6c6c6c] text-xs text-center">Provider</div>
+      {/* <div className="text-[#6c6c6c] text-xs text-center">Provider</div> */}
     </div>
   );
 };

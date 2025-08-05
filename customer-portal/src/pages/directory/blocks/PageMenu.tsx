@@ -40,12 +40,17 @@ interface PageMenuProps {
 
 const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
   const { location } = useAppSelector((state) => state.directory);
-  const { directorySettings } = useAppSelector((state) => state.directoryListing);
+  const { directorySettings, searchedFromHeader } = useAppSelector((state) => state.directoryListing);
   const { servicesList } = useAppSelector((state) => state.services);
   const { auth } = useAuthContext();
 
-  const handleServiceClick = async (id: number, serviceName: string) => {
+  const handleServiceClick = async (id: number, serviceName: string, providerCount: string) => {
     if (id) {
+      // If no providers available, don't trigger API call or loading
+      if (parseInt(providerCount) === 0) {
+        return;
+      }
+      
       store.dispatch(setLoading(true));
       store.dispatch(setServiceId(id));
       
@@ -138,7 +143,7 @@ const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
           className="relative"
         >
           <div className="text-xl font-semibold mb-[12px]">
-            {location ? `Service in ${location}` : 'Services'}
+            {searchedFromHeader && location ? `Service in ${location}` : 'Services'}
           </div>
           <div className="absolute top-0 right-5 md:right-0 z-10 flex items-center justify-center">
             <CarouselPrevious className="relative h-6 w-6 translate-x-8 translate-y-0 bg-gray-200 disabled:text-gray-500 disabled:bg-gray-100" />
@@ -164,8 +169,12 @@ const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
               : services?.map((service, index) => (
                   <CarouselItem
                     key={index}
-                    className="basis-[50%] md:basis-[20%] lg:basis-[15%] xl:basis-[10%] cursor-pointer pl-[10px] md:w-full"
-                    onClick={() => handleServiceClick(service.id, service.name)}
+                    className={`basis-[50%] md:basis-[20%] lg:basis-[15%] xl:basis-[10%] pl-[10px] md:w-full ${
+                      parseInt(service.provider_companies_count) === 0 
+                        ? 'cursor-not-allowed' 
+                        : 'cursor-pointer'
+                    }`}
+                    onClick={() => handleServiceClick(service.id, service.name, service.provider_companies_count)}
                   >
                     <Card className="rounded-xl border-none h-[170px] w-full overflow-hidden">
                       <img

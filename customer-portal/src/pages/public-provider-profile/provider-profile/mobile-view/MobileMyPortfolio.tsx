@@ -5,8 +5,11 @@ import { useAppSelector } from '@/redux/hooks';
 const MobileMyPortfolio = () => {
   const { providerProfile } = useAppSelector((state: any) => state.providerProfile);
 
+  // Missing variables from desktop version now available
+  const photoGallery = providerProfile?.photo_gallery;
+
   const images =
-    providerProfile?.photo_gallery?.map(
+    photoGallery?.map(
       (img: string) => `${import.meta.env.VITE_APP_AWS_URL}/${img}`
     ) || [];
 

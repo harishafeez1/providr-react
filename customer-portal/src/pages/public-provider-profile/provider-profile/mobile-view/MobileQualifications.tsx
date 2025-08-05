@@ -10,6 +10,12 @@ import { BottomSheetDialog } from '@/components';
 const MobileQualifications = () => {
   const { providerProfile } = useAppSelector((state: any) => state.providerProfile);
 
+  // Missing variables from desktop version now available
+  const phoneNumber = providerProfile?.phone_number;
+  const email = providerProfile?.email;
+  const website = providerProfile?.website;
+  const qualifications = providerProfile?.qualifications;
+
   const [showPhoneNumber, setShowPhoneNumber] = useState(false);
   const [showEmail, setShowEmail] = useState(false);
 

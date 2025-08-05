@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { DirectoryContent } from './';
 import { PageMenu } from './blocks/PageMenu';
+import NoServicesFound from './components/NoServicesFound';
 
 import { store } from '@/redux/store';
 import {
@@ -51,6 +52,8 @@ const DirectoryPage = () => {
     changedSearchedServiceName
   } = useAppSelector((state) => state.directoryListing);
 
+  const isDirectoryLoading = useAppSelector((state) => state.directoryListing.pagination.loading);
+
   const { paginatedServicesList, isServicesLoading } = useAppSelector((state) => state.services);
 
   const fetchSettings = async () => {
@@ -80,13 +83,18 @@ const DirectoryPage = () => {
 
   useEffect(() => {
     const fetchServiceProviders = async () => {
+      let defaultServiceId: number | null = null;
+      let defaultServiceProviders: any[] = [];
+
       for (const item of directorySettings || []) {
         if (item.key === 'default_active_service') {
+          defaultServiceId = item.value.id;
           const res = await getProvidersByServiceId(
             item.value.id,
             'page=1&per_page=10',
             auth?.token ? true : false
           );
+          defaultServiceProviders = res.data;
           store.dispatch(setDirectoryDefaultProviders(res.data));
           store.dispatch(
             setDefaultProvidersPagination({
@@ -97,14 +105,30 @@ const DirectoryPage = () => {
         }
 
         if (item.key === 'discover_services') {
-          const promises = item.value.map((service: any) =>
+          // Filter out the default service to avoid duplicate API calls
+          const uniqueServices = item.value.filter(
+            (service: any) => service.id !== defaultServiceId
+          );
+
+          const promises = uniqueServices.map((service: any) =>
             getProvidersByServiceId(service.id, 'page=1&per_page=10', auth?.token ? true : false)
           );
 
           const results = await Promise.all(promises);
           const providers = results.map((res: any) => res.data);
 
-          store.dispatch(setDirectoryDiscoverProviders(providers));
+          // Create the full providers array with correct positioning
+          const allProviders = item.value.map((service: any) => {
+            if (service.id === defaultServiceId) {
+              // Use the default service providers that were already fetched
+              return defaultServiceProviders;
+            } else {
+              const uniqueIndex = uniqueServices.findIndex((s: any) => s.id === service.id);
+              return uniqueIndex >= 0 ? providers[uniqueIndex] : [];
+            }
+          });
+
+          store.dispatch(setDirectoryDiscoverProviders(allProviders));
         }
       }
     };
@@ -120,34 +144,42 @@ const DirectoryPage = () => {
   return (
     <div className="col-span-12">
       <div className="my-6 font-montserrat">
-        {locationCheck?.pathname?.includes('directory') && (
-          <div className="flex">
-            <PageMenu services={paginatedServicesList} loading={isServicesLoading} />
-          </div>
-        )}
-        {searchedFromHeader && allProviders.length > 0 ? (
-          <div className="mt-[12px]">
-            <SliderListing
-              providerData={allProviders}
-              heading={changedSearchedServiceName || 'Cleaning'}
-            />
-          </div>
+        {searchedFromHeader && allProviders.length === 0 ? (
+          <NoServicesFound serviceType={changedSearchedServiceName || 'services'} />
         ) : (
           <>
-            <div className="mt-[12px]">
-              <SliderListing
-                providerData={directoryDefaultProviders}
-                heading={directorySettings?.[0]?.value?.name || 'Cleaning'}
-                defaultKey={'default_active_service'}
-                isDefaultService={true}
-              />
-            </div>
-            <div className="mt-4 flex flex-col text-black ">
-              <div className="text-[32px] font-semibold mt-[30px] mb-[10px] leading-normal">
-                Discover services on Providr
+            {locationCheck?.pathname?.includes('directory') && (
+              <div className="flex">
+                <PageMenu services={paginatedServicesList} loading={isServicesLoading} />
               </div>
-              <DirectoryContent providers={directoryDiscoverProviders} />
-            </div>
+            )}
+            {searchedFromHeader && allProviders.length > 0 ? (
+              <div className="mt-[12px]">
+                <SliderListing
+                  providerData={allProviders}
+                  heading={changedSearchedServiceName || 'Cleaning'}
+                  loading={isDirectoryLoading}
+                />
+              </div>
+            ) : (
+              <>
+                <div className="mt-[12px]">
+                  <SliderListing
+                    providerData={directoryDefaultProviders}
+                    heading={directorySettings?.[0]?.value?.name || 'Cleaning'}
+                    defaultKey={'default_active_service'}
+                    isDefaultService={true}
+                    loading={isDirectoryLoading}
+                  />
+                </div>
+                <div className="mt-4 flex flex-col text-black ">
+                  <div className="text-[32px] font-semibold mt-[30px] mb-[10px] leading-normal">
+                    Discover services on Providr
+                  </div>
+                  <DirectoryContent providers={directoryDiscoverProviders} />
+                </div>
+              </>
+            )}
           </>
         )}
       </div>
