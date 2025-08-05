@@ -11,6 +11,10 @@ const MobileProfileInfo = () => {
   const { providerProfile } = useAppSelector((state: any) => state.providerProfile);
   const { auth } = useAuthContext();
   const { sharePage, isShareSupported } = useSharePageUrl();
+  
+  const handleShare = () => {
+    sharePage();
+  };
   const [isFavorite, setIsFavorite] = useState(false);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [showViewMore, setShowViewMore] = useState(false);
@@ -29,8 +33,13 @@ const MobileProfileInfo = () => {
     if (!auth?.token) {
       toast.error('Please log in to favourite this provider.', { position: 'top-right' });
     } else {
-      await addFavouriteProvider(providerProfile?.id, auth?.customer?.id);
-      setIsFavorite(!isFavorite);
+      try {
+        await addFavouriteProvider(providerProfile?.id, auth?.customer?.id);
+        setIsFavorite(!isFavorite);
+        toast.success('Provider added to favorites!', { position: 'top-right' });
+      } catch (error) {
+        toast.error('Failed to add to favorites', { position: 'top-right' });
+      }
     }
   };
 
@@ -94,6 +103,25 @@ const MobileProfileInfo = () => {
         <span className="ml-2 ">{providerProfile?.total_reviews} reviews</span>
         {/* <span className="ml-2 ">-</span>
         <span className="ml-2 ">Provider location</span> */}
+      </div>
+      
+      <div className="flex items-center justify-center space-x-4 mt-5">
+        <button
+          onClick={handleShare}
+          className="flex items-center px-2 py-2 rounded-full font-medium hover:bg-gray-100 transition"
+        >
+          <Share size={16} className="text-black" />
+        </button>
+
+        <button
+          onClick={toggleFavorite}
+          className="flex items-center px-2 py-2 font-medium hover:bg-gray-100 rounded-full transition"
+        >
+          <Heart
+            size={16}
+            className={`text-black ${isFavorite ? 'fill-red-500 text-red-500' : ''}`}
+          />
+        </button>
       </div>
       {/* <div className="text-[#6c6c6c] text-xs text-center">Provider</div> */}
     </div>
