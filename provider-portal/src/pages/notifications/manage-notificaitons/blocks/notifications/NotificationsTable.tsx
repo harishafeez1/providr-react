@@ -25,9 +25,13 @@ const NotificationsTable = () => {
   //   setIsEmail((prev) => !prev);
   // }, []);
 
-  const handleToggleSms = useCallback(() => {
-    setIsSms((prev) => !prev);
-  }, []);
+  const handleToggleSms = async (row: any) => {
+    setRefreshKey((pre) => pre + 1);
+    await updateNotificationsSetting(currentUser?.provider_company_id, {
+      name: row.name,
+      sms_active: row.sms_active ? 0 : 1
+    });
+  };
 
   const handleToggleEmail = async (row: any) => {
     setRefreshKey((pre) => pre + 1);
@@ -150,34 +154,35 @@ const NotificationsTable = () => {
         meta: {
           headerClassName: 'min-w-[180px]'
         }
+      },
+      {
+        accessorFn: (row) => row.sms_active,
+        id: 'sms_active',
+        header: ({ column }) => (
+          <DataGridColumnHeader
+            title="SMS "
+            column={column}
+            icon={<i className="ki-filled ki-messages"></i>}
+          />
+        ),
+        cell: (info) => {
+          return (
+            <label className="switch switch-sm p-3">
+              <input
+                className="order-1"
+                type="checkbox"
+                checked={info.row.original.sms_active}
+                onChange={() => {
+                  handleToggleSms(info.row.original);
+                }}
+              />
+            </label>
+          );
+        },
+        meta: {
+          headerClassName: 'min-w-[180px]'
+        }
       }
-      // {
-      //   accessorFn: (row) => row.isSms,
-      //   id: 'isSms',
-      //   header: ({ column }) => (
-      //     <DataGridColumnHeader
-      //       title="SMS "
-      //       column={column}
-      //       icon={<i className="ki-filled ki-messages"></i>}
-      //     />
-      //   ),
-      //   cell: (info) => {
-      //     return (
-      //       <label className="switch switch-sm p-3">
-      //         <input
-      //           className="order-1"
-      //           type="checkbox"
-      //           checked={info.row.original.isSms}
-      //           disabled={info.row.original.isdisabled}
-      //           onChange={handleToggleSms}
-      //         />
-      //       </label>
-      //     );
-      //   },
-      //   meta: {
-      //     headerClassName: 'min-w-[180px]'
-      //   }
-      // },
       // {
       //   accessorFn: (row) => row.lastUpdated,
       //   id: 'lastUpdated',
