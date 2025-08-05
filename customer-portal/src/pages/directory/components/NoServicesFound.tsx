@@ -30,9 +30,9 @@ const NoServicesFound: React.FC<NoServicesFoundProps> = ({ searchLocation, servi
                 <span className="font-medium">Location:</span> {searchLocation}
               </p>
             )}
-            {serviceType && (
+            {serviceType && serviceType !== 'services' && (
               <p className="text-sm">
-                <span className="font-medium">Service Type:</span> {serviceType || ''}
+                <span className="font-medium">Service Type:</span> {serviceType}
               </p>
             )}
             <div className="mt-4 p-3 bg-blue-50 rounded border-l-4 border-blue-400">
