@@ -64,6 +64,7 @@
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",
     "react-dropzone": "^14.3.5",
+    "react-google-autocomplete": "^2.7.5",
     "react-google-places-autocomplete": "^4.1.0",
     "react-helmet": "^6.1.0",
     "react-helmet-async": "^2.0.5",

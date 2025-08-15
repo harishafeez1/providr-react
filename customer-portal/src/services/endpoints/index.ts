@@ -34,6 +34,7 @@ export const GET_ALL_SERVICES_PUBLIC_URL = `${API_URL}/get_services`;
 export const GET_PROVIDE_BY_SERVICE_ID_URL = `${API_URL}/get_providers_by_service_id`; //id
 export const GET_SETTINGS_URL = `${API_URL}/get_settings`; //id
 export const GET_SERVICE_PROVIDER_COUNT_URL = `${API_URL}/provider_count`; //id
+export const GET_SERVICE_LOCALITIES_URL = `${API_URL}/localities`; //POSTCODE
 
 // WishList Routes
 export const GET_ALL_WISHLIST_FAVOUTIE_URL = `${API_URL}/customer_favs`;

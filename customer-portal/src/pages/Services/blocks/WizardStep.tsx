@@ -35,6 +35,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Link } from 'react-router-dom';
 import { getProviderCount } from '@/services/api/directory';
 import { Textarea } from '@/components/ui/textarea';
+import AustralianSuburbSearch from '@/components/AUSuburubs';
 
 export default function AirbnbWizard() {
   const { selectedServiceId, serviceLocation, participantData, wizardData } = useAppSelector(
@@ -123,29 +124,32 @@ export default function AirbnbWizard() {
     }
   };
 
+  const fetchProviderCount = async () => {
+    if (!selectedServiceId) return;
+
+    const location = serviceLocation?.address?.trim()?.toLowerCase() || '';
+    const query = location
+      ? `service_id=${selectedServiceId}&location=${location}`
+      : `service_id=${selectedServiceId}`;
+
+    setCountLoading(true);
+    try {
+      const res = await getProviderCount(query);
+      setAvailableProvidersCount(res);
+    } catch (error) {
+      console.error('Error fetching provider count:', error);
+      setAvailableProvidersCount(0);
+    } finally {
+      setCountLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchProviderCount = async () => {
-      if (!selectedServiceId || currentStep === 0 || currentStep > 2) return;
-
-      const location = serviceLocation?.address?.trim()?.split(' ')[0]?.toLowerCase() || '';
-      const query = location
-        ? `service_id=${selectedServiceId}&location=${location}`
-        : `service_id=${selectedServiceId}`;
-
-      setCountLoading(true);
-      try {
-        const res = await getProviderCount(query);
-        setAvailableProvidersCount(res);
-      } catch (error) {
-        console.error('Error fetching provider count:', error);
-        setAvailableProvidersCount(0);
-      } finally {
-        setCountLoading(false);
-      }
-    };
-
-    fetchProviderCount();
-  }, [selectedServiceId, serviceLocation.address, currentStep]);
+    // Call provider count API when location is selected on location step
+    if (currentStep === 1 && selectedServiceId && serviceLocation?.address) {
+      fetchProviderCount();
+    }
+  }, [serviceLocation?.address, selectedServiceId, currentStep]);
 
   useEffect(() => {
     if (availableProvidersCount === 0 && currentStep !== 0) {
@@ -301,6 +305,21 @@ function BasicInfoStep() {
 
 function LocationStep() {
   const { serviceLocation } = useAppSelector((state) => state.services);
+  const { location } = useAppSelector((state) => state.directory);
+
+  // Sync directory location with services location
+  useEffect(() => {
+    if (location && location !== serviceLocation?.address) {
+      // Create a simple location object for the services store
+      const locationData = {
+        address: location,
+        city: location,
+        state: '',
+        country: 'Australia'
+      };
+      store.dispatch(setServiceLocation(locationData));
+    }
+  }, [location, serviceLocation?.address]);
 
   const defaultValue = serviceLocation?.address
     ? {
@@ -329,7 +348,7 @@ function LocationStep() {
       country?: string;
       zip_code?: string;
     } = {};
-    await geocodeByAddress(address.label)
+    const res = await geocodeByAddress(address.label)
       .then((results) => getLatLng(results[0]))
       .then(
         ({ lat, lng }) => (
@@ -342,16 +361,17 @@ function LocationStep() {
       )
       .then(() => store.dispatch(setServiceLocation(location)));
     const results = await geocodeByPlaceId(address.value.place_id);
+    console.log('--------------', res, results);
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-baseline flex-wrap gap-2.5 mb-4">
-        <label className="form-label flex items-center gap-1 max-w-56">
-          Enter the service location
+        <label className="form-label flex items-center gap-1">
+          Enter the service location <strong className="text-primary">suburb or postcode</strong>
         </label>
         <div className="w-full">
-          <GooglePlacesAutocomplete
+          {/* <GooglePlacesAutocomplete
             apiKey={import.meta.env.VITE_APP_GOOGLE_API_KEY}
             onLoadFailed={(err) => {
               console.error('Could not load google places autocomplete', err);
@@ -373,7 +393,8 @@ function LocationStep() {
               onChange: handleLocationChange,
               defaultValue: defaultValue
             }}
-          />
+          /> */}
+          <AustralianSuburbSearch />
         </div>
       </div>
     </div>
