@@ -58,10 +58,20 @@ const validationSchema = Yup.object({
   // })
   description: Yup.string()
     .required('Description is required')
+    .max(3000, 'Description must not exceed 3000 characters')
     .test('min-text-length', 'Description must be at least 100 characters', (value) => {
       if (!value) return false;
       const text = stripHtml(value);
       return text.length >= 100;
+    })
+    .test('max-word-count', 'Description must not exceed 300 words', (value) => {
+      if (!value) return true;
+      const text = stripHtml(value);
+      const wordCount = text
+        .trim()
+        .split(/\s+/)
+        .filter((word) => word.length > 0).length;
+      return wordCount <= 300;
     }),
   organisation_type: Yup.string()
     .oneOf(['sole_trader', 'company'], 'Invalid organisation type')
@@ -220,6 +230,22 @@ const AddCompanyProfileForm = () => {
       initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
+      validate={(values) => {
+        const errors: any = {};
+        if (values.description) {
+          const text = stripHtml(values.description);
+          const wordCount = text
+            .trim()
+            .split(/\s+/)
+            .filter((word) => word.length > 0).length;
+          if (values.description.length > 3000) {
+            errors.description = 'Description must not exceed 3000 characters';
+          } else if (wordCount > 300) {
+            errors.description = 'Description must not exceed 300 words';
+          }
+        }
+        return errors;
+      }}
     >
       {({ setFieldValue, values, isSubmitting, errors, touched }) => (
         <>
@@ -284,7 +310,8 @@ const AddCompanyProfileForm = () => {
                   <Field
                     name="abn"
                     type="text"
-                    placeholder="00 000 000 000"
+                    placeholder="00000000000"
+                    maxLength={11}
                     className={`input-field ${errors.abn && touched.abn ? 'border-red-500' : ''}`}
                   />
                   <ErrorMessage name="abn" component="div" className="text-red-500 text-xs mt-1" />
@@ -307,11 +334,9 @@ const AddCompanyProfileForm = () => {
                     value={values.description}
                     onChange={(value) => setFieldValue('description', value)}
                   />
-                  <ErrorMessage
-                    name="description"
-                    component="div"
-                    className="text-red-500 text-xs mt-1"
-                  />
+                  {errors.description && (
+                    <div className="text-red-500 text-xs mt-1">{errors.description}</div>
+                  )}
                 </div>
               </div>
               <div className="grid gap-2.5">
