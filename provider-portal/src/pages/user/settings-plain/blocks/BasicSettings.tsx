@@ -26,9 +26,7 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
       .max(50, 'Maximum 50 symbols')
       .required('Email is required'),
     phone: Yup.string()
-      .matches(/^\+?[0-9]+$/, 'Phone number must be digits only')
-      .min(7, 'Minimum 7 digits')
-      .max(15, 'Maximum 15 digits')
+      .matches(/^\d{10}$/, 'Phone number must be exactly 10 digits')
       .required('Phone number is required')
     // password: Yup.string()
     //   .min(3, 'Minimum 3 symbols')
@@ -112,6 +110,7 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
                 <input
                   placeholder="Enter your last name"
                   type="text"
+                  maxLength={10}
                   autoComplete="off"
                   {...formik.getFieldProps('lastName')}
                   className={clsx(
@@ -136,7 +135,7 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
             <div className="flex flex-col flex-1">
               <label className="input">
                 <input
-                  placeholder="Enter your email"
+                  placeholder="Enter your Phone number"
                   type="text"
                   autoComplete="off"
                   {...formik.getFieldProps('phone')}

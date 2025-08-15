@@ -113,7 +113,6 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
     }
   });
 
-  console.log('-----------', formik.errors);
 
   return (
     <div className="card pb-2.5">
