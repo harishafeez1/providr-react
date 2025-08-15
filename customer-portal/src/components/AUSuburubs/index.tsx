@@ -25,6 +25,7 @@ export default function AustralianSuburbSearch() {
   const [selected, setSelected] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string>('');
+  const [isRadioSelection, setIsRadioSelection] = useState<boolean>(false);
   const debounceRef = useRef<NodeJS.Timeout>();
   const locationDebounceRef = useRef<NodeJS.Timeout>();
   const dispatch = useDispatch();
@@ -44,6 +45,12 @@ export default function AustralianSuburbSearch() {
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Skip handling if this is from a radio selection
+    if (isRadioSelection) {
+      setIsRadioSelection(false);
+      return;
+    }
+
     const value = e.target.value.trim();
     setInputValue(value);
 
@@ -98,19 +105,27 @@ export default function AustralianSuburbSearch() {
           apiKey={import.meta.env.VITE_APP_GOOGLE_API_KEY}
           onPlaceSelected={(place) => {
             if (place?.address_components) {
-              // Find the suburb (locality) from address components
+              // Find the suburb (locality) and state from address components
               const suburb = place.address_components.find(
                 (component: any) =>
                   component.types.includes('locality') || component.types.includes('sublocality')
               );
+              
+              const state = place.address_components.find(
+                (component: any) =>
+                  component.types.includes('administrative_area_level_1')
+              );
 
               if (suburb) {
                 const suburbName = suburb.long_name;
-                setInputValue(suburbName);
+                const stateName = state ? state.short_name : '';
+                const displayValue = stateName ? `${suburbName} ${stateName}` : suburbName;
+                
+                setInputValue(displayValue);
                 dispatch(setServiceLocation({
                   address: suburbName,
                   city: suburbName,
-                  state: '',
+                  state: stateName,
                   country: 'Australia'
                 }));
               }
@@ -160,6 +175,8 @@ export default function AustralianSuburbSearch() {
                         checked={selected === suburb.name}
                         onChange={() => {
                           setSelected(suburb.name);
+                          setIsRadioSelection(true);
+                          setInputValue(`${suburb.name} ${suburb.state}`);
                           dispatch(setServiceLocation({
                             address: suburb.name,
                             city: suburb.name,
