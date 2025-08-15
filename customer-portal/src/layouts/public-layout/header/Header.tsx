@@ -38,6 +38,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { HeaderTopbar } from './HeaderTopbar';
 
@@ -157,6 +164,11 @@ const Header = () => {
     store.dispatch(setLoading(false));
   };
 
+  const handleMobileSearch = async () => {
+    await handleFilters();
+    setIsMobileSearchOpen(false);
+  };
+
   // useEffect(() => {
   //   // Define and invoke the async function
   //   const fetchData = async () => {
@@ -181,6 +193,7 @@ const Header = () => {
   const [defaultAddress, setDefaultAddress] = useState<{ label: string; value: string } | null>(
     null
   );
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
   useEffect(() => {
     if ('geolocation' in navigator) {
@@ -355,7 +368,221 @@ const Header = () => {
               )}
             </DropdownMenuContent>
           </DropdownMenu> */}
-          <HeaderTopbar />
+
+          {/* Mobile Search Icon */}
+
+          <div className="flex gap-4">
+            <div className="md:hidden flex items-center">
+              <Dialog open={isMobileSearchOpen} onOpenChange={setIsMobileSearchOpen}>
+                <DialogTrigger asChild>
+                  <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
+                    <KeenIcon icon="magnifier" className="text-2xl text-gray-600" />
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px] min-h-[60vh] p-6">
+                  <DialogHeader>
+                    <DialogTitle className="text-xl font-semibold text-center">
+                      Search Services
+                    </DialogTitle>
+                  </DialogHeader>
+                  <div className="grid gap-6 py-4">
+                    {/* Location Search */}
+                    <div className="grid gap-2">
+                      <label className="text-sm font-semibold text-gray-900">Where</label>
+                      <div className="relative rounded-lg border border-gray-300 px-4 py-3 hover:border-gray-400 focus-within:border-primary transition-colors">
+                        <GooglePlacesAutocomplete
+                          key={defaultAddress?.label || 'no-address-mobile'}
+                          apiKey={import.meta.env.VITE_APP_GOOGLE_API_KEY}
+                          autocompletionRequest={{
+                            componentRestrictions: {
+                              country: 'au'
+                            },
+                            types: ['(regions)']
+                          }}
+                          apiOptions={{
+                            region: 'AU'
+                          }}
+                          selectProps={{
+                            defaultValue: defaultAddress,
+                            placeholder: 'Search destinations...',
+                            styles: {
+                              control: (provided) => ({
+                                ...provided,
+                                border: 'none',
+                                boxShadow: 'none',
+                                backgroundColor: 'transparent',
+                                minHeight: 'auto'
+                              }),
+                              valueContainer: (provided) => ({
+                                ...provided,
+                                padding: '0'
+                              }),
+                              indicatorSeparator: () => ({ display: 'none' }),
+                              dropdownIndicator: (provided) => ({
+                                ...provided,
+                                display: 'none'
+                              }),
+                              input: (provided) => ({
+                                ...provided,
+                                color: '#000',
+                                fontSize: '14px',
+                                margin: '0',
+                                padding: '0'
+                              }),
+                              placeholder: (provided) => ({
+                                ...provided,
+                                color: '#6b7280',
+                                fontSize: '14px',
+                                margin: '0'
+                              }),
+                              singleValue: (provided) => ({
+                                ...provided,
+                                color: '#000',
+                                fontSize: '14px',
+                                margin: '0'
+                              }),
+                              menu: (provided) => ({
+                                ...provided,
+                                backgroundColor: 'white',
+                                boxShadow:
+                                  '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                                borderRadius: '0.5rem',
+                                border: '1px solid #e5e7eb',
+                                zIndex: 50
+                              }),
+                              option: (provided, state) => ({
+                                ...provided,
+                                color: state.isFocused ? '#fff' : '#111827',
+                                backgroundColor: state.isFocused ? '#4a90e2' : 'transparent',
+                                padding: '0.75rem 1rem',
+                                cursor: 'pointer'
+                              }),
+                              clearIndicator: (provided) => ({
+                                ...provided,
+                                color: '#6b7280',
+                                cursor: 'pointer',
+                                ':hover': {
+                                  color: '#374151'
+                                }
+                              })
+                            },
+                            onChange: handleLocationChange,
+                            isClearable: true
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Service Type Search */}
+                    <div className="grid gap-2">
+                      <label className="text-sm font-semibold text-gray-900">Type of Service</label>
+                      <div className="relative rounded-lg border border-gray-300 px-4 py-3 hover:border-gray-400 focus-within:border-primary transition-colors">
+                        <ReactSelect
+                          options={transformedServicesList}
+                          value={transformedServicesList.find((opt) => opt.value === service_id)}
+                          onChange={(selectedOption) => {
+                            if (selectedOption?.value) {
+                              store.dispatch(setServiceId(selectedOption?.value));
+                            } else {
+                              store.dispatch(setServiceId(''));
+                            }
+                          }}
+                          isClearable
+                          placeholder="Select Service"
+                          styles={{
+                            control: (provided) => ({
+                              ...provided,
+                              border: 'none',
+                              boxShadow: 'none',
+                              backgroundColor: 'transparent',
+                              minHeight: 'auto'
+                            }),
+                            valueContainer: (provided) => ({
+                              ...provided,
+                              padding: '0'
+                            }),
+                            indicatorSeparator: () => ({ display: 'none' }),
+                            dropdownIndicator: (provided) => ({
+                              ...provided,
+                              display: 'none'
+                            }),
+                            input: (provided) => ({
+                              ...provided,
+                              color: '#000',
+                              fontSize: '14px',
+                              margin: '0',
+                              padding: '0'
+                            }),
+                            placeholder: (provided) => ({
+                              ...provided,
+                              color: '#6b7280',
+                              fontSize: '14px',
+                              margin: '0'
+                            }),
+                            singleValue: (provided) => ({
+                              ...provided,
+                              color: '#000',
+                              fontSize: '14px',
+                              margin: '0'
+                            }),
+                            menu: (provided) => ({
+                              ...provided,
+                              backgroundColor: 'white',
+                              boxShadow:
+                                '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                              borderRadius: '0.5rem',
+                              border: '1px solid #e5e7eb',
+                              zIndex: 50
+                            }),
+                            option: (provided, state) => ({
+                              ...provided,
+                              color: state.isFocused ? '#fff' : '#111827',
+                              backgroundColor: state.isFocused ? '#4a90e2' : 'transparent',
+                              padding: '0.75rem 1rem',
+                              cursor: 'pointer'
+                            }),
+                            clearIndicator: (provided) => ({
+                              ...provided,
+                              color: '#6b7280',
+                              cursor: 'pointer',
+                              ':hover': {
+                                color: '#374151'
+                              }
+                            })
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Search Button */}
+                    <button
+                      className={`w-full inline-flex items-center justify-center rounded-lg px-6 py-4 text-lg font-semibold text-white shadow-lg transition-colors min-h-[56px] ${
+                        isSearchLoading
+                          ? 'bg-gray-400 cursor-not-allowed'
+                          : 'bg-primary hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
+                      }`}
+                      onClick={handleMobileSearch}
+                      disabled={isSearchLoading}
+                    >
+                      {isSearchLoading ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                          Searching...
+                        </>
+                      ) : (
+                        <>
+                          <KeenIcon icon="magnifier" className="text-base mr-2" />
+                          Search
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            <HeaderTopbar />
+          </div>
         </div>
 
         {/* Search */}

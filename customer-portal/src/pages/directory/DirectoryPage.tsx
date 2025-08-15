@@ -154,7 +154,7 @@ const DirectoryPage = () => {
               </div>
             )}
             {searchedFromHeader && allProviders.length > 0 ? (
-              <div className="mt-[12px]">
+              <div className="mt-6 md:mt-[12px]">
                 <SliderListing
                   providerData={allProviders}
                   heading={changedSearchedServiceName || 'Cleaning'}
@@ -163,7 +163,7 @@ const DirectoryPage = () => {
               </div>
             ) : (
               <>
-                <div className="mt-[12px]">
+                <div className="mt-6 md:mt-[12px]">
                   <SliderListing
                     providerData={directoryDefaultProviders}
                     heading={directorySettings?.[0]?.value?.name || 'Cleaning'}
@@ -173,7 +173,7 @@ const DirectoryPage = () => {
                   />
                 </div>
                 <div className="mt-4 flex flex-col text-black ">
-                  <div className="text-[32px] font-semibold mt-[30px] mb-[10px] leading-normal">
+                  <div className="text-2xl md:text-[32px] font-semibold mt-[30px] mb-[10px] leading-normal">
                     Discover services on Providr
                   </div>
                   <DirectoryContent providers={directoryDiscoverProviders} />

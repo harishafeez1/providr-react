@@ -155,10 +155,10 @@ const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
               ? [...Array(10)].map((_, index) => (
                   <CarouselItem
                     key={index}
-                    className="basis-[50%] md:basis-[20%] lg:basis-[15%] xl:basis-[10%] pl-0"
+                    className="basis-[40%] md:basis-[25%] lg:basis-[20%] xl:basis-[13%] 2xl:basis-[10%] pl-0"
                   >
                     <div className="p-1 animate-pulse">
-                      <Card className="rounded-xl h-[170px] w-full bg-gray-200" />
+                      <Card className="rounded-2xl h-[148px] md:h-[170px] w-full bg-gray-200" />
                       <div className="flex flex-col mt-2 gap-2">
                         <div className="h-5 bg-gray-300 rounded w-3/4"></div>
                         <div className="h-3 bg-gray-300 rounded w-1/2"></div>
@@ -169,14 +169,16 @@ const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
               : services?.map((service, index) => (
                   <CarouselItem
                     key={index}
-                    className={`basis-[50%] md:basis-[20%] lg:basis-[15%] xl:basis-[10%] pl-[10px] md:w-full ${
-                      parseInt(service.provider_companies_count) === 0 
-                        ? 'cursor-not-allowed' 
+                    className={`basis-[40%] md:basis-[25%] lg:basis-[20%] xl:basis-[13%] 2xl:basis-[10%] pl-[10px] md:w-full ${
+                      parseInt(service.provider_companies_count) === 0
+                        ? 'cursor-not-allowed'
                         : 'cursor-pointer'
                     }`}
-                    onClick={() => handleServiceClick(service.id, service.name, service.provider_companies_count)}
+                    onClick={() =>
+                      handleServiceClick(service.id, service.name, service.provider_companies_count)
+                    }
                   >
-                    <Card className="rounded-xl border-none h-[170px] w-full overflow-hidden">
+                    <Card className="rounded-2xl border-none h-[148px] md:h-[170px] w-full overflow-hidden">
                       <img
                         src={
                           service?.service_image
@@ -184,10 +186,9 @@ const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
                             : `${import.meta.env.VITE_APP_AWS_URL}/man-helping-woman-for-carrier.png`
                         }
                         alt={service.name || 'Service'}
-                        className="h-full w-full object-cover rounded-xl block"
+                        className="h-full w-full object-cover rounded-2xl block min-h-[148px] md:min-h-[170px]"
                         loading="lazy"
                         style={{
-                          minHeight: '170px',
                           backgroundColor: '#f3f4f6' // fallback background while loading
                         }}
                       />
