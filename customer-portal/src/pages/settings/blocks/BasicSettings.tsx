@@ -25,22 +25,45 @@ interface IGeneralSettingsProps {
 const profileSchema = Yup.object().shape({
   first_name: Yup.string().required('First name is required'),
   last_name: Yup.string().required('Last name is required'),
-  phone: Yup.string().required('Phone number is required'),
-  dob: Yup.string().required('Date of birth is required'),
-  ndis_number: Yup.string().required('NDIS number is required'),
-  ndis_plan_type: Yup.string().required('NDIS type is required'),
-  ndis_plan_date: Yup.string().required('NDIS plan date is required'),
+  phone: Yup.string()
+    .matches(/^\d{10}$/, 'Phone number must be exactly 10 digits')
+    .required('Phone number is required'),
+  dob: Yup.string().optional(),
+  ndis_number: Yup.string()
+    .test('ndis-format', 'NDIS number must be exactly 9 digits', function (value) {
+      if (!value || value.length === 0) return true; // Allow empty
+      return /^\d{9}$/.test(value);
+    })
+    .optional(),
+  ndis_plan_type: Yup.string().optional(),
+  ndis_plan_date: Yup.string().optional(),
   email: Yup.string()
     .email('Wrong email format')
     .min(3, 'Minimum 3 symbols')
     .max(50, 'Maximum 50 symbols')
     .required('Email is required'),
-  password: Yup.string().optional()
+  password: Yup.string().optional(),
+  confirmPassword: Yup.string()
+    .when('password', {
+      is: (password: string) => password && password.length > 0,
+      then: (schema) => schema.required('Please confirm your password'),
+      otherwise: (schema) => schema.optional()
+    })
+    .test('passwords-match', 'Passwords must match', function (value) {
+      const { password } = this.parent;
+      // If password is empty, confirmPassword can be empty too
+      if (!password || password.length === 0) {
+        return !value || value.length === 0;
+      }
+      // If password has value, confirmPassword must match
+      return password === value;
+    })
 });
 
 const BasicSettings = ({ title }: IGeneralSettingsProps) => {
   const { currentUser } = useAuthContext();
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [date, setDate] = useState<Date | undefined>(
     currentUser?.dob ? new Date(currentUser?.dob) : new Date(1940, 0, 1)
@@ -53,6 +76,11 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
     setShowPassword(!showPassword);
   };
 
+  const toggleConfirmPassword = (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
   const initialValues = {
     first_name: currentUser?.first_name || '',
     last_name: currentUser?.last_name || '',
@@ -62,11 +90,14 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
     ndis_plan_type: currentUser?.ndis_plan_type || '',
     ndis_plan_date: currentUser?.ndis_plan_date || '',
     email: currentUser?.email || '',
-    password: ''
+    password: '',
+    confirmPassword: ''
   };
   const formik = useFormik({
     initialValues,
     validationSchema: profileSchema,
+    validateOnChange: true,
+    validateOnBlur: true,
     onSubmit: async (values) => {
       try {
         await updateProfile(values);
@@ -76,11 +107,14 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
     }
   });
 
+  console.log('-----------', formik.errors);
+
   return (
     <div className="card pb-2.5">
       <div className="card-header" id="general_settings">
         <h3 className="card-title">{title}</h3>
       </div>
+
       <form onSubmit={formik.handleSubmit}>
         <div className="card-body grid gap-5">
           <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
@@ -146,6 +180,7 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
               <input
                 placeholder="Enter Phone Number"
                 autoComplete="off"
+                maxLength={10}
                 {...formik.getFieldProps('phone')}
                 className={clsx('form-control', {
                   'is-invalid': formik.touched.phone && formik.errors.phone
@@ -204,6 +239,11 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
                   />
                 </PopoverContent>
               </Popover>
+              {formik.touched.dob && formik.errors.dob && (
+                <span role="alert" className="text-danger text-xs block mt-1">
+                  {formik.errors.dob}
+                </span>
+              )}
             </div>
           </div>
 
@@ -223,6 +263,7 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
               <input
                 placeholder="Enter NDIS Number"
                 autoComplete="off"
+                maxLength={9}
                 {...formik.getFieldProps('ndis_number')}
                 className={clsx('form-control', {
                   'is-invalid': formik.touched.ndis_number && formik.errors.ndis_number
@@ -246,21 +287,32 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
                 <KeenIcon icon="information-2" className="text-gray-500 text-lg mx-4" />
               </DefaultTooltip>
             </label>
-            <Select
-              defaultValue={currentUser?.ndis_plan_type || 'self-Managed'}
-              onValueChange={(value) => {
-                formik.setFieldValue('ndis_plan_type', value);
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Self-Managed">Self-Managed</SelectItem>
-                <SelectItem value="Plan Managed">Plan Managed</SelectItem>
-                <SelectItem value="Agency Managed">Agency Managed</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="w-full">
+              <Select
+                defaultValue={currentUser?.ndis_plan_type || 'self-Managed'}
+                onValueChange={(value) => {
+                  formik.setFieldValue('ndis_plan_type', value);
+                }}
+              >
+                <SelectTrigger
+                  className={clsx({
+                    'border-red-500': formik.touched.ndis_plan_type && formik.errors.ndis_plan_type
+                  })}
+                >
+                  <SelectValue placeholder="Select" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Self-Managed">Self-Managed</SelectItem>
+                  <SelectItem value="Plan Managed">Plan Managed</SelectItem>
+                  <SelectItem value="Agency Managed">Agency Managed</SelectItem>
+                </SelectContent>
+              </Select>
+              {formik.touched.ndis_plan_type && formik.errors.ndis_plan_type && (
+                <span role="alert" className="text-danger text-xs block mt-1">
+                  {formik.errors.ndis_plan_type}
+                </span>
+              )}
+            </div>
           </div>
           <div className="w-full">
             <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
@@ -310,6 +362,11 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
                   />
                 </PopoverContent>
               </Popover>
+              {formik.touched.ndis_plan_date && formik.errors.ndis_plan_date && (
+                <span role="alert" className="text-danger text-xs block mt-1">
+                  {formik.errors.ndis_plan_date}
+                </span>
+              )}
             </div>
           </div>
 
@@ -355,6 +412,36 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
             {formik.touched.password && formik.errors.password && (
               <span role="alert" className="text-danger text-xs">
                 {formik.errors.password}
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
+            <label className="form-label max-w-56">Confirm Password</label>
+            <label className="input">
+              <input
+                type={showConfirmPassword ? 'text' : 'password'}
+                placeholder="Confirm Password"
+                autoComplete="off"
+                {...formik.getFieldProps('confirmPassword')}
+                className={clsx('form-control', {
+                  'is-invalid': formik.touched.confirmPassword && formik.errors.confirmPassword
+                })}
+              />
+              <button className="btn btn-icon" onClick={toggleConfirmPassword}>
+                <KeenIcon
+                  icon="eye"
+                  className={clsx('text-gray-500', { hidden: showConfirmPassword })}
+                />
+                <KeenIcon
+                  icon="eye-slash"
+                  className={clsx('text-gray-500', { hidden: !showConfirmPassword })}
+                />
+              </button>
+            </label>
+            {formik.touched.confirmPassword && formik.errors.confirmPassword && (
+              <span role="alert" className="text-danger text-xs">
+                {formik.errors.confirmPassword}
               </span>
             )}
           </div>
