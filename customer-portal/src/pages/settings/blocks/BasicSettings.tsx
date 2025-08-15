@@ -100,7 +100,13 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
     validateOnBlur: true,
     onSubmit: async (values) => {
       try {
-        await updateProfile(values);
+        // Only include email if it's different from the current user's email
+        const { email, ...restValues } = values;
+        const payload = values.email === currentUser?.email 
+          ? restValues
+          : values;
+        
+        await updateProfile(payload);
       } catch (error) {
         console.error('Profile update failed:', error);
       }
