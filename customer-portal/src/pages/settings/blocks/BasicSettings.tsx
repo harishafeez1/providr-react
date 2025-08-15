@@ -41,7 +41,7 @@ const profileSchema = Yup.object().shape({
     .email('Wrong email format')
     .min(3, 'Minimum 3 symbols')
     .max(50, 'Maximum 50 symbols')
-    .required('Email is required'),
+    .optional(),
   password: Yup.string().optional(),
   confirmPassword: Yup.string()
     .when('password', {
