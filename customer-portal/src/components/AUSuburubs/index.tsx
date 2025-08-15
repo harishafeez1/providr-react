@@ -138,6 +138,11 @@ export default function AustralianSuburbSearch() {
             types: ['(regions)'],
             componentRestrictions: { country: 'au' }
           }}
+          apiOptions={{
+            language: 'en',
+            region: 'AU'
+          }}
+          debounce={0}
           placeholder="Type suburb or postcode..."
           className="w-full border-2 border-primary py-2 ps-2 pe-10 rounded-md outline-none focus:border-primary active:border-primary mb-6"
         />

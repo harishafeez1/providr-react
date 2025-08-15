@@ -104,7 +104,7 @@ export default function AirbnbWizard() {
       case 0:
         return !selectedServiceId; // Disable if no service is selected
       case 1:
-        return !serviceLocation?.address; // Disable if location is not selected
+        return !serviceLocation?.address || availableProvidersCount === 0; // Disable if location is not selected or no providers available
       case 2:
         return !participantData.first_name || !participantData.email || !participantData.phone;
       case 3:
