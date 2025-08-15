@@ -50,6 +50,11 @@ export default function AirbnbWizard() {
   const [currentStep, setCurrentStep] = useState(0);
   const [availableProvidersCount, setAvailableProvidersCount] = useState(0);
 
+  // Clear location when component mounts to prevent cached location issues
+  useEffect(() => {
+    store.dispatch(setServiceLocation(''));
+  }, []);
+
   const toggleModal = () => {
     setShowModal(!showModal);
   };
@@ -128,9 +133,10 @@ export default function AirbnbWizard() {
     if (!selectedServiceId) return;
 
     const location = serviceLocation?.address?.trim()?.toLowerCase() || '';
-    const query = location
-      ? `service_id=${selectedServiceId}&location=${location}`
-      : `service_id=${selectedServiceId}`;
+    const query =
+      location && location.length > 0
+        ? `service_id=${selectedServiceId}&location=${location}`
+        : `service_id=${selectedServiceId}`;
 
     setCountLoading(true);
     try {
@@ -145,11 +151,20 @@ export default function AirbnbWizard() {
   };
 
   useEffect(() => {
-    // Call provider count API when location is selected on location step
-    if (currentStep === 1 && selectedServiceId && serviceLocation?.address) {
+    // Call provider count API only on service selection step
+    if (selectedServiceId && currentStep === 0) {
+      // First step: only send service_id
       fetchProviderCount();
     }
-  }, [serviceLocation?.address, selectedServiceId, currentStep]);
+  }, [selectedServiceId, currentStep]);
+
+  // Separate effect for location changes - only on location step
+  useEffect(() => {
+    if (currentStep === 1 && selectedServiceId && serviceLocation?.address) {
+      // Location step: send service_id + location when location is selected
+      fetchProviderCount();
+    }
+  }, [serviceLocation?.address]);
 
   useEffect(() => {
     if (availableProvidersCount === 0 && currentStep !== 0) {
@@ -305,64 +320,6 @@ function BasicInfoStep() {
 
 function LocationStep() {
   const { serviceLocation } = useAppSelector((state) => state.services);
-  const { location } = useAppSelector((state) => state.directory);
-
-  // Sync directory location with services location
-  useEffect(() => {
-    if (location && location !== serviceLocation?.address) {
-      // Create a simple location object for the services store
-      const locationData = {
-        address: location,
-        city: location,
-        state: '',
-        country: 'Australia'
-      };
-      store.dispatch(setServiceLocation(locationData));
-    }
-  }, [location, serviceLocation?.address]);
-
-  const defaultValue = serviceLocation?.address
-    ? {
-        label: serviceLocation.address,
-        value: {
-          place_id: '',
-          description: serviceLocation?.address,
-          structured_formatting: {
-            main_text: serviceLocation?.city || '',
-            secondary_text: serviceLocation?.state || ''
-          }
-        }
-      }
-    : null;
-
-  const handleLocationChange = async (address: any) => {
-    if (!address) {
-      store.dispatch(setServiceLocation(''));
-    }
-    let location: {
-      latitude?: string;
-      longitude?: string;
-      address?: string;
-      city?: string;
-      state?: string;
-      country?: string;
-      zip_code?: string;
-    } = {};
-    const res = await geocodeByAddress(address.label)
-      .then((results) => getLatLng(results[0]))
-      .then(
-        ({ lat, lng }) => (
-          (location.address = address.label),
-          (location.state = address.value.structured_formatting.secondary_text),
-          (location.state = address.value.structured_formatting.secondary_text),
-          (location.latitude = String(lat)),
-          (location.longitude = String(lng))
-        )
-      )
-      .then(() => store.dispatch(setServiceLocation(location)));
-    const results = await geocodeByPlaceId(address.value.place_id);
-    console.log('--------------', res, results);
-  };
 
   return (
     <div className="space-y-6">

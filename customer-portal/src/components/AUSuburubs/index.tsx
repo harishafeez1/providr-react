@@ -2,7 +2,7 @@ import { getLocalitiesByPostcode } from '@/services/api/all-services';
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import Autocomplete from 'react-google-autocomplete';
 import { useDispatch } from 'react-redux';
-import { setLocation } from '@/redux/slices/directory-slice';
+import { setServiceLocation } from '@/redux/slices/services-slice';
 
 interface Suburb {
   name: string;
@@ -20,25 +20,14 @@ async function fetchSuburbsByPostcode(postcode: string): Promise<Suburb[]> {
   }));
 }
 
-interface AustralianSuburbSearchProps {
-  defaultValue?: string;
-}
-
-export default function AustralianSuburbSearch({ defaultValue }: AustralianSuburbSearchProps) {
+export default function AustralianSuburbSearch() {
   const [suburbList, setSuburbList] = useState<Suburb[]>([]);
   const [selected, setSelected] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [inputValue, setInputValue] = useState<string>(defaultValue || '');
+  const [inputValue, setInputValue] = useState<string>('');
   const debounceRef = useRef<NodeJS.Timeout>();
   const locationDebounceRef = useRef<NodeJS.Timeout>();
   const dispatch = useDispatch();
-
-  // Update input value when defaultValue changes
-  useEffect(() => {
-    if (defaultValue) {
-      setInputValue(defaultValue);
-    }
-  }, [defaultValue]);
 
   const debouncedFetch = useCallback(async (postcode: string) => {
     setIsLoading(true);
@@ -82,7 +71,13 @@ export default function AustralianSuburbSearch({ defaultValue }: AustralianSubur
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && inputValue.trim().length > 0) {
       // User pressed Enter to select the typed suburb
-      dispatch(setLocation(inputValue.trim()));
+      const locationName = inputValue.trim();
+      dispatch(setServiceLocation({
+        address: locationName,
+        city: locationName,
+        state: '',
+        country: 'Australia'
+      }));
     }
   };
 
@@ -104,14 +99,20 @@ export default function AustralianSuburbSearch({ defaultValue }: AustralianSubur
           onPlaceSelected={(place) => {
             if (place?.address_components) {
               // Find the suburb (locality) from address components
-              const suburb = place.address_components.find((component: any) => 
-                component.types.includes('locality') || component.types.includes('sublocality')
+              const suburb = place.address_components.find(
+                (component: any) =>
+                  component.types.includes('locality') || component.types.includes('sublocality')
               );
-              
+
               if (suburb) {
                 const suburbName = suburb.long_name;
                 setInputValue(suburbName);
-                dispatch(setLocation(suburbName));
+                dispatch(setServiceLocation({
+                  address: suburbName,
+                  city: suburbName,
+                  state: '',
+                  country: 'Australia'
+                }));
               }
             }
           }}
@@ -159,7 +160,12 @@ export default function AustralianSuburbSearch({ defaultValue }: AustralianSubur
                         checked={selected === suburb.name}
                         onChange={() => {
                           setSelected(suburb.name);
-                          dispatch(setLocation(suburb.name));
+                          dispatch(setServiceLocation({
+                            address: suburb.name,
+                            city: suburb.name,
+                            state: suburb.state,
+                            country: 'Australia'
+                          }));
                         }}
                       />
                       {suburb.name}
