@@ -18,6 +18,7 @@ interface IReviewsData {
   content: string;
   reply: string;
   actioned_at: string;
+  created_at: string;
 }
 
 export { type IReviewsData };

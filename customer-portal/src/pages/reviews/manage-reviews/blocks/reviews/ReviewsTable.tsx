@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { IReviewsData, ModalFilters } from './';
 import { useAuthContext } from '@/auth';
 import { getReviews } from '@/services/api/reviews';
+import { format } from 'date-fns';
 // import { getAllReviews } from '@/services/api';
 
 interface IColumnFilterProps<TData, TValue> {
@@ -87,11 +88,11 @@ const ReviewsTable = () => {
   const columns = useMemo<ColumnDef<IReviewsData>[]>(
     () => [
       {
-        accessorFn: (row: IReviewsData) => row.id,
-        id: 'matchId',
+        accessorFn: (row: IReviewsData) => row.created_at,
+        id: 'created_at',
         header: ({ column }) => (
           <DataGridColumnHeader
-            title="ID"
+            title="Date Added"
             filter={<ColumnInputFilter column={column} />}
             column={column}
             icon={<i className="ki-filled ki-barcode text-lg"></i>}
@@ -105,7 +106,7 @@ const ReviewsTable = () => {
                   to="#"
                   className="text-2sm text-gray-700 font-normal hover:text-primary-active"
                 >
-                  {row.original.id}
+                  {row.original.created_at ? format(row.original.created_at, 'LLL dd, y') : '--'}
                 </Link>
               </div>
             </div>
