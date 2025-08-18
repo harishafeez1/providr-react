@@ -36,7 +36,7 @@ const MapboxLocationSelector: React.FC<MapboxLocationSelectorProps> = ({
   const markersRef = useRef<Map<string, mapboxgl.Marker>>(new Map());
   const circlesRef = useRef<Map<string, string>>(new Map()); // store circle layer IDs
   const suburbPolygonsRef = useRef<Map<string, string[]>>(new Map()); // store suburb polygon layer IDs per location
-  // @ts-nocheck
+  // @ts-ignore
   const radiusTimeoutRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
   // Global suburb tracking for unique suburbs across all markers
@@ -89,16 +89,14 @@ const MapboxLocationSelector: React.FC<MapboxLocationSelectorProps> = ({
       'https://overpass.kumi.systems/api/interpreter',
       'https://overpass.openstreetmap.fr/api/interpreter'
     ];
-    
+
     const maxRetries = 2;
     let lastError: Error | null = null;
 
-    
     // Try each server with retry logic
     for (const serverUrl of overpassServers) {
       for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
-
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 20000); // 20 second timeout
 
@@ -115,26 +113,29 @@ const MapboxLocationSelector: React.FC<MapboxLocationSelectorProps> = ({
 
           if (!response.ok) {
             const errorText = await response.text();
-            
+
             // Check if it's a server overload error
-            if (response.status === 504 || response.status === 503 || errorText.includes('too busy')) {
+            if (
+              response.status === 504 ||
+              response.status === 503 ||
+              errorText.includes('too busy')
+            ) {
               throw new Error(`Server overloaded: ${response.status}`);
             }
-            
+
             throw new Error(`API error: ${response.status}`);
           }
 
           const data = await response.json();
 
           return data.elements || [];
-
         } catch (error) {
           lastError = error instanceof Error ? error : new Error('Unknown error');
-          
+
           // Wait before retry (exponential backoff)
           if (attempt < maxRetries) {
             const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
-            await new Promise(resolve => setTimeout(resolve, delay));
+            await new Promise((resolve) => setTimeout(resolve, delay));
           }
         }
       }
@@ -307,7 +308,6 @@ const MapboxLocationSelector: React.FC<MapboxLocationSelectorProps> = ({
 
     // Store layer IDs for cleanup
     suburbPolygonsRef.current.set(locationId, newLayerIds);
-
   };
 
   // Function to fetch suburbs within radius using Overpass API + geometric intersection
@@ -342,7 +342,6 @@ const MapboxLocationSelector: React.FC<MapboxLocationSelectorProps> = ({
         return;
       }
 
-
       // Create circle for intersection testing
       const centerPoint = turf.point([lng, lat]);
       const circle = turf.circle(centerPoint, radiusKm, { units: 'kilometers' });
@@ -361,29 +360,56 @@ const MapboxLocationSelector: React.FC<MapboxLocationSelectorProps> = ({
         // Filter out non-suburban results (housing estates, colleges, etc.)
         // Note: Many valid Australian suburbs have "Park" in name, so be more specific
         const excludePatterns = [
-          /estate/i, /college/i, /university/i, /housing/i, /apartments?/i, 
-          /tower/i, /village/i, /gardens/i, /square/i, /house/i, /hall/i,
-          /\bplace\b/i, /terrace/i, /court/i, /mews/i, /complex/i, /development/i,
-          /residence/i, /manor/i, /\bview\b/i, /aged care/i, /retirement/i,
-          /student/i, /display/i, /suite/i, /flats/i, /quarter/i, /precinct/i,
-          /shopping/i, /medical/i, /hospital/i, /centre/i, /center/i
+          /estate/i,
+          /college/i,
+          /university/i,
+          /housing/i,
+          /apartments?/i,
+          /tower/i,
+          /village/i,
+          /gardens/i,
+          /square/i,
+          /house/i,
+          /hall/i,
+          /\bplace\b/i,
+          /terrace/i,
+          /court/i,
+          /mews/i,
+          /complex/i,
+          /development/i,
+          /residence/i,
+          /manor/i,
+          /\bview\b/i,
+          /aged care/i,
+          /retirement/i,
+          /student/i,
+          /display/i,
+          /suite/i,
+          /flats/i,
+          /quarter/i,
+          /precinct/i,
+          /shopping/i,
+          /medical/i,
+          /hospital/i,
+          /centre/i,
+          /center/i
         ];
-        
+
         // Allow common Australian suburb patterns that end with Park, Heights, etc.
         const validSuburbPatterns = [
-          /\b\w+\s+Park$/i,     // Albert Park, Noble Park, etc.
-          /\b\w+\s+Heights$/i,   // Heidelberg Heights, etc.
-          /\b\w+\s+Gardens$/i,   // Some Gardens are valid suburbs
-          /\b\w+\s+Village$/i    // Some Villages are valid suburbs
+          /\b\w+\s+Park$/i, // Albert Park, Noble Park, etc.
+          /\b\w+\s+Heights$/i, // Heidelberg Heights, etc.
+          /\b\w+\s+Gardens$/i, // Some Gardens are valid suburbs
+          /\b\w+\s+Village$/i // Some Villages are valid suburbs
         ];
-        
-        const isValidSuburb = validSuburbPatterns.some(pattern => pattern.test(suburbName));
-        const shouldExclude = !isValidSuburb && excludePatterns.some(pattern => pattern.test(suburbName));
-        
+
+        const isValidSuburb = validSuburbPatterns.some((pattern) => pattern.test(suburbName));
+        const shouldExclude =
+          !isValidSuburb && excludePatterns.some((pattern) => pattern.test(suburbName));
+
         if (shouldExclude) {
           continue;
         }
-        
 
         // Convert to GeoJSON polygon
         const suburbPolygon = overpassElementToGeoJSON(element);
@@ -396,17 +422,18 @@ const MapboxLocationSelector: React.FC<MapboxLocationSelectorProps> = ({
             const circleContainsSuburb = turf.booleanContains(circle, suburbPolygon);
             const suburbContainsCircle = turf.booleanContains(suburbPolygon, circle);
 
-
             if (intersects || overlaps || circleContainsSuburb || suburbContainsCircle) {
               // Calculate centroid for distance measurement
               const centroid = turf.centroid(suburbPolygon);
               const distance = turf.distance(centerPoint, centroid, { units: 'kilometers' });
 
               const postcode = element.tags.postal_code || element.tags.postcode || '';
-              
+
               validSuburbs.push({
                 name: suburbName,
-                fullName: postcode ? `${suburbName} ${postcode}, Australia` : `${suburbName}, Australia`,
+                fullName: postcode
+                  ? `${suburbName} ${postcode}, Australia`
+                  : `${suburbName}, Australia`,
                 coordinates: centroid.geometry.coordinates,
                 distance: distance,
                 postcode: postcode,
@@ -419,17 +446,15 @@ const MapboxLocationSelector: React.FC<MapboxLocationSelectorProps> = ({
                       ? 'overlaps'
                       : 'intersects'
               });
-
-            } 
+            }
           } catch (error) {
             console.error(`Error processing suburb ${suburbName}:`, error);
           }
         } else {
-          
           // Extract coordinates using optimized 'out center' format
           let suburbLat = null;
           let suburbLng = null;
-          
+
           // Method 1: Direct lat/lng (for nodes)
           if (element.lat && element.lon) {
             suburbLat = element.lat;
@@ -440,16 +465,18 @@ const MapboxLocationSelector: React.FC<MapboxLocationSelectorProps> = ({
             suburbLat = element.center.lat;
             suburbLng = element.center.lon;
           }
-          
+
           if (suburbLat && suburbLng) {
             const distance = calculateDistance(lat, lng, suburbLat, suburbLng);
-            
+
             if (distance <= radiusKm) {
               const postcode = element.tags.postal_code || element.tags.postcode || '';
-              
+
               validSuburbs.push({
                 name: suburbName,
-                fullName: postcode ? `${suburbName} ${postcode}, Australia` : `${suburbName}, Australia`,
+                fullName: postcode
+                  ? `${suburbName} ${postcode}, Australia`
+                  : `${suburbName}, Australia`,
                 coordinates: [suburbLng, suburbLat],
                 distance: distance,
                 postcode: postcode,
@@ -457,7 +484,7 @@ const MapboxLocationSelector: React.FC<MapboxLocationSelectorProps> = ({
                 overlapType: 'point_in_radius'
               });
             }
-          } 
+          }
         }
       }
 
@@ -465,7 +492,6 @@ const MapboxLocationSelector: React.FC<MapboxLocationSelectorProps> = ({
       const uniqueSuburbs = Array.from(
         new Map(validSuburbs.map((s) => [s.name.toLowerCase(), s])).values()
       ).sort((a, b) => a.distance - b.distance);
-
 
       // If Overpass returned no results, automatically fall back to Mapbox
       if (uniqueSuburbs.length === 0) {
@@ -515,34 +541,32 @@ const MapboxLocationSelector: React.FC<MapboxLocationSelectorProps> = ({
     radiusKm: number
   ) => {
     try {
-
       const centerPoint = turf.point([lng, lat]);
       const allSuburbs = new Map();
 
       // Create more systematic grid points for better coverage
       const gridPoints: [number, number][] = [];
-      
+
       // Add center point
       gridPoints.push([lng, lat]);
-      
+
       // Create concentric circles with points
       const rings = Math.max(2, Math.ceil(radiusKm / 8));
       for (let ring = 1; ring <= rings; ring++) {
         const ringRadius = (radiusKm * ring) / rings;
         const pointsInRing = Math.max(8, ring * 6); // More points in outer rings
-        
+
         for (let i = 0; i < pointsInRing; i++) {
           const angle = (i / pointsInRing) * 2 * Math.PI;
           const pointLng = lng + (ringRadius / 111.32) * Math.cos(angle);
           const pointLat = lat + (ringRadius / 110.54) * Math.sin(angle);
-          
+
           const distance = calculateDistance(lat, lng, pointLat, pointLng);
           if (distance <= radiusKm) {
             gridPoints.push([pointLng, pointLat]);
           }
         }
       }
-      
 
       // Query Mapbox Geocoding API for each grid point
       const apiCalls = gridPoints
@@ -583,7 +607,6 @@ const MapboxLocationSelector: React.FC<MapboxLocationSelectorProps> = ({
       const fallbackSuburbs = Array.from(allSuburbs.values()).sort(
         (a, b) => a.distance - b.distance
       );
-
 
       setLocations((prev) =>
         prev.map((loc) => {
@@ -714,7 +737,6 @@ const MapboxLocationSelector: React.FC<MapboxLocationSelectorProps> = ({
 
     // Set new timeout to fetch suburbs after 1 second
     const timeout = setTimeout(() => {
-
       // Get the current location data
       setLocations((currentLocations) => {
         const location = currentLocations.find((loc) => loc.id === locationId);
@@ -855,12 +877,12 @@ const MapboxLocationSelector: React.FC<MapboxLocationSelectorProps> = ({
                   };
                   // Update radius circle
                   createRadiusCircle(newLocation.id, lngLat.lat, lngLat.lng, loc.radius);
-                  
+
                   // Fetch suburbs for new location after a short delay
                   setTimeout(() => {
                     fetchSuburbsInRadius(newLocation.id, lngLat.lat, lngLat.lng, loc.radius);
                   }, 1000);
-                  
+
                   return updatedLoc;
                 }
                 return loc;
@@ -900,7 +922,6 @@ const MapboxLocationSelector: React.FC<MapboxLocationSelectorProps> = ({
       zoom: 4,
       attributionControl: false
     });
-
 
     mapRef.current = map;
 
@@ -1038,8 +1059,7 @@ const MapboxLocationSelector: React.FC<MapboxLocationSelectorProps> = ({
           reposition them.
         </p>
         <p className="text-xs">
-          Accurate Australian suburb boundaries with geometric intersection
-          detection.
+          Accurate Australian suburb boundaries with geometric intersection detection.
         </p>
       </div>
 
@@ -1170,10 +1190,8 @@ const MapboxLocationSelector: React.FC<MapboxLocationSelectorProps> = ({
                         </label>
                         {loadingSuburbs.has(location.id) && (
                           <div className="flex gap-4">
-                           
-                          
-                          <div className="animate-spin rounded-full h-3 w-3 border-b border-primary"></div>
-                           <div className="text-xs text-primary">Please wait...</div>
+                            <div className="animate-spin rounded-full h-3 w-3 border-b border-primary"></div>
+                            <div className="text-xs text-primary">Please wait...</div>
                           </div>
                         )}
                       </div>
@@ -1186,17 +1204,19 @@ const MapboxLocationSelector: React.FC<MapboxLocationSelectorProps> = ({
                               .map((suburb: any, idx: number) => {
                                 const colorClass =
                                   suburb.overlapType === 'point_in_radius'
-                                    ? 'bg-blue-100 text-blue-800'  // Official suburbs from Overpass
+                                    ? 'bg-blue-100 text-blue-800' // Official suburbs from Overpass
                                     : suburb.overlapType === 'mapbox_fallback'
-                                      ? 'bg-gray-100 text-gray-800'  // Fallback data from Mapbox
-                                      : 'bg-blue-100 text-blue-800';  // Default to official
+                                      ? 'bg-gray-100 text-gray-800' // Fallback data from Mapbox
+                                      : 'bg-blue-100 text-blue-800'; // Default to official
                                 return (
                                   <span
                                     key={idx}
                                     className={`inline-block px-2 py-1 text-xs rounded-full ${colorClass}`}
                                     title={`${suburb.fullName} (${suburb.distance.toFixed(1)}km away) - ${suburb.overlapType.replace('_', ' ')}`}
                                   >
-                                    {suburb.postcode ? `${suburb.name} ${suburb.postcode}` : suburb.name}
+                                    {suburb.postcode
+                                      ? `${suburb.name} ${suburb.postcode}`
+                                      : suburb.name}
                                   </span>
                                 );
                               })}
