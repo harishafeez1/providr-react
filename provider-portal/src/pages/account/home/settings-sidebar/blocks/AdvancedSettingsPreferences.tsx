@@ -23,9 +23,9 @@ const AdvancedSettingsPreferences = () => {
               <SelectContent>
                 <SelectItem value="1">American English</SelectItem>
                 <SelectItem value="2">Option 2</SelectItem>
-                <SelectItem value="3">Option 3</SelectItem> 
+                <SelectItem value="3">Option 3</SelectItem>
               </SelectContent>
-            </Select> 
+            </Select>
           </div>
         </div>
 
@@ -39,9 +39,9 @@ const AdvancedSettingsPreferences = () => {
               <SelectContent>
                 <SelectItem value="4">GMT -5:00 - Eastern Time(US & Canada)</SelectItem>
                 <SelectItem value="5">Option 2</SelectItem>
-                <SelectItem value="6">Option 3</SelectItem> 
+                <SelectItem value="6">Option 3</SelectItem>
               </SelectContent>
-            </Select> 
+            </Select>
           </div>
         </div>
 
@@ -55,9 +55,9 @@ const AdvancedSettingsPreferences = () => {
               <SelectContent>
                 <SelectItem value="7">United States Dollar (USD)</SelectItem>
                 <SelectItem value="8">Option 2</SelectItem>
-                <SelectItem value="9">Option 3</SelectItem> 
+                <SelectItem value="9">Option 3</SelectItem>
               </SelectContent>
-            </Select>  
+            </Select>
           </div>
         </div>
 

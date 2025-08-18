@@ -51,9 +51,14 @@ const getSingleServiceOfferings = async (ServiceOfferingsId: string | undefined)
   }
 };
 
-const activeDeactiveServiceOffering = async (ServiceOfferingsId: string | undefined, status: number) => {
+const activeDeactiveServiceOffering = async (
+  ServiceOfferingsId: string | undefined,
+  status: number
+) => {
   try {
-    const response = await axios.get(`${SERVICE_OFFERING_ACT_DEACTIVATE_URL}/${ServiceOfferingsId}/${status}`);
+    const response = await axios.get(
+      `${SERVICE_OFFERING_ACT_DEACTIVATE_URL}/${ServiceOfferingsId}/${status}`
+    );
     return response.data;
   } catch (err) {
     console.error('Error updating ServiceOfferings :', err);

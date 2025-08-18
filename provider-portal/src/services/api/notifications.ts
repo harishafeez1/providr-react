@@ -13,7 +13,10 @@ const getAllNotifications = async (providerCompanyId: any) => {
 
 const updateNotificationsSetting = async (providerCompanyId: any, data: any) => {
   try {
-    const response = await axios.post(`${UPDATE_NOTIFICATIONS_URL}/provider/${providerCompanyId}`, data);
+    const response = await axios.post(
+      `${UPDATE_NOTIFICATIONS_URL}/provider/${providerCompanyId}`,
+      data
+    );
     return response.data;
   } catch (error) {
     console.error('Error fetching all Notifications:', error);

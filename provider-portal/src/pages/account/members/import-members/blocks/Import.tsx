@@ -84,7 +84,7 @@ const Import = () => {
             rows={5}
             value={customInput}
             onChange={(e) => setCustomInput(e.target.value)}
-          >  
+          >
             Your welcome message here
           </textarea>
           <label className="flex items-center gap-1.5">

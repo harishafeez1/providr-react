@@ -21,11 +21,11 @@ const InvitePeople = () => {
           <span className="form-label max-w-32 w-full">Email</span>
           <div className="grow min-w-48">
             <input
-            className="input w-full"
+              className="input w-full"
               type="text"
               value={invitepeopleInput}
               onChange={(e) => setInvitePeopleInput(e.target.value)}
-            /> 
+            />
           </div>
         </div>
 
@@ -39,9 +39,9 @@ const InvitePeople = () => {
               <SelectContent>
                 <SelectItem value="1">Member</SelectItem>
                 <SelectItem value="2">Option 2</SelectItem>
-                <SelectItem value="3">Option 3</SelectItem>  
+                <SelectItem value="3">Option 3</SelectItem>
               </SelectContent>
-            </Select>   
+            </Select>
             <div>
               <a className="btn btn-light btn-sm">
                 <KeenIcon icon="plus-squared" /> Add more

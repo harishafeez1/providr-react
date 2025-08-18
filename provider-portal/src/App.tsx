@@ -9,7 +9,7 @@ const { BASE_URL } = import.meta.env;
 
 const App = () => {
   const { settings } = useSettings();
-// tets
+  // tets
   useEffect(() => {
     document.documentElement.classList.remove('dark');
     document.documentElement.classList.remove('light');

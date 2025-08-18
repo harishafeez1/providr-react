@@ -52,7 +52,7 @@ export function deepMerge(obj1: any, obj2: any): any {
   }
 
   return output;
-};
+}
 
 export function uniqueID(): string {
   return (Date.now() + Math.floor(Math.random() * 1000)).toString();

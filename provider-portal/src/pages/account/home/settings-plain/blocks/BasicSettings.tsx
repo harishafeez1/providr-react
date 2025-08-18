@@ -25,7 +25,7 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
   const [addressInput, setAddressInput] = useState('Avinguda Imaginària, 789');
   const [cityInput, setCityInput] = useState('Barcelona');
   const [postcodeInput, setPostcodeInput] = useState('08012');
-  
+
   return (
     <div className="card pb-2.5">
       <div className="card-header" id="general_settings">
@@ -53,7 +53,7 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
             type="text"
             value={nameInput}
             onChange={(e) => setNameInput(e.target.value)}
-          /> 
+          />
         </div>
 
         <div className="w-full">
@@ -98,7 +98,7 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
             type="text"
             value={emailInput}
             onChange={(e) => setEmailInput(e.target.value)}
-          />  
+          />
         </div>
 
         <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
@@ -108,12 +108,12 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
             type="text"
             value={addressInput}
             onChange={(e) => setAddressInput(e.target.value)}
-          />  
+          />
         </div>
 
         <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
           <label className="form-label max-w-56">Country</label>
-        
+
           <Select defaultValue="1">
             <SelectTrigger>
               <SelectValue placeholder="Select" />
@@ -121,9 +121,9 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
             <SelectContent>
               <SelectItem value="1">Spain</SelectItem>
               <SelectItem value="2">Option 2</SelectItem>
-              <SelectItem value="3">Option 3</SelectItem> 
+              <SelectItem value="3">Option 3</SelectItem>
             </SelectContent>
-          </Select>   
+          </Select>
         </div>
 
         <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
@@ -138,7 +138,7 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
             type="text"
             value={cityInput}
             onChange={(e) => setCityInput(e.target.value)}
-          />   
+          />
         </div>
 
         <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5 mb-2.5">
@@ -148,7 +148,7 @@ const BasicSettings = ({ title }: IGeneralSettingsProps) => {
             type="text"
             value={postcodeInput}
             onChange={(e) => setPostcodeInput(e.target.value)}
-          />    
+          />
         </div>
 
         <div className="flex justify-end">

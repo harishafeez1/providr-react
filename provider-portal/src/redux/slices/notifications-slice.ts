@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
 interface notificationsState {
- notificationsList: []
+  notificationsList: [];
 }
 
 const initialState: notificationsState = {
@@ -13,10 +13,9 @@ export const notificationsSlice = createSlice({
   name: 'notifications',
   initialState,
   reducers: {
-
     setNotificationsList: (state, action: PayloadAction<any>) => {
       state.notificationsList = action.payload;
-    },
+    }
   }
 });
 

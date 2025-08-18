@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router';
 import PlacesAutocomplete from '@/components/google-places/placesAutocomplete';
 import { Button } from '@/components/ui/button';
 import { useAppSelector } from '@/redux/hooks';
+import MapboxLocationSelector from './MapboxLocationSelector';
 
 const AddServiceOfferingsForm = () => {
   const { currentUser } = useAuthContext();
@@ -28,6 +29,7 @@ const AddServiceOfferingsForm = () => {
   const [progress, setProgress] = useState<number>(0);
   const [regionSelection, setRegionSelection] = useState<number>(0);
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
+  const [serviceLocations, setServiceLocations] = useState<any[]>([]);
 
   const servicesSelectedFalse = servicesSelected.every(([_, value]: any) => value === false);
   const ageGroupsFalse = ageGroups.every(([_, value]: any) => value === false);
@@ -344,17 +346,13 @@ const AddServiceOfferingsForm = () => {
                   </span>
                 )}
               </div>
-              <div className="flex items-baseline flex-wrap gap-2.5">
+              {/* <div className="flex items-baseline flex-wrap gap-2.5">
                 <label className="form-label max-w-70 gap-1">
                   <KeenIcon icon="focus" className="text-sm" />
                   Where will this service be delivered from?
                 </label>
 
                 <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]">
-                  {/* <label className="form-label max-w-70 gap-1 my-3">
-                    <KeenIcon icon="subtitle" className="text-sm" />
-                    Active Addresses:
-                  </label> */}
                   <div className="py-2">
                     <label className="form-label max-w-70 gap-1 my-3">Select Addresses</label>
                     <Field name="address_options">
@@ -402,95 +400,56 @@ const AddServiceOfferingsForm = () => {
                     </span>
                   )}
                 </div>
-              </div>
-              <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]">
-                {/* <div className=" w-full">
-                  <div className="w-[30%]">
-                    <label className="form-label">Location Limit: {regionSelection}/3</label>
-                    <div className="progress w-[100%]">
-                      <div
-                        className="progress-bar bg-success"
-                        role="progressbar"
-                        style={{ width: `${(regionSelection / maxSelectionLimit) * 100}%` }}
-                        aria-valuenow={100}
-                        aria-valuemin={0}
-                        aria-valuemax={100}
-                      ></div>
-                    </div>
-                  </div>
-                </div> */}
-                <div className="tabs mb-5">
-                  {Object.keys(regions).map((state) => (
-                    <button
-                      key={state}
-                      type="button"
-                      className={`tab ${activeTab === state ? 'active' : ''}`}
-                      aria-selected={activeTab === state}
-                      onClick={(event) => {
-                        event.preventDefault();
-                        handleTabClick(state);
-                      }}
-                    >
-                      {state}
-                    </button>
-                  ))}
-                </div>
-                <div>
-                  {Object.entries(regions).map(([state, regionList]: any) => (
-                    <div key={state} className={activeTab === state ? '' : 'hidden'}>
-                      <div className="grid grid-cols-2 gap-4">
-                        {regionList.map((region: any, index: any) => {
-                          // Count the total number of selected checkboxes
-                          const selectedCount = Object.values(values.service_available_options)
-                            .flatMap((regionState: any) => Object.values(regionState))
-                            .filter(Boolean).length;
-                          setRegionSelection(selectedCount);
-                          return (
-                            <label
-                              key={index}
-                              className={`checkbox-group cursor-pointer flex items-center gap-2 ${
-                                selectedCount === 3 &&
-                                !values.service_available_options[state]?.[region]
-                                  ? 'opacity-50 cursor-not-allowed'
-                                  : ''
-                              }`}
-                            >
-                              <Field
-                                type="checkbox"
-                                className="checkbox checkbox-sm"
-                                name={`service_available_options.${region}`}
-                                checked={values.service_available_options.includes(region)}
-                                onChange={() => {
-                                  const isChecked =
-                                    !values.service_available_options.includes(region);
+              </div> */}
 
-                                  // Update the Formik field value
-                                  setFieldValue(
-                                    'service_available_options',
-                                    isChecked
-                                      ? [...values.service_available_options, region]
-                                      : values.service_available_options.filter(
-                                          (item: string) => item !== region
-                                        ) // Remove the region
-                                  );
+              <div className="flex items-baseline flex-wrap gap-2.5">
+                <label className="form-label max-w-70 gap-1">
+                  <KeenIcon icon="geolocation" className="text-sm" />
+                  Select Service Area
+                </label>
+                <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]">
+                  <MapboxLocationSelector
+                    accessToken="pk.eyJ1IjoiaGFyaXNoYWZlZXoxIiwiYSI6ImNsbmp0d2ttcjFxaDAyam1rbXduejRncHUifQ.3snJ7lmV94QTRdHP7uQNlg"
+                    // onLocationsUpdate={(locations) => {
+                    //   setServiceLocations(locations);
 
-                                  // regionally, update any other state if needed
-                                  setAgeGroups((prev: any) => {
-                                    const updated = isChecked
-                                      ? [...prev, region]
-                                      : prev.filter((item: any) => item !== region);
-                                    return updated;
-                                  });
-                                }}
-                              />
+                    //   // Collect all unique suburb names from all locations
+                    //   const allSuburbs = locations.flatMap((loc) =>
+                    //     loc.suburbs.map((suburb: any) => suburb.name)
+                    //   );
 
-                              <span className="checkbox-label">{region}</span>
-                            </label>
-                          );
-                        })}
+                    //   // Also include location addresses
+                    //   const locationNames = locations.map((loc) => loc.address);
+
+                    //   // Combine and deduplicate
+                    //   const allServiceAreas = [...new Set([...allSuburbs, ...locationNames])];
+
+                    //   setFieldValue('service_available_options', allServiceAreas);
+                    // }}
+                  />
+                  {serviceLocations.length > 0 && (
+                    <div className="mt-4 p-3 bg-blue-50 rounded-md">
+                      <p className="text-sm font-medium text-blue-800">Service Coverage Summary:</p>
+                      <p className="text-sm text-blue-600">
+                        {serviceLocations.length} location{serviceLocations.length > 1 ? 's' : ''}{' '}
+                        selected
+                      </p>
+                      <p className="text-sm text-blue-600">
+                        Total suburbs covered:{' '}
+                        {serviceLocations.reduce((sum, loc) => sum + loc.suburbs.length, 0)}
+                      </p>
+                      <div className="mt-2 max-h-20 overflow-y-auto">
+                        <div className="text-xs text-blue-700">
+                          <strong>Locations:</strong>
+                          {serviceLocations.map((loc, index) => (
+                            <div key={loc.id} className="truncate">
+                              {index + 1}. {loc.address} ({loc.radius}km radius)
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
               {touched.service_available_options && errors.service_available_options && (

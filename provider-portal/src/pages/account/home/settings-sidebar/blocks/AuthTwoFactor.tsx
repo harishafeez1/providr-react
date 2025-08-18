@@ -58,7 +58,7 @@ const AuthTwoFactor = () => {
             <input
               type="checkbox"
               defaultChecked={item.checkbox}
-              value={item.checkbox ? '1' : '2'} 
+              value={item.checkbox ? '1' : '2'}
             />
           </label>
         </div>

@@ -113,7 +113,10 @@ const GeneralSettings = () => {
 
   const renderItem = (item: IGeneralSettingsItem, index: number) => {
     return (
-      <div key={index} className="card-group flex items-center flex-wrap sm:flex-nowrap justify-between py-4 gap-2.5">
+      <div
+        key={index}
+        className="card-group flex items-center flex-wrap sm:flex-nowrap justify-between py-4 gap-2.5"
+      >
         <div className="flex items-center gap-3.5">
           <CommonHexagonBadge
             stroke="stroke-gray-300"

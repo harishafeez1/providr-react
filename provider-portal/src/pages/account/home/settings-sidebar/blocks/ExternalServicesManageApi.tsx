@@ -14,8 +14,7 @@ const ExternalServicesManageApi = ({
   title,
   switch: showSwitch
 }: IExternalServicesManageApiProps) => {
-
-const [apikeyInput, setApiKeyInput] = useState('abc123xyz456sample789key000');
+  const [apikeyInput, setApiKeyInput] = useState('abc123xyz456sample789key000');
 
   return (
     <Fragment>
@@ -53,15 +52,17 @@ const [apikeyInput, setApiKeyInput] = useState('abc123xyz456sample789key000');
                 type="text"
                 value={apikeyInput}
                 onChange={(e) => setApiKeyInput(e.target.value)}
-              /> 
+              />
               <button className="btn btn-icon">
                 <KeenIcon icon="copy" />
               </button>
             </label>
           </div>
 
-          <div className="flex items-center flex-wrap sm:flex-nowrap justify-between grow border border-gray-200 rounded-xl gap-2 p-5 
-          rtl:[background-position:-195px_-85px] [background-position:195px_-85px] bg-no-repeat bg-[length:650px] user-access-bg">
+          <div
+            className="flex items-center flex-wrap sm:flex-nowrap justify-between grow border border-gray-200 rounded-xl gap-2 p-5 
+          rtl:[background-position:-195px_-85px] [background-position:195px_-85px] bg-no-repeat bg-[length:650px] user-access-bg"
+          >
             <div className="flex items-center gap-4">
               <CommonHexagonBadge
                 stroke="stroke-brand-clarity"

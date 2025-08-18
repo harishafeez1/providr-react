@@ -9,33 +9,21 @@ const AuthPassword = () => {
         <div className="w-full">
           <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
             <label className="form-label max-w-56">Current Password</label>
-            <input
-              className="input"
-              type="text"
-              placeholder="Enter phone" 
-            />   
+            <input className="input" type="text" placeholder="Enter phone" />
           </div>
         </div>
 
         <div className="w-full">
           <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
             <label className="form-label max-w-56">New Password</label>
-            <input 
-              className="input" 
-              type="text" 
-              placeholder="New password" 
-            />
+            <input className="input" type="text" placeholder="New password" />
           </div>
         </div>
 
         <div className="w-full">
           <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
             <label className="form-label max-w-56">Confirm New Password</label>
-            <input
-              className="input"
-              type="text"
-              placeholder="Confirm new password" 
-            />
+            <input className="input" type="text" placeholder="Confirm new password" />
           </div>
         </div>
 

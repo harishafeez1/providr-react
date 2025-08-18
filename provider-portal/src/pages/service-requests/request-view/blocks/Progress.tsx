@@ -3,7 +3,6 @@ import 'leaflet/dist/leaflet.css';
 import { useEffect, useState } from 'react';
 
 const ProgressbarPoints = ({ data }: any) => {
-
   const HorizontalLinearAlternativeLabelStepper = () => {
     const [activeStepTab, setActiveStepTab] = useState(0);
 

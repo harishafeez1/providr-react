@@ -7,7 +7,6 @@ import {
   SelectValue
 } from '@/components/ui/select';
 
-
 const Webhooks = () => {
   const [webhooknameInput, setWebhookNameInput] = useState('CostaRicaHook');
   return (
@@ -37,7 +36,7 @@ const Webhooks = () => {
               type="text"
               value={webhooknameInput}
               onChange={(e) => setWebhookNameInput(e.target.value)}
-            /> 
+            />
           </div>
         </div>
 
@@ -51,10 +50,10 @@ const Webhooks = () => {
               <SelectContent>
                 <SelectItem value="1">All Events</SelectItem>
                 <SelectItem value="2">Push Webhooks</SelectItem>
-                <SelectItem value="3">Pipe Webhook</SelectItem> 
-                <SelectItem value="4">Plugin Webhooks</SelectItem> 
+                <SelectItem value="3">Pipe Webhook</SelectItem>
+                <SelectItem value="4">Plugin Webhooks</SelectItem>
               </SelectContent>
-            </Select>   
+            </Select>
           </div>
         </div>
 

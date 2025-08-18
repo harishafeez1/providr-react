@@ -47,10 +47,10 @@ const BackupSettings = () => {
             <SelectContent className="w-24">
               <SelectItem value="1">Daily</SelectItem>
               <SelectItem value="2">Weekly</SelectItem>
-              <SelectItem value="3">Monthly</SelectItem> 
-              <SelectItem value="4">Yearly</SelectItem> 
+              <SelectItem value="3">Monthly</SelectItem>
+              <SelectItem value="4">Yearly</SelectItem>
             </SelectContent>
-          </Select>  
+          </Select>
         </Fragment>
       )
     },

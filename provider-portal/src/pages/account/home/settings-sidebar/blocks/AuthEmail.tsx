@@ -18,7 +18,7 @@ const AuthEmail = () => {
                 type="text"
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
-              />   
+              />
               <div className="flex items-center gap-7.5">
                 <label className="switch">
                   <span className="switch-label">Active</span>

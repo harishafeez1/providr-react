@@ -52,9 +52,9 @@ const Accessibility = () => {
             <SelectContent>
               <SelectItem value="1">System preferences</SelectItem>
               <SelectItem value="2">Sound</SelectItem>
-              <SelectItem value="3">Focus</SelectItem>  
+              <SelectItem value="3">Focus</SelectItem>
             </SelectContent>
-          </Select>  
+          </Select>
         </div>
       )
     },

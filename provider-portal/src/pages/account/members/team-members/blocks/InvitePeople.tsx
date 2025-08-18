@@ -24,7 +24,7 @@ const InvitePeople = () => {
             type="text"
             value={emailInput}
             onChange={(e) => setEmailInput(e.target.value)}
-          /> 
+          />
         </div>
 
         <div className="flex items-baseline flex-wrap gap-2.5">
@@ -37,10 +37,10 @@ const InvitePeople = () => {
               <SelectContent>
                 <SelectItem value="1">Member</SelectItem>
                 <SelectItem value="2">Editor</SelectItem>
-                <SelectItem value="3">Designer</SelectItem> 
-                <SelectItem value="4">Admin</SelectItem>  
+                <SelectItem value="3">Designer</SelectItem>
+                <SelectItem value="4">Admin</SelectItem>
               </SelectContent>
-            </Select>  
+            </Select>
 
             <a href="#" className="btn btn-sm btn-light btn-outline">
               <KeenIcon icon="plus-squared" />

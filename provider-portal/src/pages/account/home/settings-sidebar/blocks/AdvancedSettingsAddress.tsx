@@ -28,9 +28,9 @@ const AdvancedSettingsAddress = () => {
               <SelectContent>
                 <SelectItem value="1">Spain</SelectItem>
                 <SelectItem value="2">Option 2</SelectItem>
-                <SelectItem value="3">Option 3</SelectItem> 
+                <SelectItem value="3">Option 3</SelectItem>
               </SelectContent>
-            </Select>  
+            </Select>
           </div>
         </div>
 

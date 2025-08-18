@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils';
 const BasicSettings = () => {
   const [date, setDate] = useState<Date | undefined>(new Date(1984, 0, 20));
   const [nameInput, setNameInput] = useState('Jason Tatum');
-  const [companyInput, setCompanyInput] = useState('KeenThemes'); 
+  const [companyInput, setCompanyInput] = useState('KeenThemes');
 
   return (
     <div className="card pb-2.5">
@@ -41,7 +41,7 @@ const BasicSettings = () => {
               type="text"
               value={nameInput}
               onChange={(e) => setNameInput(e.target.value)}
-            /> 
+            />
           </div>
         </div>
 
@@ -83,18 +83,14 @@ const BasicSettings = () => {
               type="text"
               value={companyInput}
               onChange={(e) => setCompanyInput(e.target.value)}
-            />  
+            />
           </div>
         </div>
 
         <div className="w-full">
           <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
             <label className="form-label flex items-center gap-1 max-w-56">Phone number</label>
-            <input
-              className="input"
-              type="text"
-              placeholder="Enter phone" 
-            />   
+            <input className="input" type="text" placeholder="Enter phone" />
           </div>
         </div>
 
