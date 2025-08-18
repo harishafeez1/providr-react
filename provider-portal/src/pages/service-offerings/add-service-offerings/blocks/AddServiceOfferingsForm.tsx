@@ -409,7 +409,7 @@ const AddServiceOfferingsForm = () => {
                 </label>
                 <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]">
                   <MapboxLocationSelector
-                    accessToken="pk.eyJ1IjoiaGFyaXNoYWZlZXoxIiwiYSI6ImNsbmp0d2ttcjFxaDAyam1rbXduejRncHUifQ.3snJ7lmV94QTRdHP7uQNlg"
+                    accessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN}
                     // onLocationsUpdate={(locations) => {
                     //   setServiceLocations(locations);
 
