@@ -14,6 +14,7 @@ import PlacesAutocomplete from '@/components/google-places/placesAutocomplete';
 import { Button } from '@/components/ui/button';
 import { useAppSelector } from '@/redux/hooks';
 import MapboxLocationSelector from './MapboxLocationSelector';
+import { ProgressBar } from '@/pages/company-profile/add-company-profile/ProgressBar';
 
 const AddServiceOfferingsForm = () => {
   const { currentUser } = useAuthContext();
@@ -29,7 +30,6 @@ const AddServiceOfferingsForm = () => {
   const [progress, setProgress] = useState<number>(0);
   const [regionSelection, setRegionSelection] = useState<number>(0);
   const [selectedPlace, setSelectedPlace] = useState<any>(null);
-  const [serviceLocations, setServiceLocations] = useState<any[]>([]);
 
   const servicesSelectedFalse = servicesSelected.every(([_, value]: any) => value === false);
   const ageGroupsFalse = ageGroups.every(([_, value]: any) => value === false);
@@ -58,11 +58,9 @@ const AddServiceOfferingsForm = () => {
     description: Yup.string().required('description is required'),
     language_options: Yup.array().of(Yup.string()).min(1, 'At least one language is required'),
     age_group_options: Yup.array().of(Yup.string()).min(1, 'At least one age group is required'),
-    service_delivered_options: Yup.array()
-      .of(Yup.string())
-      .min(1, 'Service delivered are required'),
-    address_options: Yup.array().of(Yup.string()).min(1, 'Addresses is required'),
-    service_available_options: Yup.array().of(Yup.string()).min(1, 'Regions are required')
+    service_delivered_options: Yup.array().of(Yup.string()).min(1, 'Service delivered are required')
+    // address_options: Yup.array().of(Yup.string()).min(1, 'Addresses is required'),
+    // service_available_options: Yup.array().of(Yup.string()).min(1, 'Regions are required')
   });
 
   const initialValues = {
@@ -72,7 +70,7 @@ const AddServiceOfferingsForm = () => {
     description: '',
     service_delivered_options: [] as string[],
     age_group_options: [] as string[],
-    address_options: [] as string[],
+    // address_options: [] as string[],
     service_available_options: [] as string[]
   };
 
@@ -96,16 +94,16 @@ const AddServiceOfferingsForm = () => {
     }
   };
 
-  const handlePlaceChange = (address: any, values: any, setFieldValue: any) => {
-    setSelectedPlace(address);
-    console.log('Selected Address:', address);
-    if (!values.address_options.includes(address?.label)) {
-      const updatedAddresses = [...(values.address_options || []), address?.label];
-      setFieldValue('address_options', updatedAddresses);
-    }
+  // const handlePlaceChange = (address: any, values: any, setFieldValue: any) => {
+  //   setSelectedPlace(address);
+  //   console.log('Selected Address:', address);
+  //   if (!values.address_options.includes(address?.label)) {
+  //     const updatedAddresses = [...(values.address_options || []), address?.label];
+  //     setFieldValue('address_options', updatedAddresses);
+  //   }
 
-    setSelectedPlace(null); // Optional, if you're clearing the input
-  };
+  //   setSelectedPlace(null); // Optional, if you're clearing the input
+  // };
 
   const handleCheckAll = (values: any, setFieldValue: any) => {
     const allChecked = values.age_group_options.length === options1.length;
@@ -126,6 +124,7 @@ const AddServiceOfferingsForm = () => {
       >
         {({ setFieldValue, values, isSubmitting, touched, errors }) => (
           // console.log('==========', values),
+
           <Form className="card p-4">
             <div className="grid gap-5">
               <div className="flex items-baseline flex-wrap gap-2.5">
@@ -134,14 +133,7 @@ const AddServiceOfferingsForm = () => {
                   Your progress
                 </label>
                 <div className="progress w-[100%]">
-                  <div
-                    className="progress-bar bg-success"
-                    role="progressbar"
-                    style={{ width: `${progress}%` }}
-                    aria-valuenow={progress}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                  ></div>
+                  <ProgressBar />
                 </div>
               </div>
               <div className="flex items-center space-x-2">
@@ -408,48 +400,7 @@ const AddServiceOfferingsForm = () => {
                   Select Service Area
                 </label>
                 <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]">
-                  <MapboxLocationSelector
-                    accessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN}
-                    // onLocationsUpdate={(locations) => {
-                    //   setServiceLocations(locations);
-
-                    //   // Collect all unique suburb names from all locations
-                    //   const allSuburbs = locations.flatMap((loc) =>
-                    //     loc.suburbs.map((suburb: any) => suburb.name)
-                    //   );
-
-                    //   // Also include location addresses
-                    //   const locationNames = locations.map((loc) => loc.address);
-
-                    //   // Combine and deduplicate
-                    //   const allServiceAreas = [...new Set([...allSuburbs, ...locationNames])];
-
-                    //   setFieldValue('service_available_options', allServiceAreas);
-                    // }}
-                  />
-                  {serviceLocations.length > 0 && (
-                    <div className="mt-4 p-3 bg-blue-50 rounded-md">
-                      <p className="text-sm font-medium text-blue-800">Service Coverage Summary:</p>
-                      <p className="text-sm text-blue-600">
-                        {serviceLocations.length} location{serviceLocations.length > 1 ? 's' : ''}{' '}
-                        selected
-                      </p>
-                      <p className="text-sm text-blue-600">
-                        Total suburbs covered:{' '}
-                        {serviceLocations.reduce((sum, loc) => sum + loc.suburbs.length, 0)}
-                      </p>
-                      <div className="mt-2 max-h-20 overflow-y-auto">
-                        <div className="text-xs text-blue-700">
-                          <strong>Locations:</strong>
-                          {serviceLocations.map((loc, index) => (
-                            <div key={loc.id} className="truncate">
-                              {index + 1}. {loc.address} ({loc.radius}km radius)
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                  <MapboxLocationSelector accessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN} />
                 </div>
               </div>
               {touched.service_available_options && errors.service_available_options && (

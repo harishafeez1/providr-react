@@ -20,6 +20,8 @@ import {
   getSingleServiceOfferings,
   updateServiceOfferings
 } from '@/services/api/service-offerings';
+import MapboxLocationSelector from '../../add-service-offerings/blocks/MapboxLocationSelector';
+import { ProgressBar } from '@/pages/company-profile/add-company-profile/ProgressBar';
 
 const EditServiceOfferingsForm = () => {
   const { currentUser } = useAuthContext();
@@ -107,11 +109,11 @@ const EditServiceOfferingsForm = () => {
     service_delivered_options: offeringsData
       ? offeringsData?.service_delivered_options
       : ([] as string[]),
-    age_group_options: offeringsData ? offeringsData?.age_group_options : ([] as string[]),
-    address_options: offeringsData ? offeringsData?.address_options || [] : ([] as string[]),
-    service_available_options: offeringsData
-      ? offeringsData?.service_available_options
-      : ([] as string[])
+    age_group_options: offeringsData ? offeringsData?.age_group_options : ([] as string[])
+    // address_options: offeringsData ? offeringsData?.address_options || [] : ([] as string[]),
+    // service_available_options: offeringsData
+    //   ? offeringsData?.service_available_options
+    //   : ([] as string[])
   };
 
   const handleSubmit = async (values: any, { resetForm }: any) => {
@@ -129,16 +131,16 @@ const EditServiceOfferingsForm = () => {
     }
   };
 
-  const handlePlaceChange = (address: any, values: any, setFieldValue: any) => {
-    setSelectedPlace(address);
+  // const handlePlaceChange = (address: any, values: any, setFieldValue: any) => {
+  //   setSelectedPlace(address);
 
-    if (!values.address_options.includes(address?.label)) {
-      const updatedAddresses = [...(values.address_options || []), address?.label];
-      setFieldValue('address_options', updatedAddresses);
-    }
+  //   if (!values.address_options.includes(address?.label)) {
+  //     const updatedAddresses = [...(values.address_options || []), address?.label];
+  //     setFieldValue('address_options', updatedAddresses);
+  //   }
 
-    setSelectedPlace(null);
-  };
+  //   setSelectedPlace(null);
+  // };
 
   const handleCheckAll = (values: any, setFieldValue: any) => {
     const allChecked = values.age_group_options.length === options1.length;
@@ -166,21 +168,15 @@ const EditServiceOfferingsForm = () => {
           // console.log('---values----', values),
           <Form className="card p-4">
             <div className="grid gap-5">
-              {/* <div className="flex items-baseline flex-wrap gap-2.5">
+              <div className="flex items-baseline flex-wrap gap-2.5">
                 <label className="form-label max-w-70 gap-1">
-                  <KeenIcon icon="loading" className="text-sm" /> Select your service Your progress
+                  <KeenIcon icon="loading" className="text-sm" />
+                  Your progress
                 </label>
                 <div className="progress w-[100%]">
-                  <div
-                    className="progress-bar bg-success"
-                    role="progressbar"
-                    style={{ width: `${progress}%` }}
-                    aria-valuenow={progress}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                  ></div>
+                  <ProgressBar />
                 </div>
-              </div> */}
+              </div>
               <div className="flex items-center space-x-2">
                 <Switch
                   id="active-mode"
@@ -350,17 +346,14 @@ const EditServiceOfferingsForm = () => {
                   )}
                 </Field>
               </div>
-              <div className="flex items-baseline flex-wrap gap-2.5">
+              {/* <div className="flex items-baseline flex-wrap gap-2.5">
                 <label className="form-label max-w-70 gap-1">
                   <KeenIcon icon="focus" className="text-sm" />
                   Where will this service be delivered from?
                 </label>
 
                 <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]">
-                  {/* <label className="form-label max-w-70 gap-1 my-3">
-                    <KeenIcon icon="subtitle" className="text-sm" />
-                    Active Addresses:
-                  </label> */}
+                
                   <div className="py-2">
                     <label className="form-label max-w-70 gap-1 my-3">Select Addresses</label>
                     <Field name="address_options">
@@ -408,95 +401,14 @@ const EditServiceOfferingsForm = () => {
                     </span>
                   )}
                 </div>
-              </div>
-              <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]">
-                {/* <div className=" w-full">
-                  <div className="w-[30%]">
-                    <label className="form-label">Location Limit: {regionSelection}/3</label>
-                    <div className="progress w-[100%]">
-                      <div
-                        className="progress-bar bg-success"
-                        role="progressbar"
-                        style={{ width: `${(regionSelection / maxSelectionLimit) * 100}%` }}
-                        aria-valuenow={100}
-                        aria-valuemin={0}
-                        aria-valuemax={100}
-                      ></div>
-                    </div>
-                  </div>
-                </div> */}
-                <div className="tabs mb-5">
-                  {Object.keys(regions).map((state) => (
-                    <button
-                      key={state}
-                      type="button"
-                      className={`tab ${activeTab === state ? 'active' : ''}`}
-                      aria-selected={activeTab === state}
-                      onClick={(event) => {
-                        event.preventDefault();
-                        handleTabClick(state);
-                      }}
-                    >
-                      {state}
-                    </button>
-                  ))}
-                </div>
-                <div>
-                  {Object.entries(regions).map(([state, regionList]: any) => (
-                    <div key={state} className={activeTab === state ? '' : 'hidden'}>
-                      <div className="grid grid-cols-2 gap-4">
-                        {regionList.map((region: any, index: any) => {
-                          // Count the total number of selected checkboxes
-                          const selectedCount = Object.values(values.service_available_options)
-                            .flatMap((regionState: any) => Object.values(regionState))
-                            .filter(Boolean).length;
-                          setRegionSelection(selectedCount);
-                          return (
-                            <label
-                              key={index}
-                              className={`checkbox-group cursor-pointer flex items-center gap-2 ${
-                                selectedCount === 3 &&
-                                !values.service_available_options[state]?.[region]
-                                  ? 'opacity-50 cursor-not-allowed'
-                                  : ''
-                              }`}
-                            >
-                              <Field
-                                type="checkbox"
-                                className="checkbox checkbox-sm"
-                                name={`service_available_options.${region}`}
-                                checked={values.service_available_options.includes(region)}
-                                onChange={() => {
-                                  const isChecked =
-                                    !values.service_available_options.includes(region);
-
-                                  // Update the Formik field value
-                                  setFieldValue(
-                                    'service_available_options',
-                                    isChecked
-                                      ? [...values.service_available_options, region]
-                                      : values.service_available_options.filter(
-                                          (item: string) => item !== region
-                                        ) // Remove the region
-                                  );
-
-                                  // regionally, update any other state if needed
-                                  setAgeGroups((prev: any) => {
-                                    const updated = isChecked
-                                      ? [...prev, region]
-                                      : prev.filter((item: any) => item !== region);
-                                    return updated;
-                                  });
-                                }}
-                              />
-
-                              <span className="checkbox-label">{region}</span>
-                            </label>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
+              </div> */}
+              <div className="flex items-baseline flex-wrap gap-2.5">
+                <label className="form-label max-w-70 gap-1">
+                  <KeenIcon icon="geolocation" className="text-sm" />
+                  Select Service Area
+                </label>
+                <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]">
+                  <MapboxLocationSelector accessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN} />
                 </div>
               </div>
 
