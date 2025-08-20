@@ -249,10 +249,9 @@ const AddCompanyProfileForm = () => {
     >
       {({ setFieldValue, values, isSubmitting, errors, touched }) => (
         <>
-          <ProgressBar />
-
           <Form className="card p-4">
             <div className="grid gap-5">
+              <ProgressBar className="my-6" />
               <div className="flex items-center gap-2.5">
                 <div className="flex items-center flex-col gap-2.5 flex-2 justify-center mx-auto">
                   <CrudAvatarUpload

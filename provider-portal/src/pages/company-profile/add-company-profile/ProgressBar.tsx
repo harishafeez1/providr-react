@@ -1,7 +1,12 @@
 import { useFormikContext } from 'formik';
 import React from 'react';
+import { cn } from '@/lib/utils';
 
-const ProgressBar = () => {
+interface ProgressBarProps {
+  className?: string;
+}
+
+const ProgressBar = ({ className }: ProgressBarProps) => {
   const { values } = useFormikContext<any>();
 
   const stripHtml = (html: string) => {
@@ -31,7 +36,7 @@ const ProgressBar = () => {
   const progress = (filledFields / totalFields) * 100;
 
   return (
-    <div className="w-full bg-gray-300 rounded-full progress">
+    <div className={cn("w-full bg-gray-300 rounded-full progress", className)}>
       <div
         className="progress-bar bg-success rounded-full transition-all duration-300"
         style={{ width: `${progress}%` }}
