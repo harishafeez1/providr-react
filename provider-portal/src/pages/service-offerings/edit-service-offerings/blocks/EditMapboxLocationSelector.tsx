@@ -14,11 +14,11 @@ interface ServiceLocation {
   suburbs: any[];
 }
 
-interface MapboxLocationSelectorProps {
+interface EditMapboxLocationSelectorProps {
   accessToken: string;
 }
 
-const MapboxLocationSelector: React.FC<MapboxLocationSelectorProps> = ({
+const EditMapboxLocationSelector: React.FC<EditMapboxLocationSelectorProps> = ({
   accessToken
 }) => {
   const dispatch = useAppDispatch();
@@ -915,6 +915,164 @@ const MapboxLocationSelector: React.FC<MapboxLocationSelectorProps> = ({
     }, 500);
   };
 
+  // Update Redux when locations change (but not when initially empty)
+  useEffect(() => {
+    // Only update Redux if we have actual locations, don't clear it with empty array
+    if (locations.length > 0) {
+      const formattedLocations = locations.map(location => ({
+        lat: location.lat,
+        lng: location.lng,
+        radius_km: location.radius
+      }));
+      console.log('EditMap: Updating Redux with locations:', formattedLocations);
+      dispatch(setServiceLocations(formattedLocations));
+    }
+  }, [locations, dispatch]);
+
+  // Initialize locations from Redux when editing - THIS IS THE KEY EDIT FUNCTIONALITY
+  useEffect(() => {
+    console.log('EditMap: Redux locations:', reduxLocations);
+    console.log('EditMap: Current locations:', locations);
+    console.log('EditMap: Map ready:', !!mapRef.current);
+    
+    // Initialize when we have redux data, no current locations, and map is ready
+    if (reduxLocations.length > 0 && locations.length === 0 && mapRef.current) {
+      console.log('EditMap: Initializing editing locations...');
+      const initializeEditingLocations = async () => {
+        const formattedLocations: ServiceLocation[] = [];
+        
+        // Process locations one by one to get proper addresses
+        for (let i = 0; i < reduxLocations.length; i++) {
+          const loc = reduxLocations[i];
+          let address = `${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)}`;
+          
+          // Try to get a proper address
+          try {
+            const response = await fetch(
+              `https://api.mapbox.com/geocoding/v5/mapbox.places/${loc.lng},${loc.lat}.json?access_token=${accessToken}&limit=1&country=au`
+            );
+            const data = await response.json();
+            if (data.features && data.features.length > 0) {
+              address = data.features[0].place_name;
+            }
+          } catch (error) {
+            console.error('Error reverse geocoding location:', error);
+          }
+          
+          formattedLocations.push({
+            id: Math.random().toString(36).substr(2, 9),
+            lat: loc.lat,
+            lng: loc.lng,
+            address,
+            radius: loc.radius_km,
+            suburbs: []
+          });
+        }
+        
+        setLocations(formattedLocations);
+        
+        // Add markers and circles to the map for existing locations
+        if (mapRef.current) {
+          formattedLocations.forEach((location, index) => {
+            // Add marker to map
+            addMarkerToMap(location, index + 1);
+            // Add radius circle
+            createRadiusCircle(location.id, location.lat, location.lng, location.radius);
+            // Fetch suburbs after a short delay
+            setTimeout(() => {
+              fetchSuburbsInRadius(location.id, location.lat, location.lng, location.radius);
+            }, 500 * (index + 1)); // Stagger suburb fetching
+          });
+          
+          // Fit map to show all locations if multiple locations exist
+          if (formattedLocations.length > 1) {
+            const bounds = new mapboxgl.LngLatBounds();
+            formattedLocations.forEach(location => {
+              bounds.extend([location.lng, location.lat]);
+            });
+            mapRef.current.fitBounds(bounds, { padding: 50 });
+          } else if (formattedLocations.length === 1) {
+            // Center on single location
+            mapRef.current.flyTo({
+              center: [formattedLocations[0].lng, formattedLocations[0].lat],
+              zoom: 10
+            });
+          }
+        }
+      };
+      
+      initializeEditingLocations();
+    }
+  }, [reduxLocations, locations.length, accessToken]);
+
+  // Additional effect to handle case where Redux data arrives after map is ready
+  useEffect(() => {
+    // Wait a bit longer for map to be fully initialized
+    const timeoutId = setTimeout(() => {
+      if (reduxLocations.length > 0 && locations.length === 0 && mapRef.current) {
+        console.log('EditMap: Second attempt to initialize locations...');
+        const initializeEditingLocations = async () => {
+          const formattedLocations: ServiceLocation[] = [];
+          
+          for (let i = 0; i < reduxLocations.length; i++) {
+            const loc = reduxLocations[i];
+            let address = `${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)}`;
+            
+            try {
+              const response = await fetch(
+                `https://api.mapbox.com/geocoding/v5/mapbox.places/${loc.lng},${loc.lat}.json?access_token=${accessToken}&limit=1&country=au`
+              );
+              const data = await response.json();
+              if (data.features && data.features.length > 0) {
+                address = data.features[0].place_name;
+              }
+            } catch (error) {
+              console.error('Error reverse geocoding location:', error);
+            }
+            
+            formattedLocations.push({
+              id: Math.random().toString(36).substr(2, 9),
+              lat: loc.lat,
+              lng: loc.lng,
+              address,
+              radius: loc.radius_km,
+              suburbs: []
+            });
+          }
+          
+          setLocations(formattedLocations);
+          
+          if (mapRef.current) {
+            formattedLocations.forEach((location, index) => {
+              addMarkerToMap(location, index + 1);
+              createRadiusCircle(location.id, location.lat, location.lng, location.radius);
+              setTimeout(() => {
+                fetchSuburbsInRadius(location.id, location.lat, location.lng, location.radius);
+              }, 500 * (index + 1));
+            });
+            
+            if (formattedLocations.length > 1) {
+              const bounds = new mapboxgl.LngLatBounds();
+              formattedLocations.forEach(location => {
+                bounds.extend([location.lng, location.lat]);
+              });
+              mapRef.current.fitBounds(bounds, { padding: 50 });
+            } else if (formattedLocations.length === 1) {
+              mapRef.current.flyTo({
+                center: [formattedLocations[0].lng, formattedLocations[0].lat],
+                zoom: 10
+              });
+            }
+          }
+        };
+        
+        initializeEditingLocations();
+      }
+    }, 1000); // Wait 1 second after Redux data changes
+
+    return () => clearTimeout(timeoutId);
+  }, [reduxLocations, accessToken]);
+
   useEffect(() => {
     if (!mapContainerRef.current || !accessToken || accessToken === 'YOUR_MAPBOX_ACCESS_TOKEN')
       return;
@@ -968,18 +1126,6 @@ const MapboxLocationSelector: React.FC<MapboxLocationSelectorProps> = ({
       }
     };
   }, [accessToken]);
-
-  // Update Redux when locations change
-  useEffect(() => {
-    const formattedLocations = locations.map(location => ({
-      lat: location.lat,
-      lng: location.lng,
-      radius_km: location.radius
-    }));
-    dispatch(setServiceLocations(formattedLocations));
-  }, [locations, dispatch]);
-
-  // Note: This component is for ADD mode only. Edit mode uses EditMapboxLocationSelector.
 
   // Function to remove a location
   const removeLocation = (locationId: string) => {
@@ -1255,4 +1401,4 @@ const MapboxLocationSelector: React.FC<MapboxLocationSelectorProps> = ({
   );
 };
 
-export default MapboxLocationSelector;
+export default EditMapboxLocationSelector;

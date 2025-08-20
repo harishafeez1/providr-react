@@ -12,13 +12,16 @@ import { Switch } from '@/components/ui/switch';
 import { useNavigate } from 'react-router';
 import PlacesAutocomplete from '@/components/google-places/placesAutocomplete';
 import { Button } from '@/components/ui/button';
-import { useAppSelector } from '@/redux/hooks';
+import { useAppSelector, useAppDispatch } from '@/redux/hooks';
 import MapboxLocationSelector from './MapboxLocationSelector';
 import { ProgressBar } from '@/pages/company-profile/add-company-profile/ProgressBar';
+import { resetServiceOffering } from '@/redux/slices/service-offering-slice';
 
 const AddServiceOfferingsForm = () => {
   const { currentUser } = useAuthContext();
   const { services } = useAppSelector((state) => state.services);
+  const { currentOffering, locations } = useAppSelector((state) => state.serviceOffering);
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
@@ -70,27 +73,29 @@ const AddServiceOfferingsForm = () => {
     description: '',
     service_delivered_options: [] as string[],
     age_group_options: [] as string[],
-    // address_options: [] as string[],
-    service_available_options: [] as string[]
+    service_available_options: locations
   };
 
   const handleSubmit = async (values: any, { resetForm, setFieldValue }: any) => {
     setLoading(true);
     try {
-      const res = await axios.post(SERVICE_OFFERING_ADD_URL, {
+      // Get the latest locations from Redux
+      const submissionData = {
         ...values,
+        service_available_options: locations, // Use locations from Redux
         provider_company_id: currentUser?.provider_company_id
-      });
+      };
+      
+      const res = await axios.post(SERVICE_OFFERING_ADD_URL, submissionData);
       if (res) {
         setLoading(false);
         resetForm();
-        setFieldValue('services', []);
-        setFieldValue('languages', []);
+        dispatch(resetServiceOffering()); // Reset Redux state
         navigate('/');
       }
     } catch (error) {
       setLoading(false);
-      console.error('service offring addition error:', error);
+      console.error('service offering addition error:', error);
     }
   };
 

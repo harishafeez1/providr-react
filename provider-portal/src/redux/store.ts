@@ -3,13 +3,15 @@ import usersSlice from './slices/users-slice';
 import servicesSlice from './slices/services-slice';
 import notificationsSlice from './slices/notifications-slice';
 import serviceRequestSlice from './slices/service-request-slice';
+import serviceOfferingSlice from './slices/service-offering-slice';
 
 export const store = configureStore({
   reducer: {
     users: usersSlice,
     services: servicesSlice,
     notifications: notificationsSlice,
-    serviceRequest: serviceRequestSlice
+    serviceRequest: serviceRequestSlice,
+    serviceOffering: serviceOfferingSlice
   }
 });
 

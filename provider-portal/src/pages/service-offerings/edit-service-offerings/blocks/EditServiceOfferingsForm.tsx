@@ -20,13 +20,17 @@ import {
   getSingleServiceOfferings,
   updateServiceOfferings
 } from '@/services/api/service-offerings';
-import MapboxLocationSelector from '../../add-service-offerings/blocks/MapboxLocationSelector';
+import EditMapboxLocationSelector from './EditMapboxLocationSelector';
 import { ProgressBar } from '@/pages/company-profile/add-company-profile/ProgressBar';
+import { useAppDispatch, useAppSelector } from '@/redux/hooks';
+import { setServiceOfferingData, resetServiceOffering } from '@/redux/slices/service-offering-slice';
 
 const EditServiceOfferingsForm = () => {
   const { currentUser } = useAuthContext();
   const navigate = useNavigate();
   const { id } = useParams();
+  const dispatch = useAppDispatch();
+  const { currentOffering, locations } = useAppSelector((state) => state.serviceOffering);
   const [offeringsData, setOfferingsData] = useState<any>(null);
 
   const [isLoading, setIsLoading] = useState(true);
@@ -49,8 +53,18 @@ const EditServiceOfferingsForm = () => {
         try {
           const res = await getSingleServiceOfferings(id);
           if (res) {
+            console.log('Edit Form: API Response:', res);
+            console.log('Edit Form: service_available_options:', res.service_available_options);
+            
             setIsLoading(false);
             setOfferingsData(res);
+            
+            // Set the data in Redux with service_available_options
+            dispatch(setServiceOfferingData({
+              ...res,
+              id,
+              service_available_options: res.service_available_options || []
+            }));
           }
         } catch (error) {
           console.error('Error fetching single service:', error);
@@ -58,7 +72,7 @@ const EditServiceOfferingsForm = () => {
       };
       fetchServiceOffering();
     }
-  }, [id]);
+  }, [id, dispatch]);
 
   useEffect(() => {
     // Function to calculate progress
@@ -109,25 +123,29 @@ const EditServiceOfferingsForm = () => {
     service_delivered_options: offeringsData
       ? offeringsData?.service_delivered_options
       : ([] as string[]),
-    age_group_options: offeringsData ? offeringsData?.age_group_options : ([] as string[])
-    // address_options: offeringsData ? offeringsData?.address_options || [] : ([] as string[]),
-    // service_available_options: offeringsData
-    //   ? offeringsData?.service_available_options
-    //   : ([] as string[])
+    age_group_options: offeringsData ? offeringsData?.age_group_options : ([] as string[]),
+    service_available_options: locations // Use locations from Redux
   };
 
   const handleSubmit = async (values: any, { resetForm }: any) => {
     setLoading(true);
     try {
-      const res = await updateServiceOfferings(id, values);
+      // Get the latest locations from Redux
+      const submissionData = {
+        ...values,
+        service_available_options: locations // Use locations from Redux
+      };
+      
+      const res = await updateServiceOfferings(id, submissionData);
       if (res) {
         setLoading(false);
         resetForm();
+        dispatch(resetServiceOffering()); // Reset Redux state
         navigate('/');
       }
     } catch (error) {
       setLoading(false);
-      console.error('service offring updating error:', error);
+      console.error('service offering updating error:', error);
     }
   };
 
@@ -408,7 +426,7 @@ const EditServiceOfferingsForm = () => {
                   Select Service Area
                 </label>
                 <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]">
-                  <MapboxLocationSelector accessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN} />
+                  <EditMapboxLocationSelector accessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN} />
                 </div>
               </div>
 
