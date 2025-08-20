@@ -13,7 +13,7 @@ import GooglePlacesAutocomplete, {
   getLatLng
 } from 'react-google-places-autocomplete';
 import { store } from '@/redux/store';
-import { setLocation, setServiceId } from '@/redux/slices/directory-slice';
+import { setLocation, setServiceId, setCurrentLocation, setSearchServiceId } from '@/redux/slices/directory-slice';
 import { useAppSelector } from '@/redux/hooks';
 import { postDirectoryFilters } from '@/services/api/directory';
 import {
@@ -47,6 +47,7 @@ import {
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { HeaderTopbar } from './HeaderTopbar';
+import { searchNearByProviders } from '@/services/api/search-providers';
 
 function ServicesSkeleton() {
   return (
@@ -92,6 +93,9 @@ const Header = () => {
     if (address) {
       const placeResults = await geocodeByPlaceId(address.value.place_id);
       const latLng = await getLatLng(placeResults[0]);
+      const currentLoc = { latitude: latLng.lat, longitude: latLng.lng };
+      setCurrentLocation(currentLoc);
+      store.dispatch(setCurrentLocation(currentLoc)); // Store in Redux
       location.latitude = String(latLng.lat);
       location.longitude = String(latLng.lng);
       location.address = address.label;
@@ -129,6 +133,96 @@ const Header = () => {
     service_id: allFilters.service_id,
     location: allFilters.location,
     page: 1
+  };
+
+  // State to store current location coordinates
+  const [currentLocation, setCurrentLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
+
+  // Local state for header search service_id
+  const [headerServiceId, setHeaderServiceId] = useState<string>('');
+
+  const handleNewFilters = async () => {
+    // Navigate to directory if not already there
+    if (!locationCheck.pathname.includes('directory')) {
+      navigate('/directory');
+    }
+
+    // Latitude and longitude are COMPULSORY for header search
+    if (!currentLocation) {
+      return; // Button should be disabled, so this shouldn't be reached
+    }
+
+    // Prepare data with REQUIRED location
+    const data = {
+      latitude: currentLocation.latitude,
+      longitude: currentLocation.longitude
+    };
+
+    // Add OPTIONAL service_id if it exists
+    if (headerServiceId && headerServiceId !== '') {
+      data.service_id = headerServiceId;
+    }
+
+    try {
+      // Set loading state
+      store.dispatch(setLoading(true));
+
+      // Call the search API
+      const response = await searchNearByProviders(data);
+
+      // Store the service_id used for search (for pagination)
+      store.dispatch(setSearchServiceId(headerServiceId || ''));
+
+      if (response && response.data && response.data.length > 0) {
+        // Set search results as providers
+        store.dispatch(setAllProviders(response.data));
+        store.dispatch(setIsSearchedFromHeader(true));
+
+        // Set service name if searching by service
+        if (headerServiceId && headerServiceId !== '') {
+          const selectedService = transformedServicesList.find(
+            (opt) => opt.value === headerServiceId
+          );
+          store.dispatch(setChangeSearchedServiceName(selectedService?.label || ''));
+        }
+
+        // Set pagination if available
+        if (response.current_page && response.last_page) {
+          store.dispatch(
+            setPagination({
+              currentPage: response.current_page,
+              lastPage: response.last_page
+            })
+          );
+        }
+      } else {
+        // No results found - show NoServicesFound component
+        store.dispatch(setAllProviders([]));
+        store.dispatch(setIsSearchedFromHeader(true));
+        if (headerServiceId && headerServiceId !== '') {
+          const selectedService = transformedServicesList.find(
+            (opt) => opt.value === headerServiceId
+          );
+          store.dispatch(setChangeSearchedServiceName(selectedService?.label || ''));
+        }
+      }
+    } catch (error) {
+      console.error('Error searching nearby providers:', error);
+      // On error, show NoServicesFound component
+      store.dispatch(setAllProviders([]));
+      store.dispatch(setIsSearchedFromHeader(true));
+      if (headerServiceId && headerServiceId !== '') {
+        const selectedService = transformedServicesList.find(
+          (opt) => opt.value === headerServiceId
+        );
+        store.dispatch(setChangeSearchedServiceName(selectedService?.label || ''));
+      }
+    } finally {
+      store.dispatch(setLoading(false));
+    }
   };
 
   const handleFilters = async () => {
@@ -200,7 +294,9 @@ const Header = () => {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
-
+          const currentLoc = { latitude, longitude };
+          setCurrentLocation(currentLoc);
+          store.dispatch(setCurrentLocation(currentLoc)); // Store in Redux
           // Step 2: Reverse geocode to get Australian address
           try {
             const response = await fetch(
@@ -479,12 +575,12 @@ const Header = () => {
                       <div className="relative rounded-lg border border-gray-300 px-4 py-3 hover:border-gray-400 focus-within:border-primary transition-colors">
                         <ReactSelect
                           options={transformedServicesList}
-                          value={transformedServicesList.find((opt) => opt.value === service_id)}
+                          value={transformedServicesList.find((opt) => opt.value === headerServiceId)}
                           onChange={(selectedOption) => {
                             if (selectedOption?.value) {
-                              store.dispatch(setServiceId(selectedOption?.value));
+                              setHeaderServiceId(selectedOption?.value);
                             } else {
-                              store.dispatch(setServiceId(''));
+                              setHeaderServiceId('');
                             }
                           }}
                           isClearable
@@ -557,12 +653,12 @@ const Header = () => {
                     {/* Search Button */}
                     <button
                       className={`w-full inline-flex items-center justify-center rounded-lg px-6 py-4 text-lg font-semibold text-white shadow-lg transition-colors min-h-[56px] ${
-                        isSearchLoading
+                        isSearchLoading || !currentLocation
                           ? 'bg-gray-400 cursor-not-allowed'
                           : 'bg-primary hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
                       }`}
                       onClick={handleMobileSearch}
-                      disabled={isSearchLoading}
+                      disabled={isSearchLoading || !currentLocation}
                     >
                       {isSearchLoading ? (
                         <>
@@ -676,12 +772,12 @@ const Header = () => {
               <div className="w-full text-sm ">
                 <ReactSelect
                   options={transformedServicesList}
-                  value={transformedServicesList.find((opt) => opt.value === service_id)}
+                  value={transformedServicesList.find((opt) => opt.value === headerServiceId)}
                   onChange={(selectedOption) => {
                     if (selectedOption?.value) {
-                      store.dispatch(setServiceId(selectedOption?.value));
+                      setHeaderServiceId(selectedOption?.value);
                     } else {
-                      store.dispatch(setServiceId(''));
+                      setHeaderServiceId('');
                     }
                   }}
                   isClearable
@@ -740,10 +836,11 @@ const Header = () => {
           </div>
           <button
             className={`flex items-center justify-center rounded-full px-3 py-2 m-1 ${
-              isSearchLoading ? 'bg-[#7b4f84] cursor-not-allowed' : 'bg-primary cursor-pointer'
+              isSearchLoading || !currentLocation ? 'bg-[#7b4f84] cursor-not-allowed' : 'bg-primary cursor-pointer'
             }`}
-            onClick={handleFilters}
-            disabled={isSearchLoading}
+            // onClick={handleFilters}
+            onClick={handleNewFilters}
+            disabled={isSearchLoading || !currentLocation}
           >
             <KeenIcon icon="magnifier" className="text-xl font-bold text-white" />
           </button>

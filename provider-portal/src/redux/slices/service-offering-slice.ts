@@ -45,20 +45,17 @@ export const serviceOfferingSlice = createSlice({
   reducers: {
     // Set form data for editing
     setServiceOfferingData: (state, action: PayloadAction<ServiceOfferingFormData & { id?: string }>) => {
-      console.log('Redux: setServiceOfferingData called with:', action.payload);
       const { id, ...offeringData } = action.payload;
       state.currentOffering = offeringData;
       state.isEditing = !!id;
       state.editingId = id || null;
       
       // Set locations from service_available_options
-      console.log('Redux: Setting locations to:', offeringData.service_available_options);
       state.locations = offeringData.service_available_options || [];
     },
 
     // Update locations from MapboxLocationSelector
     setServiceLocations: (state, action: PayloadAction<ServiceLocation[]>) => {
-      console.log('Redux: setServiceLocations called with:', action.payload);
       state.locations = action.payload;
       state.currentOffering.service_available_options = action.payload;
     },

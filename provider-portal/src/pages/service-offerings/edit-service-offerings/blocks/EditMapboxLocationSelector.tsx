@@ -924,20 +924,14 @@ const EditMapboxLocationSelector: React.FC<EditMapboxLocationSelectorProps> = ({
         lng: location.lng,
         radius_km: location.radius
       }));
-      console.log('EditMap: Updating Redux with locations:', formattedLocations);
       dispatch(setServiceLocations(formattedLocations));
     }
   }, [locations, dispatch]);
 
   // Initialize locations from Redux when editing - THIS IS THE KEY EDIT FUNCTIONALITY
   useEffect(() => {
-    console.log('EditMap: Redux locations:', reduxLocations);
-    console.log('EditMap: Current locations:', locations);
-    console.log('EditMap: Map ready:', !!mapRef.current);
-    
     // Initialize when we have redux data, no current locations, and map is ready
     if (reduxLocations.length > 0 && locations.length === 0 && mapRef.current) {
-      console.log('EditMap: Initializing editing locations...');
       const initializeEditingLocations = async () => {
         const formattedLocations: ServiceLocation[] = [];
         

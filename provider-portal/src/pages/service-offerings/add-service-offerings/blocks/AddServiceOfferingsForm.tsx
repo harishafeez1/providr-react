@@ -91,7 +91,6 @@ const AddServiceOfferingsForm = () => {
         setLoading(false);
         resetForm();
         dispatch(resetServiceOffering()); // Reset Redux state
-        navigate('/');
       }
     } catch (error) {
       setLoading(false);

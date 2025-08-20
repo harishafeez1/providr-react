@@ -53,8 +53,6 @@ const EditServiceOfferingsForm = () => {
         try {
           const res = await getSingleServiceOfferings(id);
           if (res) {
-            console.log('Edit Form: API Response:', res);
-            console.log('Edit Form: service_available_options:', res.service_available_options);
             
             setIsLoading(false);
             setOfferingsData(res);
@@ -141,7 +139,6 @@ const EditServiceOfferingsForm = () => {
         setLoading(false);
         resetForm();
         dispatch(resetServiceOffering()); // Reset Redux state
-        navigate('/');
       }
     } catch (error) {
       setLoading(false);

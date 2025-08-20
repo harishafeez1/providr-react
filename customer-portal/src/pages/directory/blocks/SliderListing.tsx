@@ -22,6 +22,7 @@ import {
 import { getProvidersByServiceId } from '@/services/api/all-services';
 import { postDirectoryFilters } from '@/services/api/directory';
 import { addFavouriteProvider } from '@/services/api/wishlist-favourite';
+import { searchNearByProviders } from '@/services/api/search-providers';
 import { ArrowLeft, ChevronLeft, ChevronRight, Heart } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
@@ -39,7 +40,7 @@ const CustomCarouselNext = ({ isDefaultService }: { isDefaultService?: boolean }
   const { scrollNext, canScrollNext } = useCarousel();
   const { pagination, searchedFromHeader, defaultProvidersPagination, directorySettings } =
     useAppSelector((state) => state.directoryListing);
-  const { service_id, location } = useAppSelector((state) => state.directory);
+  const { service_id, location, currentLocation, searchServiceId } = useAppSelector((state) => state.directory);
   const { auth } = useAuthContext();
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
@@ -49,30 +50,39 @@ const CustomCarouselNext = ({ isDefaultService }: { isDefaultService?: boolean }
 
     if (isLoadingMore) return;
 
-    // Handle filtered search pagination
-    if (searchedFromHeader && pagination.currentPage < pagination.lastPage) {
+    // Handle header search pagination (nearby providers)
+    if (searchedFromHeader && pagination.currentPage < pagination.lastPage && currentLocation) {
       setIsLoadingMore(true);
 
       try {
         const nextPage = pagination.currentPage + 1;
-        const filtersToSend = {
-          service_id: service_id,
-          location: location,
+        const searchData = {
+          latitude: currentLocation.latitude,
+          longitude: currentLocation.longitude,
           page: nextPage
         };
 
-        const res = await postDirectoryFilters(filtersToSend);
-        if (res.directories?.data && res.directories.data.length > 0) {
-          store.dispatch(appendProviders(res.directories.data));
-          store.dispatch(
-            setPagination({
-              currentPage: res.directories.current_page,
-              lastPage: res.directories.last_page
-            })
-          );
+        // Add service_id if it exists (from header search)
+        if (searchServiceId && searchServiceId !== '') {
+          searchData.service_id = searchServiceId;
+        }
+
+        const res = await searchNearByProviders(searchData);
+        if (res?.data && res.data.length > 0) {
+          store.dispatch(appendProviders(res.data));
+          
+          // Update pagination if available
+          if (res.current_page && res.last_page) {
+            store.dispatch(
+              setPagination({
+                currentPage: res.current_page,
+                lastPage: res.last_page
+              })
+            );
+          }
         }
       } catch (error) {
-        console.error('Error loading more filtered providers:', error);
+        console.error('Error loading more nearby providers:', error);
       } finally {
         setIsLoadingMore(false);
       }
