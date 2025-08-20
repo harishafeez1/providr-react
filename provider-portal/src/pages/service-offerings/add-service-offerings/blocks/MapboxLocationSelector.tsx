@@ -664,17 +664,10 @@ const MapboxLocationSelector: React.FC<MapboxLocationSelectorProps> = ({
       }
     }
 
-    // Create circle geometry (approximate circle using polygon)
-    const points = 64;
-    const coords = [];
-    for (let i = 0; i < points; i++) {
-      const angle = (i / points) * 2 * Math.PI;
-      const radiusInDegrees = radiusKm / 111.32; // approximate conversion
-      const x = lng + radiusInDegrees * Math.cos(angle);
-      const y = lat + radiusInDegrees * Math.sin(angle);
-      coords.push([x, y]);
-    }
-    coords.push(coords[0]); // close the polygon
+    // Create circle geometry using turf.js for accurate circle
+    const centerPoint = turf.point([lng, lat]);
+    const circle = turf.circle(centerPoint, radiusKm, { units: 'kilometers', steps: 64 });
+    const coords = circle.geometry.coordinates[0];
 
     // Add new source
     map.addSource(sourceId, {
