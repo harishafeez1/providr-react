@@ -143,7 +143,7 @@ const PageMenu: React.FC<PageMenuProps> = ({ services, loading }) => {
           className="relative"
         >
           <div className="text-xl font-semibold mb-[12px]">
-            {searchedFromHeader && location ? `Service in ${location}` : 'Services'}
+            {searchedFromHeader && location ? `Services in ${location}` : 'Services'}
           </div>
           <div className="absolute top-0 right-5 md:right-0 z-10 flex items-center justify-center">
             <CarouselPrevious className="relative h-6 w-6 translate-x-8 translate-y-0 bg-gray-200 disabled:text-gray-500 disabled:bg-gray-100" />

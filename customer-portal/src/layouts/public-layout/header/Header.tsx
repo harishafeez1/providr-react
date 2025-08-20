@@ -181,12 +181,14 @@ const Header = () => {
         store.dispatch(setAllProviders(response.data));
         store.dispatch(setIsSearchedFromHeader(true));
 
-        // Set service name if searching by service
+        // Set service name based on service_id selection
         if (headerServiceId && headerServiceId !== '') {
-          const selectedService = transformedServicesList.find(
-            (opt) => opt.value === headerServiceId
-          );
-          store.dispatch(setChangeSearchedServiceName(selectedService?.label || ''));
+          // Use service name from API response data
+          const serviceName = response.data[0]?.service?.name || '';
+          store.dispatch(setChangeSearchedServiceName(serviceName));
+        } else {
+          // No service selected, set empty string
+          store.dispatch(setChangeSearchedServiceName(''));
         }
 
         // Set pagination if available
@@ -203,10 +205,14 @@ const Header = () => {
         store.dispatch(setAllProviders([]));
         store.dispatch(setIsSearchedFromHeader(true));
         if (headerServiceId && headerServiceId !== '') {
+          // Use service name from transformedServicesList as fallback when no data
           const selectedService = transformedServicesList.find(
             (opt) => opt.value === headerServiceId
           );
           store.dispatch(setChangeSearchedServiceName(selectedService?.label || ''));
+        } else {
+          // No service selected, set empty string
+          store.dispatch(setChangeSearchedServiceName(''));
         }
       }
     } catch (error) {
@@ -219,6 +225,9 @@ const Header = () => {
           (opt) => opt.value === headerServiceId
         );
         store.dispatch(setChangeSearchedServiceName(selectedService?.label || ''));
+      } else {
+        // No service selected, set empty string
+        store.dispatch(setChangeSearchedServiceName(''));
       }
     } finally {
       store.dispatch(setLoading(false));
@@ -581,6 +590,7 @@ const Header = () => {
                               setHeaderServiceId(selectedOption?.value);
                             } else {
                               setHeaderServiceId('');
+                              store.dispatch(setServiceId(''));
                             }
                           }}
                           isClearable
@@ -778,6 +788,7 @@ const Header = () => {
                       setHeaderServiceId(selectedOption?.value);
                     } else {
                       setHeaderServiceId('');
+                      store.dispatch(setServiceId(''));
                     }
                   }}
                   isClearable

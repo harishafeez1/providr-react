@@ -157,7 +157,7 @@ const DirectoryPage = () => {
               <div className="mt-6 md:mt-[12px]">
                 <SliderListing
                   providerData={allProviders}
-                  heading={changedSearchedServiceName || 'Cleaning'}
+                  heading={changedSearchedServiceName || 'Providers'}
                   loading={isDirectoryLoading}
                 />
               </div>
