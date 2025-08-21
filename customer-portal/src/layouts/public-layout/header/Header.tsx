@@ -2,7 +2,7 @@ import { KeenIcon } from '@/components';
 import ReactSelect from 'react-select';
 
 import clsx from 'clsx';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { HeaderLogo } from './HeaderLogo';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import GooglePlacesAutocomplete, {
@@ -40,8 +40,8 @@ import { HeaderTopbar } from './HeaderTopbar';
 import { searchNearByProviders } from '@/services/api/search-providers';
 
 interface HeaderSearchI {
-  latitude: number;
-  longitude: number;
+  latitude?: number;
+  longitude?: number;
   service_id?: string | null;
 }
 
@@ -63,6 +63,8 @@ const Header = () => {
   }, []);
 
   const handleLocationChange = async (address: any) => {
+    console.log('handleLocationChange called with:', address);
+    
     const location: {
       latitude?: string;
       longitude?: string;
@@ -104,10 +106,18 @@ const Header = () => {
 
       console.log('Final Location:', location);
       store.dispatch(setLocation(location.suburb || ''));
+      
+      // Set the defaultAddress so the GooglePlacesAutocomplete shows the selected value
+      setDefaultAddress({
+        label: address.label,
+        value: address.label
+      });
     } else {
-      // Clear both Redux location and default address when field is cleared
+      // Clear all location-related state when field is cleared
       store.dispatch(setLocation(''));
       setDefaultAddress(null);
+      setHeaderCurrentLocation(null); // Clear coordinates state
+      store.dispatch(setCurrentLocation(null)); // Clear Redux coordinates completely
     }
   };
 
@@ -133,21 +143,33 @@ const Header = () => {
       navigate('/directory');
     }
 
-    // Latitude and longitude are COMPULSORY for header search
-    if (!headerCurrentLocation) {
+    // Check if at least one input has a value (button should be disabled otherwise)
+    if (!isSearchEnabled) {
       return; // Button should be disabled, so this shouldn't be reached
     }
 
-    // Prepare data with REQUIRED location
-    const data: HeaderSearchI = {
-      latitude: headerCurrentLocation.latitude,
-      longitude: headerCurrentLocation.longitude
-    };
+    // Prepare data - location is now optional
+    const data: HeaderSearchI = {};
 
-    // Add OPTIONAL service_id if it exists
-    if (headerServiceId && headerServiceId !== '') {
-      data.service_id = headerServiceId;
+    // Add location if available - check both local state and Redux state
+    const reduxCurrentLocation = store.getState().directory.currentLocation;
+    console.log('Search function - headerCurrentLocation:', headerCurrentLocation);
+    console.log('Search function - reduxCurrentLocation:', reduxCurrentLocation);
+    
+    if (headerCurrentLocation && reduxCurrentLocation) {
+      data.latitude = headerCurrentLocation.latitude;
+      data.longitude = headerCurrentLocation.longitude;
     }
+
+    // Add service_id if available (handle both string and number)
+    if (headerServiceId && (
+      (typeof headerServiceId === 'string' && headerServiceId !== '') ||
+      (typeof headerServiceId === 'number' && headerServiceId > 0)
+    )) {
+      data.service_id = headerServiceId.toString();
+    }
+
+    console.log('Final data being sent to API:', data);
 
     try {
       // Set loading state
@@ -165,7 +187,10 @@ const Header = () => {
         store.dispatch(setIsSearchedFromHeader(true));
 
         // Set service name based on service_id selection
-        if (headerServiceId && headerServiceId !== '') {
+        if (headerServiceId && (
+          (typeof headerServiceId === 'string' && headerServiceId !== '') ||
+          (typeof headerServiceId === 'number' && headerServiceId > 0)
+        )) {
           // Use service name from API response data
           const serviceName = response.data[0]?.service?.name || '';
           store.dispatch(setChangeSearchedServiceName(serviceName));
@@ -187,7 +212,10 @@ const Header = () => {
         // No results found - show NoServicesFound component
         store.dispatch(setAllProviders([]));
         store.dispatch(setIsSearchedFromHeader(true));
-        if (headerServiceId && headerServiceId !== '') {
+        if (headerServiceId && (
+          (typeof headerServiceId === 'string' && headerServiceId !== '') ||
+          (typeof headerServiceId === 'number' && headerServiceId > 0)
+        )) {
           // Use service name from transformedServicesList as fallback when no data
           const selectedService = transformedServicesList.find(
             (opt) => opt.value === headerServiceId
@@ -203,7 +231,10 @@ const Header = () => {
       // On error, show NoServicesFound component
       store.dispatch(setAllProviders([]));
       store.dispatch(setIsSearchedFromHeader(true));
-      if (headerServiceId && headerServiceId !== '') {
+      if (headerServiceId && (
+        (typeof headerServiceId === 'string' && headerServiceId !== '') ||
+        (typeof headerServiceId === 'number' && headerServiceId > 0)
+      )) {
         const selectedService = transformedServicesList.find(
           (opt) => opt.value === headerServiceId
         );
@@ -259,6 +290,35 @@ const Header = () => {
     null
   );
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+
+  // Check if search should be enabled based on actual input values
+  const isSearchEnabled = React.useMemo(() => {
+    // Check if location has a value (defaultAddress exists and has meaningful content)
+    const hasLocation = defaultAddress && 
+      (defaultAddress.label && defaultAddress.label.trim() !== '') &&
+      headerCurrentLocation;
+    
+    // Check if service has a value (headerServiceId exists and is not empty)
+    // Handle both string and number values from the service dropdown
+    const hasService = headerServiceId && (
+      (typeof headerServiceId === 'string' && headerServiceId.trim() !== '') ||
+      (typeof headerServiceId === 'number' && headerServiceId > 0)
+    );
+    
+    console.log('Button enable check - defaultAddress:', defaultAddress);
+    console.log('Button enable check - headerCurrentLocation:', headerCurrentLocation);
+    console.log('Button enable check - hasLocation:', hasLocation);
+    console.log('Button enable check - hasService:', hasService);
+    console.log('Button enable check - headerServiceId:', headerServiceId);
+    console.log('Button enable check - isSearchLoading:', isSearchLoading);
+    
+    // Enable search if either location OR service has a value (not both required)
+    // Button should only be disabled when BOTH are empty
+    const enabled = (hasLocation || hasService) && !isSearchLoading;
+    console.log('Button enable check - final enabled:', enabled);
+    
+    return enabled;
+  }, [defaultAddress, headerCurrentLocation, headerServiceId, isSearchLoading]);
 
   useEffect(() => {
     if ('geolocation' in navigator) {
@@ -735,13 +795,12 @@ const Header = () => {
           </div>
           <button
             className={`flex items-center justify-center rounded-full px-3 py-2 m-1 ${
-              isSearchLoading || !headerCurrentLocation
+              !isSearchEnabled
                 ? 'bg-[#7b4f84] cursor-not-allowed'
                 : 'bg-primary cursor-pointer'
             }`}
-            // onClick={handleFilters}
             onClick={handleNewFilters}
-            disabled={isSearchLoading || !headerCurrentLocation}
+            disabled={!isSearchEnabled}
           >
             <KeenIcon icon="magnifier" className="text-xl font-bold text-white" />
           </button>
