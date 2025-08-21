@@ -56,7 +56,12 @@ const CustomCarouselNext = ({ isDefaultService }: { isDefaultService?: boolean }
 
       try {
         const nextPage = pagination.currentPage + 1;
-        const searchData = {
+        const searchData: {
+          latitude: number;
+          longitude: number;
+          page: number;
+          service_id?: string;
+        } = {
           latitude: currentLocation.latitude,
           longitude: currentLocation.longitude,
           page: nextPage
