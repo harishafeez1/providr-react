@@ -25,36 +25,8 @@ const AddServiceOfferingsForm = () => {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
-  const [nameInput, setNameInput] = useState('');
   const [servicesSelected, setServicesSelected] = useState<any>([]);
   const [ageGroups, setAgeGroups] = useState<number[]>([]);
-  const [servicesDelevired, setServicesDelivered] = useState<number | null>(null);
-  const [activeTab, setActiveTab] = useState<string>(Object.keys(regions)[0]);
-  const [progress, setProgress] = useState<number>(0);
-  const [regionSelection, setRegionSelection] = useState<number>(0);
-  const [selectedPlace, setSelectedPlace] = useState<any>(null);
-
-  const servicesSelectedFalse = servicesSelected.every(([_, value]: any) => value === false);
-  const ageGroupsFalse = ageGroups.every(([_, value]: any) => value === false);
-
-  useEffect(() => {
-    // Function to calculate progress
-    const calculateProgress = () => {
-      let filledFields = 0;
-      if (nameInput) filledFields++;
-      if (!servicesSelectedFalse) filledFields++;
-      if (servicesDelevired !== null) filledFields++;
-      if (!ageGroupsFalse) filledFields++;
-      if (regionSelection !== 0) filledFields++;
-      setProgress((filledFields / 6) * 100);
-    };
-
-    calculateProgress();
-  }, [nameInput, servicesDelevired, ageGroupsFalse, servicesSelectedFalse, regionSelection]);
-
-  const handleTabClick = (tabId: string) => {
-    setActiveTab(tabId);
-  };
 
   const serviceOfferingSchema = Yup.object().shape({
     service_id: Yup.string().required('Service is required'),
@@ -85,29 +57,19 @@ const AddServiceOfferingsForm = () => {
         service_available_options: locations, // Use locations from Redux
         provider_company_id: currentUser?.provider_company_id
       };
-      
+
       const res = await axios.post(SERVICE_OFFERING_ADD_URL, submissionData);
       if (res) {
         setLoading(false);
         resetForm();
         dispatch(resetServiceOffering()); // Reset Redux state
+        navigate('/service-offerings');
       }
     } catch (error) {
       setLoading(false);
       console.error('service offering addition error:', error);
     }
   };
-
-  // const handlePlaceChange = (address: any, values: any, setFieldValue: any) => {
-  //   setSelectedPlace(address);
-  //   console.log('Selected Address:', address);
-  //   if (!values.address_options.includes(address?.label)) {
-  //     const updatedAddresses = [...(values.address_options || []), address?.label];
-  //     setFieldValue('address_options', updatedAddresses);
-  //   }
-
-  //   setSelectedPlace(null); // Optional, if you're clearing the input
-  // };
 
   const handleCheckAll = (values: any, setFieldValue: any) => {
     const allChecked = values.age_group_options.length === options1.length;
@@ -169,8 +131,7 @@ const AddServiceOfferingsForm = () => {
                       options={services}
                       value={values.service_id}
                       onChange={(option: any) => {
-                        setFieldValue('service_id', option.value),
-                          setServicesDelivered(option.value);
+                        setFieldValue('service_id', option.value);
                       }}
                     />
                   )}
@@ -193,7 +154,6 @@ const AddServiceOfferingsForm = () => {
                     placeholder="Enter some text"
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       setFieldValue('description', e.target.value);
-                      setNameInput(e.target.value);
                     }}
                   />
                 </label>
@@ -330,8 +290,7 @@ const AddServiceOfferingsForm = () => {
                         setFieldValue(
                           'language_options',
                           option.map((lang: any) => lang.value)
-                        ),
-                          setServicesDelivered(option.map((lang: any) => lang.value));
+                        );
                       }}
                     />
                   )}
@@ -342,61 +301,6 @@ const AddServiceOfferingsForm = () => {
                   </span>
                 )}
               </div>
-              {/* <div className="flex items-baseline flex-wrap gap-2.5">
-                <label className="form-label max-w-70 gap-1">
-                  <KeenIcon icon="focus" className="text-sm" />
-                  Where will this service be delivered from?
-                </label>
-
-                <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]">
-                  <div className="py-2">
-                    <label className="form-label max-w-70 gap-1 my-3">Select Addresses</label>
-                    <Field name="address_options">
-                      {({ field }: any) => (
-                        <PlacesAutocomplete
-                          {...field}
-                          name="address_options"
-                          value={selectedPlace}
-                          onChange={(address) => handlePlaceChange(address, values, setFieldValue)}
-                        />
-                      )}
-                    </Field>
-                  </div>
-                  <div className="my-4">
-                    <strong className="py-6">List of Added Addresses:</strong>
-                    <div className="py-2 flex flex-col">
-                      {(values.address_options || []).map((option: string, index: number) => (
-                        <>
-                          <div key={index} className="py-1 flex items-center gap-8">
-                            <div className="badge badge-pill badge-primary badge-lg">{option}</div>
-                            <div
-                              className="badge badge-sm badge-danger badge-outline cursor-pointer rounded-full"
-                              onClick={() => {
-                                const updatedAddresses = values.address_options.filter(
-                                  (_: string, i: number) => i !== index
-                                );
-                                setFieldValue('address_options', updatedAddresses);
-                              }}
-                            >
-                              ✖
-                            </div>
-                            {selectedPlace && selectedPlace.label === option && (
-                              <div className="badge badge-pill badge-danger">
-                                This address is already added
-                              </div>
-                            )}
-                          </div>
-                        </>
-                      ))}
-                    </div>
-                  </div>
-                  {touched.address_options && errors.address_options && (
-                    <span role="alert" className="text-danger text-xs mt-1">
-                      {errors.address_options}
-                    </span>
-                  )}
-                </div>
-              </div> */}
 
               <div className="flex items-baseline flex-wrap gap-2.5">
                 <label className="form-label max-w-70 gap-1">
@@ -407,11 +311,11 @@ const AddServiceOfferingsForm = () => {
                   <MapboxLocationSelector accessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN} />
                 </div>
               </div>
-              {touched.service_available_options && errors.service_available_options && (
+              {/* {touched.service_available_options && errors.service_available_options && (
                 <span role="alert" className="text-danger text-xs mt-1">
                   {errors.service_available_options}
                 </span>
-              )}
+              )} */}
               <div className="flex justify-end">
                 <button
                   type="submit"

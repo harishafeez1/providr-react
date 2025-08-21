@@ -51,3 +51,8 @@ export const GET_ALL_SERVICES_URL = `${API_URL}/all_services`;
 // All Notifications Routes
 export const GET_NOTIFICATIONS_URL = `${API_URL}/notification_settings`; // type provider | customer / user_id | company_id
 export const UPDATE_NOTIFICATIONS_URL = `${API_URL}/notification_settings/update`;
+
+//MAPBOX Routes
+
+export const GET_MAPBOX_GEOCODE_URL = `${API_URL}/mapbox/geocode`       //?lng={longitude}&lat={latitude}   
+export const GET_MAPBOX_SEARCH_URL = `${API_URL}/mapbox/search`         //?query={query}
