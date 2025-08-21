@@ -5,7 +5,8 @@ import { MapPin } from 'lucide-react';
 import CarSvg from '/media/app/building-car.svg';
 import { CountriesFlags } from '../blocks';
 import { BottomSheetDialog } from '@/components';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import ServiceLocationMap from '../blocks/ServiceLocationMap';
 
 const MobileServicesSection = () => {
   const { providerProfile } = useAppSelector((state: any) => state.providerProfile);
@@ -16,6 +17,27 @@ const MobileServicesSection = () => {
 
   // Missing variables from desktop version now available
   const languageCollection = providerProfile?.language_collection;
+
+  // Convert service_available_options to map format for selected service
+  const serviceLocations = React.useMemo(() => {
+    if (!showServiceAreas?.service_available_options || !Array.isArray(showServiceAreas.service_available_options)) {
+      return [];
+    }
+    
+    return showServiceAreas.service_available_options
+      .filter((option: any) => 
+        option && 
+        typeof option === 'object' && 
+        !isNaN(Number(option.lat)) && 
+        !isNaN(Number(option.lng)) && 
+        !isNaN(Number(option.radius_km))
+      )
+      .map((option: any) => ({
+        lat: Number(option.lat),
+        lng: Number(option.lng), 
+        radius_km: Number(option.radius_km)
+      }));
+  }, [showServiceAreas?.service_available_options]);
 
   return (
     <>
@@ -62,14 +84,13 @@ const MobileServicesSection = () => {
         <BottomSheetDialog
           open={!!showServiceAreas}
           onOpenChange={(open) => !open && setShowServiceAreas(null)}
-          title="Service Areas"
+          title={`${showServiceAreas?.service?.name || 'Service'} Areas`}
         >
-          <div className="grid grid-cols-1 p-4 items-center gap-4 max-h-[80vh] overflow-y-auto">
-            {showServiceAreas?.service_available_options?.map((option: any, index: number) => (
-              <div key={index} className="badge badge-gray-100 text-center ">
-                <span className="text-black font-semibold">{option}</span>
-              </div>
-            ))}
+          <div className="p-4 max-h-[80vh] overflow-y-auto">
+            <ServiceLocationMap
+              addresses_collection={serviceLocations}
+              accessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || ''}
+            />
           </div>
         </BottomSheetDialog>
       )}

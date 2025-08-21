@@ -8,3 +8,6 @@ export * from './CountriesFlags';
 export * from './ConnectAndDetails';
 export * from './OurQualifications';
 export * from './MyPortfolio';
+export { default as ServiceLocationMap } from './ServiceLocationMap';
+export { default as ServiceLocationModal } from './ServiceLocationModal';
+export { default as ServiceLocationsButton } from './ServiceLocationsButton';

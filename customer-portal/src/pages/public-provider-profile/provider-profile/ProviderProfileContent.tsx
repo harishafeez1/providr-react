@@ -101,9 +101,13 @@ const ProviderProfileContent = () => {
 
           <Reviews data={resData} />
 
-          <Separator className="my-10 " />
-          <ProviderMap />
-          <Separator className="my-10 " />
+          {resData?.premises && resData.premises.length > 0 && (
+            <>
+              <Separator className="my-10 " />
+              <ProviderMap premises={resData.premises} />
+              <Separator className="my-10 " />
+            </>
+          )}
 
           <AgeGroups data={resData} />
         </div>

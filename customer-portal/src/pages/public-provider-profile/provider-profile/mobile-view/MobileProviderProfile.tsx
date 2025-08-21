@@ -430,11 +430,15 @@ const MobileProviderProfile = () => {
             <div className="mt-2">
               <MobileReviews />
             </div>
-            <Separator className="mt-6" />
-            <div className="">
-              <ProviderMap />
-            </div>
-            <Separator className="my-6" />
+            {providerProfile?.premises && providerProfile.premises.length > 0 && (
+              <>
+                <Separator className="mt-6" />
+                <div className="">
+                  <ProviderMap premises={providerProfile.premises} />
+                </div>
+                <Separator className="my-6" />
+              </>
+            )}
             <div className="">
               <MobileAgeGroups />
             </div>
