@@ -29,13 +29,6 @@ import {
 } from '@/redux/slices/directory-listing-slice';
 import { getAllServicesToTransform } from '@/services/api/all-services';
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger
-} from '@/components/ui/dialog';
 import { HeaderTopbar } from './HeaderTopbar';
 import { searchNearByProviders } from '@/services/api/search-providers';
 
@@ -64,7 +57,7 @@ const Header = () => {
 
   const handleLocationChange = async (address: any) => {
     console.log('handleLocationChange called with:', address);
-    
+
     const location: {
       latitude?: string;
       longitude?: string;
@@ -106,7 +99,7 @@ const Header = () => {
 
       console.log('Final Location:', location);
       store.dispatch(setLocation(location.suburb || ''));
-      
+
       // Set the defaultAddress so the GooglePlacesAutocomplete shows the selected value
       setDefaultAddress({
         label: address.label,
@@ -155,17 +148,18 @@ const Header = () => {
     const reduxCurrentLocation = store.getState().directory.currentLocation;
     console.log('Search function - headerCurrentLocation:', headerCurrentLocation);
     console.log('Search function - reduxCurrentLocation:', reduxCurrentLocation);
-    
+
     if (headerCurrentLocation && reduxCurrentLocation) {
       data.latitude = headerCurrentLocation.latitude;
       data.longitude = headerCurrentLocation.longitude;
     }
 
     // Add service_id if available (handle both string and number)
-    if (headerServiceId && (
-      (typeof headerServiceId === 'string' && headerServiceId !== '') ||
-      (typeof headerServiceId === 'number' && headerServiceId > 0)
-    )) {
+    if (
+      headerServiceId &&
+      ((typeof headerServiceId === 'string' && headerServiceId !== '') ||
+        (typeof headerServiceId === 'number' && headerServiceId > 0))
+    ) {
       data.service_id = headerServiceId.toString();
     }
 
@@ -187,10 +181,11 @@ const Header = () => {
         store.dispatch(setIsSearchedFromHeader(true));
 
         // Set service name based on service_id selection
-        if (headerServiceId && (
-          (typeof headerServiceId === 'string' && headerServiceId !== '') ||
-          (typeof headerServiceId === 'number' && headerServiceId > 0)
-        )) {
+        if (
+          headerServiceId &&
+          ((typeof headerServiceId === 'string' && headerServiceId !== '') ||
+            (typeof headerServiceId === 'number' && headerServiceId > 0))
+        ) {
           // Use service name from API response data
           const serviceName = response.data[0]?.service?.name || '';
           store.dispatch(setChangeSearchedServiceName(serviceName));
@@ -212,10 +207,11 @@ const Header = () => {
         // No results found - show NoServicesFound component
         store.dispatch(setAllProviders([]));
         store.dispatch(setIsSearchedFromHeader(true));
-        if (headerServiceId && (
-          (typeof headerServiceId === 'string' && headerServiceId !== '') ||
-          (typeof headerServiceId === 'number' && headerServiceId > 0)
-        )) {
+        if (
+          headerServiceId &&
+          ((typeof headerServiceId === 'string' && headerServiceId !== '') ||
+            (typeof headerServiceId === 'number' && headerServiceId > 0))
+        ) {
           // Use service name from transformedServicesList as fallback when no data
           const selectedService = transformedServicesList.find(
             (opt) => opt.value === headerServiceId
@@ -231,10 +227,11 @@ const Header = () => {
       // On error, show NoServicesFound component
       store.dispatch(setAllProviders([]));
       store.dispatch(setIsSearchedFromHeader(true));
-      if (headerServiceId && (
-        (typeof headerServiceId === 'string' && headerServiceId !== '') ||
-        (typeof headerServiceId === 'number' && headerServiceId > 0)
-      )) {
+      if (
+        headerServiceId &&
+        ((typeof headerServiceId === 'string' && headerServiceId !== '') ||
+          (typeof headerServiceId === 'number' && headerServiceId > 0))
+      ) {
         const selectedService = transformedServicesList.find(
           (opt) => opt.value === headerServiceId
         );
@@ -282,7 +279,7 @@ const Header = () => {
   };
 
   const handleMobileSearch = async () => {
-    await handleFilters();
+    await handleNewFilters();
     setIsMobileSearchOpen(false);
   };
 
@@ -294,29 +291,31 @@ const Header = () => {
   // Check if search should be enabled based on actual input values
   const isSearchEnabled = React.useMemo(() => {
     // Check if location has a value (defaultAddress exists and has meaningful content)
-    const hasLocation = defaultAddress && 
-      (defaultAddress.label && defaultAddress.label.trim() !== '') &&
+    const hasLocation =
+      defaultAddress &&
+      defaultAddress.label &&
+      defaultAddress.label.trim() !== '' &&
       headerCurrentLocation;
-    
+
     // Check if service has a value (headerServiceId exists and is not empty)
     // Handle both string and number values from the service dropdown
-    const hasService = headerServiceId && (
-      (typeof headerServiceId === 'string' && headerServiceId.trim() !== '') ||
-      (typeof headerServiceId === 'number' && headerServiceId > 0)
-    );
-    
+    const hasService =
+      headerServiceId &&
+      ((typeof headerServiceId === 'string' && headerServiceId.trim() !== '') ||
+        (typeof headerServiceId === 'number' && headerServiceId > 0));
+
     console.log('Button enable check - defaultAddress:', defaultAddress);
     console.log('Button enable check - headerCurrentLocation:', headerCurrentLocation);
     console.log('Button enable check - hasLocation:', hasLocation);
     console.log('Button enable check - hasService:', hasService);
     console.log('Button enable check - headerServiceId:', headerServiceId);
     console.log('Button enable check - isSearchLoading:', isSearchLoading);
-    
+
     // Enable search if either location OR service has a value (not both required)
     // Button should only be disabled when BOTH are empty
     const enabled = (hasLocation || hasService) && !isSearchLoading;
     console.log('Button enable check - final enabled:', enabled);
-    
+
     return enabled;
   }, [defaultAddress, headerCurrentLocation, headerServiceId, isSearchLoading]);
 
@@ -424,215 +423,148 @@ const Header = () => {
 
           <div className="flex gap-4">
             <div className="md:hidden flex items-center">
-              <Dialog open={isMobileSearchOpen} onOpenChange={setIsMobileSearchOpen}>
-                <DialogTrigger asChild>
-                  <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
-                    <KeenIcon icon="magnifier" className="text-2xl text-gray-600" />
-                  </button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px] min-h-[60vh] p-6">
-                  <DialogHeader>
-                    <DialogTitle className="text-xl font-semibold text-center">
-                      Search Services
-                    </DialogTitle>
-                  </DialogHeader>
-                  <div className="grid gap-6 py-4">
-                    {/* Location Search */}
-                    <div className="grid gap-2">
-                      <label className="text-sm font-semibold text-gray-900">Where</label>
-                      <div className="relative rounded-lg border border-gray-300 px-4 py-3 hover:border-gray-400 focus-within:border-primary transition-colors">
-                        <GooglePlacesAutocomplete
-                          key={defaultAddress?.label || 'no-address-mobile'}
-                          apiKey={import.meta.env.VITE_APP_GOOGLE_API_KEY}
-                          autocompletionRequest={{
-                            componentRestrictions: {
-                              country: 'au'
-                            },
-                            types: ['(regions)']
-                          }}
-                          apiOptions={{
-                            region: 'AU'
-                          }}
-                          selectProps={{
-                            defaultValue: defaultAddress,
-                            placeholder: 'Search destinations...',
-                            styles: {
-                              control: (provided) => ({
+              <button
+                onClick={() => setIsMobileSearchOpen(true)}
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <KeenIcon icon="magnifier" className="text-2xl text-gray-600" />
+              </button>
+
+              {/* Custom Modal */}
+              {isMobileSearchOpen && (
+                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+                  {/* Backdrop */}
+                  <div
+                    className="absolute inset-0 bg-black/50"
+                    onClick={() => setIsMobileSearchOpen(false)}
+                  />
+
+                  {/* Modal Content */}
+                  <div className="relative bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-md mx-auto overflow-visible">
+                    {/* Header */}
+                    <div className="flex items-center justify-between p-6 border-b sticky top-0 bg-white">
+                      <h2 className="text-xl font-semibold">Search Services</h2>
+                      <button
+                        onClick={() => setIsMobileSearchOpen(false)}
+                        className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                      >
+                        <KeenIcon icon="cross" className="text-lg" />
+                      </button>
+                    </div>
+
+                    {/* Content */}
+                    <div className="px-6 py-4 flex flex-col gap-4 min-h-[80vh] overflow-y-auto">
+                      {/* Location Search */}
+                      <div className="">
+                        <label className="text-sm font-semibold text-gray-900">Where</label>
+                        <div className="">
+                          <GooglePlacesAutocomplete
+                            key={defaultAddress?.label || 'no-address-mobile'}
+                            apiKey={import.meta.env.VITE_APP_GOOGLE_API_KEY}
+                            autocompletionRequest={{
+                              componentRestrictions: {
+                                country: 'au'
+                              },
+                              types: ['(regions)']
+                            }}
+                            apiOptions={{
+                              region: 'AU'
+                            }}
+                            selectProps={{
+                              defaultValue: defaultAddress,
+                              placeholder: 'Search destinations...',
+                              styles: {
+                                control: (provided, state) => ({
+                                  ...provided,
+                                  borderColor: '#762c85',
+                                  boxShadow: state.isFocused
+                                    ? '0 0 0 1px #762c85'
+                                    : provided.boxShadow,
+                                  '&:hover': {
+                                    borderColor: '#762c85'
+                                  }
+                                })
+                              },
+                              onChange: handleLocationChange,
+                              isClearable: true
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Service Type Search */}
+                      <div className="">
+                        <label className="text-sm font-semibold text-gray-900">
+                          Type of Service
+                        </label>
+                        <div className="">
+                          <ReactSelect
+                            options={transformedServicesList}
+                            value={transformedServicesList.find(
+                              (opt) => opt.value === headerServiceId
+                            )}
+                            onChange={(selectedOption) => {
+                              if (selectedOption?.value) {
+                                setHeaderServiceId(selectedOption?.value);
+                              } else {
+                                setHeaderServiceId('');
+                                store.dispatch(setServiceId(''));
+                              }
+                            }}
+                            isClearable
+                            placeholder="Select Service"
+                            styles={{
+                              control: (provided, state) => ({
                                 ...provided,
-                                border: 'none',
-                                boxShadow: 'none',
-                                backgroundColor: 'transparent',
-                                minHeight: 'auto'
-                              }),
-                              valueContainer: (provided) => ({
-                                ...provided,
-                                padding: '0'
-                              }),
-                              indicatorSeparator: () => ({ display: 'none' }),
-                              dropdownIndicator: (provided) => ({
-                                ...provided,
-                                display: 'none'
-                              }),
-                              input: (provided) => ({
-                                ...provided,
-                                color: '#000',
-                                fontSize: '14px',
-                                margin: '0',
-                                padding: '0'
-                              }),
-                              placeholder: (provided) => ({
-                                ...provided,
-                                color: '#6b7280',
-                                fontSize: '14px',
-                                margin: '0'
-                              }),
-                              singleValue: (provided) => ({
-                                ...provided,
-                                color: '#000',
-                                fontSize: '14px',
-                                margin: '0'
+                                borderColor: '#762c85',
+                                boxShadow: state.isFocused
+                                  ? '0 0 0 1px #762c85'
+                                  : provided.boxShadow,
+                                '&:hover': {
+                                  borderColor: '#762c85'
+                                }
                               }),
                               menu: (provided) => ({
                                 ...provided,
-                                backgroundColor: 'white',
-                                boxShadow:
-                                  '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-                                borderRadius: '0.5rem',
-                                border: '1px solid #e5e7eb',
-                                zIndex: 50
+                                zIndex: 1000,
+                                position: 'absolute'
                               }),
-                              option: (provided, state) => ({
+                              menuList: (provided) => ({
                                 ...provided,
-                                color: state.isFocused ? '#fff' : '#111827',
-                                backgroundColor: state.isFocused ? '#4a90e2' : 'transparent',
-                                padding: '0.75rem 1rem',
-                                cursor: 'pointer'
-                              }),
-                              clearIndicator: (provided) => ({
-                                ...provided,
-                                color: '#6b7280',
-                                cursor: 'pointer',
-                                ':hover': {
-                                  color: '#374151'
-                                }
+                                maxHeight: '200px',
+                                overflowY: 'auto'
                               })
-                            },
-                            onChange: handleLocationChange,
-                            isClearable: true
-                          }}
-                        />
+                            }}
+                          />
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Service Type Search */}
-                    <div className="grid gap-2">
-                      <label className="text-sm font-semibold text-gray-900">Type of Service</label>
-                      <div className="relative rounded-lg border border-gray-300 px-4 py-3 hover:border-gray-400 focus-within:border-primary transition-colors">
-                        <ReactSelect
-                          options={transformedServicesList}
-                          value={transformedServicesList.find(
-                            (opt) => opt.value === headerServiceId
-                          )}
-                          onChange={(selectedOption) => {
-                            if (selectedOption?.value) {
-                              setHeaderServiceId(selectedOption?.value);
-                            } else {
-                              setHeaderServiceId('');
-                              store.dispatch(setServiceId(''));
-                            }
-                          }}
-                          isClearable
-                          placeholder="Select Service"
-                          styles={{
-                            control: (provided) => ({
-                              ...provided,
-                              border: 'none',
-                              boxShadow: 'none',
-                              backgroundColor: 'transparent',
-                              minHeight: 'auto'
-                            }),
-                            valueContainer: (provided) => ({
-                              ...provided,
-                              padding: '0'
-                            }),
-                            indicatorSeparator: () => ({ display: 'none' }),
-                            dropdownIndicator: (provided) => ({
-                              ...provided,
-                              display: 'none'
-                            }),
-                            input: (provided) => ({
-                              ...provided,
-                              color: '#000',
-                              fontSize: '14px',
-                              margin: '0',
-                              padding: '0'
-                            }),
-                            placeholder: (provided) => ({
-                              ...provided,
-                              color: '#6b7280',
-                              fontSize: '14px',
-                              margin: '0'
-                            }),
-                            singleValue: (provided) => ({
-                              ...provided,
-                              color: '#000',
-                              fontSize: '14px',
-                              margin: '0'
-                            }),
-                            menu: (provided) => ({
-                              ...provided,
-                              backgroundColor: 'white',
-                              boxShadow:
-                                '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-                              borderRadius: '0.5rem',
-                              border: '1px solid #e5e7eb',
-                              zIndex: 50
-                            }),
-                            option: (provided, state) => ({
-                              ...provided,
-                              color: state.isFocused ? '#fff' : '#111827',
-                              backgroundColor: state.isFocused ? '#4a90e2' : 'transparent',
-                              padding: '0.75rem 1rem',
-                              cursor: 'pointer'
-                            }),
-                            clearIndicator: (provided) => ({
-                              ...provided,
-                              color: '#6b7280',
-                              cursor: 'pointer',
-                              ':hover': {
-                                color: '#374151'
-                              }
-                            })
-                          }}
-                        />
-                      </div>
+                      {/* Search Button */}
+                      <button
+                        className={`mt-auto mb-5 w-full inline-flex items-center justify-center rounded-lg px-6 py-4 text-lg font-semibold text-white shadow-lg transition-colors ${
+                          !isSearchEnabled
+                            ? 'bg-gray-400 cursor-not-allowed'
+                            : 'bg-primary hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
+                        }`}
+                        onClick={handleMobileSearch}
+                        disabled={!isSearchEnabled}
+                      >
+                        {isSearchLoading ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                            Searching...
+                          </>
+                        ) : (
+                          <>
+                            <KeenIcon icon="magnifier" className="text-base mr-2" />
+                            Search
+                          </>
+                        )}
+                      </button>
                     </div>
-
-                    {/* Search Button */}
-                    <button
-                      className={`w-full inline-flex items-center justify-center rounded-lg px-6 py-4 text-lg font-semibold text-white shadow-lg transition-colors min-h-[56px] ${
-                        isSearchLoading || !headerCurrentLocation
-                          ? 'bg-gray-400 cursor-not-allowed'
-                          : 'bg-primary hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
-                      }`}
-                      onClick={handleMobileSearch}
-                      disabled={isSearchLoading || !headerCurrentLocation}
-                    >
-                      {isSearchLoading ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Searching...
-                        </>
-                      ) : (
-                        <>
-                          <KeenIcon icon="magnifier" className="text-base mr-2" />
-                          Search
-                        </>
-                      )}
-                    </button>
                   </div>
-                </DialogContent>
-              </Dialog>
+                </div>
+              )}
             </div>
 
             <HeaderTopbar />
@@ -795,9 +727,7 @@ const Header = () => {
           </div>
           <button
             className={`flex items-center justify-center rounded-full px-3 py-2 m-1 ${
-              !isSearchEnabled
-                ? 'bg-[#7b4f84] cursor-not-allowed'
-                : 'bg-primary cursor-pointer'
+              !isSearchEnabled ? 'bg-[#7b4f84] cursor-not-allowed' : 'bg-primary cursor-pointer'
             }`}
             onClick={handleNewFilters}
             disabled={!isSearchEnabled}
