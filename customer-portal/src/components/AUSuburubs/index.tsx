@@ -75,16 +75,57 @@ export default function AustralianSuburbSearch() {
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && inputValue.trim().length > 0) {
       // User pressed Enter to select the typed suburb
       const locationName = inputValue.trim();
-      dispatch(setServiceLocation({
-        address: locationName,
-        city: locationName,
-        state: '',
-        country: 'Australia'
-      }));
+      
+      try {
+        const geocoder = new window.google.maps.Geocoder();
+        const result = await new Promise<google.maps.GeocoderResult[]>((resolve, reject) => {
+          geocoder.geocode(
+            { address: `${locationName}, Australia` },
+            (results, status) => {
+              if (status === 'OK' && results) {
+                resolve(results);
+              } else {
+                reject(new Error('Geocoding failed'));
+              }
+            }
+          );
+        });
+        
+        if (result?.[0]?.geometry?.location) {
+          const lat = result[0].geometry.location.lat();
+          const lng = result[0].geometry.location.lng();
+          
+          dispatch(setServiceLocation({
+            address: locationName,
+            city: locationName,
+            state: '',
+            country: 'Australia',
+            latitude: lat.toString(),
+            longitude: lng.toString()
+          }));
+        } else {
+          // Fallback without coordinates
+          dispatch(setServiceLocation({
+            address: locationName,
+            city: locationName,
+            state: '',
+            country: 'Australia'
+          }));
+        }
+      } catch (error) {
+        console.error('Geocoding error:', error);
+        // Fallback without coordinates
+        dispatch(setServiceLocation({
+          address: locationName,
+          city: locationName,
+          state: '',
+          country: 'Australia'
+        }));
+      }
     }
   };
 
@@ -104,7 +145,7 @@ export default function AustralianSuburbSearch() {
         <Autocomplete
           apiKey={import.meta.env.VITE_APP_GOOGLE_API_KEY}
           onPlaceSelected={(place) => {
-            if (place?.address_components) {
+            if (place?.address_components && place?.geometry?.location) {
               // Find the suburb (locality) and state from address components
               const suburb = place.address_components.find(
                 (component: any) =>
@@ -121,12 +162,18 @@ export default function AustralianSuburbSearch() {
                 const stateName = state ? state.short_name : '';
                 const displayValue = stateName ? `${suburbName} ${stateName}` : suburbName;
                 
+                // Get coordinates from the place
+                const latitude = place.geometry.location.lat();
+                const longitude = place.geometry.location.lng();
+                
                 setInputValue(displayValue);
                 dispatch(setServiceLocation({
                   address: suburbName,
                   city: suburbName,
                   state: stateName,
-                  country: 'Australia'
+                  country: 'Australia',
+                  latitude: latitude.toString(),
+                  longitude: longitude.toString()
                 }));
               }
             }
@@ -178,16 +225,58 @@ export default function AustralianSuburbSearch() {
                         name="suburb"
                         className="accent-primary focus:ring-primary focus:outline-none "
                         checked={selected === suburb.name}
-                        onChange={() => {
+                        onChange={async () => {
                           setSelected(suburb.name);
                           setIsRadioSelection(true);
                           setInputValue(`${suburb.name} ${suburb.state}`);
-                          dispatch(setServiceLocation({
-                            address: suburb.name,
-                            city: suburb.name,
-                            state: suburb.state,
-                            country: 'Australia'
-                          }));
+                          
+                          // Geocode the suburb to get coordinates
+                          try {
+                            const geocoder = new window.google.maps.Geocoder();
+                            const result = await new Promise<google.maps.GeocoderResult[]>((resolve, reject) => {
+                              geocoder.geocode(
+                                { address: `${suburb.name}, ${suburb.state}, Australia` },
+                                (results, status) => {
+                                  if (status === 'OK' && results) {
+                                    resolve(results);
+                                  } else {
+                                    reject(new Error('Geocoding failed'));
+                                  }
+                                }
+                              );
+                            });
+                            
+                            if (result?.[0]?.geometry?.location) {
+                              const lat = result[0].geometry.location.lat();
+                              const lng = result[0].geometry.location.lng();
+                              
+                              dispatch(setServiceLocation({
+                                address: suburb.name,
+                                city: suburb.name,
+                                state: suburb.state,
+                                country: 'Australia',
+                                latitude: lat.toString(),
+                                longitude: lng.toString()
+                              }));
+                            } else {
+                              // Fallback without coordinates
+                              dispatch(setServiceLocation({
+                                address: suburb.name,
+                                city: suburb.name,
+                                state: suburb.state,
+                                country: 'Australia'
+                              }));
+                            }
+                          } catch (error) {
+                            console.error('Geocoding error:', error);
+                            // Fallback without coordinates
+                            dispatch(setServiceLocation({
+                              address: suburb.name,
+                              city: suburb.name,
+                              state: suburb.state,
+                              country: 'Australia'
+                            }));
+                          }
                         }}
                       />
                       {suburb.name}

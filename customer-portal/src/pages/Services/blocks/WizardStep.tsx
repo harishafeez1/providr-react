@@ -104,7 +104,7 @@ export default function AirbnbWizard() {
       case 0:
         return !selectedServiceId; // Disable if no service is selected
       case 1:
-        return !serviceLocation?.address || availableProvidersCount === 0; // Disable if location is not selected or no providers available
+        return !serviceLocation?.latitude || !serviceLocation?.longitude || availableProvidersCount === 0; // Disable if coordinates are not available or no providers available
       case 2:
         return !participantData.first_name || !participantData.email || !participantData.phone;
       case 3:
@@ -132,15 +132,29 @@ export default function AirbnbWizard() {
   const fetchProviderCount = async () => {
     if (!selectedServiceId) return;
 
-    const location = serviceLocation?.address?.trim()?.toLowerCase() || '';
-    const query =
-      location && location.length > 0
-        ? `service_id=${selectedServiceId}&location=${location}`
-        : `service_id=${selectedServiceId}`;
+    // Check if we have coordinates for location-based search
+    const hasCoordinates = serviceLocation?.latitude && serviceLocation?.longitude;
+    
+    if (!hasCoordinates && currentStep > 0) {
+      // If we're past step 0 but don't have coordinates, can't get accurate count
+      setAvailableProvidersCount(0);
+      return;
+    }
 
     setCountLoading(true);
     try {
-      const res = await getProviderCount(query);
+      let res;
+      if (hasCoordinates) {
+        // Location-based search with coordinates
+        const latitude = parseFloat(serviceLocation.latitude!);
+        const longitude = parseFloat(serviceLocation.longitude!);
+        res = await getProviderCount(latitude, longitude, selectedServiceId);
+      } else {
+        // Service-only search (for step 0) - use default coordinates (Sydney CBD)
+        const defaultLat = -33.8688;
+        const defaultLng = 151.2093;
+        res = await getProviderCount(defaultLat, defaultLng, selectedServiceId);
+      }
       setAvailableProvidersCount(res);
     } catch (error) {
       console.error('Error fetching provider count:', error);
@@ -160,11 +174,11 @@ export default function AirbnbWizard() {
 
   // Separate effect for location changes - only on location step
   useEffect(() => {
-    if (currentStep === 1 && selectedServiceId && serviceLocation?.address) {
-      // Location step: send service_id + location when location is selected
+    if (currentStep === 1 && selectedServiceId && serviceLocation?.latitude && serviceLocation?.longitude) {
+      // Location step: send service_id + coordinates when location is selected
       fetchProviderCount();
     }
-  }, [serviceLocation?.address]);
+  }, [serviceLocation?.latitude, serviceLocation?.longitude]);
 
   useEffect(() => {
     if (availableProvidersCount === 0 && currentStep !== 0) {

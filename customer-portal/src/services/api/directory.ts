@@ -14,9 +14,18 @@ const postDirectoryFilters = async (data: any) => {
   }
 };
 
-const getProviderCount = async (query: any) => {
+const getProviderCount = async (latitude: number, longitude: number, service_id?: number) => {
   try {
-    const response = await axios.get(`${GET_SERVICE_PROVIDER_COUNT_URL}?${query}`, {
+    const params = new URLSearchParams({
+      latitude: latitude.toString(),
+      longitude: longitude.toString()
+    });
+
+    if (service_id) {
+      params.append('service_id', service_id.toString());
+    }
+
+    const response = await axios.post(`${GET_SERVICE_PROVIDER_COUNT_URL}?${params.toString()}`, {
       headers: { public: true }
     });
     return response.data;
