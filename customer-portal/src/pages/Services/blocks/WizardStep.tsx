@@ -132,29 +132,28 @@ export default function AirbnbWizard() {
   const fetchProviderCount = async () => {
     if (!selectedServiceId) return;
 
-    // Check if we have coordinates for location-based search
-    const hasCoordinates = serviceLocation?.latitude && serviceLocation?.longitude;
-    
-    if (!hasCoordinates && currentStep > 0) {
-      // If we're past step 0 but don't have coordinates, can't get accurate count
-      setAvailableProvidersCount(0);
-      return;
-    }
-
     setCountLoading(true);
     try {
       let res;
-      if (hasCoordinates) {
-        // Location-based search with coordinates
+      
+      if (currentStep === 0) {
+        // First step: only send service_id (no location data)
+        res = await getProviderCount(selectedServiceId);
+      } else {
+        // Second step and beyond: send service_id + location data
+        const hasCoordinates = serviceLocation?.latitude && serviceLocation?.longitude;
+        
+        if (!hasCoordinates) {
+          // If we're past step 0 but don't have coordinates, can't get accurate count
+          setAvailableProvidersCount(0);
+          return;
+        }
+
         const latitude = parseFloat(serviceLocation.latitude!);
         const longitude = parseFloat(serviceLocation.longitude!);
-        res = await getProviderCount(latitude, longitude, selectedServiceId);
-      } else {
-        // Service-only search (for step 0) - use default coordinates (Sydney CBD)
-        const defaultLat = -33.8688;
-        const defaultLng = 151.2093;
-        res = await getProviderCount(defaultLat, defaultLng, selectedServiceId);
+        res = await getProviderCount(selectedServiceId, latitude, longitude);
       }
+      
       setAvailableProvidersCount(res);
     } catch (error) {
       console.error('Error fetching provider count:', error);
@@ -165,20 +164,17 @@ export default function AirbnbWizard() {
   };
 
   useEffect(() => {
-    // Call provider count API only on service selection step
-    if (selectedServiceId && currentStep === 0) {
-      // First step: only send service_id
-      fetchProviderCount();
+    // Trigger provider count API on both first and second steps
+    if (selectedServiceId) {
+      if (currentStep === 0) {
+        // First step: service selected, send only service_id
+        fetchProviderCount();
+      } else if (currentStep === 1 && serviceLocation?.latitude && serviceLocation?.longitude) {
+        // Second step: location selected, send service_id + coordinates
+        fetchProviderCount();
+      }
     }
-  }, [selectedServiceId, currentStep]);
-
-  // Separate effect for location changes - only on location step
-  useEffect(() => {
-    if (currentStep === 1 && selectedServiceId && serviceLocation?.latitude && serviceLocation?.longitude) {
-      // Location step: send service_id + coordinates when location is selected
-      fetchProviderCount();
-    }
-  }, [serviceLocation?.latitude, serviceLocation?.longitude]);
+  }, [selectedServiceId, currentStep, serviceLocation?.latitude, serviceLocation?.longitude]);
 
   useEffect(() => {
     if (availableProvidersCount === 0 && currentStep !== 0) {
