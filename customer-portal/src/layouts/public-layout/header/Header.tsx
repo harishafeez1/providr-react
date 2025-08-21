@@ -1,19 +1,22 @@
 import { KeenIcon } from '@/components';
 import ReactSelect from 'react-select';
-import { Navbar, NavbarActions } from '@/partials/navbar';
 
 import clsx from 'clsx';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { HeaderLogo } from './HeaderLogo';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import GooglePlacesAutocomplete, {
-  geocodeByAddress,
   geocodeByLatLng,
   geocodeByPlaceId,
   getLatLng
 } from 'react-google-places-autocomplete';
 import { store } from '@/redux/store';
-import { setLocation, setServiceId, setCurrentLocation, setSearchServiceId } from '@/redux/slices/directory-slice';
+import {
+  setLocation,
+  setServiceId,
+  setCurrentLocation,
+  setSearchServiceId
+} from '@/redux/slices/directory-slice';
 import { useAppSelector } from '@/redux/hooks';
 import { postDirectoryFilters } from '@/services/api/directory';
 import {
@@ -24,20 +27,8 @@ import {
   setLoading,
   setPagination
 } from '@/redux/slices/directory-listing-slice';
-import { useAuthContext } from '@/auth';
-import { PageMenu } from '@/pages/directory/blocks/PageMenu';
-import { getAllServices, getAllServicesToTransform } from '@/services/api/all-services';
-import { FilterModal } from '@/pages/directory';
-import { Services } from '@/pages/company-profile';
-import { useScroll, useTransform } from 'motion/react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
+import { getAllServicesToTransform } from '@/services/api/all-services';
+
 import {
   Dialog,
   DialogContent,
@@ -45,26 +36,18 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog';
-import { toast } from 'sonner';
 import { HeaderTopbar } from './HeaderTopbar';
 import { searchNearByProviders } from '@/services/api/search-providers';
 
-function ServicesSkeleton() {
-  return (
-    <div className="animate-pulse">
-      <div className="h-12 w-12 bg-gray-200 mb-2 rounded-full"></div>
-      <div className="space-y-1">
-        <div className="h-4 w-12 bg-gray-200 rounded"></div>
-      </div>
-    </div>
-  );
+interface HeaderSearchI {
+  latitude: number;
+  longitude: number;
+  service_id?: string | null;
 }
 
 const Header = () => {
   const locationCheck = useLocation();
   const navigate = useNavigate();
-
-  const { auth, logout } = useAuthContext();
 
   const { transformedServicesList } = useAppSelector((state) => state.services);
 
@@ -94,7 +77,7 @@ const Header = () => {
       const placeResults = await geocodeByPlaceId(address.value.place_id);
       const latLng = await getLatLng(placeResults[0]);
       const currentLoc = { latitude: latLng.lat, longitude: latLng.lng };
-      setCurrentLocation(currentLoc);
+      setHeaderCurrentLocation(currentLoc);
       store.dispatch(setCurrentLocation(currentLoc)); // Store in Redux
       location.latitude = String(latLng.lat);
       location.longitude = String(latLng.lng);
@@ -136,7 +119,7 @@ const Header = () => {
   };
 
   // State to store current location coordinates
-  const [currentLocation, setCurrentLocation] = useState<{
+  const [headerCurrentLocation, setHeaderCurrentLocation] = useState<{
     latitude: number;
     longitude: number;
   } | null>(null);
@@ -151,14 +134,14 @@ const Header = () => {
     }
 
     // Latitude and longitude are COMPULSORY for header search
-    if (!currentLocation) {
+    if (!headerCurrentLocation) {
       return; // Button should be disabled, so this shouldn't be reached
     }
 
     // Prepare data with REQUIRED location
-    const data = {
-      latitude: currentLocation.latitude,
-      longitude: currentLocation.longitude
+    const data: HeaderSearchI = {
+      latitude: headerCurrentLocation.latitude,
+      longitude: headerCurrentLocation.longitude
     };
 
     // Add OPTIONAL service_id if it exists
@@ -272,27 +255,6 @@ const Header = () => {
     setIsMobileSearchOpen(false);
   };
 
-  // useEffect(() => {
-  //   // Define and invoke the async function
-  //   const fetchData = async () => {
-  //     if (allServices.length <= 1) {
-  //       try {
-  //         setServicesLoading(true);
-
-  //         const servicesRes = await getAllServices(`page=${}`);
-  //         if (servicesRes) {
-  //           store.dispatch(setAllServices(servicesRes));
-  //         }
-  //       } catch (error) {
-  //         console.error('Error fetching data:', error);
-  //       } finally {
-  //         setServicesLoading(false);
-  //       }
-  //     }
-  //   };
-  //   fetchData();
-  // }, []);
-
   const [defaultAddress, setDefaultAddress] = useState<{ label: string; value: string } | null>(
     null
   );
@@ -304,7 +266,7 @@ const Header = () => {
         async (position) => {
           const { latitude, longitude } = position.coords;
           const currentLoc = { latitude, longitude };
-          setCurrentLocation(currentLoc);
+          setHeaderCurrentLocation(currentLoc);
           store.dispatch(setCurrentLocation(currentLoc)); // Store in Redux
           // Step 2: Reverse geocode to get Australian address
           try {
@@ -397,82 +359,6 @@ const Header = () => {
           </div>
           <div className="" />
           <div className="" />
-          {/* <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <div className="flex items-center gap-4 rounded-full border px-3 py-2 hover:shadow-md cursor-pointer">
-                {auth ? (
-                  <div className="font-semibold ">
-                    {`${auth?.customer?.first_name || ''} ${auth?.customer?.last_name || ''}`}
-                  </div>
-                ) : (
-                  <KeenIcon icon="burger-menu-5" className="text-xl" />
-                )}
-                <KeenIcon icon="profile-circle" className="text-2xl text-gray-500" />
-              </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-72" align="end">
-              {!auth && (
-                <DropdownMenuItem>
-                  <Link
-                    to={'/login'}
-                    className="flex flex-col ps-2 items-start group cursor-pointer gap-0"
-                  >
-                    <span className="text-lg font-semibold group-hover:text-primary">
-                      I am an NDIS participant
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      Find supports, track service requests, and connect with providers.
-                    </span>
-                  </Link>
-                </DropdownMenuItem>
-              )}
-              {auth && (
-                <>
-                  <Link
-                    to={'/service-request'}
-                    className="flex flex-col items-start gap-0 w-full group"
-                  >
-                    <DropdownMenuItem className="w-full cursor-pointer group-hover:text-primary">
-                      <span className="text-lg font-semibold group-hover:text-primary">
-                        My Service Requests
-                      </span>
-                    </DropdownMenuItem>
-                  </Link>
-                  <DropdownMenuSeparator />
-                  <Link to="/wishlist" className="flex flex-col items-start gap-0 w-full group">
-                    <DropdownMenuItem className="w-full cursor-pointer group-hover:text-primary">
-                      <span className="text-lg font-semibold ">My Wishlist</span>
-                    </DropdownMenuItem>
-                  </Link>
-                  <DropdownMenuItem
-                    className="w-full cursor-pointer group-hover:text-primary"
-                    onClick={logout}
-                  >
-                    <span className="text-lg font-semibold group-hover:text-primary">Log Out</span>
-                  </DropdownMenuItem>
-                </>
-              )}
-              {!auth && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="">
-                    <a
-                      href={`/provider-portal/auth/login`}
-                      target="_blank"
-                      className="flex flex-col ps-2 items-start group cursor-pointer gap-0"
-                    >
-                      <span className="text-lg font-semibold group-hover:text-primary">
-                        I am a Provider
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        Manage your listings, respond to enquiries, and grow your services.
-                      </span>
-                    </a>
-                  </DropdownMenuItem>
-                </>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu> */}
 
           {/* Mobile Search Icon */}
 
@@ -584,7 +470,9 @@ const Header = () => {
                       <div className="relative rounded-lg border border-gray-300 px-4 py-3 hover:border-gray-400 focus-within:border-primary transition-colors">
                         <ReactSelect
                           options={transformedServicesList}
-                          value={transformedServicesList.find((opt) => opt.value === headerServiceId)}
+                          value={transformedServicesList.find(
+                            (opt) => opt.value === headerServiceId
+                          )}
                           onChange={(selectedOption) => {
                             if (selectedOption?.value) {
                               setHeaderServiceId(selectedOption?.value);
@@ -663,12 +551,12 @@ const Header = () => {
                     {/* Search Button */}
                     <button
                       className={`w-full inline-flex items-center justify-center rounded-lg px-6 py-4 text-lg font-semibold text-white shadow-lg transition-colors min-h-[56px] ${
-                        isSearchLoading || !currentLocation
+                        isSearchLoading || !headerCurrentLocation
                           ? 'bg-gray-400 cursor-not-allowed'
                           : 'bg-primary hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
                       }`}
                       onClick={handleMobileSearch}
-                      disabled={isSearchLoading || !currentLocation}
+                      disabled={isSearchLoading || !headerCurrentLocation}
                     >
                       {isSearchLoading ? (
                         <>
@@ -847,37 +735,18 @@ const Header = () => {
           </div>
           <button
             className={`flex items-center justify-center rounded-full px-3 py-2 m-1 ${
-              isSearchLoading || !currentLocation ? 'bg-[#7b4f84] cursor-not-allowed' : 'bg-primary cursor-pointer'
+              isSearchLoading || !headerCurrentLocation
+                ? 'bg-[#7b4f84] cursor-not-allowed'
+                : 'bg-primary cursor-pointer'
             }`}
             // onClick={handleFilters}
             onClick={handleNewFilters}
-            disabled={isSearchLoading || !currentLocation}
+            disabled={isSearchLoading || !headerCurrentLocation}
           >
             <KeenIcon icon="magnifier" className="text-xl font-bold text-white" />
           </button>
         </div>
       </div>
-
-      {/* {locationCheck?.pathname?.includes('directory') && (
-        <Navbar>
-          <div className="flex w-full items-center justify-between pt-5">
-            <PageMenu services={allServices} loading={servicesLoading} />
-
-            {!servicesLoading && (
-              <NavbarActions>
-                <button
-                  onClick={() => setIsFilterOpen(true)}
-                  className="flex items-center gap-2 rounded-xl border px-4 py-2 hover:shadow-md transition"
-                >
-                  <KeenIcon icon="filter" className="w-5 h-5" />
-                  <span>Filters</span>
-                </button>
-                <FilterModal open={isFilterOpen} onClose={() => setIsFilterOpen(false)} />
-              </NavbarActions>
-            )}
-          </div>
-        </Navbar>
-      )} */}
     </header>
   );
 };
