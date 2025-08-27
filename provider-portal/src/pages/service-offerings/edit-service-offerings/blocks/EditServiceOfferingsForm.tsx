@@ -85,7 +85,7 @@ const EditServiceOfferingsForm = () => {
     service_available_options: locations // Use locations from Redux
   };
 
-  const handleSubmit = async (values: any, { resetForm }: any) => {
+  const handleSubmit = async (values: any, { resetForm, setFieldValue }: any) => {
     setLoading(true);
     try {
       // Get the latest locations from Redux
@@ -97,8 +97,7 @@ const EditServiceOfferingsForm = () => {
       const res = await updateServiceOfferings(id, submissionData);
       if (res) {
         setLoading(false);
-        resetForm();
-        dispatch(resetServiceOffering()); // Reset Redux state
+        navigate('/service-offerings');
       }
     } catch (error) {
       setLoading(false);
@@ -106,12 +105,23 @@ const EditServiceOfferingsForm = () => {
     }
   };
 
-  const handleCheckAll = (values: any, setFieldValue: any) => {
+  const handleCheckAllAgeGroups = (values: any, setFieldValue: any) => {
     const allChecked = values.age_group_options.length === options1.length;
     const newValue = allChecked ? [] : [...options1];
 
     // Update Formik field
     setFieldValue('age_group_options', newValue);
+  };
+
+  const handleCheckAllServiceDelivery = (values: any, setFieldValue: any) => {
+    const allChecked = values.service_delivered_options.length === options.length;
+    const newValue = allChecked ? [] : [...options];
+
+    // Update Formik field
+    setFieldValue('service_delivered_options', newValue);
+    
+    // Update state
+    setServicesSelected(allChecked ? [] : [...options]);
   };
 
   if (isLoading) {
@@ -194,6 +204,15 @@ const EditServiceOfferingsForm = () => {
                 </label>
                 <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]">
                   <div className="grid grid-cols-2 gap-4">
+                    <label className="checkbox-group flex items-center gap-2 cursor-pointer col-span-2 mb-2 pb-2 border-b border-gray-200">
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-sm"
+                        checked={values.service_delivered_options.length === options.length}
+                        onChange={() => handleCheckAllServiceDelivery(values, setFieldValue)}
+                      />
+                      <span className="checkbox-label font-semibold">Check All Service Delivery Options</span>
+                    </label>
                     {options.map((option: any, index: any) => (
                       <label
                         key={index}
@@ -239,6 +258,15 @@ const EditServiceOfferingsForm = () => {
                 </label>
                 <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]">
                   <div className="grid grid-cols-2 gap-4">
+                    <label className="checkbox-group flex items-center gap-2 cursor-pointer col-span-2 mb-2 pb-2 border-b border-gray-200">
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-sm"
+                        checked={values.age_group_options.length === options1.length}
+                        onChange={() => handleCheckAllAgeGroups(values, setFieldValue)}
+                      />
+                      <span className="checkbox-label font-semibold">Check All Age Groups</span>
+                    </label>
                     {options1.map((option: any, index: any) => (
                       <label
                         key={index}
@@ -272,15 +300,6 @@ const EditServiceOfferingsForm = () => {
                         <span className="checkbox-label">{option}</span>
                       </label>
                     ))}
-                    <label className="checkbox-group flex items-center gap-2 cursor-pointer mb-2">
-                      <input
-                        type="checkbox"
-                        className="checkbox checkbox-sm"
-                        checked={values.age_group_options.length === options1.length}
-                        onChange={() => handleCheckAll(values, setFieldValue)}
-                      />
-                      <span className="checkbox-label">Check All</span>
-                    </label>
                   </div>
                 </div>
               </div>

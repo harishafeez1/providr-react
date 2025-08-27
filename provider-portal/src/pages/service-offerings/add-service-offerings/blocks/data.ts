@@ -94,6 +94,7 @@ export const options1 = [
 
 export const languages = [
   { value: 'Arabic', label: 'Arabic' },
+  { value: 'Assyrian', label: 'Assyrian' },
   { value: 'Bengali', label: 'Bengali' },
   { value: 'Burmese', label: 'Burmese' },
   { value: 'Cantonese', label: 'Cantonese' },
