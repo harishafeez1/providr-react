@@ -88,7 +88,7 @@ const MobileServicesSection = () => {
         >
           <div className="p-4 max-h-[80vh] overflow-y-auto">
             <ServiceLocationMap
-              addresses_collection={serviceLocations.map(location => ({
+              addresses_collection={serviceLocations.map((location: any) => ({
                 lat: location.lat,
                 lng: location.lng,
                 radius: location.radius_km
