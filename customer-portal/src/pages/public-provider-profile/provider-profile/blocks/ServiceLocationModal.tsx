@@ -34,19 +34,19 @@ const ServiceLocationModal: React.FC<ServiceLocationModalProps> = ({
           </ModalTitle>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            className="hover:bg-gray-100 rounded-full transition-colors"
             aria-label="Close modal"
           >
-            <KeenIcon icon="cross" className="text-gray-500 text-lg" />
+            <KeenIcon icon="cross" className="text-gray-500 p-2" />
           </button>
         </ModalHeader>
-        
+
         <ModalBody className="p-6 overflow-y-auto">
           <div className="space-y-4">
             <div className="text-sm text-gray-600">
               <p>
-                This map shows all service locations for {providerName}. Each marker represents a service 
-                location with its coverage area shown as a circle around it.
+                This map shows all service locations for {providerName}. Each marker represents a
+                service location with its coverage area shown as a circle around it.
               </p>
               {addresses_collection.length === 0 && (
                 <p className="text-amber-600 mt-2">
@@ -54,9 +54,13 @@ const ServiceLocationModal: React.FC<ServiceLocationModalProps> = ({
                 </p>
               )}
             </div>
-            
+
             <ServiceLocationMap
-              addresses_collection={addresses_collection}
+              addresses_collection={addresses_collection.map((location) => ({
+                lat: location.lat,
+                lng: location.lng,
+                radius: location.radius_km
+              }))}
               accessToken={MAPBOX_ACCESS_TOKEN}
             />
           </div>

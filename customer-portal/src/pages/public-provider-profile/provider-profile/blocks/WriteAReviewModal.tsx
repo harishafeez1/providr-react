@@ -8,7 +8,7 @@ import {
   DialogTrigger
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { forwardRef, useEffect, useState } from 'react';
+import React, { forwardRef, useEffect, useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { getAuth, useAuthContext } from '@/auth';
@@ -142,7 +142,9 @@ const WriteAReviewModal = forwardRef<HTMLDivElement, ReviewProps>(
         <DialogContent className="max-w-2xl ">
           <form onSubmit={formik.handleSubmit}>
             <DialogTitle></DialogTitle>
-            <DialogHeader className="text-lg font-bold">Review</DialogHeader>
+            <DialogHeader className="text-lg font-bold">
+              Thanks for your feedback, we really appreciate it!
+            </DialogHeader>
             <div className="flex flex-col justify-center flex-wrap p-4">
               <div className="my-4">
                 <div className="form-label mb-2">Please select a service:</div>

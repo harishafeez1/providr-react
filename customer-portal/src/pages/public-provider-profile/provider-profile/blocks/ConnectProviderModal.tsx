@@ -39,7 +39,7 @@ const initialValues = {
   last_name: '',
   description: '',
   address: '',
-  zip_code: '',
+  // zip_code: '',
   gender: '',
   age_group_options: '',
   service_delivered_options: '',
@@ -205,7 +205,7 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
                   </div>
 
                   <div className="flex flex-col gap-1">
-                    <label className="form-label text-gray-900">Address</label>
+                    <label className="form-label text-gray-900">Suburb</label>
                     <GooglePlacesAutocomplete
                       apiKey={import.meta.env.VITE_APP_GOOGLE_API_KEY}
                       onLoadFailed={(err) => {
@@ -261,7 +261,7 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
                       </span>
                     )}
                   </div>
-                  <div className="flex flex-col gap-1">
+                  {/* <div className="flex flex-col gap-1">
                     <label className="form-label text-gray-900">Postal Code</label>
                     <Input
                       type="text"
@@ -274,7 +274,7 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
                         {formik.errors.zip_code}
                       </span>
                     )}
-                  </div>
+                  </div> */}
 
                   <div className="flex flex-col justify-center gap-1">
                     <label className="form-label text-gray-900">Age groups</label>

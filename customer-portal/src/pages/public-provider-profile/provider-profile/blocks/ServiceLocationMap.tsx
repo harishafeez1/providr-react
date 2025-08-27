@@ -1,10 +1,12 @@
 import React, { useRef, useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
+import * as turf from '@turf/turf';
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 interface ServiceLocation {
   lat: number;
   lng: number;
+  radius?: number; // radius in kilometers
 }
 
 interface ServiceLocationMapProps {
@@ -19,6 +21,7 @@ const ServiceLocationMap: React.FC<ServiceLocationMapProps> = ({
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
+  const circleLayersRef = useRef<string[]>([]);
   const [locationNames, setLocationNames] = useState<{ [key: number]: string }>({});
 
   // Ensure addresses_collection is valid array
@@ -34,11 +37,24 @@ const ServiceLocationMap: React.FC<ServiceLocationMapProps> = ({
     );
   }, [addresses_collection]);
 
-  // Clean up existing markers
+  // Clean up existing markers and circle layers
   const clearMapElements = () => {
     // Remove markers
     markersRef.current.forEach(marker => marker.remove());
     markersRef.current = [];
+
+    // Remove circle layers and sources
+    if (mapRef.current) {
+      circleLayersRef.current.forEach(layerId => {
+        if (mapRef.current!.getLayer(layerId)) {
+          mapRef.current!.removeLayer(layerId);
+        }
+        if (mapRef.current!.getSource(layerId)) {
+          mapRef.current!.removeSource(layerId);
+        }
+      });
+    }
+    circleLayersRef.current = [];
   };
 
   // Function to create marker element
@@ -82,6 +98,52 @@ const ServiceLocationMap: React.FC<ServiceLocationMapProps> = ({
     return `Service Location ${index + 1}`;
   };
 
+  // Function to add radius circle for a location
+  const addRadiusCircle = (location: ServiceLocation, index: number) => {
+    if (!mapRef.current || !location.radius) return;
+
+    const lat = Number(location.lat);
+    const lng = Number(location.lng);
+    const radius = location.radius;
+
+    // Create a circle using Turf.js
+    const center = turf.point([lng, lat]);
+    const circle = turf.circle(center, radius, { units: 'kilometers', steps: 64 });
+
+    const layerId = `radius-circle-${index}`;
+    const sourceId = `radius-source-${index}`;
+
+    // Add source and layer to map
+    mapRef.current.addSource(sourceId, {
+      type: 'geojson',
+      data: circle
+    });
+
+    mapRef.current.addLayer({
+      id: layerId,
+      type: 'fill',
+      source: sourceId,
+      paint: {
+        'fill-color': '#762c85',
+        'fill-opacity': 0.1
+      }
+    });
+
+    // Add border for the circle
+    mapRef.current.addLayer({
+      id: `${layerId}-border`,
+      type: 'line',
+      source: sourceId,
+      paint: {
+        'line-color': '#762c85',
+        'line-width': 2,
+        'line-opacity': 0.6
+      }
+    });
+
+    circleLayersRef.current.push(layerId, `${layerId}-border`);
+  };
+
   // Add markers to map
   const addMarkers = () => {
     if (!mapRef.current || !validAddresses.length) return;
@@ -111,26 +173,42 @@ const ServiceLocationMap: React.FC<ServiceLocationMapProps> = ({
         .addTo(mapRef.current!);
 
       // Add popup with basic info first (will be updated with location name)
+      const radiusText = location.radius ? `<p class="text-xs text-gray-600">Radius: ${location.radius} km</p>` : '';
       const popup = new mapboxgl.Popup({ offset: 35 })
         .setHTML(`
           <div class="p-2">
             <h3 class="font-semibold text-sm">Service Location ${index + 1}</h3>
             <p class="text-xs text-gray-600">Lat: ${Number(lat).toFixed(6)}, Lng: ${Number(lng).toFixed(6)}</p>
+            ${radiusText}
           </div>
         `);
 
       marker.setPopup(popup);
       markersRef.current.push(marker);
 
+      // Add radius circle if radius is provided
+      if (location.radius) {
+        addRadiusCircle(location, index);
+      }
+
       // Extend bounds to include this location
       bounds.extend([lng, lat]);
 
+      // If there's a radius, extend bounds to include the circle
+      if (location.radius) {
+        const radiusInDegrees = location.radius / 111; // Rough conversion from km to degrees
+        bounds.extend([lng - radiusInDegrees, lat - radiusInDegrees]);
+        bounds.extend([lng + radiusInDegrees, lat + radiusInDegrees]);
+      }
+
       // Async: Get location name and update popup
       getLocationName(lat, lng, index).then(locationName => {
+        const radiusText = location.radius ? `<p class="text-xs text-gray-600">Radius: ${location.radius} km</p>` : '';
         popup.setHTML(`
           <div class="p-2">
             <h3 class="font-semibold text-sm">${locationName}</h3>
             <p class="text-xs text-gray-600">Lat: ${Number(lat).toFixed(6)}, Lng: ${Number(lng).toFixed(6)}</p>
+            ${radiusText}
           </div>
         `);
       });
@@ -224,6 +302,10 @@ const ServiceLocationMap: React.FC<ServiceLocationMapProps> = ({
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded-full border-2 border-white" style={{ backgroundColor: '#762c85' }}></div>
             <span style={{ color: '#762c85' }}>Service Location</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded-full border-2" style={{ borderColor: '#762c85', backgroundColor: 'rgba(118, 44, 133, 0.1)' }}></div>
+            <span style={{ color: '#762c85' }}>Service Area</span>
           </div>
         </div>
         

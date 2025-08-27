@@ -88,7 +88,11 @@ const MobileServicesSection = () => {
         >
           <div className="p-4 max-h-[80vh] overflow-y-auto">
             <ServiceLocationMap
-              addresses_collection={serviceLocations}
+              addresses_collection={serviceLocations.map(location => ({
+                lat: location.lat,
+                lng: location.lng,
+                radius: location.radius_km
+              }))}
               accessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || ''}
             />
           </div>

@@ -446,9 +446,9 @@ const Header = () => {
                       <h2 className="text-xl font-semibold">Search Services</h2>
                       <button
                         onClick={() => setIsMobileSearchOpen(false)}
-                        className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                        className="hover:bg-gray-100 rounded-full transition-colors"
                       >
-                        <KeenIcon icon="cross" className="text-lg" />
+                        <KeenIcon icon="cross" className="p-2" />
                       </button>
                     </div>
 
