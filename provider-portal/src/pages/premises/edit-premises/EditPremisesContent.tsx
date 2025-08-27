@@ -2,7 +2,7 @@ import { EditPremisesForm } from './blocks';
 
 const EditPremisesContent = () => {
   return (
-    <div className="grid gap-2 lg:gap-2  mx-auto">
+    <div className="grid gap-5 lg:gap-7.5">
       <EditPremisesForm title="Edit Premises" />
     </div>
   );

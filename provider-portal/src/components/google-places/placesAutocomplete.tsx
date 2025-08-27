@@ -21,7 +21,7 @@ const PlacesAutocomplete: React.FC<PlacesAutocompleteProps> = ({ value, onChange
         }}
         selectProps={{
           isClearable: true,
-          placeholder: 'Search for a places',
+          placeholder: 'Start typing street address...',
           value: value,
           onChange: onChange,
           styles: {

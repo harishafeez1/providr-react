@@ -4,11 +4,12 @@ import * as Yup from 'yup';
 import { geocodeByAddress, getLatLng } from 'react-google-places-autocomplete';
 
 import { KeenIcon } from '@/components';
-import { CustomSelect } from '@/components/select';
 import { createPremises } from '@/services/api';
 import { useAuthContext } from '@/auth';
 import { useNavigate } from 'react-router';
 import PlacesAutocomplete from '@/components/google-places/placesAutocomplete';
+import { Switch } from '@/components/ui/switch';
+import { ProgressBar } from '@/pages/company-profile/add-company-profile/ProgressBar';
 
 const AddPremisesForm = () => {
   const { currentUser } = useAuthContext();
@@ -20,25 +21,20 @@ const AddPremisesForm = () => {
   const [selectedState, setSelectedState] = useState('');
   const [selectedPostCode, setSelectedPostCode] = useState('');
   const [selectedName, setSelectedName] = useState('');
-  const [selectedActive, setSelectedActive] = useState('');
+  const [selectedActive, setSelectedActive] = useState(true);
   const [selectedPhone, setSelectedPhone] = useState('');
   const [selectedEmail, setSelectedEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
   const premisesSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
-    active: Yup.string().required('active is required'),
+    active: Yup.boolean().required('active is required'),
     address_line_1: Yup.mixed().required('address is required')
   });
 
-  const activestate = [
-    { value: '1', label: 'Yes' },
-    { value: '0', label: 'No' }
-  ];
-
   const initialValues = {
     name: selectedName ? selectedName : '',
-    active: selectedActive ? selectedActive : '',
+    active: selectedActive,
     // @ts-ignore
     address_line_1: selectedPlace ? selectedPlace?.value?.description : '',
     address_line_2: '',
@@ -56,11 +52,12 @@ const AddPremisesForm = () => {
     const id = currentUser?.provider_company_id;
     const res = await createPremises({
       ...values,
+      active: values.active ? '1' : '0', // Convert boolean to string for API
       provider_company_id: id
     });
     if (res) {
       resetForm();
-      setFieldValue('active', []);
+      setFieldValue('active', false);
       setFieldValue('state', []);
       setLoading(false);
       navigate('/premises');
@@ -106,17 +103,32 @@ const AddPremisesForm = () => {
       >
         {({ setFieldValue, values, isSubmitting, touched, errors }) => (
           <Form className="card p-4">
+            <ProgressBar className="my-6" />
             <div className="grid gap-5">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="active-mode"
+                  name="active"
+                  checked={values.active}
+                  onCheckedChange={(checked: boolean) => {
+                    setFieldValue('active', checked);
+                    setSelectedActive(checked);
+                  }}
+                />
+                <label htmlFor="active-mode" className="font-medium cursor-pointer">
+                  Active
+                </label>
+              </div>
               <div className="flex items-baseline flex-wrap gap-2.5">
                 <label className="form-label max-w-70 gap-1">
                   <KeenIcon icon="user" className="text-sm" />
-                  Name
+                  Premises Name
                 </label>
                 <Field
                   className="input"
                   name="name"
                   type="text"
-                  placeholder="Enter name"
+                  placeholder="Sydney Clinic"
                   value={values.name}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     setFieldValue('name', e.target.value);
@@ -126,31 +138,6 @@ const AddPremisesForm = () => {
                 {touched.name && errors.name && (
                   <span role="alert" className="text-danger text-xs mt-1">
                     {errors.name}
-                  </span>
-                )}
-              </div>
-              <div className="flex items-baseline flex-wrap gap-2.5">
-                <label className="form-label max-w-56 gap-1">
-                  <KeenIcon icon="flag" className="text-sm" />
-                  Active
-                </label>
-
-                <Field name="active">
-                  {({ field }: any) => (
-                    <CustomSelect
-                      {...field}
-                      options={activestate}
-                      value={values.active}
-                      onChange={(option: any) => {
-                        setFieldValue('active', option.value);
-                        setSelectedActive(option.value);
-                      }}
-                    />
-                  )}
-                </Field>
-                {touched.active && errors.active && (
-                  <span role="alert" className="text-danger text-xs mt-1">
-                    {errors.active}
                   </span>
                 )}
               </div>
@@ -184,7 +171,7 @@ const AddPremisesForm = () => {
                   className="input"
                   name="address_line_2"
                   type="text"
-                  placeholder="Enter address"
+                  placeholder="Start typing street address..."
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     setFieldValue('address_line_2', e.target.value);
                   }}

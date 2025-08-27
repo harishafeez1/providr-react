@@ -5,9 +5,10 @@ import * as Yup from 'yup';
 import { geocodeByAddress, getLatLng } from 'react-google-places-autocomplete';
 
 import { KeenIcon, ProgressBarLoader } from '@/components';
-import { CustomSelect } from '@/components/select';
 import { getSinglePremises, updatePremises } from '@/services/api';
 import PlacesAutocomplete from '@/components/google-places/placesAutocomplete';
+import { Switch } from '@/components/ui/switch';
+import { ProgressBar } from '@/pages/company-profile/add-company-profile/ProgressBar';
 
 interface IEditPremisesForm {
   title: string;
@@ -16,7 +17,7 @@ interface IEditPremisesForm {
 interface PremisesData {
   id: string | number;
   name: string;
-  active: string | number;
+  active: string | number | boolean;
   address_line_1: string;
   address_line_2: string;
   suburb: string;
@@ -35,7 +36,7 @@ const EditPremisesForm = ({ title }: IEditPremisesForm) => {
   const [loading, setLoading] = useState(true);
   const [selectedPlace, setSelectedPlace] = useState('');
   const [selectedName, setSelectedName] = useState('');
-  const [selectedActive, setSelectedActive] = useState('');
+  const [selectedActive, setSelectedActive] = useState(true);
   const [selectedLongitude, setSelectedLongitude] = useState<number | ''>();
   const [selectedLatitude, setSelectedLatitude] = useState<number | ''>();
   const [selectedSuburb, setSelectedSuburb] = useState('');
@@ -62,18 +63,15 @@ const EditPremisesForm = ({ title }: IEditPremisesForm) => {
 
   const premisesSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
-    active: Yup.string().required('active is required'),
+    active: Yup.boolean().required('active is required'),
     address_line_1: Yup.string().required('address is required')
   });
 
-  const activestate = [
-    { value: '1', label: 'Yes' },
-    { value: '0', label: 'No' }
-  ];
-
   const initialValues = {
     name: premisesData ? premisesData?.name : selectedName,
-    active: premisesData ? String(premisesData?.active) : selectedActive,
+    active: premisesData
+      ? premisesData?.active === '1' || premisesData?.active === 1
+      : selectedActive,
     // @ts-ignore
     address_line_1: premisesData ? premisesData.address_line_1 : selectedPlace?.value?.description,
     address_line_2: premisesData ? premisesData.address_line_2 : '',
@@ -88,7 +86,10 @@ const EditPremisesForm = ({ title }: IEditPremisesForm) => {
 
   const handleSubmit = async (values: any) => {
     setLoading(true);
-    const res = await updatePremises(id, values);
+    const res = await updatePremises(id, {
+      ...values,
+      active: values.active ? '1' : '0' // Convert boolean to string for API
+    });
     if (res) {
       setLoading(false);
       navigate('/premises');
@@ -135,21 +136,33 @@ const EditPremisesForm = ({ title }: IEditPremisesForm) => {
         onSubmit={(formData) => handleSubmit(formData)}
       >
         {({ setFieldValue, values, isSubmitting, touched, errors }) => (
-          <Form>
-            <div className="card-header" id="general_settings">
-              <h3 className="card-title">{title}</h3>
-            </div>
+          <Form className="card p-2">
             <div className="card-body grid gap-5">
+              <ProgressBar className="my-6" />
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="active-mode"
+                  name="active"
+                  checked={values.active}
+                  onCheckedChange={(checked: boolean) => {
+                    setFieldValue('active', checked);
+                    setSelectedActive(checked);
+                  }}
+                />
+                <label htmlFor="active-mode" className="font-medium cursor-pointer">
+                  Active
+                </label>
+              </div>
               <div className="flex items-baseline flex-wrap gap-2.5">
                 <label className="form-label max-w-70 gap-1">
                   <KeenIcon icon="user" className="text-sm" />
-                  Name
+                  Premises Name
                 </label>
                 <Field
                   className="input"
                   name="name"
                   type="text"
-                  placeholder="Enter name"
+                  placeholder="Sydney Clinic"
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     setFieldValue('name', e.target.value);
                     setSelectedName(e.target.value);
@@ -158,31 +171,6 @@ const EditPremisesForm = ({ title }: IEditPremisesForm) => {
                 {touched.name && errors.name && (
                   <span role="alert" className="text-danger text-xs mt-1">
                     {errors.name}
-                  </span>
-                )}
-              </div>
-              <div className="flex items-baseline flex-wrap gap-2.5">
-                <label className="form-label max-w-56 gap-1">
-                  <KeenIcon icon="flag" className="text-sm" />
-                  Active
-                </label>
-
-                <Field name="active">
-                  {({ field }: any) => (
-                    <CustomSelect
-                      {...field}
-                      options={activestate}
-                      value={values.active}
-                      onChange={(option: any) => {
-                        setFieldValue('active', option.value);
-                        setSelectedActive(option.value);
-                      }}
-                    />
-                  )}
-                </Field>
-                {touched.active && errors.active && (
-                  <span role="alert" className="text-danger text-xs mt-1">
-                    {errors.active}
                   </span>
                 )}
               </div>
@@ -216,7 +204,7 @@ const EditPremisesForm = ({ title }: IEditPremisesForm) => {
                   className="input"
                   name="address_line_2"
                   type="text"
-                  placeholder="Enter address"
+                  placeholder="Start typing street address..."
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     setFieldValue('address_line_2', e.target.value);
                   }}
