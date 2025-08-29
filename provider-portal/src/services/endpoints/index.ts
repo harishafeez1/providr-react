@@ -54,5 +54,8 @@ export const UPDATE_NOTIFICATIONS_URL = `${API_URL}/notification_settings/update
 
 //MAPBOX Routes
 
-export const GET_MAPBOX_GEOCODE_URL = `${API_URL}/mapbox/geocode`       //?lng={longitude}&lat={latitude}   
-export const GET_MAPBOX_SEARCH_URL = `${API_URL}/mapbox/search`         //?query={query}
+export const GET_MAPBOX_GEOCODE_URL = `${API_URL}/mapbox/geocode`; //?lng={longitude}&lat={latitude}
+export const GET_MAPBOX_SEARCH_URL = `${API_URL}/mapbox/search`; //?query={query}
+
+// invitaion email
+export const GET_INVITE_CUSTOMER_REVIEW_URL = `${API_URL}/provider-review/send-invitation`;

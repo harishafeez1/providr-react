@@ -6,10 +6,12 @@ import { Toolbar, ToolbarDescription, ToolbarHeading, ToolbarPageTitle } from '@
 import { ReviewsTableContent } from '.';
 import { useAuthContext } from '@/auth';
 import { Copy } from 'lucide-react';
+import { inviteACustomerforReview } from '@/services/api/reviews';
 
 const ReviewsTablePage = () => {
   const [clientSecretInput, setClientSecretInput] = useState('');
   const [copied, setCopied] = useState(false);
+  const [emailLoading, setEmailLoading] = useState(false);
   const { auth } = useAuthContext();
 
   const url = `https://app.providr.au/provider-profile/${auth?.user?.provider_company_id || ''}`;
@@ -21,6 +23,21 @@ const ReviewsTablePage = () => {
       setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
     } catch (err) {
       console.error('Failed to copy:', err);
+    }
+  };
+
+  const handleInvitation = async () => {
+    const data = {
+      provider_id: auth?.user?.provider_company_id,
+      customer_email: clientSecretInput
+    };
+
+    if (clientSecretInput !== '' && !emailLoading) {
+      setEmailLoading(true);
+      const res = await inviteACustomerforReview(data);
+      if (res) {
+        setEmailLoading(false);
+      }
     }
   };
 
@@ -48,7 +65,13 @@ const ReviewsTablePage = () => {
                   value={clientSecretInput}
                   onChange={(e) => setClientSecretInput(e.target.value)}
                 />
-                <span className="btn btn-primary">Invite</span>
+                <button
+                  className={`btn btn-primary disabled:bg-[#A576AF] disabled:text-white disabled:cursor-not-allowed`}
+                  onClick={handleInvitation}
+                  disabled={emailLoading}
+                >
+                  {emailLoading ? 'please wait...' : 'Invite'}
+                </button>
               </div>
               <div className="flex  items-center gap-6 py-2">
                 <label className="form-label truncate pt-2">

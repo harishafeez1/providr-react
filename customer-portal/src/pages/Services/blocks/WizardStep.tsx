@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Check, ChevronLeft, ChevronRight, Info } from 'lucide-react';
+import { ChevronLeft, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { useAppSelector } from '@/redux/hooks';
@@ -30,7 +30,7 @@ import { getAuth, useAuthContext } from '@/auth';
 import { getStoreRequest } from '@/services/api/service-requests';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import ProgressBar from './ProgressBar';
-import { Modal, ModalBody, ModalContent, ModalHeader } from '@/components';
+import { Container, Modal, ModalBody, ModalContent, ModalHeader } from '@/components';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Link } from 'react-router-dom';
 import { getProviderCount } from '@/services/api/directory';
@@ -104,7 +104,9 @@ export default function AirbnbWizard() {
       case 0:
         return !selectedServiceId; // Disable if no service is selected
       case 1:
-        return !serviceLocation?.latitude || !serviceLocation?.longitude || availableProvidersCount === 0; // Disable if coordinates are not available or no providers available
+        return (
+          !serviceLocation?.latitude || !serviceLocation?.longitude || availableProvidersCount === 0
+        ); // Disable if coordinates are not available or no providers available
       case 2:
         return !participantData.first_name || !participantData.email || !participantData.phone;
       case 3:
@@ -135,14 +137,14 @@ export default function AirbnbWizard() {
     setCountLoading(true);
     try {
       let res;
-      
+
       if (currentStep === 0) {
         // First step: only send service_id (no location data)
         res = await getProviderCount(selectedServiceId);
       } else {
         // Second step and beyond: send service_id + location data
         const hasCoordinates = serviceLocation?.latitude && serviceLocation?.longitude;
-        
+
         if (!hasCoordinates) {
           // If we're past step 0 but don't have coordinates, can't get accurate count
           setAvailableProvidersCount(0);
@@ -153,7 +155,7 @@ export default function AirbnbWizard() {
         const longitude = parseFloat(serviceLocation.longitude!);
         res = await getProviderCount(selectedServiceId, latitude, longitude);
       }
-      
+
       setAvailableProvidersCount(res);
     } catch (error) {
       console.error('Error fetching provider count:', error);
@@ -200,9 +202,6 @@ export default function AirbnbWizard() {
               find a suitable match.
             </div>
             <div className="flex justify-center gap-6">
-              {/* <Link className="btn btn-primary" to={'/directory'}>
-                Browse Directory
-              </Link> */}
               <Link className="btn btn-primary" to={'/directory'}>
                 Browse Directory
               </Link>
@@ -211,11 +210,10 @@ export default function AirbnbWizard() {
         </DialogContent>
       </Dialog>
 
-      <div className="max-w-3xl mx-auto p-4 md:p-6">
+      <Container>
         <Card className="border-none shadow-lg">
           <CardHeader className="pb-0">
-            {/* <ProgressBar currentStep={currentStep} steps={4} /> */}
-            <div className="flex justify-between items-center mb-6">
+            {/* <div className="flex justify-between items-center mb-6">
               <h1 className="text-xl font-semibold text-gray-900">Find Services</h1>
 
               <div className="flex items-center gap-6 ">
@@ -228,30 +226,30 @@ export default function AirbnbWizard() {
                   </div>
                 )}
               </div>
-            </div>
-            <div className="flex justify-between mb-8">
+            </div> */}
+            <div className="flex w-full justify-center items-center mb-8 relative">
+              <div className="absolute top-0 -left-24 bg-primary h-14 w-[10%] rounded-s-2xl flex justify-center items-center [clip-path:polygon(70%_0%,95%_50%,70%_100%,0%_100%,0%_50%,0%_0%)]">
+                <Search size={26} color="white" className="" />
+              </div>
               {steps.map((step, index) => (
-                <div key={index} className="flex flex-col items-center">
+                <div key={index} className="flex flex-1 justify-center items-center -me-14">
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center mb-2
+                    className={`w-full flex justify-center items-center 
                     ${
                       index < currentStep
                         ? 'bg-primary text-white'
                         : index === currentStep
-                          ? 'border-2 border-primary text-primary'
-                          : 'border-2 border-gray-300 text-gray-300'
+                          ? '[clip-path:polygon(75%_0%,85%_50%,75%_100%,0%_100%,10%_50%,0%_0%)] bg-primary text-white h-14 '
+                          : '[clip-path:polygon(75%_0%,85%_50%,75%_100%,0%_100%,10%_50%,0%_0%)] bg-gray-300 text-black h-14 '
                     }`}
                   >
-                    {index < currentStep ? <Check className="w-4 h-4" /> : <span>{index + 1}</span>}
-                  </div>
-                  <span
-                    className={`text-xs hidden md:block
-                    ${index <= currentStep ? 'text-gray-900' : 'text-gray-400'}`}
-                  >
                     {step.title}
-                  </span>
+                  </div>
                 </div>
               ))}
+              <div className="absolute top-0 -right-40 [clip-path:polygon(33%_0%,100%_0%,100%_100%,33%_100%,45%_50%)] bg-primary h-14 w-[20%] rounded-e-2xl flex justify-center items-center text-white">
+                Provider Found
+              </div>
             </div>
           </CardHeader>
           <CardContent>
@@ -278,31 +276,11 @@ export default function AirbnbWizard() {
                 className="btn btn-primary "
               >
                 {currentStep === steps.length - 1 ? 'Complete' : 'Next'}
-                {/* <ChevronRight className="w-4 h-4 ml-2" /> */}
               </Button>
-
-              {/* {currentStep === steps.length - 1 && !getAuth()?.token && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger className="">
-                    <div className="absolute -top-[30px] right-[-10px] flex items-center w-max space-x-1">
-                      <Info className="text-danger" />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="w-48 text-danger">
-                      * You must be logged in to complete this request.
-                      <br />
-                      Please log in and return once you have successfully signed in.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )} */}
             </div>
           </CardFooter>
         </Card>
-      </div>
+      </Container>
     </>
   );
 }
@@ -338,29 +316,6 @@ function LocationStep() {
           Enter the service location <strong className="text-primary">suburb or postcode</strong>
         </label>
         <div className="w-full">
-          {/* <GooglePlacesAutocomplete
-            apiKey={import.meta.env.VITE_APP_GOOGLE_API_KEY}
-            onLoadFailed={(err) => {
-              console.error('Could not load google places autocomplete', err);
-            }}
-            autocompletionRequest={{
-              // location: userLocation ?? undefined,
-              // radius: 20000,
-              componentRestrictions: {
-                country: 'au'
-              },
-              types: ['(regions)']
-            }}
-            apiOptions={{
-              region: 'AU'
-            }}
-            selectProps={{
-              isClearable: true,
-              placeholder: 'Search for a place',
-              onChange: handleLocationChange,
-              defaultValue: defaultValue
-            }}
-          /> */}
           <AustralianSuburbSearch />
         </div>
       </div>

@@ -200,7 +200,7 @@ module.exports = {
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         airbnb: ['Cereal', 'sans-serif'],
-        montserrat: ['Montserrat','system-ui','sans-serif']
+        montserrat: ['Montserrat', 'system-ui', 'sans-serif']
       },
       colors: {
         //begin: Shadcn UI Colors
@@ -438,8 +438,7 @@ module.exports = {
         'collapsible-up': {
           from: { height: 'var(--radix-collapsible-content-height)' },
           to: { height: 'o' }
-        },
-        
+        }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -724,8 +723,7 @@ module.exports = {
     require('./src/plugins/components/scrollable'),
     require('./src/plugins/components/progress'),
     require('./src/plugins/components/apexcharts'),
-    require('./src/plugins/components/leaflet')
+    require('./src/plugins/components/leaflet'),
+    require('tailwind-clip-path')
   ]
-
-  
 };
