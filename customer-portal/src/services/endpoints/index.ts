@@ -41,3 +41,9 @@ export const GET_NEARBY_PROVIDERS_URL = `${API_URL}/find_nearby_offerings`;
 // WishList Routes
 export const GET_ALL_WISHLIST_FAVOUTIE_URL = `${API_URL}/customer_favs`;
 export const GET_ADD_WISHLIST_FAVOUTIE_URL = `${API_URL}/fav_provider`;
+
+// Review Invitation Routes
+export const VALIDATE_INVITATION_TOKEN_URL = `${API_URL}/review-invitation/validate-token`;
+export const SEND_SMS_VERIFICATION_URL = `${API_URL}/review-invitation/send-sms-verification`;
+export const VERIFY_SMS_CODE_URL = `${API_URL}/review-invitation/verify-sms-code`;
+export const SUBMIT_TOKEN_REVIEW_URL = `${API_URL}/review-invitation/submit-review`;

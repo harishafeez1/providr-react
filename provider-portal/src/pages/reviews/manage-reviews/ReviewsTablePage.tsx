@@ -12,13 +12,12 @@ const ReviewsTablePage = () => {
   const [clientSecretInput, setClientSecretInput] = useState('');
   const [copied, setCopied] = useState(false);
   const [emailLoading, setEmailLoading] = useState(false);
+  const [sharableUrl, setSharableUrl] = useState('');
   const { auth } = useAuthContext();
-
-  const url = `https://app.providr.au/provider-profile/${auth?.user?.provider_company_id || ''}`;
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(sharableUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000); // Reset after 2 seconds
     } catch (err) {
@@ -36,6 +35,9 @@ const ReviewsTablePage = () => {
       setEmailLoading(true);
       const res = await inviteACustomerforReview(data);
       if (res) {
+        setSharableUrl(res.provider_profile_url);
+        setEmailLoading(false);
+      } else {
         setEmailLoading(false);
       }
     }
@@ -73,28 +75,30 @@ const ReviewsTablePage = () => {
                   {emailLoading ? 'please wait...' : 'Invite'}
                 </button>
               </div>
-              <div className="flex  items-center gap-6 py-2">
-                <label className="form-label truncate pt-2">
-                  <div className="flex flex-col">
-                    <span>share this URL with your client:</span>
+              {sharableUrl && (
+                <div className="flex  items-center gap-6 py-2">
+                  <label className="form-label truncate pt-2">
+                    <div className="flex flex-col">
+                      <span>share this URL with your client:</span>
 
-                    {url}
-                  </div>
-                </label>
-                <button
-                  type="button"
-                  onClick={handleCopy}
-                  className="relative flex items-center text-gray-500 hover:text-gray-700 focus:outline-none"
-                  title={copied ? 'Copied!' : 'Copy URL'}
-                >
-                  <Copy className="w-5 h-5" />
-                  {copied && (
-                    <span className="absolute -top-14 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1">
-                      Copied!
-                    </span>
-                  )}
-                </button>
-              </div>
+                      {sharableUrl}
+                    </div>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleCopy}
+                    className="relative flex items-center text-gray-500 hover:text-gray-700 focus:outline-none"
+                    title={copied ? 'Copied!' : 'Copy URL'}
+                  >
+                    <Copy className="w-5 h-5" />
+                    {copied && (
+                      <span className="absolute -top-14 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1">
+                        Copied!
+                      </span>
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </Toolbar>
