@@ -131,6 +131,7 @@ const ServiceRequestsTable = () => {
         id: 'created_at',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Date Added"
             filter={<ColumnInputFilter column={column} />}
             column={column}
@@ -141,7 +142,7 @@ const ServiceRequestsTable = () => {
           return (
             <div className="flex items-center justify-center gap-4">
               <div className="text-center">
-                <div className="text-2sm text-gray-700 font-normal hover:text-primary-active">
+                <div className="text-2sm text-gray-700 font-normal">
                   {row.original.created_at ? format(row.original.created_at, 'LLL dd, y') : '--'}
                 </div>
               </div>
@@ -158,6 +159,7 @@ const ServiceRequestsTable = () => {
         id: 'email',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Email"
             filter={<ColumnInputFilter column={column} />}
             column={column}
@@ -168,12 +170,7 @@ const ServiceRequestsTable = () => {
           return (
             <div className="flex items-center gap-4">
               <div className="flex flex-col gap-0.5">
-                <Link
-                  to="#"
-                  className="text-2sm text-gray-700 font-normal hover:text-primary-active"
-                >
-                  {row.original.email || ''}
-                </Link>
+                <div className="text-2sm text-gray-700 font-normal">{row.original.email || ''}</div>
               </div>
             </div>
           );
@@ -184,39 +181,11 @@ const ServiceRequestsTable = () => {
         }
       },
       {
-        accessorFn: (row) => row.status,
-        id: 'status',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            title="Request Status"
-            column={column}
-            icon={<i className="ki-filled ki-flag"></i>}
-          />
-        ),
-        cell: (info) => {
-          return (
-            <span
-              className={`badge badge-${info.row.original.provider_company_id !== null && info.row.original.provider_company_id !== '' ? 'success' : 'success'} shrink-0 badge-outline rounded-[30px]`}
-            >
-              <span
-                className={`size-1.5 rounded-full bg-${info.row.original.provider_company_id !== null && info.row.original.provider_company_id !== '' ? 'success' : 'success'} me-1.5`}
-              ></span>
-              {info.row.original.provider_company_id !== null &&
-              info.row.original.provider_company_id !== ''
-                ? 'Completed'
-                : 'Open'}
-            </span>
-          );
-        },
-        meta: {
-          headerClassName: 'min-w-[180px]'
-        }
-      },
-      {
         accessorFn: (row) => row.interested_providers,
         id: 'interested_providers',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Interested Providers"
             column={column}
             icon={<i className="ki-filled ki-flag"></i>}
@@ -237,34 +206,11 @@ const ServiceRequestsTable = () => {
         }
       },
       {
-        accessorFn: (row) => row.provider_company_id,
-        id: 'provider_company',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            title="Connected"
-            column={column}
-            icon={<i className="ki-filled ki-flag"></i>}
-          />
-        ),
-        cell: (info) => {
-          return (
-            <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original?.provider_company === null ||
-              Object.keys(info.row.original.provider_company).length === 0
-                ? '---'
-                : info.row.original.provider_company?.name || '---'}
-            </div>
-          );
-        },
-        meta: {
-          headerClassName: 'min-w-[180px]'
-        }
-      },
-      {
         accessorFn: (row) => row.service_id,
         id: 'service',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Service"
             column={column}
             icon={<i className="ki-filled ki-courier text-lg"></i>}
@@ -286,6 +232,7 @@ const ServiceRequestsTable = () => {
         id: 'location',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Location"
             column={column}
             icon={<i className="ki-filled ki-geolocation"></i>}

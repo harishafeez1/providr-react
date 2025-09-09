@@ -92,6 +92,7 @@ const ReviewsTable = () => {
         id: 'created_at',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Date Added"
             filter={<ColumnInputFilter column={column} />}
             column={column}
@@ -102,12 +103,9 @@ const ReviewsTable = () => {
           return (
             <div className="flex items-center gap-4">
               <div className="flex flex-col gap-0.5">
-                <Link
-                  to="#"
-                  className="text-2sm text-gray-700 font-normal hover:text-primary-active"
-                >
+                <div className="text-2sm text-gray-700 font-normal">
                   {row.original.created_at ? format(row.original.created_at, 'LLL dd, y') : '--'}
-                </Link>
+                </div>
               </div>
             </div>
           );
@@ -122,6 +120,7 @@ const ReviewsTable = () => {
         id: 'participantName',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Provider"
             column={column}
             icon={<i className="ki-filled ki-user"></i>}
@@ -130,7 +129,7 @@ const ReviewsTable = () => {
         cell: (info) => {
           return (
             <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.provider_company.name}
+              {info.row.original.provider_company.name || ''}
             </div>
           );
         },
@@ -143,6 +142,7 @@ const ReviewsTable = () => {
         id: 'status',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Status"
             column={column}
             icon={<i className="ki-filled ki-flag"></i>}
@@ -169,6 +169,7 @@ const ReviewsTable = () => {
         id: 'service',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Service"
             column={column}
             icon={<i className="ki-filled ki-courier text-lg"></i>}
@@ -177,7 +178,7 @@ const ReviewsTable = () => {
         cell: (info) => {
           return (
             <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.service_offering.service.name}
+              {info.row.original?.service_offering?.service?.name || ''}
             </div>
           );
         },
@@ -190,6 +191,7 @@ const ReviewsTable = () => {
         id: 'content',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Content"
             column={column}
             icon={<i className="ki-filled ki-message-text-2"></i>}
@@ -198,28 +200,7 @@ const ReviewsTable = () => {
         cell: (info) => {
           return (
             <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.content}
-            </div>
-          );
-        },
-        meta: {
-          headerClassName: 'min-w-[180px]'
-        }
-      },
-      {
-        accessorFn: (row) => row.actioned_at,
-        id: 'actioned',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            title="Responded"
-            column={column}
-            icon={<i className="ki-filled ki-user-tick text-lg"></i>}
-          />
-        ),
-        cell: (info) => {
-          return (
-            <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.reply}
+              {info.row.original.content || ''}
             </div>
           );
         },
@@ -227,6 +208,28 @@ const ReviewsTable = () => {
           headerClassName: 'min-w-[180px]'
         }
       }
+      // {
+      //   accessorFn: (row) => row.actioned_at,
+      //   id: 'actioned',
+      //   header: ({ column }) => (
+      //     <DataGridColumnHeader
+      //      filterable={false}
+      //       title="Responded"
+      //       column={column}
+      //       icon={<i className="ki-filled ki-user-tick text-lg"></i>}
+      //     />
+      //   ),
+      //   cell: (info) => {
+      //     return (
+      //       <div className="flex items-center text-gray-800 font-normal gap-1.5">
+      //         {info.row.original.reply || ''}
+      //       </div>
+      //     );
+      //   },
+      //   meta: {
+      //     headerClassName: 'min-w-[180px]'
+      //   }
+      // }
     ],
     []
   );

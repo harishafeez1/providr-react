@@ -17,6 +17,7 @@ interface IDataGridColumnHeader<TData, TValue> extends HTMLAttributes<HTMLDivEle
   title?: string;
   filter?: ReactNode;
   icon?: ReactNode;
+  filterable?: boolean;
 }
 
 export function DataGridColumnHeader<TData, TValue>({
@@ -24,7 +25,8 @@ export function DataGridColumnHeader<TData, TValue>({
   title = '',
   className,
   filter,
-  icon
+  icon,
+  filterable = true
 }: IDataGridColumnHeader<TData, TValue>) {
   if (!filter && !column.getCanSort() && !column.getCanHide()) {
     return <div className={cn(className)}>{title}</div>;
@@ -62,64 +64,67 @@ export function DataGridColumnHeader<TData, TValue>({
   return (
     <div className={cn('flex items-center space-x-2', className)}>
       {icon}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn(
-              '-ms-3 h-8 data-[state=open]:bg-accent !ring-0 !ring-offset-0',
-              className
+      {!filterable && <span className="text-sm">{title}</span>}
+      {filterable && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn(
+                '-ms-3 h-8 data-[state=open]:bg-accent !ring-0 !ring-offset-0',
+                className
+              )}
+            >
+              <span className="text-sm">{title}</span>
+              {column.getIsSorted() === 'desc' ? (
+                <ArrowDown className="!size-[0.825rem]" />
+              ) : column.getIsSorted() === 'asc' ? (
+                <ArrowUp className="!size-[0.825rem]" />
+              ) : (
+                <ChevronsUpDown className="!size-[0.825rem]" />
+              )}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            {filter && (
+              <>
+                <DropdownMenuLabel>{filter}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+              </>
             )}
-          >
-            <span className="text-sm">{title}</span>
-            {column.getIsSorted() === 'desc' ? (
-              <ArrowDown className="!size-[0.825rem]" />
-            ) : column.getIsSorted() === 'asc' ? (
-              <ArrowUp className="!size-[0.825rem]" />
-            ) : (
-              <ChevronsUpDown className="!size-[0.825rem]" />
+
+            {column.getCanSort() && (
+              <>
+                <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
+                  <ArrowUp className="!size-[0.825rem] text-muted-foreground/90" />
+                  <span className="grow">Asc</span>
+                  {column.getIsSorted() === 'asc' && (
+                    <Check className="size-4 text-muted-foreground/90" />
+                  )}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
+                  <ArrowDown className="!size-[0.825rem] text-muted-foreground/90" />
+                  <span className="grow">Desc</span>
+                  {column.getIsSorted() === 'desc' && (
+                    <Check className="size-4 text-muted-foreground/90" />
+                  )}
+                </DropdownMenuItem>
+              </>
             )}
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
-          {filter && (
-            <>
-              <DropdownMenuLabel>{filter}</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-            </>
-          )}
 
-          {column.getCanSort() && (
-            <>
-              <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
-                <ArrowUp className="!size-[0.825rem] text-muted-foreground/90" />
-                <span className="grow">Asc</span>
-                {column.getIsSorted() === 'asc' && (
-                  <Check className="size-4 text-muted-foreground/90" />
-                )}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
-                <ArrowDown className="!size-[0.825rem] text-muted-foreground/90" />
-                <span className="grow">Desc</span>
-                {column.getIsSorted() === 'desc' && (
-                  <Check className="size-4 text-muted-foreground/90" />
-                )}
-              </DropdownMenuItem>
-            </>
-          )}
-
-          {column.getCanHide() && (
-            <>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => column.toggleVisibility(false)}>
-                <EyeOff className="!size-[0.825rem] text-muted-foreground/90" />
-                Hide
-              </DropdownMenuItem>
-            </>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
+            {column.getCanHide() && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => column.toggleVisibility(false)}>
+                  <EyeOff className="!size-[0.825rem] text-muted-foreground/90" />
+                  Hide
+                </DropdownMenuItem>
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
     </div>
   );
 }
