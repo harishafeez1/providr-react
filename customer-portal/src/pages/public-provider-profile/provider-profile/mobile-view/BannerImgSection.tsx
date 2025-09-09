@@ -1,16 +1,30 @@
 import { useAppSelector } from '@/redux/hooks';
+import { useAuthContext } from '@/auth';
+import { addFavouriteProvider } from '@/services/api/wishlist-favourite';
 import { ArrowLeft, Heart, MoveLeft, Share } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
+import useSharePageUrl from '@/hooks/useShareUrl';
 
 const BannerImgSection = () => {
   const { providerProfile } = useAppSelector((state: any) => state.providerProfile);
+  const { auth } = useAuthContext();
+  const { sharePage, isShareSupported } = useSharePageUrl();
 
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
   const imageUrl = providerProfile?.photo_gallery?.[0]
     ? `${import.meta.env.VITE_APP_AWS_URL}/${providerProfile?.photo_gallery?.[0]}`
     : null;
 
   const [isSticky, setIsSticky] = useState(false);
+
+  useEffect(() => {
+    if (providerProfile?.is_favourite) {
+      setIsFavorite(providerProfile.is_favourite);
+    }
+  }, [providerProfile?.is_favourite]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,6 +36,22 @@ const BannerImgSection = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const toggleFavorite = async () => {
+    if (!auth?.token) {
+      toast.error('Please log in to favourite this provider.', { position: 'top-right' });
+    } else {
+      try {
+        await addFavouriteProvider(providerProfile?.id, auth?.customer?.id);
+        setIsFavorite(!isFavorite);
+        toast.success(isFavorite ? 'Removed from favourites' : 'Added to favourites', {
+          position: 'top-right'
+        });
+      } catch (error) {
+        toast.error('Failed to update favourite status', { position: 'top-right' });
+      }
+    }
+  };
 
   return (
     <div className="relative h-[200px] w-full max-w-full">
@@ -55,11 +85,24 @@ const BannerImgSection = () => {
             <ArrowLeft size={18} className=" text-black" />
           </div>
           <div className="flex me-7 gap-2">
-            <div className="backdrop-[#dedede] shadow-sm backdrop-blur-md p-3 rounded-full">
+            <button
+              className="backdrop-[#dedede] shadow-sm backdrop-blur-md p-3 rounded-full"
+              onClick={() => sharePage}
+            >
               <Share size={18} strokeWidth={2} className=" text-black" />
-            </div>
-            <div className="backdrop-[#dedede] shadow-sm backdrop-blur-md p-3 rounded-full">
-              <Heart size={18} strokeWidth={2} className=" text-black" />
+            </button>
+            <div
+              className="backdrop-[#dedede] shadow-sm backdrop-blur-md p-3 rounded-full cursor-pointer hover:bg-white/20 transition-colors"
+              onClick={toggleFavorite}
+            >
+              <Heart
+                size={18}
+                strokeWidth={2}
+                className={cn(
+                  'transition-colors duration-200',
+                  isFavorite ? 'fill-red-500 stroke-red-500' : 'stroke-black fill-transparent'
+                )}
+              />
             </div>
           </div>
         </div>
