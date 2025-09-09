@@ -252,8 +252,8 @@ const CustomerServiceRequestsTable = () => {
                 displayStatus = 'Completed';
                 badgeClass = 'success';
                 break;
-              case 'Closed':
-                displayStatus = 'Closed';
+              case 'Open':
+                displayStatus = 'Open';
                 badgeClass = 'success';
                 break;
               default:
@@ -353,38 +353,34 @@ const CustomerServiceRequestsTable = () => {
         id: 'click',
         header: () => '',
         enableSorting: false,
-        cell: (row) => {
-          const providerStatus = row.row.original.service_request_provider?.[0]?.status;
-          return providerStatus === 'Closed' ? (
-            ''
-          ) : (
-            <Menu className="items-stretch">
-              <MenuItem
-                toggle="dropdown"
-                trigger="click"
-                dropdownProps={{
-                  placement: isRTL() ? 'bottom-start' : 'bottom-end',
-                  modifiers: [
-                    {
-                      name: 'offset',
-                      options: {
-                        offset: isRTL() ? [0, -10] : [0, 10]
-                      }
+        cell: (row) => (
+          <Menu className="items-stretch">
+            <MenuItem
+              toggle="dropdown"
+              trigger="click"
+              dropdownProps={{
+                placement: isRTL() ? 'bottom-start' : 'bottom-end',
+                modifiers: [
+                  {
+                    name: 'offset',
+                    options: {
+                      offset: isRTL() ? [0, -10] : [0, 10]
                     }
-                  ]
-                }}
-              >
-                <MenuToggle
-                  className="btn btn-sm btn-icon      
+                  }
+                ]
+              }}
+            >
+              <MenuToggle
+                className="btn btn-sm btn-icon      
   btn-light btn-clear"
-                >
-                  <KeenIcon icon="dots-vertical" />
-                </MenuToggle>
-                {DropdownCard2(handleInterestedRequest, row.row.original)}
-              </MenuItem>
-            </Menu>
-          );
-        },
+              >
+                <KeenIcon icon="dots-vertical" />
+              </MenuToggle>
+              {DropdownCard2(handleInterestedRequest, row.row.original)}
+            </MenuItem>
+          </Menu>
+        ),
+
         meta: {
           headerClassName: 'w-[60px]'
         }

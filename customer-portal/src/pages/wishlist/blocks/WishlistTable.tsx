@@ -132,7 +132,7 @@ const WishlistTable = () => {
       const response = await getCustomerWishlist(currentUser?.id, `${queryParams.toString()}`);
 
       return {
-        data: response,
+        data: response.data,
         totalCount: response?.total
       };
     } catch (error) {
