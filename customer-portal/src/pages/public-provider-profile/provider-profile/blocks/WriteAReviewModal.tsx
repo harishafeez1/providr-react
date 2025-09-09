@@ -12,8 +12,14 @@ import React, { forwardRef, useEffect, useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { getAuth, useAuthContext } from '@/auth';
-import { postReview, validateInvitationToken, submitTokenReview, sendSmsVerification } from '@/services/api/reviews';
+import {
+  postReview,
+  validateInvitationToken,
+  submitTokenReview,
+  sendSmsVerification
+} from '@/services/api/reviews';
 import { PhoneVerificationModal } from './PhoneVerificationModal';
+import { useParams } from 'react-router';
 
 interface ReviewProps {
   open: boolean;
@@ -39,7 +45,7 @@ const WriteAReviewModal = forwardRef<HTMLDivElement, ReviewProps>(
     const { auth, getUser, saveAuth, setCurrentUser, currentUser } = useAuthContext();
 
     const token = getAuth()?.token;
-    
+
     const removeInvitationTokenFromUrl = () => {
       const url = new URL(window.location.href);
       url.searchParams.delete('invitation_token');
@@ -50,39 +56,34 @@ const WriteAReviewModal = forwardRef<HTMLDivElement, ReviewProps>(
     useEffect(() => {
       const urlParams = new URLSearchParams(window.location.search);
       const tokenFromUrl = urlParams.get('invitation_token');
-      console.log('Extracting token from URL:', tokenFromUrl);
       setInvitationToken(tokenFromUrl);
     }, []);
 
+    const { id } = useParams();
+
     useEffect(() => {
       if (invitationToken && !tokenValidated) {
-        console.log('Validating invitation token:', invitationToken);
-        validateInvitationToken(invitationToken)
+        validateInvitationToken({ provider_company_id: id, token: invitationToken })
           .then((response) => {
-            console.log('Invitation token validated successfully');
             if (response.valid) {
               setTokenValidated(true);
             } else {
-              console.log('Token is not valid, removing from URL');
               removeInvitationTokenFromUrl();
               setInvitationToken(null);
               setTokenValidated(false);
             }
           })
           .catch((error) => {
-            console.error('Invalid invitation token:', error);
-            console.log('Removing invalid token from URL');
             removeInvitationTokenFromUrl();
             setInvitationToken(null);
             setTokenValidated(false);
           });
       }
-    }, [invitationToken, tokenValidated]);
-    
+    }, [invitationToken]);
+
     useEffect(() => {
       setIsLoggedIn(!!token);
     }, [token]);
-
 
     const initialValues = {
       rating: 0,
@@ -108,10 +109,11 @@ const WriteAReviewModal = forwardRef<HTMLDivElement, ReviewProps>(
               email: verifiedUserInfo.email,
               rating: values.rating,
               content: values.content,
-              service_offering_id: values.service_offering_id ? parseInt(values.service_offering_id) : undefined
+              service_offering_id: values.service_offering_id
+                ? parseInt(values.service_offering_id)
+                : undefined
             };
             await submitTokenReview(tokenReviewData);
-            console.log('Review submitted successfully, removing token from URL');
             removeInvitationTokenFromUrl();
             setInvitationToken(null);
             formik.resetForm();
@@ -175,7 +177,7 @@ const WriteAReviewModal = forwardRef<HTMLDivElement, ReviewProps>(
         return;
       }
     };
-    
+
     const handleWriteReview = async () => {
       if (invitationToken) {
         // For invitation token flow, always need phone verification
@@ -184,7 +186,6 @@ const WriteAReviewModal = forwardRef<HTMLDivElement, ReviewProps>(
           if (isLoggedIn && currentUser?.phone) {
             setLoading(true);
             try {
-              console.log('Sending SMS to logged-in user:', currentUser.phone);
               await sendSmsVerification(invitationToken, currentUser.phone);
               setSmsSent(true);
               setShowPhoneVerification(true);
@@ -203,31 +204,28 @@ const WriteAReviewModal = forwardRef<HTMLDivElement, ReviewProps>(
         handleLogin();
       }
     };
-    
+
     const handleVerificationSuccess = (userInfo: VerifiedUserInfo) => {
       setVerifiedUserInfo(userInfo);
       setShowPhoneVerification(false);
     };
-    
+
     const canSubmitReview = () => {
       if (invitationToken) {
         return !!verifiedUserInfo;
       }
       return isLoggedIn;
     };
-    
+
     const shouldShowReviewForm = () => {
       // Only show review form if invitation token exists AND user is verified
       if (invitationToken) {
         const shouldShow = !!verifiedUserInfo;
-        console.log('shouldShowReviewForm - invitationToken exists, verifiedUserInfo:', !!verifiedUserInfo, 'shouldShow:', shouldShow);
         return shouldShow;
       }
-      // No invitation token = no review form, show authentication message
-      console.log('shouldShowReviewForm - no token, returning false');
       return false;
     };
-    
+
     const needsPhoneVerification = () => {
       if (!invitationToken) return false;
       if (isLoggedIn && currentUser?.phone) {
@@ -238,9 +236,6 @@ const WriteAReviewModal = forwardRef<HTMLDivElement, ReviewProps>(
       return !verifiedUserInfo;
     };
 
-    console.log('Modal render - invitationToken:', invitationToken, 'verifiedUserInfo:', !!verifiedUserInfo, 'isLoggedIn:', isLoggedIn);
-    console.log('URL search params:', window.location.search);
-    
     return (
       <>
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -259,7 +254,7 @@ const WriteAReviewModal = forwardRef<HTMLDivElement, ReviewProps>(
                       </p>
                     </div>
                   )}
-                  
+
                   <div className="my-4">
                     <div className="form-label mb-2">Please select a service:</div>
                     <CustomSelect
@@ -275,20 +270,17 @@ const WriteAReviewModal = forwardRef<HTMLDivElement, ReviewProps>(
                       </span>
                     )}
                   </div>
-                  
+
                   <div className="mb-4">
                     <div className="form-label mb-2">Please rate your experience:</div>
-                    <StarRating
-                      onRatingChange={handleRating}
-                      initialRating={0}
-                    />
+                    <StarRating onRatingChange={handleRating} initialRating={0} />
                     {formik.errors.rating && (
                       <span role="alert" className="text-danger text-xs mt-1">
                         {formik.errors.rating}
                       </span>
                     )}
                   </div>
-                  
+
                   <div className="form-label mb-2">Please tell us about your experience:</div>
                   <Textarea
                     placeholder="Write a review..."
@@ -298,7 +290,7 @@ const WriteAReviewModal = forwardRef<HTMLDivElement, ReviewProps>(
                       formik.setFieldValue('content', e.target.value)
                     }
                   />
-                  
+
                   <div className="flex justify-center mt-4">
                     <Button
                       type="submit"
@@ -336,18 +328,30 @@ const WriteAReviewModal = forwardRef<HTMLDivElement, ReviewProps>(
                 <div className="max-w-md mx-auto">
                   <div className="mb-6">
                     <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <svg
+                        className="w-8 h-8 text-blue-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
                       </svg>
                     </div>
                     <p className="text-gray-700 text-sm leading-relaxed mb-4">
-                      To ensure the authenticity and quality of our reviews, we only allow verified customers to leave feedback.
+                      To ensure the authenticity and quality of our reviews, we only allow verified
+                      customers to leave feedback.
                     </p>
                     <p className="text-gray-600 text-sm leading-relaxed">
-                      You can write a review after receiving a verification email from this provider for a service you've used.
+                      You can write a review after receiving a verification email from this provider
+                      for a service you've used.
                     </p>
                   </div>
-                  
+
                   <div className="bg-gray-50 rounded-lg p-4">
                     <h4 className="font-medium text-gray-900 mb-2">How to get verified:</h4>
                     <ol className="text-sm text-gray-600 text-left space-y-1">
@@ -361,7 +365,7 @@ const WriteAReviewModal = forwardRef<HTMLDivElement, ReviewProps>(
             )}
           </DialogContent>
         </Dialog>
-        
+
         <PhoneVerificationModal
           open={showPhoneVerification}
           onOpenChange={() => {

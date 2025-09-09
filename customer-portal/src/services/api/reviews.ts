@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { 
-  GET_REVIEWS_URL, 
+import {
+  GET_REVIEWS_URL,
   POST_REVIEW_URL,
   VALIDATE_INVITATION_TOKEN_URL,
   SEND_SMS_VERIFICATION_URL,
@@ -28,9 +28,9 @@ const postReview = async (data: any) => {
   }
 };
 
-const validateInvitationToken = async (token: string) => {
+const validateInvitationToken = async (data: any) => {
   try {
-    const response = await axios.post(VALIDATE_INVITATION_TOKEN_URL, { token });
+    const response = await axios.post(VALIDATE_INVITATION_TOKEN_URL, data);
     return response.data;
   } catch (err) {
     console.error('Error validating invitation token:', err);
@@ -68,9 +68,9 @@ const submitTokenReview = async (data: any) => {
   }
 };
 
-export { 
-  getReviews, 
-  postReview, 
+export {
+  getReviews,
+  postReview,
   validateInvitationToken,
   sendSmsVerification,
   verifySmsCode,

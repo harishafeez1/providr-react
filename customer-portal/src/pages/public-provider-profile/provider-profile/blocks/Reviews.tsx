@@ -14,7 +14,7 @@ const Reviews = ({ data }: any) => {
         <span className="ml-2 text-xl font-semibold">{data?.total_reviews} reviews</span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[550px] overflow-y-auto">
         {/* Review cards would go here */}
         {data?.reviews?.map((item: any) => (
           <div key={item.id} className="text-sm pb-6">
