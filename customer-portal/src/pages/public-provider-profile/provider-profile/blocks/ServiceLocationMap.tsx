@@ -29,23 +29,24 @@ const ServiceLocationMap: React.FC<ServiceLocationMapProps> = ({
     if (!addresses_collection || !Array.isArray(addresses_collection)) {
       return [];
     }
-    return addresses_collection.filter(location => 
-      location && 
-      typeof location === 'object' && 
-      !isNaN(Number(location.lat)) && 
-      !isNaN(Number(location.lng))
+    return addresses_collection.filter(
+      (location) =>
+        location &&
+        typeof location === 'object' &&
+        !isNaN(Number(location.lat)) &&
+        !isNaN(Number(location.lng))
     );
   }, [addresses_collection]);
 
   // Clean up existing markers and circle layers
   const clearMapElements = () => {
     // Remove markers
-    markersRef.current.forEach(marker => marker.remove());
+    markersRef.current.forEach((marker) => marker.remove());
     markersRef.current = [];
 
     // Remove circle layers and sources
     if (mapRef.current) {
-      circleLayersRef.current.forEach(layerId => {
+      circleLayersRef.current.forEach((layerId) => {
         if (mapRef.current!.getLayer(layerId)) {
           mapRef.current!.removeLayer(layerId);
         }
@@ -83,13 +84,14 @@ const ServiceLocationMap: React.FC<ServiceLocationMapProps> = ({
   const getLocationName = async (lat: number, lng: number, index: number) => {
     try {
       const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${accessToken}&types=place,locality,neighborhood`
+        `${import.meta.env.VITE_APP_API_URL}/mapbox/geocode?lat=${lat}&lng=${lng}`
       );
       const data = await response.json();
-      
+
       if (data.features && data.features.length > 0) {
-        const locationName = data.features[0].place_name || data.features[0].text || `Location ${index + 1}`;
-        setLocationNames(prev => ({ ...prev, [index]: locationName }));
+        const locationName =
+          data.features[0].place_name || data.features[0].text || `Location ${index + 1}`;
+        setLocationNames((prev) => ({ ...prev, [index]: locationName }));
         return locationName;
       }
     } catch (error) {
@@ -156,10 +158,10 @@ const ServiceLocationMap: React.FC<ServiceLocationMapProps> = ({
     validAddresses.forEach((location, index) => {
       // Defensive destructuring with type conversion
       if (!location || typeof location !== 'object') return;
-      
+
       const lat = Number(location.lat);
       const lng = Number(location.lng);
-      
+
       // Skip invalid coordinates
       if (isNaN(lat) || isNaN(lng)) {
         console.warn(`Invalid location data at index ${index}:`, location);
@@ -173,11 +175,21 @@ const ServiceLocationMap: React.FC<ServiceLocationMapProps> = ({
         .addTo(mapRef.current!);
 
       // Add popup with basic info first (will be updated with location name)
-      const radiusText = location.radius ? `<p class="text-xs text-gray-600">Radius: ${location.radius} km</p>` : '';
-      const popup = new mapboxgl.Popup({ offset: 35 })
-        .setHTML(`
-          <div class="p-2">
-            <h3 class="font-semibold text-sm">Service Location ${index + 1}</h3>
+      const radiusText = location.radius
+        ? `<p class="text-xs text-gray-600">Radius: ${location.radius} km</p>`
+        : '';
+      const popup = new mapboxgl.Popup({
+        offset: 35,
+        closeButton: false // Disable default close button to use custom one
+      }).setHTML(`
+          <div class="p-2 relative">
+            <button class="absolute top-2 right-2 w-4 h-4 rounded-full bg-primary hover:bg-purple-300 flex items-center justify-center text-white hover:text-purple-800 transition-colors duration-200 z-10 border-none outline-none" onclick="this.closest('.mapboxgl-popup').remove()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+            <h3 class="font-semibold text-sm pr-6">Service Location ${index + 1}</h3>
             <p class="text-xs text-gray-600">Lat: ${Number(lat).toFixed(6)}, Lng: ${Number(lng).toFixed(6)}</p>
             ${radiusText}
           </div>
@@ -202,11 +214,19 @@ const ServiceLocationMap: React.FC<ServiceLocationMapProps> = ({
       }
 
       // Async: Get location name and update popup
-      getLocationName(lat, lng, index).then(locationName => {
-        const radiusText = location.radius ? `<p class="text-xs text-gray-600">Radius: ${location.radius} km</p>` : '';
+      getLocationName(lat, lng, index).then((locationName) => {
+        const radiusText = location.radius
+          ? `<p class="text-xs text-gray-600">Radius: ${location.radius} km</p>`
+          : '';
         popup.setHTML(`
-          <div class="p-2">
-            <h3 class="font-semibold text-sm">${locationName}</h3>
+          <div class="p-2 relative">
+            <button class="absolute top-2 right-2 w-4 h-4 rounded-full bg-primary hover:bg-purple-300 flex items-center justify-center text-white hover:text-purple-800 transition-colors duration-200 z-10 border-none outline-none" onclick="this.closest('.mapboxgl-popup').remove()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+            <h3 class="font-semibold text-sm pr-6">${locationName}</h3>
             <p class="text-xs text-gray-600">Lat: ${Number(lat).toFixed(6)}, Lng: ${Number(lng).toFixed(6)}</p>
             ${radiusText}
           </div>
@@ -294,30 +314,42 @@ const ServiceLocationMap: React.FC<ServiceLocationMapProps> = ({
         style={{ height: '500px' }}
       />
 
-
       {/* Legend */}
-      <div className="rounded-lg p-3 border" style={{ backgroundColor: '#f8f4fd', borderColor: '#d4a6e8' }}>
-        <h4 className="text-sm font-semibold mb-2" style={{ color: '#762c85' }}>Map Legend:</h4>
+      <div
+        className="rounded-lg p-3 border"
+        style={{ backgroundColor: '#f8f4fd', borderColor: '#d4a6e8' }}
+      >
+        <h4 className="text-sm font-semibold mb-2" style={{ color: '#762c85' }}>
+          Map Legend:
+        </h4>
         <div className="flex flex-wrap gap-4 text-sm">
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full border-2 border-white" style={{ backgroundColor: '#762c85' }}></div>
+            <div
+              className="w-4 h-4 rounded-full border-2 border-white"
+              style={{ backgroundColor: '#762c85' }}
+            ></div>
             <span style={{ color: '#762c85' }}>Service Location</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full border-2" style={{ borderColor: '#762c85', backgroundColor: 'rgba(118, 44, 133, 0.1)' }}></div>
+            <div
+              className="w-4 h-4 rounded-full border-2"
+              style={{ borderColor: '#762c85', backgroundColor: 'rgba(118, 44, 133, 0.1)' }}
+            ></div>
             <span style={{ color: '#762c85' }}>Service Area</span>
           </div>
         </div>
-        
+
         {/* Location Names */}
         {Object.keys(locationNames).length > 0 && (
           <div className="mt-3 pt-3 border-t border-gray-200">
-            <h5 className="text-xs font-medium mb-2" style={{ color: '#762c85' }}>Locations:</h5>
+            <h5 className="text-xs font-medium mb-2" style={{ color: '#762c85' }}>
+              Locations:
+            </h5>
             <div className="space-y-1">
               {Object.entries(locationNames).map(([index, name]) => (
                 <div key={index} className="flex items-center gap-2 text-xs">
-                  <div 
-                    className="w-5 h-5 rounded-full border-2 border-white flex items-center justify-center text-white text-xs font-bold" 
+                  <div
+                    className="w-5 h-5 rounded-full border-2 border-white flex items-center justify-center text-white text-xs font-bold"
                     style={{ backgroundColor: '#762c85' }}
                   >
                     {parseInt(index) + 1}

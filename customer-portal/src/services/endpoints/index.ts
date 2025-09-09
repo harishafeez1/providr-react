@@ -33,7 +33,7 @@ export const GET_DIRECTORY_PROVIDER_URL = `${API_URL}/directory`;
 export const GET_ALL_SERVICES_PUBLIC_URL = `${API_URL}/get_services`;
 export const GET_PROVIDE_BY_SERVICE_ID_URL = `${API_URL}/get_providers_by_service_id`; //id
 export const GET_SETTINGS_URL = `${API_URL}/get_settings`; //id
-export const GET_SERVICE_PROVIDER_COUNT_URL = `${API_URL}/nearby_provider_count`; //id 
+export const GET_SERVICE_PROVIDER_COUNT_URL = `${API_URL}/nearby_provider_count`; //id
 
 export const GET_SERVICE_LOCALITIES_URL = `${API_URL}/localities`; //POSTCODE
 export const GET_NEARBY_PROVIDERS_URL = `${API_URL}/find_nearby_offerings`;
@@ -47,3 +47,5 @@ export const VALIDATE_INVITATION_TOKEN_URL = `${API_URL}/review-invitation/valid
 export const SEND_SMS_VERIFICATION_URL = `${API_URL}/review-invitation/send-sms-verification`;
 export const VERIFY_SMS_CODE_URL = `${API_URL}/review-invitation/verify-sms-code`;
 export const SUBMIT_TOKEN_REVIEW_URL = `${API_URL}/review-invitation/submit-review`;
+
+//MapBox Routes

@@ -94,14 +94,30 @@ const ProviderMap: React.FC<ProviderMapProps> = ({ premises = [] }) => {
         .setLngLat([lng, lat])
         .addTo(mapRef.current!);
 
-      // Create popup with premise info
-      const popup = new mapboxgl.Popup({ offset: 35 }).setHTML(`
-          <div class="p-4 max-w-xs">
-            <h3 class="font-semibold text-sm mb-3">${premise.name}</h3>
+      const phoneHTML = premise.phone
+        ? `<p class="text-xs text-gray-600">📞 ${premise.phone}</p>`
+        : '';
+
+      const emailHTML = premise.email
+        ? `<p class="text-xs text-gray-600">✉️ ${premise.email}</p>`
+        : '';
+      // Create popup with premise info and custom close button
+      const popup = new mapboxgl.Popup({
+        offset: 35,
+        closeButton: false // Disable default close button to use custom one
+      }).setHTML(`
+          <div class="p-4 max-w-xs relative">
+            <button class="absolute top-2 right-2 w-4 h-4 rounded-full bg-primary hover:bg-purple-300 flex items-center justify-center text-white hover:text-purple-800 transition-colors duration-200 z-10 border-none outline-none" onclick="this.closest('.mapboxgl-popup').remove()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+            <h3 class="font-semibold text-sm mb-3 pr-8">${premise.name}</h3>
             <p class="text-xs text-gray-600 mb-2">${premise.address_line_1 || ''}</p>
             <div class="space-y-1">
-              <p class="text-xs text-gray-600">📞 ${premise.phone}</p>
-              <p class="text-xs text-gray-600">✉️ ${premise.email}</p>
+               ${phoneHTML}
+              ${emailHTML}
             </div>
           </div>
         `);
