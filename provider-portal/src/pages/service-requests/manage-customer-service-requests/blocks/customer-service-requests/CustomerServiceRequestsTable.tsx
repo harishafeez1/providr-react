@@ -32,7 +32,7 @@ const DropdownCard2 = (handleInterestedRequest: any, row: any) => {
   const { isRTL } = useLanguage();
   return (
     <MenuSub className="menu-default" rootClassName="w-full max-w-[200px]">
-      {row.service_request_provider.length <= 0 && (
+      {row.service_request_provider?.[0]?.status === 'Open' && (
         <MenuItem
           onClick={() => handleInterestedRequest(row.id)}
           toggle="dropdown"
