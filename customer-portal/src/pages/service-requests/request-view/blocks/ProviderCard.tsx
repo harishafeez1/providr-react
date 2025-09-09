@@ -34,7 +34,7 @@ const ProviderCard = ({ data, comapnyId }: any) => {
     <Card className="group rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl bg-white h-full">
       <CardContent className="p-0">
         {/* Connection Status / Button */}
-        <div className="p-4 text-center">
+        {/* <div className="p-4 text-center">
           {comapnyId == null || comapnyId == '' ? (
             <Button onClick={handleProviderConnection} className="rounded-full" size="lg">
               Connect
@@ -54,7 +54,7 @@ const ProviderCard = ({ data, comapnyId }: any) => {
               </Badge>
             </div>
           ) : null}
-        </div>
+        </div> */}
 
         {/* Image Section */}
         <div className="relative p-4">
@@ -127,7 +127,7 @@ const ProviderCard = ({ data, comapnyId }: any) => {
           </div>
 
           {/* Contact Status */}
-          <div className="text-sm font-semibold mb-2">Provider Connection Status:</div>
+          {/* <div className="text-sm font-semibold mb-2">Provider Connection Status:</div>
           <div className="flex justify-center">
             {data?.pivot?.customer_contacted === 1 ? (
               <div className="flex items-center gap-2 rounded-full bg-green-50 border border-green-200 px-4 py-2 text-sm font-medium text-green-700">
@@ -143,7 +143,7 @@ const ProviderCard = ({ data, comapnyId }: any) => {
                 </div>
               )
             )}
-          </div>
+          </div> */}
         </div>
       </CardContent>
     </Card>

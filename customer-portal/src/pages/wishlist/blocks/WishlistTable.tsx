@@ -154,41 +154,43 @@ const WishlistTable = () => {
 
   const columns = useMemo<ColumnDef<IWishlistTableProps>[]>(
     () => [
-      {
-        accessorFn: (row: IDocumentsData) => row.id,
-        id: 'matchId',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            title="ID"
-            filter={<ColumnInputFilter column={column} />}
-            column={column}
-            icon={<i className="ki-filled ki-barcode text-lg"></i>}
-          />
-        ),
-        cell: ({ row }) => {
-          return (
-            <div className="flex items-center gap-4">
-              <div className="flex flex-col gap-0.5">
-                <Link
-                  to="#"
-                  className="text-2sm text-gray-700 font-normal hover:text-primary-active"
-                >
-                  {row.original.id}
-                </Link>
-              </div>
-            </div>
-          );
-        },
-        meta: {
-          className: 'min-w-[300px]',
-          cellClassName: 'text-gray-800 font-normal'
-        }
-      },
+      // {
+      //   accessorFn: (row: IDocumentsData) => row.id,
+      //   id: 'matchId',
+      //   header: ({ column }) => (
+      //     <DataGridColumnHeader
+      //       filterable={false}
+      //       title="ID"
+      //       filter={<ColumnInputFilter column={column} />}
+      //       column={column}
+      //       icon={<i className="ki-filled ki-barcode text-lg"></i>}
+      //     />
+      //   ),
+      //   cell: ({ row }) => {
+      //     return (
+      //       <div className="flex items-center gap-4">
+      //         <div className="flex flex-col gap-0.5">
+      //           <Link
+      //             to="#"
+      //             className="text-2sm text-gray-700 font-normal hover:text-primary-active"
+      //           >
+      //             {row.original.id}
+      //           </Link>
+      //         </div>
+      //       </div>
+      //     );
+      //   },
+      //   meta: {
+      //     className: 'min-w-[300px]',
+      //     cellClassName: 'text-gray-800 font-normal'
+      //   }
+      // },
       {
         accessorFn: (row) => row.provider_company_id,
         id: 'provider_company_id',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Provider"
             column={column}
             icon={<i className="ki-filled ki-user"></i>}
@@ -210,6 +212,7 @@ const WishlistTable = () => {
         id: 'provider_company.company_email',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Provider Email"
             column={column}
             icon={<i className="ki-filled ki-user"></i>}
@@ -231,6 +234,7 @@ const WishlistTable = () => {
         id: 'provider_company.company_phone',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Provider Phone"
             column={column}
             icon={<i className="ki-filled ki-user"></i>}
@@ -304,7 +308,7 @@ const WishlistTable = () => {
       <div className="card-header flex-wrap gap-2 border-b-0 px-5">
         <h3 className="card-title font-medium text-sm">Wishlist</h3>
 
-        <div className="flex flex-wrap gap-2 lg:gap-5">
+        {/* <div className="flex flex-wrap gap-2 lg:gap-5">
           <div className="flex">
             <label className="input input-sm">
               <KeenIcon icon="magnifier" />
@@ -316,7 +320,7 @@ const WishlistTable = () => {
               />
             </label>
           </div>
-        </div>
+        </div> */}
       </div>
     );
   };
