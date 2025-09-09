@@ -3,18 +3,40 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { getConnectedProvider, getSingleServiceRequests } from '@/services/api/service-requests';
+import { addFavouriteProvider } from '@/services/api/wishlist-favourite';
+import { useAuthContext } from '@/auth';
 import { Heart, MessageCircleMore, Phone, Star } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 const ProviderCard = ({ data, comapnyId }: any) => {
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { auth } = useAuthContext();
+  const [isFavorite, setIsFavorite] = useState(data.is_favourite || '');
   const truncateText = (htmlString: string, length: number) => {
     const text = new DOMParser().parseFromString(htmlString, 'text/html').body.textContent || '';
     return text.length > length ? text.substring(0, length) + '...' : text;
   };
   const { id } = useParams();
+
+  useEffect(() => {
+    if (data?.is_favourite) {
+      setIsFavorite(data.is_favourite);
+    }
+  }, [data?.is_favourite]);
+
+  const toggleFavorite = async () => {
+    if (!auth?.token) {
+      toast.error('Please log in to favourite this provider.', { position: 'top-right' });
+    } else {
+      try {
+        await addFavouriteProvider(data?.id, auth?.customer?.id);
+        setIsFavorite(!isFavorite);
+      } catch (error) {
+        toast.error('Failed to update favourite status', { position: 'top-right' });
+      }
+    }
+  };
 
   const handleProviderConnection = async () => {
     if (data?.pivot?.customer_contacted === 0) {
@@ -75,7 +97,8 @@ const ProviderCard = ({ data, comapnyId }: any) => {
             <button
               className="absolute right-3 top-3 rounded-full bg-white/20 backdrop-blur-sm p-2 transition-all duration-200 hover:bg-white/30 hover:scale-110"
               onClick={(e) => {
-                e.preventDefault(), setIsFavorite(!isFavorite);
+                e.preventDefault();
+                toggleFavorite();
               }}
             >
               <Heart
