@@ -205,7 +205,7 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
                   </div>
 
                   <div className="flex flex-col gap-1">
-                    <label className="form-label text-gray-900">Suburb</label>
+                    <label className="form-label text-gray-900">My Location</label>
                     <GooglePlacesAutocomplete
                       apiKey={import.meta.env.VITE_APP_GOOGLE_API_KEY}
                       onLoadFailed={(err) => {

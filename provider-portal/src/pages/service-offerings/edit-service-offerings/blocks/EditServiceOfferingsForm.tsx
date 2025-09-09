@@ -2,13 +2,7 @@ import { Formik, Form, Field } from 'formik';
 import React, { useState, useEffect } from 'react';
 import * as Yup from 'yup';
 
-import {
-  regions,
-  options,
-  options1,
-  languages,
-  services
-} from '../../add-service-offerings/blocks/data';
+import { options, options1, languages } from '../../add-service-offerings/blocks/data';
 import { CustomSelect } from '@/components/select';
 import { KeenIcon, ProgressBarLoader } from '@/components';
 import { useAuthContext } from '@/auth';
@@ -21,17 +15,14 @@ import {
 import EditMapboxLocationSelector from './EditMapboxLocationSelector';
 import { ProgressBar } from '@/pages/company-profile/add-company-profile/ProgressBar';
 import { useAppDispatch, useAppSelector } from '@/redux/hooks';
-import {
-  setServiceOfferingData,
-  resetServiceOffering
-} from '@/redux/slices/service-offering-slice';
+import { setServiceOfferingData } from '@/redux/slices/service-offering-slice';
 
 const EditServiceOfferingsForm = () => {
-  const { currentUser } = useAuthContext();
   const navigate = useNavigate();
   const { id } = useParams();
   const dispatch = useAppDispatch();
-  const { currentOffering, locations } = useAppSelector((state) => state.serviceOffering);
+  const { services } = useAppSelector((state) => state.services);
+  const { locations } = useAppSelector((state) => state.serviceOffering);
   const [offeringsData, setOfferingsData] = useState<any>(null);
 
   const [isLoading, setIsLoading] = useState(true);
@@ -119,7 +110,7 @@ const EditServiceOfferingsForm = () => {
 
     // Update Formik field
     setFieldValue('service_delivered_options', newValue);
-    
+
     // Update state
     setServicesSelected(allChecked ? [] : [...options]);
   };
@@ -211,7 +202,9 @@ const EditServiceOfferingsForm = () => {
                         checked={values.service_delivered_options.length === options.length}
                         onChange={() => handleCheckAllServiceDelivery(values, setFieldValue)}
                       />
-                      <span className="checkbox-label font-semibold">Check All Service Delivery Options</span>
+                      <span className="checkbox-label font-semibold">
+                        Check All Service Delivery Options
+                      </span>
                     </label>
                     {options.map((option: any, index: any) => (
                       <label

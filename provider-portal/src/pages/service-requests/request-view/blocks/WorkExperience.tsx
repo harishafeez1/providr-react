@@ -39,22 +39,26 @@ const WorkExperience = ({ data, onUpdate }: any) => {
       <div className="card-body">
         <div className="flex flex-col items-center gap-4 mt-4">
           <KeenIcon icon="profile-circle" className={clsx('text-[10vh] text-primary')} />{' '}
-          <button className="btn btn-outlined text-primary border-primary flex justify-center items-center">
-            Phone:
-            {showNumber
-              ? data?.phone
-              : data?.service_request_provider?.[0].customer_contacted !== 1
-                ? '**************'
-                : data?.phone}
-          </button>
-          <div className="btn btn-outlined text-primary border-primary flex justify-center items-center">
-            Email:
-            {showNumber
-              ? data?.email
-              : data?.service_request_provider?.[0].customer_contacted !== 1
-                ? '**************'
-                : data?.email}
-          </div>
+          {data?.phone && (
+            <button className="btn btn-outlined text-primary border-primary flex justify-center items-center">
+              Phone:
+              {showNumber
+                ? data?.phone
+                : data?.service_request_provider?.[0].customer_contacted !== 1
+                  ? '**************'
+                  : data?.phone}
+            </button>
+          )}
+          {data?.email && (
+            <div className="btn btn-outlined text-primary border-primary flex justify-center items-center">
+              Email:
+              {showNumber
+                ? data?.email
+                : data?.service_request_provider?.[0].customer_contacted !== 1
+                  ? '**************'
+                  : data?.email}
+            </div>
+          )}
           {(data?.service_request_provider?.[0].customer_contacted === 1 &&
             data?.direct_connect === 0) ||
           (data?.direct_connect === 1 && data?.status?.toLowerCase().trim() === 'completed') ? (
