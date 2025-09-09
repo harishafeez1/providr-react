@@ -1,5 +1,5 @@
-import { Formik, Form, Field, ErrorMessage } from 'formik';
-import React, { useState } from 'react';
+import { Formik, Form, Field, ErrorMessage, useFormikContext } from 'formik';
+import React, { useState, useRef, useEffect } from 'react';
 import { KeenIcon } from '@/components';
 import { Separator } from '@/components/ui/separator';
 import { CrudAvatarUpload } from '@/partials/crud';
@@ -132,9 +132,37 @@ const validationSchema = Yup.object({
   //   .max(5, 'Maximum 5 images allowed'),
 });
 
+const FocusError = ({
+  fieldRefs
+}: {
+  fieldRefs: React.MutableRefObject<{ [key: string]: HTMLElement | null }>;
+}) => {
+  const { errors, touched, isSubmitting, isValidating } = useFormikContext();
+
+  useEffect(() => {
+    const firstErrorKey = Object.keys(errors)[0];
+    if (firstErrorKey && Object.keys(touched).length > 0) {
+      if (firstErrorKey === 'description') {
+        // Special handling for Quill editor
+        const quillContainer = document.querySelector('.ql-editor');
+        if (quillContainer) {
+          (quillContainer as HTMLElement).focus();
+          quillContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      } else if (fieldRefs.current[firstErrorKey]) {
+        fieldRefs.current[firstErrorKey]?.focus();
+        fieldRefs.current[firstErrorKey]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }, [errors, touched, isSubmitting, isValidating, fieldRefs]);
+
+  return null; // doesn't render anything, just logic
+};
+
 const AddCompanyProfileForm = () => {
   const { currentUser, getUser, setCurrentCompany, setCurrentUser } = useAuthContext();
   const [loading, setLoading] = useState(false);
+  const fieldRefs = useRef<{ [key: string]: HTMLElement | null }>({});
 
   const handleAvatarChange = (
     image: IImageInputFile[],
@@ -249,6 +277,7 @@ const AddCompanyProfileForm = () => {
     >
       {({ setFieldValue, values, isSubmitting, errors, touched }) => (
         <>
+          <FocusError fieldRefs={fieldRefs} />
           <Form className="card p-4">
             <div className="grid gap-5">
               <ProgressBar className="my-6" />
@@ -285,6 +314,9 @@ const AddCompanyProfileForm = () => {
                     type="text"
                     placeholder="Enter your business name"
                     className={`input-field ${errors.name && touched.name ? 'border-red-500' : ''}`}
+                    innerRef={(ref: HTMLInputElement) => {
+                      fieldRefs.current['name'] = ref;
+                    }}
                   />
                   <ErrorMessage name="name" component="div" className="text-red-500 text-xs mt-1" />
                 </label>
@@ -312,6 +344,9 @@ const AddCompanyProfileForm = () => {
                     placeholder="00000000000"
                     maxLength={11}
                     className={`input-field ${errors.abn && touched.abn ? 'border-red-500' : ''}`}
+                    innerRef={(ref: HTMLInputElement) => {
+                      fieldRefs.current['abn'] = ref;
+                    }}
                   />
                   <ErrorMessage name="abn" component="div" className="text-red-500 text-xs mt-1" />
                 </label>
@@ -483,6 +518,9 @@ const AddCompanyProfileForm = () => {
                       type="text"
                       placeholder="Enter your phone number"
                       className={`input-field ${errors.company_phone && touched.company_phone ? 'border-red-500' : ''}`}
+                      innerRef={(ref: HTMLInputElement) => {
+                        fieldRefs.current['company_phone'] = ref;
+                      }}
                     />
                     <ErrorMessage
                       name="company_phone"
@@ -501,6 +539,9 @@ const AddCompanyProfileForm = () => {
                       type="email"
                       placeholder="Enter your email"
                       className={`input-field ${errors.company_email && touched.company_email ? 'border-red-500' : ''}`}
+                      innerRef={(ref: HTMLInputElement) => {
+                        fieldRefs.current['company_email'] = ref;
+                      }}
                     />
                     <ErrorMessage
                       name="company_email"
@@ -521,6 +562,9 @@ const AddCompanyProfileForm = () => {
                     type="url"
                     placeholder="Enter your website URL"
                     className={`input-field ${errors.company_website && touched.company_website ? 'border-red-500' : ''}`}
+                    innerRef={(ref: HTMLInputElement) => {
+                      fieldRefs.current['company_website'] = ref;
+                    }}
                   />
                   <ErrorMessage
                     name="company_website"
@@ -543,6 +587,9 @@ const AddCompanyProfileForm = () => {
                       type="text"
                       placeholder="https://www.facebook.com/your-company"
                       className={`input-field ${errors.facebook_url && touched.facebook_url ? 'border-red-500' : ''}`}
+                      innerRef={(ref: HTMLInputElement) => {
+                        fieldRefs.current['facebook_url'] = ref;
+                      }}
                     />
                     <ErrorMessage
                       name="facebook_url"
@@ -561,6 +608,9 @@ const AddCompanyProfileForm = () => {
                       type="text"
                       placeholder="https://www.linkedin.com/company/your-company"
                       className={`input-field ${errors.linkedin_url && touched.linkedin_url ? 'border-red-500' : ''}`}
+                      innerRef={(ref: HTMLInputElement) => {
+                        fieldRefs.current['linkedin_url'] = ref;
+                      }}
                     />
                     <ErrorMessage
                       name="linkedin_url"
@@ -582,6 +632,9 @@ const AddCompanyProfileForm = () => {
                       type="text"
                       placeholder="https://www.instagram.com/your-company"
                       className={`input-field ${errors.instagram_url && touched.instagram_url ? 'border-red-500' : ''}`}
+                      innerRef={(ref: HTMLInputElement) => {
+                        fieldRefs.current['instagram_url'] = ref;
+                      }}
                     />
                     <ErrorMessage
                       name="instagram_url"
@@ -600,6 +653,9 @@ const AddCompanyProfileForm = () => {
                       type="text"
                       placeholder="https://www.twitter.com/your-company"
                       className={`input-field ${errors.twitter_url && touched.twitter_url ? 'border-red-500' : ''}`}
+                      innerRef={(ref: HTMLInputElement) => {
+                        fieldRefs.current['twitter_url'] = ref;
+                      }}
                     />
                     <ErrorMessage
                       name="twitter_url"

@@ -37,7 +37,7 @@ const AddPremisesForm = () => {
     active: selectedActive,
     // @ts-ignore
     address_line_1: selectedPlace ? selectedPlace?.value?.description : '',
-    address_line_2: '',
+    // address_line_2: '',
     suburb: selectedSuburb ? selectedSuburb : '',
     state: selectedState ? selectedState : '',
     post_code: selectedPostCode ? selectedPostCode : '',
@@ -144,7 +144,7 @@ const AddPremisesForm = () => {
               <div className="flex items-baseline flex-wrap gap-2.5">
                 <label className="form-label max-w-70 gap-1">
                   <KeenIcon icon="geolocation" className="text-sm" />
-                  Address Line 1
+                  Address
                 </label>
                 <Field name="address_line_1">
                   {({ field }: any) => (
@@ -162,7 +162,7 @@ const AddPremisesForm = () => {
                   </span>
                 )}
               </div>
-              <div className="flex items-baseline flex-wrap gap-2.5">
+              {/* <div className="flex items-baseline flex-wrap gap-2.5">
                 <label className="form-label max-w-70 gap-1">
                   <KeenIcon icon="geolocation" className="text-sm" />
                   Address Line 2
@@ -181,7 +181,7 @@ const AddPremisesForm = () => {
                     {errors.address_line_2}
                   </span>
                 )}
-              </div>
+              </div> */}
               <div className="flex items-baseline flex-wrap gap-2.5">
                 <label className="form-label max-w-70 gap-1">
                   <KeenIcon icon="map" className="text-sm" />

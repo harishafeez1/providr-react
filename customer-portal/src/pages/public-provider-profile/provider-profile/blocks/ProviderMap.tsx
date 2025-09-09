@@ -98,7 +98,7 @@ const ProviderMap: React.FC<ProviderMapProps> = ({ premises = [] }) => {
       const popup = new mapboxgl.Popup({ offset: 35 }).setHTML(`
           <div class="p-4 max-w-xs">
             <h3 class="font-semibold text-sm mb-3">${premise.name}</h3>
-            <p class="text-xs text-gray-600 mb-2">${premise.suburb}, ${premise.state}</p>
+            <p class="text-xs text-gray-600 mb-2">${premise.address_line_1 || ''}</p>
             <div class="space-y-1">
               <p class="text-xs text-gray-600">📞 ${premise.phone}</p>
               <p class="text-xs text-gray-600">✉️ ${premise.email}</p>
@@ -261,18 +261,20 @@ const ProviderMap: React.FC<ProviderMapProps> = ({ premises = [] }) => {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h4 className="font-semibold text-sm text-gray-800 mb-1">{premise.name || ''}</h4>
-                  <p className="text-xs text-gray-600 mb-2">
-                    {premise.suburb || ''}, {premise.state || ''}
-                  </p>
+                  <p className="text-xs text-gray-600 mb-2">{premise.address_line_1 || ''}</p>
                   <div className="flex gap-6">
-                    <span className="text-xs text-gray-500 flex gap-3">
-                      <Phone size={16} />
-                      {premise.phone || ''}
-                    </span>
-                    <span className="text-xs text-gray-500 flex gap-3">
-                      <Mail size={16} />
-                      {premise.email || ''}
-                    </span>
+                    {premise.phone && (
+                      <span className="text-xs text-gray-500 flex gap-3">
+                        <Phone size={16} />
+                        {premise.phone || ''}
+                      </span>
+                    )}
+                    {premise.email && (
+                      <span className="text-xs text-gray-500 flex gap-3">
+                        <Mail size={16} />
+                        {premise.email || ''}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>

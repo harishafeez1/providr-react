@@ -95,6 +95,7 @@ export default function AirbnbWizard() {
         setFinishLoading(false);
         store.dispatch(setResetServiceState());
         setCurrentStep(0);
+        setAvailableProvidersCount(0);
       }
     }
   };
@@ -213,7 +214,7 @@ export default function AirbnbWizard() {
       <Container>
         <Card className="border-none shadow-lg">
           <CardHeader className="pb-0">
-            {/* <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center mb-6">
               <h1 className="text-xl font-semibold text-gray-900">Find Services</h1>
 
               <div className="flex items-center gap-6 ">
@@ -226,8 +227,8 @@ export default function AirbnbWizard() {
                   </div>
                 )}
               </div>
-            </div> */}
-            <div className="flex w-full justify-center items-center mb-8 relative">
+            </div>
+            {/* <div className="flex w-full justify-center items-center mb-8 relative">
               <div className="absolute top-0 -left-24 bg-primary h-14 w-[10%] rounded-s-2xl flex justify-center items-center [clip-path:polygon(70%_0%,95%_50%,70%_100%,0%_100%,0%_50%,0%_0%)]">
                 <Search size={26} color="white" className="" />
               </div>
@@ -250,7 +251,7 @@ export default function AirbnbWizard() {
               <div className="absolute top-0 -right-40 [clip-path:polygon(33%_0%,100%_0%,100%_100%,33%_100%,45%_50%)] bg-primary h-14 w-[20%] rounded-e-2xl flex justify-center items-center text-white">
                 Provider Found
               </div>
-            </div>
+            </div> */}
           </CardHeader>
           <CardContent>
             <div className="py-4">
