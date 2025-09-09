@@ -84,6 +84,7 @@ const ReviewsTable = () => {
         id: 'id',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Created"
             filter={<ColumnInputFilter column={column} />}
             column={column}
@@ -114,6 +115,7 @@ const ReviewsTable = () => {
         id: 'customer_id',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Author"
             column={column}
             icon={<i className="ki-filled ki-text"></i>}
@@ -122,7 +124,7 @@ const ReviewsTable = () => {
         cell: (info) => {
           return (
             <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.customer_id}
+              {`${info.row.original?.customer?.first_name ?? ''} ${info.row.original?.customer?.last_name ?? ''}`.trim()}
             </div>
           );
         },
@@ -135,6 +137,7 @@ const ReviewsTable = () => {
         id: 'rating',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Rating "
             column={column}
             icon={<i className="ki-filled ki-graph-3"></i>}
@@ -158,6 +161,7 @@ const ReviewsTable = () => {
         id: 'service_offering_id',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Reviewed Item"
             column={column}
             icon={<i className="ki-filled ki-archive-tick"></i>}
@@ -166,7 +170,7 @@ const ReviewsTable = () => {
         cell: (info) => {
           return (
             <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.service_offering_id}
+              {info.row.original?.service_offering?.service?.name || ''}
             </div>
           );
         },
@@ -174,32 +178,34 @@ const ReviewsTable = () => {
           headerClassName: 'min-w-[180px]'
         }
       },
-      {
-        accessorFn: (row) => row.reply,
-        id: 'reply',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            title="Responded"
-            column={column}
-            icon={<i className="ki-filled ki-message-text"></i>}
-          />
-        ),
-        cell: (info) => {
-          return (
-            <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.reply}
-            </div>
-          );
-        },
-        meta: {
-          headerClassName: 'min-w-[180px]'
-        }
-      },
+      // {
+      //   accessorFn: (row) => row.reply,
+      //   id: 'reply',
+      //   header: ({ column }) => (
+      //     <DataGridColumnHeader
+      //      filterable={false}
+      //       title="Responded"
+      //       column={column}
+      //       icon={<i className="ki-filled ki-message-text"></i>}
+      //     />
+      //   ),
+      //   cell: (info) => {
+      //     return (
+      //       <div className="flex items-center text-gray-800 font-normal gap-1.5">
+      //         {info.row.original.reply}
+      //       </div>
+      //     );
+      //   },
+      //   meta: {
+      //     headerClassName: 'min-w-[180px]'
+      //   }
+      // },
       {
         accessorFn: (row) => row.content,
         id: 'content',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Contents"
             column={column}
             icon={<i className="ki-filled ki-element-1"></i>}
@@ -237,7 +243,7 @@ const ReviewsTable = () => {
       <div className="card-header flex-wrap px-5 py-5 border-b-0">
         <h3 className="card-title">Reviews</h3>
 
-        <div className="flex flex-wrap items-center gap-2.5">
+        {/* <div className="flex flex-wrap items-center gap-2.5">
           <div className="flex gap-6">
             <div className="relative">
               <KeenIcon
@@ -253,7 +259,7 @@ const ReviewsTable = () => {
               />
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     );
   };

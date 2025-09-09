@@ -175,6 +175,7 @@ const CustomerServiceRequestsTable = () => {
         id: 'created_at',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Date Added"
             filter={<ColumnInputFilter column={column} />}
             column={column}
@@ -185,12 +186,9 @@ const CustomerServiceRequestsTable = () => {
           return (
             <div className="flex items-center gap-4">
               <div className="flex flex-col gap-0.5">
-                <Link
-                  to="#"
-                  className="text-2sm text-gray-700 font-normal hover:text-primary-active"
-                >
+                <div className="text-2sm text-gray-700 font-normal">
                   {row.original.created_at ? format(row.original.created_at, 'LLL dd, y') : '--'}
-                </Link>
+                </div>
               </div>
             </div>
           );
@@ -205,6 +203,7 @@ const CustomerServiceRequestsTable = () => {
         id: 'participantName',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Participant Name"
             column={column}
             icon={<i className="ki-filled ki-user"></i>}
@@ -226,6 +225,7 @@ const CustomerServiceRequestsTable = () => {
         id: 'status',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Request Status"
             column={column}
             icon={<i className="ki-filled ki-flag"></i>}
@@ -284,6 +284,7 @@ const CustomerServiceRequestsTable = () => {
         id: 'service',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Service"
             column={column}
             icon={<i className="ki-filled ki-courier text-lg"></i>}
@@ -305,6 +306,7 @@ const CustomerServiceRequestsTable = () => {
         id: 'address',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Location"
             column={column}
             icon={<i className="ki-filled ki-geolocation"></i>}
@@ -326,6 +328,7 @@ const CustomerServiceRequestsTable = () => {
         id: 'location',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="You Contacted"
             column={column}
             icon={<i className="ki-filled ki-phone"></i>}

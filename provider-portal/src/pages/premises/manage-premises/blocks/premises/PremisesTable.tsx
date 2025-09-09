@@ -161,6 +161,7 @@ const PremisesTable = () => {
         id: 'id',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Name"
             filter={<ColumnInputFilter column={column} />}
             column={column}
@@ -171,12 +172,7 @@ const PremisesTable = () => {
           return (
             <div className="flex items-center gap-4">
               <div className="flex flex-col gap-0.5">
-                <Link
-                  to="#"
-                  className="text-2sm text-gray-700 font-normal hover:text-primary-active"
-                >
-                  {row.original.name}
-                </Link>
+                <div className="text-2sm text-gray-700 font-normal">{row.original.name}</div>
               </div>
             </div>
           );
@@ -191,6 +187,7 @@ const PremisesTable = () => {
         id: 'address_line_1',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Address"
             column={column}
             icon={<i className="ki-filled ki-geolocation"></i>}
@@ -212,6 +209,7 @@ const PremisesTable = () => {
         id: 'status',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Active"
             column={column}
             icon={<i className="ki-filled ki-flag"></i>}
@@ -291,7 +289,7 @@ const PremisesTable = () => {
       <div className="card-header flex-wrap px-5 py-5 border-b-0">
         <h3 className="card-title">Premises</h3>
 
-        <div className="flex flex-wrap items-center gap-2.5">
+        {/* <div className="flex flex-wrap items-center gap-2.5">
           <div className="flex gap-6">
             <div className="relative">
               <KeenIcon
@@ -307,7 +305,7 @@ const PremisesTable = () => {
               />
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     );
   };

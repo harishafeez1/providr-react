@@ -192,6 +192,7 @@ const ServiceOfferingsTable = () => {
         id: 'service_id',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Service Offering"
             filter={<ColumnInputFilter column={column} />}
             column={column}
@@ -203,12 +204,9 @@ const ServiceOfferingsTable = () => {
           return (
             <div className="flex items-center gap-4">
               <div className="flex flex-col gap-0.5">
-                <Link
-                  to="#"
-                  className="text-2sm text-gray-700 font-normal hover:text-primary-active"
-                >
+                <div className="text-2sm text-gray-700 font-normal">
                   {row.original.service.name}
-                </Link>
+                </div>
               </div>
             </div>
           );
@@ -223,6 +221,7 @@ const ServiceOfferingsTable = () => {
         id: 'status',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Status"
             column={column}
             icon={<i className="ki-filled ki-check-circle"></i>}
@@ -250,6 +249,7 @@ const ServiceOfferingsTable = () => {
         id: 'created_at',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Added on"
             column={column}
             icon={<i className="ki-filled ki-time"></i>}
@@ -274,6 +274,7 @@ const ServiceOfferingsTable = () => {
         id: 'accessMethod',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Access Methods"
             column={column}
             icon={

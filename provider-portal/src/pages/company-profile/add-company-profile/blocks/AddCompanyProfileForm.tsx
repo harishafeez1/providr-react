@@ -138,33 +138,32 @@ const FocusError = ({
   fieldRefs: React.MutableRefObject<{ [key: string]: HTMLElement | null }>;
 }) => {
   const { errors, touched, isSubmitting, isValidating } = useFormikContext();
-  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
+  const [previousSubmittingState, setPreviousSubmittingState] = useState(false);
 
   useEffect(() => {
-    // Only focus on submit attempt
-    if (isSubmitting && !hasAttemptedSubmit) {
-      setHasAttemptedSubmit(true);
+    // Focus on first error when submitting changes from false to true (each submit attempt)
+    if (isSubmitting && !previousSubmittingState) {
       const firstErrorKey = Object.keys(errors)[0];
       if (firstErrorKey && Object.keys(touched).length > 0) {
-        if (firstErrorKey === 'description') {
-          // Special handling for Quill editor
-          const quillContainer = document.querySelector('.ql-editor');
-          if (quillContainer) {
-            (quillContainer as HTMLElement).focus();
-            quillContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => {
+          if (firstErrorKey === 'description') {
+            // Special handling for Quill editor
+            const quillContainer = document.querySelector('.ql-editor');
+            if (quillContainer) {
+              (quillContainer as HTMLElement).focus();
+              quillContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          } else if (fieldRefs.current[firstErrorKey]) {
+            fieldRefs.current[firstErrorKey]?.focus();
+            fieldRefs.current[firstErrorKey]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
-        } else if (fieldRefs.current[firstErrorKey]) {
-          fieldRefs.current[firstErrorKey]?.focus();
-          fieldRefs.current[firstErrorKey]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+        }, 100); // Small delay to ensure DOM is updated
       }
     }
     
-    // Reset when form is successfully submitted or no longer submitting
-    if (!isSubmitting && hasAttemptedSubmit && Object.keys(errors).length === 0) {
-      setHasAttemptedSubmit(false);
-    }
-  }, [errors, touched, isSubmitting, isValidating, fieldRefs, hasAttemptedSubmit]);
+    // Track previous submitting state
+    setPreviousSubmittingState(isSubmitting);
+  }, [errors, touched, isSubmitting, isValidating, fieldRefs, previousSubmittingState]);
 
   return null; // doesn't render anything, just logic
 };
