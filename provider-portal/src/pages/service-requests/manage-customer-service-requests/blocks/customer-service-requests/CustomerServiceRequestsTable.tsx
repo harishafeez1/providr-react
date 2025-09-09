@@ -32,7 +32,8 @@ const DropdownCard2 = (handleInterestedRequest: any, row: any) => {
   const { isRTL } = useLanguage();
   return (
     <MenuSub className="menu-default" rootClassName="w-full max-w-[200px]">
-      {row.service_request_provider?.[0]?.status === 'Open' && (
+      {(row.service_request_provider?.[0]?.status === 'Open' ||
+        !row.service_request_provider?.length) && (
         <MenuItem
           onClick={() => handleInterestedRequest(row.id)}
           toggle="dropdown"
@@ -42,7 +43,7 @@ const DropdownCard2 = (handleInterestedRequest: any, row: any) => {
               {
                 name: 'offset',
                 options: {
-                  offset: isRTL() ? [15, 0] : [-15, 0] // [skid, distance]
+                  offset: isRTL() ? [15, 0] : [-15, 0]
                 }
               }
             ]
@@ -56,6 +57,7 @@ const DropdownCard2 = (handleInterestedRequest: any, row: any) => {
           </MenuLink>
         </MenuItem>
       )}
+
       <MenuItem
         toggle="dropdown"
         dropdownProps={{
