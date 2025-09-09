@@ -138,23 +138,33 @@ const FocusError = ({
   fieldRefs: React.MutableRefObject<{ [key: string]: HTMLElement | null }>;
 }) => {
   const { errors, touched, isSubmitting, isValidating } = useFormikContext();
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
 
   useEffect(() => {
-    const firstErrorKey = Object.keys(errors)[0];
-    if (firstErrorKey && Object.keys(touched).length > 0) {
-      if (firstErrorKey === 'description') {
-        // Special handling for Quill editor
-        const quillContainer = document.querySelector('.ql-editor');
-        if (quillContainer) {
-          (quillContainer as HTMLElement).focus();
-          quillContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Only focus on submit attempt
+    if (isSubmitting && !hasAttemptedSubmit) {
+      setHasAttemptedSubmit(true);
+      const firstErrorKey = Object.keys(errors)[0];
+      if (firstErrorKey && Object.keys(touched).length > 0) {
+        if (firstErrorKey === 'description') {
+          // Special handling for Quill editor
+          const quillContainer = document.querySelector('.ql-editor');
+          if (quillContainer) {
+            (quillContainer as HTMLElement).focus();
+            quillContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        } else if (fieldRefs.current[firstErrorKey]) {
+          fieldRefs.current[firstErrorKey]?.focus();
+          fieldRefs.current[firstErrorKey]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-      } else if (fieldRefs.current[firstErrorKey]) {
-        fieldRefs.current[firstErrorKey]?.focus();
-        fieldRefs.current[firstErrorKey]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }
-  }, [errors, touched, isSubmitting, isValidating, fieldRefs]);
+    
+    // Reset when form is successfully submitted or no longer submitting
+    if (!isSubmitting && hasAttemptedSubmit && Object.keys(errors).length === 0) {
+      setHasAttemptedSubmit(false);
+    }
+  }, [errors, touched, isSubmitting, isValidating, fieldRefs, hasAttemptedSubmit]);
 
   return null; // doesn't render anything, just logic
 };
