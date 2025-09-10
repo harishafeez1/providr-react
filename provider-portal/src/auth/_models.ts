@@ -27,6 +27,29 @@ export interface ProviderCompany {
   updated_at: Date;
 }
 
+export interface SubscriptionPlan {
+  id: number;
+  stripe_product_id: string;
+  stripe_price_id: string;
+  name: string;
+  description: string | null;
+  amount: number;
+  formatted_amount: string;
+  currency: string; // e.g. 'aud'
+  interval: string; // e.g. 'month'
+  interval_count: number;
+  interval_display: string; // e.g. 'month'
+  can_subscribe: boolean;
+  subscription_exists: boolean;
+  billing_portal_url?: string;
+}
+
+export interface SubscriptionDetails {
+  has_subscription: boolean;
+  stripe_customer_id: string | null;
+  subscription: any | null; // replace `any` with your subscription type if you have one
+}
+
 export interface UserModel {
   language?: TLanguageCode;
   password?: string;
@@ -49,4 +72,6 @@ export interface UserModel {
   permission_billing?: number;
   permission_intake?: number;
   provider_company?: ProviderCompany;
+  subscription_details?: SubscriptionDetails;
+  subscription_plan?: SubscriptionPlan;
 }
