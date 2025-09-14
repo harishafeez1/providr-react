@@ -275,19 +275,19 @@ const ProviderMap: React.FC<ProviderMapProps> = ({ premises = [] }) => {
                 >
                   {index + 1}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-semibold text-sm text-gray-800 mb-1">{premise.name || ''}</h4>
-                  <p className="text-xs text-gray-600 mb-2">{premise.address_line_1 || ''}</p>
+                <div className="flex-1 min-w-0 text-black">
+                  <h4 className="font-semibold text-sm  mb-1">{premise.name || ''}</h4>
+                  <p className="text-xs  mb-2">{premise.address_line_1 || ''}</p>
                   <div className="flex flex-wrap gap-6">
                     {premise.phone && (
-                      <span className="text-xs text-gray-500 flex gap-3">
-                        <Phone size={16} />
+                      <span className="text-xs  flex gap-3">
+                        <Phone size={16} className="text-primary" />
                         {premise.phone || ''}
                       </span>
                     )}
                     {premise.email && (
-                      <span className="text-xs text-gray-500 flex gap-3">
-                        <Mail size={16} />
+                      <span className="text-xs flex gap-3">
+                        <Mail size={16} className="text-primary" />
                         {premise.email || ''}
                       </span>
                     )}
