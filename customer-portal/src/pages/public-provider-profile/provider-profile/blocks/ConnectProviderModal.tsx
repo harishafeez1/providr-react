@@ -345,6 +345,7 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
                           value="email"
                           checked={formik.values.preferred_method === 'email'}
                           onChange={formik.handleChange}
+                          className="accent-[#752C84]"
                         />
                         Email
                       </label>
@@ -355,6 +356,7 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
                           value="phone"
                           checked={formik.values.preferred_method === 'phone'}
                           onChange={formik.handleChange}
+                          className="accent-[#752C84]"
                         />
                         Phone
                       </label>
