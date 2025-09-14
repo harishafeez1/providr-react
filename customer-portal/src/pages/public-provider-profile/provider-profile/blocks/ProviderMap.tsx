@@ -57,7 +57,7 @@ const ProviderMap: React.FC<ProviderMapProps> = ({ premises = [] }) => {
         cursor: pointer;
         transform: translateZ(0);
         position: relative;
-        z-index: 1000;
+        z-index: ${1000 + index};
       ">${index + 1}</div>
     `;
     return markerElement;
