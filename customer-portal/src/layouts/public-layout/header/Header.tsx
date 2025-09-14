@@ -44,7 +44,6 @@ const Header = () => {
 
   const { transformedServicesList } = useAppSelector((state) => state.services);
 
-  const { service_id } = useAppSelector((state) => state.directory);
   const isSearchLoading = useAppSelector((state) => state.directoryListing.pagination.loading);
 
   useEffect(() => {
@@ -56,8 +55,6 @@ const Header = () => {
   }, []);
 
   const handleLocationChange = async (address: any) => {
-    console.log('handleLocationChange called with:', address);
-
     const location: {
       latitude?: string;
       longitude?: string;
@@ -96,8 +93,6 @@ const Header = () => {
       )?.long_name;
 
       location.zip_code = postalCode;
-
-      console.log('Final Location:', location);
       store.dispatch(setLocation(location.suburb || ''));
 
       // Set the defaultAddress so the GooglePlacesAutocomplete shows the selected value
@@ -112,13 +107,6 @@ const Header = () => {
       setHeaderCurrentLocation(null); // Clear coordinates state
       store.dispatch(setCurrentLocation(null)); // Clear Redux coordinates completely
     }
-  };
-
-  const allFilters = useAppSelector((state) => state.directory);
-  const filtersToSend = {
-    service_id: allFilters.service_id,
-    location: allFilters.location,
-    page: 1
   };
 
   // State to store current location coordinates
@@ -146,8 +134,6 @@ const Header = () => {
 
     // Add location if available - check both local state and Redux state
     const reduxCurrentLocation = store.getState().directory.currentLocation;
-    console.log('Search function - headerCurrentLocation:', headerCurrentLocation);
-    console.log('Search function - reduxCurrentLocation:', reduxCurrentLocation);
 
     if (headerCurrentLocation && reduxCurrentLocation) {
       data.latitude = headerCurrentLocation.latitude;
@@ -162,8 +148,6 @@ const Header = () => {
     ) {
       data.service_id = headerServiceId.toString();
     }
-
-    console.log('Final data being sent to API:', data);
 
     try {
       // Set loading state
@@ -245,39 +229,6 @@ const Header = () => {
     }
   };
 
-  const handleFilters = async () => {
-    if (!locationCheck.pathname.includes('directory')) {
-      sessionStorage.setItem('fromService', 'true');
-      navigate('/directory');
-      return;
-    }
-    store.dispatch(setLoading(true));
-    const res = await postDirectoryFilters(filtersToSend);
-    if (res.directories?.data && res.directories.data.length > 0) {
-      store.dispatch(setIsSearchedFromHeader(true));
-      const selectedService = transformedServicesList.find((opt) => opt.value === service_id);
-      store.dispatch(setChangeSearchedServiceName(selectedService?.label || ''));
-      if (res.directories.current_page === 1) {
-        store.dispatch(setAllProviders(res.directories.data));
-      } else {
-        store.dispatch(appendProviders(res.directories.data));
-      }
-
-      store.dispatch(
-        setPagination({
-          currentPage: res.directories.current_page,
-          lastPage: res.directories.last_page
-        })
-      );
-    } else {
-      store.dispatch(setIsSearchedFromHeader(true));
-      const selectedService = transformedServicesList.find((opt) => opt.value === service_id);
-      store.dispatch(setChangeSearchedServiceName(selectedService?.label || ''));
-      store.dispatch(setAllProviders([]));
-    }
-    store.dispatch(setLoading(false));
-  };
-
   const handleMobileSearch = async () => {
     await handleNewFilters();
     setIsMobileSearchOpen(false);
@@ -304,17 +255,9 @@ const Header = () => {
       ((typeof headerServiceId === 'string' && headerServiceId.trim() !== '') ||
         (typeof headerServiceId === 'number' && headerServiceId > 0));
 
-    console.log('Button enable check - defaultAddress:', defaultAddress);
-    console.log('Button enable check - headerCurrentLocation:', headerCurrentLocation);
-    console.log('Button enable check - hasLocation:', hasLocation);
-    console.log('Button enable check - hasService:', hasService);
-    console.log('Button enable check - headerServiceId:', headerServiceId);
-    console.log('Button enable check - isSearchLoading:', isSearchLoading);
-
     // Enable search if either location OR service has a value (not both required)
     // Button should only be disabled when BOTH are empty
     const enabled = (hasLocation || hasService) && !isSearchLoading;
-    console.log('Button enable check - final enabled:', enabled);
 
     return enabled;
   }, [defaultAddress, headerCurrentLocation, headerServiceId, isSearchLoading]);
@@ -483,6 +426,23 @@ const Header = () => {
                                   '&:hover': {
                                     borderColor: '#762c85'
                                   }
+                                }),
+                                option: (provided, state) => ({
+                                  ...provided,
+                                  backgroundColor: state.isSelected
+                                    ? '#752C84'
+                                    : state.isFocused
+                                      ? '#faf5ff'
+                                      : 'transparent',
+                                  color: state.isSelected
+                                    ? '#ffffff'
+                                    : state.isFocused
+                                      ? '#752C84'
+                                      : '#111827',
+                                  '&:hover': {
+                                    backgroundColor: state.isSelected ? '#752C84' : '#faf5ff',
+                                    color: state.isSelected ? '#ffffff' : '#752C84'
+                                  }
                                 })
                               },
                               onChange: handleLocationChange,
@@ -533,6 +493,23 @@ const Header = () => {
                                 ...provided,
                                 maxHeight: '200px',
                                 overflowY: 'auto'
+                              }),
+                              option: (provided, state) => ({
+                                ...provided,
+                                backgroundColor: state.isSelected
+                                  ? '#752C84'
+                                  : state.isFocused
+                                    ? '#faf5ff'
+                                    : 'transparent',
+                                color: state.isSelected
+                                  ? '#ffffff'
+                                  : state.isFocused
+                                    ? '#752C84'
+                                    : '#111827',
+                                '&:hover': {
+                                  backgroundColor: state.isSelected ? '#752C84' : '#faf5ff',
+                                  color: state.isSelected ? '#ffffff' : '#752C84'
+                                }
                               })
                             }}
                           />
@@ -637,8 +614,20 @@ const Header = () => {
                         }),
                         option: (provided, state) => ({
                           ...provided,
-                          color: state.isFocused ? '#fff' : '#000', // Change text color on hover
-                          backgroundColor: state.isFocused ? '#4a90e2' : 'transparent'
+                          backgroundColor: state.isSelected
+                            ? '#752C84'
+                            : state.isFocused
+                              ? '#faf5ff'
+                              : 'transparent',
+                          color: state.isSelected
+                            ? '#ffffff'
+                            : state.isFocused
+                              ? '#752C84'
+                              : '#111827',
+                          '&:hover': {
+                            backgroundColor: state.isSelected ? '#752C84' : '#faf5ff',
+                            color: state.isSelected ? '#ffffff' : '#752C84'
+                          }
                         }),
                         clearIndicator: (provided) => ({
                           ...provided,
@@ -713,8 +702,16 @@ const Header = () => {
                     }),
                     option: (provided, state) => ({
                       ...provided,
-                      color: state.isFocused ? '#fff' : '#000', // Change text color on hover
-                      backgroundColor: state.isFocused ? '#4a90e2' : 'transparent'
+                      backgroundColor: state.isSelected
+                        ? '#752C84'
+                        : state.isFocused
+                          ? '#faf5ff'
+                          : 'transparent',
+                      color: state.isSelected ? '#ffffff' : state.isFocused ? '#752C84' : '#111827',
+                      '&:hover': {
+                        backgroundColor: state.isSelected ? '#752C84' : '#faf5ff',
+                        color: state.isSelected ? '#ffffff' : '#752C84'
+                      }
                     }),
                     clearIndicator: (provided) => ({
                       ...provided,
