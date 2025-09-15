@@ -42,12 +42,32 @@ export interface SubscriptionPlan {
   can_subscribe: boolean;
   subscription_exists: boolean;
   billing_portal_url?: string;
+  trial_enabled?: boolean;
+  trial_period_days?: number;
+  trial_description?: string | null;
+  can_start_trial?: boolean;
+  trial_requires_payment_method?: boolean | null;
+}
+
+export interface Subscription {
+  id: number;
+  stripe_subscription_id: string;
+  status: string; // e.g., 'trialing', 'active', 'canceled'
+  current_period_start: string;
+  current_period_end: string;
+  trial_start: string | null;
+  trial_end: string | null;
+  canceled_at: string | null;
+  ended_at: string | null;
+  plan_name: string;
+  plan_amount: string;
+  plan_interval: string;
 }
 
 export interface SubscriptionDetails {
   has_subscription: boolean;
   stripe_customer_id: string | null;
-  subscription: any | null; // replace `any` with your subscription type if you have one
+  subscription: Subscription | null;
 }
 
 export interface UserModel {

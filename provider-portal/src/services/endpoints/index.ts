@@ -62,6 +62,7 @@ export const GET_INVITE_CUSTOMER_REVIEW_URL = `${API_URL}/provider-review/send-i
 
 // Stripe
 export const GET_STRIPE_CREATE_SESSION_URL = `${API_URL}/stripe/create-checkout-session`;
+export const POST_STRIPE_CREATE_TRIAL_SESSION_URL = `${API_URL}/stripe/create-trial-session`;
 export const POST_STRIPE_BILLING_PORTAL_URL = `${API_URL}/stripe/create-billing-portal-session`;
 export const GET_STRIPE_SUBSCRIPTION_STATUS_URL = `${API_URL}/stripe/subscription-status`;
 export const POST_STRIPE_CANCEL_SUBSCRIPTION_URL = `${API_URL}/stripe/cancel-subscription`;

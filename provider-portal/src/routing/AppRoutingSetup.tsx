@@ -110,14 +110,6 @@ const AppRoutingSetup = (): ReactElement => {
             }
           />
           <Route
-            path="/invoices"
-            element={
-              <PermissionWrapper requiredPermissions={['admin', 'billing']}>
-                <InvoicesPage />
-              </PermissionWrapper>
-            }
-          />
-          <Route
             path="/billing"
             element={
               <PermissionWrapper requiredPermissions={['admin', 'billing']}>
@@ -183,6 +175,19 @@ const AppRoutingSetup = (): ReactElement => {
                 requiredPermissions={['admin', 'editor', 'intake', 'review', 'billing']}
               >
                 <AccountSettingsPlainPage />
+              </PermissionWrapper>
+            }
+          />
+        </Route>
+
+
+        {/* Invoices page should be accessible even without subscription for trial-ended users */}
+        <Route element={<Demo1Layout />}>
+          <Route
+            path="/invoices"
+            element={
+              <PermissionWrapper requiredPermissions={['admin', 'billing']}>
+                <InvoicesPage />
               </PermissionWrapper>
             }
           />

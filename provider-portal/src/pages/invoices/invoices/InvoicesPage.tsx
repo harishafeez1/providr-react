@@ -2,8 +2,11 @@ import { Fragment, useState } from 'react';
 import { Container } from '@/components/container';
 import { Toolbar, ToolbarHeading } from '@/partials/toolbar';
 import { Alert } from '@/components';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { createCheckoutSession } from '@/services/api/stripe';
 import { useAuthContext } from '@/auth';
+import { format } from 'date-fns';
 
 const InvoicesPage = () => {
   const { currentUser } = useAuthContext();
@@ -56,12 +59,14 @@ const InvoicesPage = () => {
             </ToolbarHeading>
           </Toolbar>
 
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-lg font-medium text-gray-900 mb-2">
-              No Subscription Plan Available
-            </h2>
-            <p className="text-gray-600">Please contact support to set up a subscription plan.</p>
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>No Subscription Plan Available</CardTitle>
+              <CardDescription>
+                Please contact support to set up a subscription plan.
+              </CardDescription>
+            </CardHeader>
+          </Card>
         </Container>
       </Fragment>
     );
@@ -80,41 +85,61 @@ const InvoicesPage = () => {
           {error && <Alert>{error}</Alert>}
           {success && <Alert>{success}</Alert>}
 
-          <div className="bg-white shadow rounded-lg overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-lg font-medium text-gray-900">{subscriptionPlan.name}</h2>
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                {subscriptionDetails?.subscription?.status === 'trialing'
+                  ? 'Trial Plan'
+                  : subscriptionPlan.name}
+              </CardTitle>
               {subscriptionPlan.description && (
-                <p className="text-sm text-gray-600 mt-1">{subscriptionPlan.description}</p>
+                <CardDescription>{subscriptionPlan.description}</CardDescription>
               )}
-            </div>
+            </CardHeader>
 
-            <div className="px-6 py-4">
+            <CardContent>
               <div className="flex items-baseline">
                 <span className="text-3xl font-bold text-gray-900">
-                  {subscriptionPlan.formatted_amount}
+                  {subscriptionDetails?.subscription?.status === 'trialing'
+                    ? '$0.00'
+                    : subscriptionPlan.formatted_amount}
                 </span>
                 <span className="text-gray-500 ml-2">per {subscriptionPlan.interval_display}</span>
               </div>
 
-              <div className="mt-6 space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Currency:</span>
-                  <span className="text-gray-900 uppercase">{subscriptionPlan.currency}</span>
+              {/* Only show detailed pricing info for non-trial users */}
+              {subscriptionDetails?.subscription?.status !== 'trialing' && (
+                <div className="mt-6 space-y-3">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Currency:</span>
+                    <span className="text-gray-900 uppercase">{subscriptionPlan.currency}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Billing Interval:</span>
+                    <span className="text-gray-900">
+                      Every {subscriptionPlan.interval_count} {subscriptionPlan.interval_display}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Billing Interval:</span>
-                  <span className="text-gray-900">
-                    Every {subscriptionPlan.interval_count} {subscriptionPlan.interval_display}
-                  </span>
-                </div>
-              </div>
+              )}
 
               {subscriptionDetails?.has_subscription ? (
                 <div className="mt-6 space-y-4">
-                  <div className="flex items-center p-4 bg-green-50 rounded-md">
+                  {/* Subscription Status */}
+                  <div
+                    className={`flex items-center p-4 rounded-md ${
+                      subscriptionDetails.subscription?.status === 'trialing'
+                        ? 'bg-blue-50'
+                        : 'bg-green-50'
+                    }`}
+                  >
                     <div className="flex-shrink-0">
                       <svg
-                        className="h-5 w-5 text-green-400"
+                        className={`h-5 w-5 ${
+                          subscriptionDetails.subscription?.status === 'trialing'
+                            ? 'text-blue-400'
+                            : 'text-green-400'
+                        }`}
                         viewBox="0 0 20 20"
                         fill="currentColor"
                       >
@@ -126,31 +151,128 @@ const InvoicesPage = () => {
                       </svg>
                     </div>
                     <div className="ml-3">
-                      <h3 className="text-sm font-medium text-green-800">Active Subscription</h3>
-                      <p className="text-sm text-green-700 mt-1">
-                        You have an active subscription to this plan.
+                      <h3
+                        className={`text-sm font-medium ${
+                          subscriptionDetails.subscription?.status === 'trialing'
+                            ? 'text-blue-800'
+                            : 'text-green-800'
+                        }`}
+                      >
+                        {subscriptionDetails.subscription?.status === 'trialing'
+                          ? 'Trial Active'
+                          : 'Active Subscription'}
+                      </h3>
+                      <p
+                        className={`text-sm mt-1 ${
+                          subscriptionDetails.subscription?.status === 'trialing'
+                            ? 'text-blue-700'
+                            : 'text-green-700'
+                        }`}
+                      >
+                        {subscriptionDetails.subscription?.status === 'trialing'
+                          ? `Your trial ends on ${subscriptionDetails.subscription.trial_end ? format(new Date(subscriptionDetails.subscription.trial_end), 'PPP') : 'N/A'}`
+                          : 'You have an active subscription to this plan.'}
                       </p>
                     </div>
                   </div>
-                  
-                  {subscriptionPlan.billing_portal_url && (
-                    <button
-                      onClick={() => window.open(subscriptionPlan.billing_portal_url, '_blank')}
-                      className="w-full flex justify-center py-3 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >
-                      Manage Billing
-                    </button>
+
+                  {/* Subscription Details */}
+                  {subscriptionDetails.subscription && (
+                    <div className="bg-gray-50 p-4 rounded-md">
+                      <h4 className="text-sm font-medium text-gray-900 mb-3">
+                        Subscription Details
+                      </h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Status:</span>
+                          <span className="text-gray-900 capitalize">
+                            {subscriptionDetails.subscription.status}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Plan:</span>
+                          <span className="text-gray-900">
+                            {subscriptionDetails.subscription.status === 'trialing'
+                              ? 'Trial Plan'
+                              : subscriptionDetails.subscription.plan_name}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Amount:</span>
+                          <span className="text-gray-900">
+                            {subscriptionDetails.subscription.status === 'trialing'
+                              ? '$0.00'
+                              : subscriptionDetails.subscription.plan_amount.replace('AU', '')}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">
+                            {subscriptionDetails.subscription.status === 'trialing'
+                              ? 'Trial Period:'
+                              : 'Current Period:'}
+                          </span>
+                          <span className="text-gray-900">
+                            {format(
+                              new Date(subscriptionDetails.subscription.current_period_start),
+                              'MMM dd, yyyy'
+                            )}{' '}
+                            -{' '}
+                            {format(
+                              new Date(subscriptionDetails.subscription.current_period_end),
+                              'MMM dd, yyyy'
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   )}
+
+                  {/* Action Buttons */}
+                  <div className="space-y-3">
+                    {/* Upgrade Button for Trial Users */}
+                    {subscriptionDetails.subscription?.status === 'trialing' && (
+                      <div className="space-y-2">
+                        <div className="text-center">
+                          <p className="text-sm text-gray-600 mb-1">Upgrade for seamless access</p>
+                          <p className="text-lg font-semibold text-gray-900">
+                            {subscriptionPlan.formatted_amount.replace('AU', '')} per{' '}
+                            {subscriptionPlan.interval_display}
+                          </p>
+                        </div>
+                        <Button
+                          onClick={handleSubscriptionCheckout}
+                          disabled={loading}
+                          className="w-full"
+                          size="lg"
+                        >
+                          {loading ? 'Processing...' : 'Upgrade to Full Plan'}
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* Billing Portal Button */}
+                    {subscriptionPlan.billing_portal_url && (
+                      <Button
+                        onClick={() => window.open(subscriptionPlan.billing_portal_url, '_blank')}
+                        variant="outline"
+                        className="w-full"
+                        size="lg"
+                      >
+                        Manage Billing
+                      </Button>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <div className="mt-6">
-                  <button
+                  <Button
                     onClick={handleSubscriptionCheckout}
                     disabled={loading || !subscriptionPlan.can_subscribe}
-                    className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full"
+                    size="lg"
                   >
                     {loading ? 'Processing...' : 'Subscribe Now'}
-                  </button>
+                  </Button>
 
                   {!subscriptionPlan.can_subscribe && (
                     <p className="text-sm text-gray-500 text-center mt-2">
@@ -159,8 +281,8 @@ const InvoicesPage = () => {
                   )}
                 </div>
               )}
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </Container>
     </Fragment>

@@ -1,6 +1,7 @@
 import axios from 'axios';
 import {
   GET_STRIPE_CREATE_SESSION_URL,
+  POST_STRIPE_CREATE_TRIAL_SESSION_URL,
   POST_STRIPE_BILLING_PORTAL_URL,
   GET_STRIPE_SUBSCRIPTION_STATUS_URL,
   POST_STRIPE_CANCEL_SUBSCRIPTION_URL,
@@ -8,6 +9,15 @@ import {
 } from '../endpoints';
 
 interface CreateCheckoutSessionData {
+  product_id: string;
+  price_id: string;
+  success_url: string;
+  cancel_url: string;
+  provider_company_id: number;
+  user_id: number;
+}
+
+interface CreateTrialSessionData {
   product_id: string;
   price_id: string;
   success_url: string;
@@ -43,6 +53,16 @@ const createCheckoutSession = async (data: CreateCheckoutSessionData) => {
     return response.data;
   } catch (err) {
     console.error('Error creating checkout session:', err);
+    throw err;
+  }
+};
+
+const createTrialSession = async (data: CreateTrialSessionData) => {
+  try {
+    const response = await axios.post(POST_STRIPE_CREATE_TRIAL_SESSION_URL, data);
+    return response.data;
+  } catch (err) {
+    console.error('Error creating trial session:', err);
     throw err;
   }
 };
@@ -89,6 +109,7 @@ const reactivateSubscription = async (data: ReactivateSubscriptionData) => {
 
 export {
   createCheckoutSession,
+  createTrialSession,
   createBillingPortalSession,
   getSubscriptionStatus,
   cancelSubscription,

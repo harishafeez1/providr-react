@@ -80,6 +80,22 @@ const SidebarMenu = () => {
   };
 
   const filterMenuItems = (items: TMenuConfig): TMenuConfig => {
+    // Check if user's trial has ended and they have no active subscription
+    const trialEnded = currentUser?.subscription_details &&
+                      !currentUser.subscription_details.has_subscription &&
+                      currentUser.subscription_plan?.subscription_exists;
+
+    // If trial has ended, only show invoices menu item
+    if (trialEnded) {
+      return items.filter((item) => {
+        if (item.heading) {
+          return true; // Always show headings
+        }
+        // Only show invoices page for trial-ended users
+        return item.path === '/invoices';
+      });
+    }
+
     return items.filter((item) => {
       if (item.heading || item.disabled || item.isButton) {
         return true; // Always show headings, disabled items, and buttons
