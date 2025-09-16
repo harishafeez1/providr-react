@@ -155,12 +155,15 @@ const FocusError = ({
             }
           } else if (fieldRefs.current[firstErrorKey]) {
             fieldRefs.current[firstErrorKey]?.focus();
-            fieldRefs.current[firstErrorKey]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            fieldRefs.current[firstErrorKey]?.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center'
+            });
           }
         }, 100); // Small delay to ensure DOM is updated
       }
     }
-    
+
     // Track previous submitting state
     setPreviousSubmittingState(isSubmitting);
   }, [errors, touched, isSubmitting, isValidating, fieldRefs, previousSubmittingState]);
@@ -300,11 +303,9 @@ const AddCompanyProfileForm = () => {
                     Upload your business logo
                   </label>
                   <span className="text-2sm font-medium text-gray-600">
-                    150x150px JPEG, PNG Image
+                    150x150px JPEG, PNG Image, Maximum size: 5 MB
                   </span>
-                  <p className="text-xs text-destructive">
-                    * Image size should not be more than 5MB
-                  </p>
+
                   <ErrorMessage
                     name="business_logo"
                     component="div"
