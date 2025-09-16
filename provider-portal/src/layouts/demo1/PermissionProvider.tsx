@@ -21,12 +21,25 @@ const PermissionWrapper: React.FC<PermissionWrapperProps> = ({
   const subscriptionPlan = currentUser?.subscription_plan;
   const subscriptionStatus = subscriptionDetails?.subscription?.status;
 
-  const hadSubscriptionBefore = subscriptionPlan?.subscription_exists === false;
-  const isCancelled = (subscriptionStatus === 'canceled' || subscriptionStatus === 'cancelled') ||
-                      (hadSubscriptionBefore && !subscriptionDetails?.has_subscription);
+  // Define subscription statuses that should restrict access
+  const problematicStatuses = [
+    'incomplete',
+    'incomplete_expired',
+    'past_due',
+    'canceled',
+    'cancelled', // Handle both spellings
+    'unpaid',
+    'paused'
+  ];
 
-  // If subscription is cancelled, always show the restricted view with subscription modal
-  if (isCancelled) {
+  // Check if subscription is in a problematic state
+  const hasProblematicStatus = subscriptionStatus && problematicStatuses.includes(subscriptionStatus);
+  const hadSubscriptionBefore = subscriptionPlan?.subscription_exists === false;
+  const isSubscriptionProblematic = hasProblematicStatus ||
+                                   (hadSubscriptionBefore && !subscriptionDetails?.has_subscription);
+
+  // If subscription has issues, always show the restricted view with subscription modal
+  if (isSubscriptionProblematic) {
     return <SubscriptionRestrictedView />;
   }
 
