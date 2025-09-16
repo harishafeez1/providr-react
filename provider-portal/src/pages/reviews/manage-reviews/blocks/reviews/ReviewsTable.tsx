@@ -10,6 +10,7 @@ import { IReviewsData } from './';
 import { useAuthContext } from '@/auth';
 import { getAllReviews } from '@/services/api/reviews';
 import { format } from 'date-fns';
+import { CommonRating } from '@/partials/common';
 
 interface IColumnFilterProps<TData, TValue> {
   column: Column<TData, TValue>;
@@ -145,10 +146,10 @@ const ReviewsTable = () => {
         ),
         cell: (info) => {
           return (
-            <span
-              className={`badge badge-${info.row.original.rating ? 'success' : 'danger'} shrink-0 badge-outline rounded-[30px]`}
-            >
-              {info.row.original.rating}
+            <span>
+              {info.row.original.rating && (
+                <CommonRating rating={info.row.original.rating as number} />
+              )}
             </span>
           );
         },

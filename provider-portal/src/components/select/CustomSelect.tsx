@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import React from 'react';
 import Select, {
   Props as ReactSelectProps,
   GroupBase,
@@ -15,14 +16,14 @@ interface GenericSelectProps<Option, IsMulti extends boolean = false>
   onChange: (value: IsMulti extends true ? MultiValue<Option> : SingleValue<Option>) => void;
 }
 
-const CustomSelect = <Option, IsMulti extends boolean = false>({
+const CustomSelect = React.forwardRef(<Option, IsMulti extends boolean = false>({
   options,
   onChange,
   className,
   value,
   isMulti,
   ...rest
-}: GenericSelectProps<Option, IsMulti>) => {
+}: GenericSelectProps<Option, IsMulti>, ref: React.Ref<any>) => {
   const defaultValue = (value: any) => {
     return options ? options.find((option: any) => option.value === value) : '';
   };
@@ -34,6 +35,7 @@ const CustomSelect = <Option, IsMulti extends boolean = false>({
 
   return (
     <Select<Option, IsMulti, GroupBase<Option>>
+      ref={ref}
       className={cn('w-full text-[13px] font-medium', className)}
       styles={{
         control: (provided, state) => ({
@@ -105,6 +107,6 @@ const CustomSelect = <Option, IsMulti extends boolean = false>({
       {...rest}
     />
   );
-};
+});
 
 export { CustomSelect };

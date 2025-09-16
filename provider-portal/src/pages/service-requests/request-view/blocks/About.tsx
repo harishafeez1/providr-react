@@ -12,12 +12,12 @@ const About = ({ data }: any) => {
       status: 'Name',
       info: data?.first_name || ''
     },
-    { status: 'Last Name:', info: data?.last_name || '' },
+    // { status: 'Last Name:', info: data?.last_name || '' },
     { status: 'Gender:', info: data?.gender || '' },
     { status: 'Address:', info: data?.address || '' },
     // { status: 'City:', info: data?.city || '' },
     // { status: 'State:', info: data?.state || '' },
-    { status: 'Postcode:', info: data?.zip_code || '' },
+    // { status: 'Postcode:', info: data?.zip_code || '' },
     {
       status: 'Age Range:',
       info: Array.isArray(data?.age_group_options)

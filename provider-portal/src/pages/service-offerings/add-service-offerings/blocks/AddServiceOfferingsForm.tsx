@@ -1,5 +1,5 @@
-import { Formik, Form, Field } from 'formik';
-import React, { useState, useEffect } from 'react';
+import { Formik, Form, Field, useFormikContext } from 'formik';
+import React, { useState, useEffect, useRef } from 'react';
 import * as Yup from 'yup';
 
 import { regions, options, options1, languages } from './data';
@@ -17,6 +17,66 @@ import MapboxLocationSelector from './MapboxLocationSelector';
 import { ProgressBar } from '@/pages/company-profile/add-company-profile/ProgressBar';
 import { resetServiceOffering } from '@/redux/slices/service-offering-slice';
 
+const FocusError = ({
+  fieldRefs
+}: {
+  fieldRefs: React.MutableRefObject<{ [key: string]: HTMLElement | null }>;
+}) => {
+  const { errors, touched, isSubmitting, isValidating } = useFormikContext();
+  const [previousSubmittingState, setPreviousSubmittingState] = useState(false);
+
+  useEffect(() => {
+    // Focus on first error when submitting changes from false to true (each submit attempt)
+    if (isSubmitting && !previousSubmittingState) {
+      const firstErrorKey = Object.keys(errors)[0];
+      console.log('Focus Debug - First error key:', firstErrorKey);
+      console.log('Focus Debug - All errors:', errors);
+      console.log('Focus Debug - Field refs:', fieldRefs.current);
+      console.log('Focus Debug - Touched fields:', touched);
+
+      if (firstErrorKey && Object.keys(touched).length > 0) {
+        setTimeout(() => {
+          const targetElement = fieldRefs.current[firstErrorKey];
+          console.log('Focus Debug - Target element for', firstErrorKey, ':', targetElement);
+
+          if (targetElement) {
+            // Handle react-select components
+            if (targetElement.focus && typeof targetElement.focus === 'function') {
+              targetElement.focus();
+              console.log('Focus Debug - Called focus() on react-select element');
+            }
+            // Handle regular input elements
+            else if (targetElement.tagName && ['INPUT', 'TEXTAREA', 'SELECT'].includes(targetElement.tagName)) {
+              (targetElement as HTMLElement).focus();
+              console.log('Focus Debug - Called focus() on input element');
+            }
+            // For div containers (like checkbox groups), find the first focusable element
+            else if (targetElement.querySelector) {
+              const focusableChild = targetElement.querySelector('input, select, textarea, button, [tabindex]:not([tabindex="-1"])');
+              if (focusableChild && typeof (focusableChild as HTMLElement).focus === 'function') {
+                (focusableChild as HTMLElement).focus();
+                console.log('Focus Debug - Focused on child element:', focusableChild);
+              }
+            }
+
+            // Scroll the element into view regardless of focus success
+            if (targetElement.scrollIntoView) {
+              targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          } else {
+            console.log('Focus Debug - No target element found for', firstErrorKey);
+          }
+        }, 100); // Small delay to ensure DOM is updated
+      }
+    }
+
+    // Track previous submitting state
+    setPreviousSubmittingState(isSubmitting);
+  }, [errors, touched, isSubmitting, isValidating, fieldRefs, previousSubmittingState]);
+
+  return null; // doesn't render anything, just logic
+};
+
 const AddServiceOfferingsForm = () => {
   const { currentUser } = useAuthContext();
   const { services } = useAppSelector((state) => state.services);
@@ -27,15 +87,15 @@ const AddServiceOfferingsForm = () => {
   const [loading, setLoading] = useState(false);
   const [servicesSelected, setServicesSelected] = useState<any>([]);
   const [ageGroups, setAgeGroups] = useState<number[]>([]);
+  const fieldRefs = useRef<{ [key: string]: HTMLElement | null }>({});
 
   const serviceOfferingSchema = Yup.object().shape({
     service_id: Yup.string().required('Service is required'),
     description: Yup.string().required('description is required'),
     language_options: Yup.array().of(Yup.string()).min(1, 'At least one language is required'),
     age_group_options: Yup.array().of(Yup.string()).min(1, 'At least one age group is required'),
-    service_delivered_options: Yup.array().of(Yup.string()).min(1, 'Service delivered are required')
-    // address_options: Yup.array().of(Yup.string()).min(1, 'Addresses is required'),
-    // service_available_options: Yup.array().of(Yup.string()).min(1, 'Regions are required')
+    service_delivered_options: Yup.array().of(Yup.string()).min(1, 'Service delivered are required'),
+    service_available_options: Yup.array().min(1, 'At least one service area is required')
   });
 
   const initialValues = {
@@ -99,8 +159,9 @@ const AddServiceOfferingsForm = () => {
       >
         {({ setFieldValue, values, isSubmitting, touched, errors }) => (
           // console.log('==========', values),
-
-          <Form className="card p-4">
+          <>
+            <FocusError fieldRefs={fieldRefs} />
+            <Form className="card p-4">
             <div className="grid gap-5">
               <div className="flex items-baseline flex-wrap gap-2.5">
                 <label className="form-label max-w-70 gap-1">
@@ -142,6 +203,11 @@ const AddServiceOfferingsForm = () => {
                       onChange={(option: any) => {
                         setFieldValue('service_id', option.value);
                       }}
+                      ref={(ref: any) => {
+                        console.log('Setting service_id ref:', ref);
+                        fieldRefs.current['service_id'] = ref;
+                        console.log('Stored service_id ref:', fieldRefs.current['service_id']);
+                      }}
                     />
                   )}
                 </Field>
@@ -164,6 +230,9 @@ const AddServiceOfferingsForm = () => {
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                       setFieldValue('description', e.target.value);
                     }}
+                    innerRef={(ref: HTMLInputElement) => {
+                      fieldRefs.current['description'] = ref;
+                    }}
                   />
                 </label>
                 {touched.description && errors.description && (
@@ -177,7 +246,10 @@ const AddServiceOfferingsForm = () => {
                   <KeenIcon icon="pointers" className="text-sm" />
                   How is this service delivered?
                 </label>
-                <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]">
+                <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]"
+                     ref={(ref: HTMLDivElement) => {
+                       fieldRefs.current['service_delivered_options'] = ref;
+                     }}>
                   <div className="grid grid-cols-2 gap-4">
                     <label className="checkbox-group flex items-center gap-2 cursor-pointer col-span-2 mb-2 pb-2 border-b border-gray-200">
                       <input
@@ -239,7 +311,10 @@ const AddServiceOfferingsForm = () => {
                     (Selections will be reviewed by the Review Manager during vetting)
                   </span>
                 </label>
-                <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]">
+                <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]"
+                     ref={(ref: HTMLDivElement) => {
+                       fieldRefs.current['age_group_options'] = ref;
+                     }}>
                   <div className="grid grid-cols-2 gap-4">
                     <label className="checkbox-group flex items-center gap-2 cursor-pointer col-span-2 mb-2 pb-2 border-b border-gray-200">
                       <input
@@ -310,6 +385,11 @@ const AddServiceOfferingsForm = () => {
                           option.map((lang: any) => lang.value)
                         );
                       }}
+                      ref={(ref: any) => {
+                        console.log('Setting language_options ref:', ref);
+                        fieldRefs.current['language_options'] = ref;
+                        console.log('Stored language_options ref:', fieldRefs.current['language_options']);
+                      }}
                     />
                   )}
                 </Field>
@@ -328,12 +408,12 @@ const AddServiceOfferingsForm = () => {
                 <div className="block w-full shadow-none outline-none font-medium leading-[1] bg-[var(--tw-light-active)] rounded-[0.375rem] h-auto px-[0.75rem] py-4 border border-[var(--tw-gray-300)] text-[var(--tw-gray-700)]">
                   <MapboxLocationSelector accessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN} />
                 </div>
+                {touched.service_available_options && errors.service_available_options && (
+                  <span role="alert" className="text-danger text-xs mt-1">
+                    {errors.service_available_options}
+                  </span>
+                )}
               </div>
-              {/* {touched.service_available_options && errors.service_available_options && (
-                <span role="alert" className="text-danger text-xs mt-1">
-                  {errors.service_available_options}
-                </span>
-              )} */}
               <div className="flex justify-end">
                 <button
                   type="submit"
@@ -344,7 +424,8 @@ const AddServiceOfferingsForm = () => {
                 </button>
               </div>
             </div>
-          </Form>
+            </Form>
+          </>
         )}
       </Formik>
     </>

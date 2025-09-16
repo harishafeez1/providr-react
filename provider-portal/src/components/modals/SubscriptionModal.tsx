@@ -32,9 +32,12 @@ const SubscriptionModal = ({ isOpen }: SubscriptionModalProps) => {
 
   // Check if subscription needs attention
   const hasProblematicStatus = subscriptionStatus && problematicStatuses.includes(subscriptionStatus);
-  const hadSubscriptionBefore = subscriptionPlan?.subscription_exists === false;
-  const needsReactivation = hasProblematicStatus ||
-                           (hadSubscriptionBefore && !subscriptionDetails?.has_subscription);
+
+  // Only show reactivation for users who actually had a subscription before
+  // subscription_exists: true means they currently have or had a subscription
+  // subscription_exists: false + has_subscription: false = first time user
+  const hadSubscriptionBefore = subscriptionPlan?.subscription_exists === true && !subscriptionDetails?.has_subscription;
+  const needsReactivation = hasProblematicStatus || hadSubscriptionBefore;
 
   // For messaging, distinguish between different types of issues
   const isCancelled = subscriptionStatus === 'canceled' || subscriptionStatus === 'cancelled';

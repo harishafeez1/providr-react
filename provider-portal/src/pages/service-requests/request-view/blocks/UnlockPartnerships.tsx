@@ -8,7 +8,7 @@ interface IAboutTables extends Array<IAboutTable> {}
 
 const UnlockPartnerships = ({ data }: any) => {
   const tables: IAboutTables = [
-    { status: 'Match ID:', info: data.id },
+    // { status: 'Match ID:', info: data.id },
     // { status: 'Updated By:', info: 'Amsterdam' },
     { status: 'Created:', info: data.created_at ? format(data.created_at, 'LLL dd, y') : '' }
   ];

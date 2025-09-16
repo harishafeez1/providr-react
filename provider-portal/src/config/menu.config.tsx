@@ -58,12 +58,12 @@ export const MENU_SIDEBAR: TMenuConfig = [
     path: '/users',
     permission: ['admin']
   },
-  {
-    title: 'Billing',
-    icon: 'two-credit-cart',
-    path: '/billing',
-    permission: ['admin', 'billing']
-  },
+  // {
+  //   title: 'Billing',
+  //   icon: 'two-credit-cart',
+  //   path: '/billing',
+  //   permission: ['admin', 'billing']
+  // },
   {
     title: 'Invoices',
     icon: 'cheque',

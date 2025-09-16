@@ -4,11 +4,11 @@ import { CustomerServiceRequestsTable } from './blocks';
 const CustomerServiceRequestsTableContent = () => {
   const menuConfig = [
     {
-      title: 'Connected Requests',
+      title: 'Direct Requests',
       path: '/service-request/my-service-request'
     },
     {
-      title: 'Customer Service Requests',
+      title: 'Open requests',
       path: '/service-request/customer-service-request'
     }
   ];

@@ -173,34 +173,6 @@ const CustomerServiceRequestsTable = () => {
   const columns = useMemo<ColumnDef<ICustomerServiceRequestsData>[]>(
     () => [
       {
-        accessorFn: (row: ICustomerServiceRequestsData) => row.created_at,
-        id: 'created_at',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            filterable={false}
-            title="Date Added"
-            filter={<ColumnInputFilter column={column} />}
-            column={column}
-            icon={<i className="ki-filled ki-barcode text-lg"></i>}
-          />
-        ),
-        cell: ({ row }) => {
-          return (
-            <div className="flex items-center gap-4">
-              <div className="flex flex-col gap-0.5">
-                <div className="text-2sm text-gray-700 font-normal">
-                  {row.original.created_at ? format(row.original.created_at, 'LLL dd, y') : '--'}
-                </div>
-              </div>
-            </div>
-          );
-        },
-        meta: {
-          className: 'min-w-[300px]',
-          cellClassName: 'text-gray-800 font-normal'
-        }
-      },
-      {
         accessorFn: (row) => row.customer_id,
         id: 'participantName',
         header: ({ column }) => (
@@ -215,6 +187,51 @@ const CustomerServiceRequestsTable = () => {
           return (
             <div className="flex items-center text-gray-800 font-normal gap-1.5">
               {`${info.row.original?.first_name || ''} ${info.row.original?.last_name || ''}`}
+            </div>
+          );
+        },
+        meta: {
+          headerClassName: 'min-w-[180px]'
+        }
+      },
+
+      {
+        accessorFn: (row) => row.service_id,
+        id: 'service',
+        header: ({ column }) => (
+          <DataGridColumnHeader
+            filterable={false}
+            title="Service"
+            column={column}
+            icon={<i className="ki-filled ki-courier text-lg"></i>}
+          />
+        ),
+        cell: (info) => {
+          return (
+            <div className="flex items-center text-gray-800 font-normal gap-1.5">
+              {info.row.original.service.name}
+            </div>
+          );
+        },
+        meta: {
+          headerClassName: 'min-w-[180px]'
+        }
+      },
+      {
+        accessorFn: (row) => row.address,
+        id: 'address',
+        header: ({ column }) => (
+          <DataGridColumnHeader
+            filterable={false}
+            title="Location"
+            column={column}
+            icon={<i className="ki-filled ki-geolocation"></i>}
+          />
+        ),
+        cell: (info) => {
+          return (
+            <div className="flex items-center text-gray-800 font-normal gap-1.5">
+              {info.row.original.address}
             </div>
           );
         },
@@ -263,7 +280,6 @@ const CustomerServiceRequestsTable = () => {
                 badgeClass = 'secondary';
             }
           }
-
           return (
             <span
               className={`badge badge-${badgeClass} 
@@ -275,50 +291,6 @@ const CustomerServiceRequestsTable = () => {
               ></span>
               {displayStatus}
             </span>
-          );
-        },
-        meta: {
-          headerClassName: 'min-w-[180px]'
-        }
-      },
-      {
-        accessorFn: (row) => row.service_id,
-        id: 'service',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            filterable={false}
-            title="Service"
-            column={column}
-            icon={<i className="ki-filled ki-courier text-lg"></i>}
-          />
-        ),
-        cell: (info) => {
-          return (
-            <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.service.name}
-            </div>
-          );
-        },
-        meta: {
-          headerClassName: 'min-w-[180px]'
-        }
-      },
-      {
-        accessorFn: (row) => row.address,
-        id: 'address',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            filterable={false}
-            title="Location"
-            column={column}
-            icon={<i className="ki-filled ki-geolocation"></i>}
-          />
-        ),
-        cell: (info) => {
-          return (
-            <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.address}
-            </div>
           );
         },
         meta: {
@@ -386,6 +358,34 @@ const CustomerServiceRequestsTable = () => {
         meta: {
           headerClassName: 'w-[60px]'
         }
+      },
+      {
+        accessorFn: (row: ICustomerServiceRequestsData) => row.created_at,
+        id: 'created_at',
+        header: ({ column }) => (
+          <DataGridColumnHeader
+            filterable={false}
+            title="Date Added"
+            filter={<ColumnInputFilter column={column} />}
+            column={column}
+            icon={<i className="ki-filled ki-barcode text-lg"></i>}
+          />
+        ),
+        cell: ({ row }) => {
+          return (
+            <div className="flex items-center gap-4">
+              <div className="flex flex-col gap-0.5">
+                <div className="text-2sm text-gray-700 font-normal">
+                  {row.original.created_at ? format(row.original.created_at, 'LLL dd, y') : '--'}
+                </div>
+              </div>
+            </div>
+          );
+        },
+        meta: {
+          className: 'min-w-[300px]',
+          cellClassName: 'text-gray-800 font-normal'
+        }
       }
     ],
     [isRTL]
@@ -409,7 +409,7 @@ const CustomerServiceRequestsTable = () => {
 
     return (
       <div className="card-header flex-wrap gap-2 border-b-0 px-5">
-        <h3 className="card-title font-medium text-sm">Customer Service Requests</h3>
+        <h3 className="card-title font-medium text-sm">Open Requests</h3>
 
         {/* <div className="flex flex-wrap gap-2 lg:gap-5">
           <div className="flex">

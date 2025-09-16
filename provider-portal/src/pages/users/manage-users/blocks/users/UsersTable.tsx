@@ -202,6 +202,7 @@ const UsersTable = () => {
         id: 'id',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Username"
             filter={<ColumnInputFilter column={column} />}
             column={column}
@@ -232,6 +233,7 @@ const UsersTable = () => {
         id: 'email',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Email"
             column={column}
             icon={<i className="ki-filled ki-sms"></i>}
@@ -253,6 +255,7 @@ const UsersTable = () => {
         id: 'admin',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Roles"
             column={column}
             icon={<i className="ki-filled ki-people"></i>}
@@ -286,6 +289,7 @@ const UsersTable = () => {
         id: 'actioned',
         header: ({ column }) => (
           <DataGridColumnHeader
+            filterable={false}
             title="Status"
             column={column}
             icon={<i className="ki-filled ki-flag"></i>}
@@ -399,7 +403,7 @@ const UsersTable = () => {
       <div className="card-header flex-wrap px-5 py-5 border-b-0">
         <h3 className="card-title">Users</h3>
 
-        <div className="flex flex-wrap items-center gap-2.5">
+        {/* <div className="flex flex-wrap items-center gap-2.5">
           <div className="flex gap-6">
             <div className="relative">
               <KeenIcon
@@ -415,7 +419,7 @@ const UsersTable = () => {
               />
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     );
   };

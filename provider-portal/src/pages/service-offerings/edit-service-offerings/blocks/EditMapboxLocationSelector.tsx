@@ -27,6 +27,7 @@ const EditMapboxLocationSelector: React.FC<EditMapboxLocationSelectorProps> = ({
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
 
   const [locations, setLocations] = useState<ServiceLocation[]>([]);
+  const [hasLoadedFromRedux, setHasLoadedFromRedux] = useState(false);
 
   // Search functionality state
   const [searchQuery, setSearchQuery] = useState('');
@@ -915,23 +916,25 @@ const EditMapboxLocationSelector: React.FC<EditMapboxLocationSelectorProps> = ({
     }, 500);
   };
 
-  // Update Redux when locations change (but not when initially empty)
+  // Update Redux when locations change
   useEffect(() => {
-    // Only update Redux if we have actual locations, don't clear it with empty array
-    if (locations.length > 0) {
-      const formattedLocations = locations.map(location => ({
-        lat: location.lat,
-        lng: location.lng,
-        radius_km: location.radius
-      }));
-      dispatch(setServiceLocations(formattedLocations));
-    }
-  }, [locations, dispatch]);
+    // Only update Redux after we've loaded from Redux initially
+    // This prevents overwriting good Redux data with empty arrays on component mount
+    if (!hasLoadedFromRedux) return;
+
+    const formattedLocations = locations.map(location => ({
+      lat: location.lat,
+      lng: location.lng,
+      radius_km: location.radius
+    }));
+
+    dispatch(setServiceLocations(formattedLocations));
+  }, [locations, dispatch, hasLoadedFromRedux]);
 
   // Initialize locations from Redux when editing - THIS IS THE KEY EDIT FUNCTIONALITY
   useEffect(() => {
-    // Initialize when we have redux data, no current locations, and map is ready
-    if (reduxLocations.length > 0 && locations.length === 0 && mapRef.current) {
+    // Initialize when we have redux data, no current locations, map is ready, AND we haven't loaded yet
+    if (reduxLocations.length > 0 && locations.length === 0 && mapRef.current && !hasLoadedFromRedux) {
       const initializeEditingLocations = async () => {
         const formattedLocations: ServiceLocation[] = [];
         
@@ -964,7 +967,8 @@ const EditMapboxLocationSelector: React.FC<EditMapboxLocationSelectorProps> = ({
         }
         
         setLocations(formattedLocations);
-        
+        setHasLoadedFromRedux(true);
+
         // Add markers and circles to the map for existing locations
         if (mapRef.current) {
           formattedLocations.forEach((location, index) => {
@@ -997,13 +1001,13 @@ const EditMapboxLocationSelector: React.FC<EditMapboxLocationSelectorProps> = ({
       
       initializeEditingLocations();
     }
-  }, [reduxLocations, locations.length, accessToken]);
+  }, [reduxLocations, locations.length, accessToken, hasLoadedFromRedux]);
 
   // Additional effect to handle case where Redux data arrives after map is ready
   useEffect(() => {
     // Wait a bit longer for map to be fully initialized
     const timeoutId = setTimeout(() => {
-      if (reduxLocations.length > 0 && locations.length === 0 && mapRef.current) {
+      if (reduxLocations.length > 0 && locations.length === 0 && mapRef.current && !hasLoadedFromRedux) {
         console.log('EditMap: Second attempt to initialize locations...');
         const initializeEditingLocations = async () => {
           const formattedLocations: ServiceLocation[] = [];
@@ -1035,7 +1039,8 @@ const EditMapboxLocationSelector: React.FC<EditMapboxLocationSelectorProps> = ({
           }
           
           setLocations(formattedLocations);
-          
+          setHasLoadedFromRedux(true);
+
           if (mapRef.current) {
             formattedLocations.forEach((location, index) => {
               addMarkerToMap(location, index + 1);

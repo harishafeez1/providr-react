@@ -172,34 +172,6 @@ const ServiceRequestsTable = () => {
   const columns = useMemo<ColumnDef<ICustomerServiceRequestsData>[]>(
     () => [
       {
-        accessorFn: (row: ICustomerServiceRequestsData) => row.id,
-        id: 'created_at',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            filterable={false}
-            title="Date Added"
-            // filter={<ColumnInputFilter column={column} />}
-            column={column}
-            icon={<i className="ki-filled ki-barcode text-lg"></i>}
-          />
-        ),
-        cell: ({ row }) => {
-          return (
-            <div className="flex items-center gap-4">
-              <div className="flex flex-col gap-0.5">
-                <div className="text-2sm text-gray-700 font-normal">
-                  {row.original.created_at ? format(row.original.created_at, 'LLL dd, y') : '--'}
-                </div>
-              </div>
-            </div>
-          );
-        },
-        meta: {
-          className: 'min-w-[300px]',
-          cellClassName: 'text-gray-800 font-normal'
-        }
-      },
-      {
         accessorFn: (row) => row.customer_id,
         id: 'participantName',
         header: ({ column }) => (
@@ -215,33 +187,6 @@ const ServiceRequestsTable = () => {
             <div className="flex items-center text-gray-800 font-normal gap-1.5">
               {`${info.row.original?.first_name || ''} ${info.row.original?.last_name || ''}`}
             </div>
-          );
-        },
-        meta: {
-          headerClassName: 'min-w-[180px]'
-        }
-      },
-      {
-        accessorFn: (row) => row.status,
-        id: 'status',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            filterable={false}
-            title="Request Status"
-            column={column}
-            icon={<i className="ki-filled ki-flag"></i>}
-          />
-        ),
-        cell: (info) => {
-          return (
-            <span
-              className={`badge badge-${info.row.original.status ? 'success' : 'danger'} shrink-0 badge-outline rounded-[30px]`}
-            >
-              <span
-                className={`size-1.5 rounded-full bg-${info.row.original.status ? 'success' : 'danger'} me-1.5`}
-              ></span>
-              {info.row.original.status === 'Pending' ? 'In Progress' : info.row.original.status}
-            </span>
           );
         },
         meta: {
@@ -292,6 +237,34 @@ const ServiceRequestsTable = () => {
           headerClassName: 'min-w-[180px]'
         }
       },
+      {
+        accessorFn: (row) => row.status,
+        id: 'status',
+        header: ({ column }) => (
+          <DataGridColumnHeader
+            filterable={false}
+            title="Request Status"
+            column={column}
+            icon={<i className="ki-filled ki-flag"></i>}
+          />
+        ),
+        cell: (info) => {
+          return (
+            <span
+              className={`badge badge-${info.row.original.status ? 'success' : 'danger'} shrink-0 badge-outline rounded-[30px]`}
+            >
+              <span
+                className={`size-1.5 rounded-full bg-${info.row.original.status ? 'success' : 'danger'} me-1.5`}
+              ></span>
+              {info.row.original.status === 'Pending' ? 'In Progress' : info.row.original.status}
+            </span>
+          );
+        },
+        meta: {
+          headerClassName: 'min-w-[180px]'
+        }
+      },
+
       {
         accessorFn: (row) => row.address,
         id: 'service_request_provider',
@@ -349,6 +322,34 @@ const ServiceRequestsTable = () => {
         meta: {
           headerClassName: 'w-[60px]'
         }
+      },
+      {
+        accessorFn: (row: ICustomerServiceRequestsData) => row.id,
+        id: 'created_at',
+        header: ({ column }) => (
+          <DataGridColumnHeader
+            filterable={false}
+            title="Date Added"
+            // filter={<ColumnInputFilter column={column} />}
+            column={column}
+            icon={<i className="ki-filled ki-barcode text-lg"></i>}
+          />
+        ),
+        cell: ({ row }) => {
+          return (
+            <div className="flex items-center gap-4">
+              <div className="flex flex-col gap-0.5">
+                <div className="text-2sm text-gray-700 font-normal">
+                  {row.original.created_at ? format(row.original.created_at, 'LLL dd, y') : '--'}
+                </div>
+              </div>
+            </div>
+          );
+        },
+        meta: {
+          className: 'min-w-[300px]',
+          cellClassName: 'text-gray-800 font-normal'
+        }
       }
     ],
     [isRTL]
@@ -372,7 +373,7 @@ const ServiceRequestsTable = () => {
 
     return (
       <div className="card-header flex-wrap gap-2 border-b-0 px-5">
-        <h3 className="card-title font-medium text-sm">Service Requests</h3>
+        <h3 className="card-title font-medium text-sm">Direct Requests</h3>
 
         {/* <div className="flex flex-wrap gap-2 lg:gap-5">
           <div className="flex">

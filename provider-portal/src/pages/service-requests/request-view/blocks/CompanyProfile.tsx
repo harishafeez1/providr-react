@@ -26,7 +26,9 @@ const CompanyProfile = ({ data }: any) => {
         {data?.description && (
           <div className="grid gap-2.5 mb-7">
             <h3 className="text-base text-center font-semibold text-gray-900 leading-none ">
-              Customer Service Request Description
+              {data?.direct_connect === 0
+                ? 'Open Requests Description'
+                : 'Direct Requests Description'}
             </h3>
             <p className="text-sm text-gray-800 leading-5.5">{data?.description || ''}</p>
           </div>

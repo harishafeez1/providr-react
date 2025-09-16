@@ -58,7 +58,7 @@ const ReviewsTablePage = () => {
           <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
             <div className="grow py-3">
               <label className="form-label max-w-80 py-2">
-                Invite your clients to review via email:
+                Ask participants to share feedback via email:
               </label>
               <div className="input-group">
                 <input
