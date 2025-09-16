@@ -47,6 +47,7 @@ export interface SubscriptionPlan {
   trial_description?: string | null;
   can_start_trial?: boolean;
   trial_requires_payment_method?: boolean | null;
+  has_used_trial?: boolean | null;
 }
 
 export interface Subscription {

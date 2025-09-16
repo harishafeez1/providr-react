@@ -1,6 +1,7 @@
 import { useAuthContext } from '@/auth';
 import React from 'react';
 import { Navigate } from 'react-router-dom';
+import { SubscriptionRestrictedView } from '@/components/subscription/SubscriptionRestrictedView';
 
 interface PermissionWrapperProps {
   children: React.ReactNode;
@@ -14,6 +15,20 @@ const PermissionWrapper: React.FC<PermissionWrapperProps> = ({
   fallbackPath = '/error/404'
 }) => {
   const { currentUser } = useAuthContext();
+
+  // Check if subscription is cancelled
+  const subscriptionDetails = currentUser?.subscription_details;
+  const subscriptionPlan = currentUser?.subscription_plan;
+  const subscriptionStatus = subscriptionDetails?.subscription?.status;
+
+  const hadSubscriptionBefore = subscriptionPlan?.subscription_exists === false;
+  const isCancelled = (subscriptionStatus === 'canceled' || subscriptionStatus === 'cancelled') ||
+                      (hadSubscriptionBefore && !subscriptionDetails?.has_subscription);
+
+  // If subscription is cancelled, always show the restricted view with subscription modal
+  if (isCancelled) {
+    return <SubscriptionRestrictedView />;
+  }
 
   const hasPermission = (requiredPermissions: string[]): boolean => {
     if (!currentUser) {

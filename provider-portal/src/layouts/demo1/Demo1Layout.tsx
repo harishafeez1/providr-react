@@ -20,24 +20,15 @@ const Demo1Layout = () => {
   `);
 
   // Check subscription status
-  const subscriptionStatus = currentUser?.subscription_details?.subscription?.status;
   const hasSubscription = currentUser?.subscription_details?.has_subscription;
+  const subscriptionStatus = currentUser?.subscription_details?.subscription?.status;
 
-  // Check if user needs to see subscription plans (first time users)
-  const needsSubscriptionOnboarding = currentUser &&
-                                     !hasSubscription &&
-                                     currentUser.subscription_plan &&
-                                     !currentUser.subscription_plan.subscription_exists;
-
-  // Check if subscription is in a problematic state (past_due, canceled, etc.)
-  const subscriptionProblematic = hasSubscription &&
-                                 subscriptionStatus &&
-                                 !['active', 'trialing'].includes(subscriptionStatus);
-
-  // Don't show modal for users with active subscriptions or active trials
-  // Show modal for: first-time users, past_due, cancelled users
-  const showSubscriptionModal = needsSubscriptionOnboarding ||
-                                (subscriptionProblematic && !location.pathname.includes('/invoices'));
+  // Show modal for:
+  // 1. Users who don't have any subscription at all (first-time users)
+  // 2. Users with cancelled subscriptions who need to resubscribe
+  const showSubscriptionModal = currentUser &&
+                                currentUser.subscription_plan &&
+                                (!hasSubscription || subscriptionStatus === 'canceled');
 
   return (
     <Demo1LayoutProvider>

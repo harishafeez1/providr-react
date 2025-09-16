@@ -16,6 +16,29 @@ const SubscriptionModal = ({ isOpen }: SubscriptionModalProps) => {
   const [isSubscribeLoading, setIsSubscribeLoading] = useState(false);
 
   const subscriptionPlan = currentUser?.subscription_plan;
+  const subscriptionDetails = currentUser?.subscription_details;
+  const subscriptionStatus = subscriptionDetails?.subscription?.status;
+
+  // A user is considered cancelled if:
+  // 1. They have subscription_exists: false in their plan (indicates they had a subscription before)
+  // 2. OR they have has_subscription: false but subscription plan exists (they had access before)
+  // 3. OR their subscription status is explicitly "canceled"/"cancelled"
+  const hadSubscriptionBefore = subscriptionPlan?.subscription_exists === false;
+  const isCancelled = (subscriptionStatus === 'canceled' || subscriptionStatus === 'cancelled') ||
+                      (hadSubscriptionBefore && !subscriptionDetails?.has_subscription);
+
+  const hasUsedTrial = subscriptionPlan?.has_used_trial;
+
+  // Debug logging
+  console.log('SubscriptionModal Debug:', {
+    subscriptionStatus,
+    hadSubscriptionBefore,
+    isCancelled,
+    hasUsedTrial,
+    hasSubscription: subscriptionDetails?.has_subscription,
+    subscriptionExists: subscriptionPlan?.subscription_exists,
+    subscriptionDetails
+  });
 
   if (!subscriptionPlan) {
     return null;
@@ -75,19 +98,28 @@ const SubscriptionModal = ({ isOpen }: SubscriptionModalProps) => {
             <div className="p-6">
               {/* Header */}
               <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome! Choose Your Plan</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  {isCancelled ? 'We Miss You! Come Back' : 'Welcome! Choose Your Plan'}
+                </h2>
                 <p className="text-sm text-gray-600">
-                  {subscriptionPlan.can_start_trial && subscriptionPlan.can_subscribe
-                    ? 'Start with a free trial or subscribe immediately for full access'
-                    : subscriptionPlan.can_start_trial
-                      ? 'Get started with a free trial'
-                      : 'Get started with the perfect plan for your business needs'}
+                  {(() => {
+                    if (isCancelled) {
+                      return 'Your subscription is currently inactive. Restart your subscription to regain access to all premium features and continue growing your business with us.';
+                    }
+                    if (subscriptionPlan.can_start_trial && !hasUsedTrial && subscriptionPlan.can_subscribe) {
+                      return 'Start with a free trial or subscribe immediately for full access';
+                    }
+                    if (subscriptionPlan.can_start_trial && !hasUsedTrial) {
+                      return 'Get started with a free trial';
+                    }
+                    return 'Get started with the perfect plan for your business needs';
+                  })()}
                 </p>
               </div>
 
               {/* Plan Card */}
               <Card className="relative">
-                {subscriptionPlan.can_start_trial && subscriptionPlan.trial_period_days && (
+                {subscriptionPlan.can_start_trial && subscriptionPlan.trial_period_days && !isCancelled && !hasUsedTrial && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                     <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">
                       {subscriptionPlan.trial_period_days} Day Free Trial
@@ -114,8 +146,8 @@ const SubscriptionModal = ({ isOpen }: SubscriptionModalProps) => {
                 </CardHeader>
 
                 <CardContent className="space-y-4">
-                  {/* Show Trial Button if user can start trial */}
-                  {subscriptionPlan.can_start_trial && (
+                  {/* Show Trial Button if user can start trial, is not cancelled, and hasn't used trial */}
+                  {subscriptionPlan.can_start_trial && !isCancelled && !hasUsedTrial && (
                     <Button
                       onClick={handleStartTrial}
                       disabled={isTrialLoading}
@@ -128,8 +160,8 @@ const SubscriptionModal = ({ isOpen }: SubscriptionModalProps) => {
                     </Button>
                   )}
 
-                  {/* Show OR divider when both options are available */}
-                  {subscriptionPlan.can_start_trial && subscriptionPlan.can_subscribe && (
+                  {/* Show OR divider when both options are available, not cancelled, and hasn't used trial */}
+                  {subscriptionPlan.can_start_trial && subscriptionPlan.can_subscribe && !isCancelled && !hasUsedTrial && (
                     <div className="flex items-center my-4">
                       <hr className="flex-1 border-gray-300" />
                       <span className="px-3 text-sm text-gray-500">or</span>
@@ -137,18 +169,20 @@ const SubscriptionModal = ({ isOpen }: SubscriptionModalProps) => {
                     </div>
                   )}
 
-                  {/* Show Subscribe Button */}
+                  {/* Show Subscribe/Reactivate Button */}
                   {subscriptionPlan.can_subscribe && (
                     <Button
                       onClick={handleUpgrade}
                       disabled={isSubscribeLoading}
-                      variant={subscriptionPlan.can_start_trial ? 'outline' : 'default'}
+                      variant={(subscriptionPlan.can_start_trial && !isCancelled && !hasUsedTrial) ? 'outline' : 'default'}
                       className="w-full"
                       size="lg"
                     >
-                      {isSubscribeLoading
-                        ? 'Processing...'
-                        : `Subscribe to ${subscriptionPlan.name}`}
+                      {(() => {
+                        if (isSubscribeLoading) return 'Processing...';
+                        if (isCancelled) return 'Reactivate Subscription';
+                        return `Subscribe to ${subscriptionPlan.name}`;
+                      })()}
                     </Button>
                   )}
 
@@ -217,11 +251,14 @@ const SubscriptionModal = ({ isOpen }: SubscriptionModalProps) => {
 
                   {/* Additional info based on available options */}
                   <div className="text-xs text-gray-500 text-center mt-4 space-y-1">
-                    {subscriptionPlan.trial_requires_payment_method && (
+                    {subscriptionPlan.trial_requires_payment_method && !isCancelled && !hasUsedTrial && (
                       <div>credit card required for trial</div>
                     )}
-                    {subscriptionPlan.can_start_trial && subscriptionPlan.can_subscribe && (
+                    {subscriptionPlan.can_start_trial && subscriptionPlan.can_subscribe && !isCancelled && !hasUsedTrial && (
                       <div>Or subscribe immediately for full access</div>
+                    )}
+                    {isCancelled && (
+                      <div>Continue where you left off with full access</div>
                     )}
                   </div>
                 </CardContent>
