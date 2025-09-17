@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { Star } from 'lucide-react';
+import { Star, MessageCircle } from 'lucide-react';
 import PlaceholderImg from '../../../../../public/media/avatars/blank.png';
 import { useAppSelector } from '@/redux/hooks';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
@@ -7,6 +7,37 @@ import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { BottomSheetDialog } from '@/components';
+
+const ExpandableText = ({
+  text,
+  maxLength = 100,
+  className = ''
+}: {
+  text: string;
+  maxLength?: number;
+  className?: string;
+}) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const shouldTruncate = text.length > maxLength;
+
+  if (!shouldTruncate) {
+    return <p className={className}>{text}</p>;
+  }
+
+  return (
+    <div className="space-y-2">
+      <p className={className}>
+        {isExpanded ? text : `${text.substring(0, maxLength)}...`}
+      </p>
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="text-primary text-xs font-medium hover:text-primary-500 underline"
+      >
+        {isExpanded ? 'Show less' : 'View more'}
+      </button>
+    </div>
+  );
+};
 
 const MobileReviews = () => {
   const { providerProfile } = useAppSelector((state: any) => state.providerProfile);
@@ -46,7 +77,32 @@ const MobileReviews = () => {
                   <Star key={index} fill="#222222" size={10} />
                 ))}
               </div>
-              <p className="text-[#222222] mt-4 text-sm line-clamp-4">{item.content || ''}</p>
+              <div className="mt-4">
+                <ExpandableText
+                  text={item.content || ''}
+                  maxLength={200}
+                  className="text-[#222222] text-sm"
+                />
+              </div>
+
+              {/* Provider Reply */}
+              {item.reply && (
+                <div className="mt-4 bg-gray-50 rounded-lg p-3 border-l-2 border-gray-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <MessageCircle size={16} className="text-gray-600" />
+                    <span className="text-xs font-medium text-black">Provider Reply</span>
+                    <span className="text-xs text-gray-500">
+                      {format(item.reply.created_at, 'dd MM yyyy')}
+                    </span>
+                  </div>
+                  <ExpandableText
+                    text={item.reply.content}
+                    maxLength={150}
+                    className="text-sm text-gray-700 leading-relaxed"
+                  />
+                </div>
+              )}
+
               <div className="border-b border-gray-200 my-4"></div>
             </div>
           ))}
@@ -76,7 +132,31 @@ const MobileReviews = () => {
                   {item?.created_at ? format(item.created_at, 'MMMM dd, yyyy') : ''}
                 </div>
               </div>
-              <div className="text-sm break-all line-clamp-5 self-start">{item.content || ''}</div>
+              <div className="self-start">
+                <ExpandableText
+                  text={item.content || ''}
+                  maxLength={120}
+                  className="text-sm break-all"
+                />
+              </div>
+
+              {/* Provider Reply */}
+              {item.reply && (
+                <div className="mt-3 bg-gray-50 rounded-lg p-3 border-l-2 border-gray-200">
+                  <div className="flex items-center gap-2 mb-2">
+                    <MessageCircle size={12} className="text-gray-600" />
+                    <span className="text-xs font-medium text-black">Provider Reply</span>
+                    <span className="text-xs text-gray-500">
+                      {format(item.reply.created_at, 'MMM dd')}
+                    </span>
+                  </div>
+                  <ExpandableText
+                    text={item.reply.content}
+                    maxLength={80}
+                    className="text-xs text-gray-700 leading-relaxed break-all"
+                  />
+                </div>
+              )}
 
               {/* Vertical separator on the right side */}
               {index < providerProfile.reviews.length - 1 && (

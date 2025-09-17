@@ -454,7 +454,7 @@ const ReviewsTable = () => {
         header: ({ column }) => (
           <DataGridColumnHeader
             filterable={false}
-            title="Created"
+            title="Date Added"
             filter={<ColumnInputFilter column={column} />}
             column={column}
             icon={<i className="ki-filled ki-time"></i>}
