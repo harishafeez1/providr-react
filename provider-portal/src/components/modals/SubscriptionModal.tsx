@@ -31,12 +31,14 @@ const SubscriptionModal = ({ isOpen }: SubscriptionModalProps) => {
   ];
 
   // Check if subscription needs attention
-  const hasProblematicStatus = subscriptionStatus && problematicStatuses.includes(subscriptionStatus);
+  const hasProblematicStatus =
+    subscriptionStatus && problematicStatuses.includes(subscriptionStatus);
 
   // Only show reactivation for users who actually had a subscription before
   // subscription_exists: true means they currently have or had a subscription
   // subscription_exists: false + has_subscription: false = first time user
-  const hadSubscriptionBefore = subscriptionPlan?.subscription_exists === true && !subscriptionDetails?.has_subscription;
+  const hadSubscriptionBefore =
+    subscriptionPlan?.subscription_exists === true && !subscriptionDetails?.has_subscription;
   const needsReactivation = hasProblematicStatus || hadSubscriptionBefore;
 
   // For messaging, distinguish between different types of issues
@@ -44,12 +46,14 @@ const SubscriptionModal = ({ isOpen }: SubscriptionModalProps) => {
   const isPastDue = subscriptionStatus === 'past_due';
   const isUnpaid = subscriptionStatus === 'unpaid';
   const isPaused = subscriptionStatus === 'paused';
-  const isIncomplete = subscriptionStatus === 'incomplete' || subscriptionStatus === 'incomplete_expired';
+  const isIncomplete =
+    subscriptionStatus === 'incomplete' || subscriptionStatus === 'incomplete_expired';
 
   // Define which statuses need billing portal vs new subscription
   // Use billing portal for any existing subscription (except active/trialing which shouldn't show modal)
-  const hasExistingSubscription = subscriptionDetails?.has_subscription && subscriptionDetails?.subscription;
-  const needsBillingPortal = hasExistingSubscription && subscriptionPlan.billing_portal_url;
+  const hasExistingSubscription =
+    subscriptionDetails?.has_subscription && subscriptionDetails?.subscription;
+  const needsBillingPortal = hasExistingSubscription && subscriptionPlan?.billing_portal_url;
 
   // Only create new subscriptions for users who never had one or whose subscription completely ended
   const needsNewSubscription = !hasExistingSubscription;
@@ -83,8 +87,8 @@ const SubscriptionModal = ({ isOpen }: SubscriptionModalProps) => {
       const trialData = await createTrialSession({
         product_id: subscriptionPlan.stripe_product_id,
         price_id: subscriptionPlan.stripe_price_id,
-        success_url: `${window.location.origin}/`,
-        cancel_url: `${window.location.origin}/`,
+        success_url: `${window.location.origin}/provider-portal`,
+        cancel_url: `${window.location.origin}/provider-portal`,
         provider_company_id: currentUser?.provider_company_id as number,
         user_id: currentUser?.id as number
       });
@@ -116,8 +120,8 @@ const SubscriptionModal = ({ isOpen }: SubscriptionModalProps) => {
       const checkoutData = await createCheckoutSession({
         product_id: subscriptionPlan.stripe_product_id,
         price_id: subscriptionPlan.stripe_price_id,
-        success_url: `${window.location.origin}/`,
-        cancel_url: `${window.location.origin}/`,
+        success_url: `${window.location.origin}/provider-portal`,
+        cancel_url: `${window.location.origin}/provider-portal`,
         provider_company_id: currentUser?.provider_company_id as number,
         user_id: currentUser?.id as number
       });
@@ -172,7 +176,11 @@ const SubscriptionModal = ({ isOpen }: SubscriptionModalProps) => {
                     if (needsReactivation) {
                       return 'Your subscription needs attention. Reactivate to continue using all premium features.';
                     }
-                    if (subscriptionPlan.can_start_trial && !hasUsedTrial && subscriptionPlan.can_subscribe) {
+                    if (
+                      subscriptionPlan.can_start_trial &&
+                      !hasUsedTrial &&
+                      subscriptionPlan.can_subscribe
+                    ) {
                       return 'Start with a free trial or subscribe immediately for full access';
                     }
                     if (subscriptionPlan.can_start_trial && !hasUsedTrial) {
@@ -185,13 +193,16 @@ const SubscriptionModal = ({ isOpen }: SubscriptionModalProps) => {
 
               {/* Plan Card */}
               <Card className="relative">
-                {subscriptionPlan.can_start_trial && subscriptionPlan.trial_period_days && !needsReactivation && !hasUsedTrial && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">
-                      {subscriptionPlan.trial_period_days} Day Free Trial
-                    </span>
-                  </div>
-                )}
+                {subscriptionPlan.can_start_trial &&
+                  subscriptionPlan.trial_period_days &&
+                  !needsReactivation &&
+                  !hasUsedTrial && (
+                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                      <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">
+                        {subscriptionPlan.trial_period_days} Day Free Trial
+                      </span>
+                    </div>
+                  )}
 
                 <CardHeader className="text-center pt-8">
                   <CardTitle className="text-xl font-bold">{subscriptionPlan.name}</CardTitle>
@@ -227,20 +238,27 @@ const SubscriptionModal = ({ isOpen }: SubscriptionModalProps) => {
                   )}
 
                   {/* Show OR divider when both options are available, doesn't need reactivation, and hasn't used trial */}
-                  {subscriptionPlan.can_start_trial && subscriptionPlan.can_subscribe && !needsReactivation && !hasUsedTrial && (
-                    <div className="flex items-center my-4">
-                      <hr className="flex-1 border-gray-300" />
-                      <span className="px-3 text-sm text-gray-500">or</span>
-                      <hr className="flex-1 border-gray-300" />
-                    </div>
-                  )}
+                  {subscriptionPlan.can_start_trial &&
+                    subscriptionPlan.can_subscribe &&
+                    !needsReactivation &&
+                    !hasUsedTrial && (
+                      <div className="flex items-center my-4">
+                        <hr className="flex-1 border-gray-300" />
+                        <span className="px-3 text-sm text-gray-500">or</span>
+                        <hr className="flex-1 border-gray-300" />
+                      </div>
+                    )}
 
                   {/* Show Subscribe/Reactivate/Manage Button */}
                   {(subscriptionPlan.can_subscribe || needsBillingPortal) && (
                     <Button
                       onClick={needsBillingPortal ? handleBillingPortal : handleUpgrade}
                       disabled={needsBillingPortal ? false : isSubscribeLoading}
-                      variant={(subscriptionPlan.can_start_trial && !needsReactivation && !hasUsedTrial) ? 'outline' : 'default'}
+                      variant={
+                        subscriptionPlan.can_start_trial && !needsReactivation && !hasUsedTrial
+                          ? 'outline'
+                          : 'default'
+                      }
                       className="w-full"
                       size="lg"
                     >
@@ -318,12 +336,13 @@ const SubscriptionModal = ({ isOpen }: SubscriptionModalProps) => {
 
                   {/* Additional info based on available options */}
                   <div className="text-xs text-gray-500 text-center mt-4 space-y-1">
-                    {subscriptionPlan.trial_requires_payment_method && !needsReactivation && !hasUsedTrial && (
-                      <div>credit card required for trial</div>
-                    )}
-                    {subscriptionPlan.can_start_trial && subscriptionPlan.can_subscribe && !needsReactivation && !hasUsedTrial && (
-                      <div>Or subscribe immediately for full access</div>
-                    )}
+                    {subscriptionPlan.trial_requires_payment_method &&
+                      !needsReactivation &&
+                      !hasUsedTrial && <div>credit card required for trial</div>}
+                    {subscriptionPlan.can_start_trial &&
+                      subscriptionPlan.can_subscribe &&
+                      !needsReactivation &&
+                      !hasUsedTrial && <div>Or subscribe immediately for full access</div>}
                     {needsReactivation && (
                       <div>
                         {needsBillingPortal

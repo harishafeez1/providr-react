@@ -7,8 +7,8 @@ interface IReviewsData {
   service_offering: IServiceOffering;
   rating: string | number;
   content: string;
-  responded: string;
-  reply: string;
+  responded: number;
+  reply: IReviewReply;
   created_at: string | number;
 }
 
@@ -25,6 +25,12 @@ interface IServiceOffering {
     id: number;
     name: string;
   };
+}
+
+interface IReviewReply {
+  id: number;
+  content: string;
+  review_id: number;
 }
 
 export { type IReviewsData };

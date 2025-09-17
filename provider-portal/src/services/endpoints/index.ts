@@ -44,6 +44,9 @@ export const GET_ALL_PREMISES_URL = `${API_URL}/premises/all_premises`;
 
 // All Reviews Routes
 export const GET_ALL_REVIEWS_URL = `${API_URL}/reviews/all_reviews`;
+export const POST_REVIEW_REPLY_URL = `${API_URL}/reviews`;
+export const UPDATE_REVIEW_REPLY_URL = `${API_URL}/reviews/reply/update`;
+export const DELETE_REVIEW_REPLY_URL = `${API_URL}/reviews/reply`;
 
 // All Services Routes
 export const GET_ALL_SERVICES_URL = `${API_URL}/all_services`;
