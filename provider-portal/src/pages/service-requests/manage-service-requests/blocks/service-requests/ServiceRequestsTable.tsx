@@ -292,6 +292,34 @@ const ServiceRequestsTable = () => {
         }
       },
       {
+        accessorFn: (row: ICustomerServiceRequestsData) => row.id,
+        id: 'created_at',
+        header: ({ column }) => (
+          <DataGridColumnHeader
+            filterable={false}
+            title="Date Added"
+            // filter={<ColumnInputFilter column={column} />}
+            column={column}
+            icon={<i className="ki-filled ki-barcode text-lg"></i>}
+          />
+        ),
+        cell: ({ row }) => {
+          return (
+            <div className="flex items-center gap-4">
+              <div className="flex flex-col gap-0.5">
+                <div className="text-2sm text-gray-700 font-normal">
+                  {row.original.created_at ? format(row.original.created_at, 'LLL dd, y') : '--'}
+                </div>
+              </div>
+            </div>
+          );
+        },
+        meta: {
+          className: 'min-w-[300px]',
+          cellClassName: 'text-gray-800 font-normal'
+        }
+      },
+      {
         id: 'click',
         header: () => '',
         enableSorting: false,
@@ -321,34 +349,6 @@ const ServiceRequestsTable = () => {
         ),
         meta: {
           headerClassName: 'w-[60px]'
-        }
-      },
-      {
-        accessorFn: (row: ICustomerServiceRequestsData) => row.id,
-        id: 'created_at',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            filterable={false}
-            title="Date Added"
-            // filter={<ColumnInputFilter column={column} />}
-            column={column}
-            icon={<i className="ki-filled ki-barcode text-lg"></i>}
-          />
-        ),
-        cell: ({ row }) => {
-          return (
-            <div className="flex items-center gap-4">
-              <div className="flex flex-col gap-0.5">
-                <div className="text-2sm text-gray-700 font-normal">
-                  {row.original.created_at ? format(row.original.created_at, 'LLL dd, y') : '--'}
-                </div>
-              </div>
-            </div>
-          );
-        },
-        meta: {
-          className: 'min-w-[300px]',
-          cellClassName: 'text-gray-800 font-normal'
         }
       }
     ],
