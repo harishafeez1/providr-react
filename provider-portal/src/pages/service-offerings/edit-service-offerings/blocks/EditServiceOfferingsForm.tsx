@@ -224,7 +224,7 @@ const EditServiceOfferingsForm = () => {
                     <KeenIcon icon="subtitle" className="text-sm" />
                     Write a short description of this specific service
                   </label>
-                  <label className="input">
+                  <label className="input bg-white">
                     <Field
                       name="description"
                       type="text"

@@ -11,6 +11,7 @@ import { useAuthContext } from '@/auth';
 import { Editor } from '../../../../components/editor/Editor';
 import * as Yup from 'yup';
 import { ProgressBar } from '../ProgressBar';
+import { sanitizeHtmlStrict, sanitizeText } from '@/utils/htmlSanitizer';
 
 // ABN Lookup API validation
 const validateABN = async (abn: string, guid: string) => {
@@ -27,9 +28,8 @@ const validateABN = async (abn: string, guid: string) => {
 };
 
 const stripHtml = (html: string) => {
-  const div = document.createElement('div');
-  div.innerHTML = html;
-  return div.textContent || div.innerText || '';
+  // Use our sanitizer to strip HTML safely
+  return sanitizeText(html);
 };
 
 // Yup validation schema
@@ -224,7 +224,8 @@ const AddCompanyProfileForm = () => {
     formData.append('company_email', values.company_email || '');
     formData.append('company_phone', values.company_phone || '');
     formData.append('company_website', values.company_website || '');
-    formData.append('description', values.description);
+    // Sanitize description before submission to remove all CSS and JavaScript
+    formData.append('description', sanitizeHtmlStrict(values.description));
     formData.append('facebook_url', values.facebook_url || '');
     formData.append('instagram_url', values.instagram_url || '');
     formData.append('linkedin_url', values.linkedin_url || '');

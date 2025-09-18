@@ -93,6 +93,7 @@ const AddServiceOfferingsForm = () => {
   const [servicesSelected, setServicesSelected] = useState<any>([]);
   const [ageGroups, setAgeGroups] = useState<number[]>([]);
   const fieldRefs = useRef<{ [key: string]: HTMLElement | null }>({});
+  const formikRef = useRef<any>(null);
 
   const serviceOfferingSchema = Yup.object().shape({
     service_id: Yup.string().required('Service is required'),
@@ -155,9 +156,17 @@ const AddServiceOfferingsForm = () => {
     setServicesSelected(allChecked ? [] : [...options]);
   };
 
+  // Sync Formik field with Redux locations when locations change
+  useEffect(() => {
+    if (formikRef.current) {
+      formikRef.current.setFieldValue('service_available_options', locations);
+    }
+  }, [locations]);
+
   return (
     <>
       <Formik
+        innerRef={formikRef}
         validationSchema={serviceOfferingSchema}
         initialValues={initialValues}
         onSubmit={(formData, { resetForm, setFieldValue }) =>
@@ -229,7 +238,7 @@ const AddServiceOfferingsForm = () => {
                     <KeenIcon icon="subtitle" className="text-sm" />
                     Write a short description of this specific service
                   </label>
-                  <label className="input">
+                  <label className="input bg-white">
                     <Field
                       name="description"
                       type="text"

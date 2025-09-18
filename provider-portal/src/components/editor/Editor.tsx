@@ -3,6 +3,7 @@ import { useState, useId } from 'react';
 import ReactQuill from 'react-quill';
 import Quill from 'quill';
 import 'react-quill/dist/quill.snow.css';
+import { sanitizeHtmlBasic } from '@/utils/htmlSanitizer';
 
 // Register custom font sizes with Quill
 const Size = Quill.import('attributors/style/size');
@@ -38,9 +39,9 @@ const Editor = ({ value, onChange, className, toolbarId: providedToolbarId }: Ed
     'link',
     'align',
     'indent',
-    'list',
-    'color',
-    'background'
+    'list'
+    // 'color',
+    // 'background'
   ];
 
   return (
@@ -104,8 +105,8 @@ const Editor = ({ value, onChange, className, toolbarId: providedToolbarId }: Ed
           Unordered List
         </button>
         {/* Color and Background Dropdowns */}
-        <select className="ql-color" />
-        <select className="ql-background" />
+        {/* <select className="ql-color" />
+        <select className="ql-background" /> */}
         {/* Clean Formatting */}
         <button className="ql-clean">clear-styles</button>
       </div>
@@ -116,8 +117,10 @@ const Editor = ({ value, onChange, className, toolbarId: providedToolbarId }: Ed
         }}
         value={content}
         onChange={(newContent) => {
-          setContent(newContent);
-          onChange(newContent);
+          // Sanitize the content to remove any malicious CSS/JS
+          const sanitizedContent = sanitizeHtmlBasic(newContent);
+          setContent(sanitizedContent);
+          onChange(sanitizedContent);
         }}
         modules={modules}
         formats={formats}

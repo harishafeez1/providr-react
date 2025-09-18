@@ -1,4 +1,5 @@
 import React from 'react';
+import { sanitizeHtmlBasic } from '@/utils/htmlSanitizer';
 
 interface IAboutTable {
   status: string;
@@ -38,7 +39,9 @@ const About = ({ data }: any) => {
         <div className="text-sm text-gray-600 pb-1">{table.status}</div>
         <div
           className="text-sm text-gray-900 pb-3.5"
-          dangerouslySetInnerHTML={{ __html: table.info }}
+          dangerouslySetInnerHTML={{
+            __html: typeof table.info === 'string' ? sanitizeHtmlBasic(table.info) : ''
+          }}
         />
       </div>
     );
