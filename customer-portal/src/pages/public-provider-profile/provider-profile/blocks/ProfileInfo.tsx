@@ -94,7 +94,7 @@ const ProfileInfo = ({ ProfileData }: any) => {
           ref={descriptionRef}
           className={`font-normal text-base text-[#6A6A6A] break-words ql-content ${
             isDescriptionExpanded ? '' : 'line-clamp-6'
-          }`}
+          } [&_a]:text-primary [&_a]:underline hover:[&_a]:text-primary-dark`}
           dangerouslySetInnerHTML={{ __html: ProfileData?.description || '' }}
         />
         {showViewMore && (

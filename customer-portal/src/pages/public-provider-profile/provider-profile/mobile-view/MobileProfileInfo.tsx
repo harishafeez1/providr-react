@@ -84,7 +84,7 @@ const MobileProfileInfo = () => {
       <div className="text-center text-sm text-[#6c6c6c] mb-[10px] px-4">
         <div
           ref={descriptionRef}
-          className={`break-words ${isDescriptionExpanded ? '' : 'line-clamp-3'}`}
+          className={`break-words ${isDescriptionExpanded ? '' : 'line-clamp-3'} [&_a]:text-primary [&_a]:underline hover:[&_a]:text-primary-dark`}
           dangerouslySetInnerHTML={{ __html: description || '' }}
         />
         {showViewMore && (
