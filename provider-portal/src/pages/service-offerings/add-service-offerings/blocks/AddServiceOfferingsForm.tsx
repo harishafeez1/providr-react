@@ -29,21 +29,14 @@ const FocusError = ({
     // Focus on first error when submitting changes from false to true (each submit attempt)
     if (isSubmitting && !previousSubmittingState) {
       const firstErrorKey = Object.keys(errors)[0];
-      console.log('Focus Debug - First error key:', firstErrorKey);
-      console.log('Focus Debug - All errors:', errors);
-      console.log('Focus Debug - Field refs:', fieldRefs.current);
-      console.log('Focus Debug - Touched fields:', touched);
 
       if (firstErrorKey && Object.keys(touched).length > 0) {
         setTimeout(() => {
           const targetElement = fieldRefs.current[firstErrorKey];
-          console.log('Focus Debug - Target element for', firstErrorKey, ':', targetElement);
-
           if (targetElement) {
             // Handle react-select components
             if (targetElement.focus && typeof targetElement.focus === 'function') {
               targetElement.focus();
-              console.log('Focus Debug - Called focus() on react-select element');
             }
             // Handle regular input elements
             else if (
@@ -51,7 +44,6 @@ const FocusError = ({
               ['INPUT', 'TEXTAREA', 'SELECT'].includes(targetElement.tagName)
             ) {
               (targetElement as HTMLElement).focus();
-              console.log('Focus Debug - Called focus() on input element');
             }
             // For div containers (like checkbox groups), find the first focusable element
             else if (targetElement.querySelector) {
@@ -60,7 +52,6 @@ const FocusError = ({
               );
               if (focusableChild && typeof (focusableChild as HTMLElement).focus === 'function') {
                 (focusableChild as HTMLElement).focus();
-                console.log('Focus Debug - Focused on child element:', focusableChild);
               }
             }
 
@@ -220,9 +211,7 @@ const AddServiceOfferingsForm = () => {
                           setFieldValue('service_id', option.value);
                         }}
                         ref={(ref: any) => {
-                          console.log('Setting service_id ref:', ref);
                           fieldRefs.current['service_id'] = ref;
-                          console.log('Stored service_id ref:', fieldRefs.current['service_id']);
                         }}
                       />
                     )}
@@ -410,12 +399,7 @@ const AddServiceOfferingsForm = () => {
                           );
                         }}
                         ref={(ref: any) => {
-                          console.log('Setting language_options ref:', ref);
                           fieldRefs.current['language_options'] = ref;
-                          console.log(
-                            'Stored language_options ref:',
-                            fieldRefs.current['language_options']
-                          );
                         }}
                       />
                     )}
