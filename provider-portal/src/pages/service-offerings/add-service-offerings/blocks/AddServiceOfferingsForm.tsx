@@ -100,7 +100,7 @@ const AddServiceOfferingsForm = () => {
   const initialValues = {
     active: true,
     service_id: '',
-    language_options: [] as string[],
+    language_options: ['English'] as string[],
     description: '',
     service_delivered_options: [] as string[],
     age_group_options: [] as string[],
