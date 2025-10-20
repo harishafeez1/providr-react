@@ -44,13 +44,7 @@ const ResetPassword = () => {
         setLoading(false);
         const params = new URLSearchParams();
         params.append('email', values.email);
-        navigate({
-          pathname:
-            currentLayout?.name === 'auth-branded'
-              ? '/auth/reset-password/check-email'
-              : '/auth/classic/reset-password/check-email',
-          search: params.toString()
-        });
+        navigate('/');
       } catch (error) {
         if (error instanceof AxiosError && error.response) {
           setStatus(error.response.data.message);

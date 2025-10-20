@@ -1,12 +1,13 @@
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { Alert, KeenIcon } from '@/components';
-import { useAuthContext } from '@/auth';
 import { useState } from 'react';
 import clsx from 'clsx';
 import { useNavigate } from 'react-router-dom';
 import { useLayout } from '@/providers';
 import { AxiosError } from 'axios';
+import { resetPassword } from '@/services/api/auth';
+import { toast } from 'sonner';
 
 const passwordSchema = Yup.object().shape({
   newPassword: Yup.string()
@@ -19,7 +20,6 @@ const passwordSchema = Yup.object().shape({
 
 const ResetPasswordChange = () => {
   const { currentLayout } = useLayout();
-  const { changePassword } = useAuthContext();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [hasErrors, setHasErrors] = useState<boolean | undefined>(undefined);
@@ -44,22 +44,25 @@ const ResetPasswordChange = () => {
         setStatus('Token and email properties are required');
         setLoading(false);
         setSubmitting(false);
+        toast.error('Invalid reset link. Please request a new password reset.', {
+          position: 'top-right'
+        });
         return;
       }
 
       try {
-        await changePassword(email, token, values.newPassword, values.confirmPassword);
+        // Provider endpoint requires password_confirmation
+        await resetPassword(email, token, values.newPassword, values.confirmPassword);
         setHasErrors(false);
-        navigate(
-          currentLayout?.name === 'auth-branded'
-            ? '/auth/reset-password/changed'
-            : '/auth/classic/reset-password/changed'
-        );
+        toast.success('Password reset successfully!', { position: 'top-right' });
+        navigate('/');
       } catch (error) {
         if (error instanceof AxiosError && error.response) {
           setStatus(error.response.data.message);
+          toast.error(error.response.data.message, { position: 'top-right' });
         } else {
           setStatus('Password reset failed. Please try again.');
+          toast.error('Password reset failed. Please try again.', { position: 'top-right' });
         }
         setHasErrors(true);
       } finally {

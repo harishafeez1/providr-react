@@ -6,6 +6,8 @@ import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import useSharePageUrl from '@/hooks/useShareUrl';
+import { Button } from '@/components/ui/button';
+import { ClaimListingModal } from '../blocks/ClaimListingModal';
 
 const BannerImgSection = () => {
   const { providerProfile } = useAppSelector((state: any) => state.providerProfile);
@@ -14,11 +16,13 @@ const BannerImgSection = () => {
 
   const [imgLoaded, setImgLoaded] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
   const imageUrl = providerProfile?.photo_gallery?.[0]
     ? `${import.meta.env.VITE_APP_AWS_URL}/${providerProfile?.photo_gallery?.[0]}`
     : null;
 
   const [isSticky, setIsSticky] = useState(false);
+  const showClaimButton = providerProfile?.imported_from_csv && !providerProfile?.is_claimed;
 
   useEffect(() => {
     if (providerProfile?.is_favourite) {
@@ -37,6 +41,18 @@ const BannerImgSection = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Debug logging for mobile
+  useEffect(() => {
+    if (providerProfile) {
+      console.log('Mobile BannerImgSection - ProfileData:', {
+        id: providerProfile?.id,
+        imported_from_csv: providerProfile?.imported_from_csv,
+        is_claimed: providerProfile?.is_claimed,
+        showClaimButton
+      });
+    }
+  }, [providerProfile, showClaimButton]);
+
   const toggleFavorite = async () => {
     if (!auth?.token) {
       toast.error('Please log in to favourite this provider.', { position: 'top-right' });
@@ -54,23 +70,39 @@ const BannerImgSection = () => {
   };
 
   return (
-    <div className="relative h-[200px] w-full max-w-full">
-      {!imgLoaded && imageUrl && <div className="w-full h-full bg-gray-200 animate-pulse" />}
+    <>
+      <ClaimListingModal
+        open={isClaimModalOpen}
+        onOpenChange={() => setIsClaimModalOpen(!isClaimModalOpen)}
+        companyId={providerProfile?.id}
+      />
+      <div className="relative h-[200px] w-full max-w-full">
+        {!imgLoaded && imageUrl && <div className="w-full h-full bg-gray-200 animate-pulse" />}
 
-      {/* Render image if available */}
-      {imageUrl && (
-        <img
-          src={imageUrl}
-          alt=""
-          onLoad={() => setImgLoaded(true)}
-          className={`w-full h-full object-cover transition-opacity duration-500 ${
-            imgLoaded ? 'opacity-100' : 'opacity-0 absolute'
-          }`}
-        />
-      )}
+        {/* Render image if available */}
+        {imageUrl && (
+          <img
+            src={imageUrl}
+            alt=""
+            onLoad={() => setImgLoaded(true)}
+            className={`w-full h-full object-cover transition-opacity duration-500 ${
+              imgLoaded ? 'opacity-100' : 'opacity-0 absolute'
+            }`}
+          />
+        )}
 
-      {/* If imageUrl is null (no image), show static skeleton */}
-      {!imageUrl && <div className="w-full h-full bg-gray-200 animate-pulse" />}
+        {/* If imageUrl is null (no image), show static skeleton */}
+        {!imageUrl && <div className="w-full h-full bg-gray-200 animate-pulse" />}
+
+        {/* Claim Listing Button - Bottom Right Corner for Mobile */}
+        {showClaimButton && (
+          <Button
+            onClick={() => setIsClaimModalOpen(true)}
+            className="absolute bottom-3 right-3 bg-primary text-white hover:bg-primary-dark text-xs px-3 py-1 h-auto rounded-md shadow-lg z-40"
+          >
+            Claim Listing
+          </Button>
+        )}
 
       <div
         className={`top-1 left-4 w-full transition-all duration-300 z-50 ${
@@ -107,7 +139,8 @@ const BannerImgSection = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

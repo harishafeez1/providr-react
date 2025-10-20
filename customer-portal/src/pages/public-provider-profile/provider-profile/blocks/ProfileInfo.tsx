@@ -6,6 +6,8 @@ import { addFavouriteProvider } from '@/services/api/wishlist-favourite';
 import { toast } from 'sonner';
 import useSharePageUrl from '@/hooks/useShareUrl';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { ClaimListingModal } from './ClaimListingModal';
+import { Button } from '@/components/ui/button';
 
 const ProfileInfo = ({ ProfileData }: any) => {
   const { auth } = useAuthContext();
@@ -14,6 +16,7 @@ const ProfileInfo = ({ ProfileData }: any) => {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [showViewMore, setShowViewMore] = useState(false);
   const descriptionRef = useRef<HTMLDivElement>(null);
+  const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
   const toggleFavorite = async () => {
     if (!auth?.token) {
       toast.error('Please log in to favourite this provider.', { position: 'top-right' });
@@ -48,8 +51,28 @@ const ProfileInfo = ({ ProfileData }: any) => {
   const imageUrl = ProfileData?.photo_gallery?.[0]
     ? `${import.meta.env.VITE_APP_AWS_URL}/${ProfileData?.photo_gallery?.[0]}`
     : null;
+
+  const showClaimButton = ProfileData?.imported_from_csv && !ProfileData?.is_claimed;
+
+  // Debug logging
+  useEffect(() => {
+    if (ProfileData) {
+      console.log('ProfileData:', {
+        id: ProfileData?.id,
+        imported_from_csv: ProfileData?.imported_from_csv,
+        is_claimed: ProfileData?.is_claimed,
+        showClaimButton
+      });
+    }
+  }, [ProfileData, showClaimButton]);
+
   return (
     <div className="sticky flex flex-col items-center">
+      <ClaimListingModal
+        open={isClaimModalOpen}
+        onOpenChange={() => setIsClaimModalOpen(!isClaimModalOpen)}
+        companyId={ProfileData?.id}
+      />
       <div className="relative flex items-center">
         <div className="w-[300px] lg:w-[434px] h-[212px]">
           {/* Skeleton fallback */}
@@ -71,6 +94,16 @@ const ProfileInfo = ({ ProfileData }: any) => {
 
           {/* If imageUrl is null (no image), show static skeleton */}
           {!imageUrl && <div className="w-full h-full bg-gray-200 animate-pulse rounded-3xl" />}
+
+          {/* Claim Listing Button - Top Right Corner */}
+          {showClaimButton && (
+            <Button
+              onClick={() => setIsClaimModalOpen(true)}
+              className="absolute top-3 right-3 bg-primary text-white hover:bg-primary-dark text-xs px-3 py-1 h-auto rounded-md shadow-lg"
+            >
+              Claim Listing
+            </Button>
+          )}
         </div>
         {ProfileData?.business_logo && (
           <div className="w-[86px] h-[86px] absolute left-[110px] lg:left-[175px] top-[170px]">

@@ -48,4 +48,5 @@ export const SEND_SMS_VERIFICATION_URL = `${API_URL}/review-invitation/send-sms-
 export const VERIFY_SMS_CODE_URL = `${API_URL}/review-invitation/verify-sms-code`;
 export const SUBMIT_TOKEN_REVIEW_URL = `${API_URL}/review-invitation/submit-review`;
 
-//MapBox Routes
+//Claim Listing Routes
+export const CLAIM_LISTING_URL = `${API_URL}/claim_listing`;
