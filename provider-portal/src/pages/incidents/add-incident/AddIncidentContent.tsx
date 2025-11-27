@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchIncidentCustomers, createIncidentPreview, storeIncident } from '@/services/api';
+import { KeenIcon } from '@/components';
 
 interface Customer {
   id: number;
@@ -22,6 +23,7 @@ interface AISuggestions {
   };
   contributing_factors: string[];
   disclaimer: string;
+  draft_summary?: string;
 }
 
 interface FormData {
@@ -273,6 +275,33 @@ const AddIncidentContent = () => {
           </div>
         </div>
 
+        {/* AI Draft Summary */}
+        {ai_suggestions?.draft_summary && (
+          <div className="card bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200">
+            <div className="card-body p-6">
+              <div className="flex items-start gap-3 mb-4">
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-500">
+                  <i className="ki-outline ki-abstract-26 text-xl text-white"></i>
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h4 className="text-lg font-bold text-blue-900">AI-Generated Draft Summary</h4>
+                    <span className="badge badge-sm badge-info">Auto-Generated</span>
+                  </div>
+                  <p className="text-xs text-blue-700">
+                    This summary was automatically generated based on the incident details you provided
+                  </p>
+                </div>
+              </div>
+              <div className="bg-white p-4 rounded-lg border border-blue-200">
+                <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
+                  {ai_suggestions.draft_summary}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* AI Suggestions Highlight Cards */}
         <div className="grid md:grid-cols-3 gap-5">
           {/* Category Card */}
@@ -415,78 +444,91 @@ const AddIncidentContent = () => {
             {/* Basic Information Tab */}
             {activeTab === 'basic' && (
               <div className="grid gap-5">
-                <div className="grid md:grid-cols-2 gap-5">
-                  <div className="flex flex-col gap-2">
-                    <label className="form-label font-medium text-gray-900">
-                      Incident Date & Time <span className="text-danger">*</span>
-                    </label>
-                    <input
-                      type="datetime-local"
-                      className="input"
-                      value={form_data.basic_info.incident_date_time?.replace(' ', 'T') || ''}
-                      onChange={(e) => updateFormData('basic_info', 'incident_date_time', e.target.value.replace('T', ' '))}
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <label className="form-label font-medium text-gray-900">
-                      Location <span className="text-danger">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="input"
-                      value={form_data.basic_info.location}
-                      onChange={(e) => updateFormData('basic_info', 'location', e.target.value)}
-                      placeholder="Enter incident location"
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <label className="form-label font-medium text-gray-900">Participant Name</label>
-                    <input
-                      type="text"
-                      className="input"
-                      value={form_data.basic_info.participant_name || 'Not specified'}
-                      disabled
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <label className="form-label font-medium text-gray-900">Incident Type</label>
-                    <select
-                      className="input"
-                      value={form_data.basic_info.incident_type}
-                      onChange={(e) => updateFormData('basic_info', 'incident_type', e.target.value)}
-                    >
-                      <option>Verbal Aggression</option>
-                      <option>Physical Aggression</option>
-                      <option>Property Damage</option>
-                      <option>Self-Harm</option>
-                      <option>Other</option>
-                    </select>
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <label className="form-label font-medium text-gray-900">Severity Level</label>
-                    <select
-                      className="input"
-                      value={form_data.basic_info.severity}
-                      onChange={(e) => updateFormData('basic_info', 'severity', e.target.value)}
-                    >
-                      <option>Low</option>
-                      <option>Medium</option>
-                      <option>High</option>
-                      <option>Critical</option>
-                    </select>
-                  </div>
+                <div className="flex items-baseline flex-wrap gap-2.5">
+                  <label className="form-label max-w-70 gap-1">
+                    <KeenIcon icon="calendar" className="text-sm" />
+                    Incident Date & Time <span className="text-danger">*</span>
+                  </label>
+                  <input
+                    type="datetime-local"
+                    className="input flex-1 min-w-0"
+                    value={form_data.basic_info.incident_date_time?.replace(' ', 'T') || ''}
+                    onChange={(e) => updateFormData('basic_info', 'incident_date_time', e.target.value.replace('T', ' '))}
+                  />
                 </div>
 
-                <div className="flex flex-col gap-2">
-                  <label className="form-label font-medium text-gray-900">
+                <div className="flex items-baseline flex-wrap gap-2.5">
+                  <label className="form-label max-w-70 gap-1">
+                    <KeenIcon icon="geolocation" className="text-sm" />
+                    Location <span className="text-danger">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="input flex-1 min-w-0"
+                    value={form_data.basic_info.location}
+                    onChange={(e) => updateFormData('basic_info', 'location', e.target.value)}
+                    placeholder="Enter incident location"
+                  />
+                </div>
+
+                <div className="flex items-baseline flex-wrap gap-2.5">
+                  <label className="form-label max-w-70 gap-1">
+                    <KeenIcon icon="user" className="text-sm" />
+                    Participant Name
+                  </label>
+                  <input
+                    type="text"
+                    className="input flex-1 min-w-0"
+                    value={form_data.basic_info.participant_name || 'Not specified'}
+                    disabled
+                  />
+                </div>
+
+                <div className="flex items-baseline flex-wrap gap-2.5">
+                  <label className="form-label max-w-70 gap-1">
+                    <KeenIcon icon="category" className="text-sm" />
+                    Incident Type
+                  </label>
+                  <select
+                    className="input flex-1 min-w-0"
+                    value={form_data.basic_info.incident_type}
+                    onChange={(e) => updateFormData('basic_info', 'incident_type', e.target.value)}
+                  >
+                    <option>Behavioural</option>
+                    <option>Environmental Hazard</option>
+                    <option>Elopement/ Absconding Vehicle/Transport Incident</option>
+                    <option>Fall</option>
+                    <option>Injury</option>
+                    <option>Medication Error</option>
+                    <option>Property-Damage Safeguarding Abuse Concern</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+
+                <div className="flex items-baseline flex-wrap gap-2.5">
+                  <label className="form-label max-w-70 gap-1">
+                    <KeenIcon icon="chart" className="text-sm" />
+                    Severity Level
+                  </label>
+                  <select
+                    className="input flex-1 min-w-0"
+                    value={form_data.basic_info.severity}
+                    onChange={(e) => updateFormData('basic_info', 'severity', e.target.value)}
+                  >
+                    <option>Minor</option>
+                    <option>Moderate</option>
+                    <option>Serious</option>
+                    <option>Critical</option>
+                  </select>
+                </div>
+
+                <div className="flex items-start flex-wrap gap-2.5">
+                  <label className="form-label max-w-70 gap-1 mt-2.5">
+                    <KeenIcon icon="note-2" className="text-sm" />
                     Incident Description <span className="text-danger">*</span>
                   </label>
                   <textarea
-                    className="input min-h-[150px]"
+                    className="input flex-1 min-w-0 min-h-[150px] resize-y p-3"
                     value={form_data.basic_info.description}
                     onChange={(e) => updateFormData('basic_info', 'description', e.target.value)}
                     placeholder="Provide detailed description of the incident..."
@@ -498,50 +540,65 @@ const AddIncidentContent = () => {
             {/* NDIS Details Tab */}
             {activeTab === 'ndis' && (
               <div className="grid gap-5">
-                <div className="flex flex-col gap-2">
-                  <label className="form-label font-medium text-gray-900">What Happened</label>
+                <div className="flex items-start flex-wrap gap-2.5">
+                  <label className="form-label max-w-70 gap-1 mt-2.5">
+                    <KeenIcon icon="shield-tick" className="text-sm" />
+                    What Happened (Observable Facts)
+                  </label>
                   <textarea
-                    className="input min-h-[100px]"
+                    className="input flex-1 min-w-0 min-h-[100px] resize-y p-3"
                     value={form_data.ndis_details.what_happened}
                     onChange={(e) => updateFormData('ndis_details', 'what_happened', e.target.value)}
                     placeholder="Observable behaviours only..."
                   />
                 </div>
 
-                <div className="flex flex-col gap-2">
-                  <label className="form-label font-medium text-gray-900">Lead-up & Triggers</label>
+                <div className="flex items-start flex-wrap gap-2.5">
+                  <label className="form-label max-w-70 gap-1 mt-2.5">
+                    <KeenIcon icon="flash-circle" className="text-sm" />
+                    Lead-up & Triggers
+                  </label>
                   <textarea
-                    className="input min-h-[100px]"
+                    className="input flex-1 min-w-0 min-h-[100px] resize-y p-3"
                     value={form_data.ndis_details.lead_up_triggers}
                     onChange={(e) => updateFormData('ndis_details', 'lead_up_triggers', e.target.value)}
                     placeholder="What led to the incident..."
                   />
                 </div>
 
-                <div className="flex flex-col gap-2">
-                  <label className="form-label font-medium text-gray-900">During the Incident</label>
+                <div className="flex items-start flex-wrap gap-2.5">
+                  <label className="form-label max-w-70 gap-1 mt-2.5">
+                    <KeenIcon icon="time" className="text-sm" />
+                    During the Incident
+                  </label>
                   <textarea
-                    className="input min-h-[100px]"
+                    className="input flex-1 min-w-0 min-h-[100px] resize-y p-3"
                     value={form_data.ndis_details.during_incident}
                     onChange={(e) => updateFormData('ndis_details', 'during_incident', e.target.value)}
                     placeholder="What happened during..."
                   />
                 </div>
 
-                <div className="flex flex-col gap-2">
-                  <label className="form-label font-medium text-gray-900">Staff Response & Actions</label>
+                <div className="flex items-start flex-wrap gap-2.5">
+                  <label className="form-label max-w-70 gap-1 mt-2.5">
+                    <KeenIcon icon="security-user" className="text-sm" />
+                    Staff Response & Actions
+                  </label>
                   <textarea
-                    className="input min-h-[100px]"
+                    className="input flex-1 min-w-0 min-h-[100px] resize-y p-3"
                     value={form_data.ndis_details.response_actions}
                     onChange={(e) => updateFormData('ndis_details', 'response_actions', e.target.value)}
                     placeholder="How staff responded..."
                   />
                 </div>
 
-                <div className="flex flex-col gap-2">
-                  <label className="form-label font-medium text-gray-900">Causes & Contributing Factors</label>
+                <div className="flex items-start flex-wrap gap-2.5">
+                  <label className="form-label max-w-70 gap-1 mt-2.5">
+                    <KeenIcon icon="chart-line" className="text-sm" />
+                    Causes & Contributing Factors
+                  </label>
                   <textarea
-                    className="input min-h-[100px]"
+                    className="input flex-1 min-w-0 min-h-[100px] resize-y p-3"
                     value={form_data.ndis_details.causes_contributing_factors}
                     onChange={(e) => updateFormData('ndis_details', 'causes_contributing_factors', e.target.value)}
                     placeholder="Root causes and factors..."
@@ -580,9 +637,9 @@ const AddIncidentContent = () => {
 
                     {form_data.medical.injury_occurred && (
                       <div className="flex flex-col gap-2 mt-4">
-                        <label className="form-label font-medium text-gray-900">Injury Details</label>
+                        <label className="form-label">Injury Details</label>
                         <textarea
-                          className="input min-h-[100px]"
+                          className="input min-h-[100px] resize-y p-3"
                           value={form_data.medical.injury_details}
                           onChange={(e) => updateFormData('medical', 'injury_details', e.target.value)}
                           placeholder="Describe injuries in detail..."
@@ -624,20 +681,26 @@ const AddIncidentContent = () => {
             {/* BSP Analysis Tab */}
             {activeTab === 'bsp' && (
               <div className="grid gap-5">
-                <div className="flex flex-col gap-2">
-                  <label className="form-label font-medium text-gray-900">BSP Alignment Notes</label>
+                <div className="flex items-start flex-wrap gap-2.5">
+                  <label className="form-label max-w-70 gap-1 mt-2.5">
+                    <KeenIcon icon="note-2" className="text-sm" />
+                    BSP Alignment Notes
+                  </label>
                   <textarea
-                    className="input min-h-[120px]"
+                    className="input flex-1 min-w-0 min-h-[120px] resize-y p-3"
                     value={form_data.bsp_analysis.bsp_alignment_notes}
                     onChange={(e) => updateFormData('bsp_analysis', 'bsp_alignment_notes', e.target.value)}
                     placeholder="How does this incident align with the participant's BSP..."
                   />
                 </div>
 
-                <div className="flex flex-col gap-2">
-                  <label className="form-label font-medium text-gray-900">BSP Suggested Improvements</label>
+                <div className="flex items-start flex-wrap gap-2.5">
+                  <label className="form-label max-w-70 gap-1 mt-2.5">
+                    <KeenIcon icon="rocket" className="text-sm" />
+                    Suggested Improvements
+                  </label>
                   <textarea
-                    className="input min-h-[120px]"
+                    className="input flex-1 min-w-0 min-h-[120px] resize-y p-3"
                     value={form_data.bsp_analysis.bsp_suggested_improvements}
                     onChange={(e) => updateFormData('bsp_analysis', 'bsp_suggested_improvements', e.target.value)}
                     placeholder="Recommendations for BSP updates..."
@@ -660,10 +723,13 @@ const AddIncidentContent = () => {
                 </div>
 
                 {form_data.follow_up.follow_up_required && (
-                  <div className="flex flex-col gap-2">
-                    <label className="form-label font-medium text-gray-900">Follow-up Actions</label>
+                  <div className="flex items-start flex-wrap gap-2.5">
+                    <label className="form-label max-w-70 gap-1 mt-2.5">
+                      <KeenIcon icon="route" className="text-sm" />
+                      Follow-up Actions
+                    </label>
                     <textarea
-                      className="input min-h-[150px]"
+                      className="input flex-1 min-w-0 min-h-[150px] resize-y p-3"
                       value={form_data.follow_up.follow_up_actions}
                       onChange={(e) => updateFormData('follow_up', 'follow_up_actions', e.target.value)}
                       placeholder="Describe required follow-up actions..."
@@ -671,10 +737,13 @@ const AddIncidentContent = () => {
                   </div>
                 )}
 
-                <div className="flex flex-col gap-2">
-                  <label className="form-label font-medium text-gray-900">Additional Information</label>
+                <div className="flex items-start flex-wrap gap-2.5">
+                  <label className="form-label max-w-70 gap-1 mt-2.5">
+                    <KeenIcon icon="notepad" className="text-sm" />
+                    Additional Information
+                  </label>
                   <textarea
-                    className="input min-h-[120px]"
+                    className="input flex-1 min-w-0 min-h-[120px] resize-y p-3"
                     value={form_data.additional.additional_information}
                     onChange={(e) => updateFormData('additional', 'additional_information', e.target.value)}
                     placeholder="Any other relevant information..."
@@ -786,13 +855,14 @@ const AddIncidentContent = () => {
         <div className="card-body">
           <div className="grid gap-5">
             {/* Participant Dropdown */}
-            <div className="flex flex-col gap-2">
-              <label className="form-label font-medium text-gray-900">
+            <div className="flex items-baseline flex-wrap gap-2.5">
+              <label className="form-label max-w-70 gap-1">
+                <KeenIcon icon="user" className="text-sm" />
                 Participant
                 <span className="text-gray-500 font-normal ml-1">(Optional)</span>
               </label>
               <select
-                className="input"
+                className="input flex-1 min-w-0"
                 value={selectedParticipant}
                 onChange={(e) => setSelectedParticipant(e.target.value)}
                 disabled={isLoadingCustomers || isLoading}
@@ -809,13 +879,14 @@ const AddIncidentContent = () => {
             </div>
 
             {/* Incident Narrative Field */}
-            <div className="flex flex-col gap-2">
-              <label className="form-label font-medium text-gray-900">
+            <div className="flex items-start flex-wrap gap-2.5">
+              <label className="form-label max-w-70 gap-1 mt-2.5">
+                <KeenIcon icon="note-2" className="text-sm" />
                 Incident Narrative
                 <span className="text-danger">*</span>
               </label>
               <textarea
-                className="input min-h-[200px]"
+                className="input flex-1 min-w-0 min-h-[200px] resize-y p-3"
                 placeholder="Describe what happened:&#10;- What you observed (observable behaviours only)&#10;- What led up to the incident (triggers, antecedents)&#10;- What happened during the incident&#10;- How staff responded&#10;- Any injuries or damage&#10;&#10;The AI will extract structured, NDIS-compliant sections from your narrative."
                 value={incidentNarrative}
                 onChange={(e) => setIncidentNarrative(e.target.value)}

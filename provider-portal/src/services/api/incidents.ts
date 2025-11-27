@@ -7,7 +7,8 @@ import {
   CREATE_INCIDENT_PREVIEW_URL,
   STORE_INCIDENT_URL,
   UPDATE_INCIDENT_URL,
-  DELETE_INCIDENT_URL
+  DELETE_INCIDENT_URL,
+  GET_BSP_ANALYSIS_URL
 } from '../endpoints';
 
 // Get customers/participants for dropdown
@@ -98,6 +99,17 @@ const deleteIncident = async (incidentId: string | number) => {
   }
 };
 
+// Get BSP Analysis for an incident
+const fetchBspAnalysis = async (incidentId: string | number) => {
+  try {
+    const response = await axios.post(`${GET_BSP_ANALYSIS_URL}/${incidentId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching BSP analysis:', error);
+    throw error;
+  }
+};
+
 export {
   fetchIncidentCustomers,
   fetchIncidentStaff,
@@ -106,5 +118,6 @@ export {
   createIncidentPreview,
   storeIncident,
   updateIncident,
-  deleteIncident
+  deleteIncident,
+  fetchBspAnalysis
 };

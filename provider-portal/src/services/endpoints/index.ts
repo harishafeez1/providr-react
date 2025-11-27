@@ -80,3 +80,4 @@ export const CREATE_INCIDENT_PREVIEW_URL = `${API_URL}/incidents/preview`;
 export const STORE_INCIDENT_URL = `${API_URL}/incidents`;
 export const UPDATE_INCIDENT_URL = `${API_URL}/incidents`;
 export const DELETE_INCIDENT_URL = `${API_URL}/incidents`;
+export const GET_BSP_ANALYSIS_URL = `${API_URL}/incidents/getbspAnalysis`;
