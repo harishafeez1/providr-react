@@ -4,3 +4,4 @@ export * from './premises';
 export * from './service-offerings';
 export * from './service-request';
 export * from './stripe';
+export * from './incidents';

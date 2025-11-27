@@ -11,6 +11,12 @@ export const MENU_SIDEBAR: TMenuConfig = [
     permission: ['admin', 'editor', 'intake', 'review']
   },
   {
+    title: 'Incidents',
+    icon: 'note-2',
+    path: '/incidents',
+    permission: ['admin', 'editor', 'intake', 'review']
+  },
+  {
     title: 'Premises',
     icon: 'geolocation',
     path: '/premises',

@@ -70,3 +70,13 @@ export const POST_STRIPE_BILLING_PORTAL_URL = `${API_URL}/stripe/create-billing-
 export const GET_STRIPE_SUBSCRIPTION_STATUS_URL = `${API_URL}/stripe/subscription-status`;
 export const POST_STRIPE_CANCEL_SUBSCRIPTION_URL = `${API_URL}/stripe/cancel-subscription`;
 export const POST_STRIPE_REACTIVATE_SUBSCRIPTION_URL = `${API_URL}/stripe/reactivate-subscription`;
+
+// Incidents Routes
+export const GET_INCIDENTS_CUSTOMERS_URL = `${API_URL}/incidents/customers`;
+export const GET_INCIDENTS_STAFF_URL = `${API_URL}/incidents/staff`;
+export const GET_ALL_INCIDENTS_URL = `${API_URL}/incidents`;
+export const GET_SINGLE_INCIDENT_URL = `${API_URL}/incidents`;
+export const CREATE_INCIDENT_PREVIEW_URL = `${API_URL}/incidents/preview`;
+export const STORE_INCIDENT_URL = `${API_URL}/incidents`;
+export const UPDATE_INCIDENT_URL = `${API_URL}/incidents`;
+export const DELETE_INCIDENT_URL = `${API_URL}/incidents`;

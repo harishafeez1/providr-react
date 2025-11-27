@@ -25,6 +25,7 @@ import { AddCompanyProfilePage, ProfileCompanyPage } from '@/pages/company-profi
 import PermissionWrapper from '@/layouts/demo1/PermissionProvider';
 import { CustomerServiceRequestsTablePage } from '@/pages/service-requests/manage-customer-service-requests';
 import { RequestViewPage } from '@/pages/service-requests/request-view';
+import { IncidentsPage, AddIncidentPage, EditIncidentPage } from '@/pages/incidents';
 
 const AppRoutingSetup = (): ReactElement => {
   return (
@@ -36,6 +37,30 @@ const AppRoutingSetup = (): ReactElement => {
             element={
               <PermissionWrapper requiredPermissions={['admin', 'editor', 'intake', 'review']}>
                 <AddCompanyProfilePage />
+              </PermissionWrapper>
+            }
+          />
+          <Route
+            path="/incidents"
+            element={
+              <PermissionWrapper requiredPermissions={['admin', 'editor', 'intake', 'review']}>
+                <IncidentsPage />
+              </PermissionWrapper>
+            }
+          />
+          <Route
+            path="/incidents/add-incident"
+            element={
+              <PermissionWrapper requiredPermissions={['admin', 'editor', 'intake', 'review']}>
+                <AddIncidentPage />
+              </PermissionWrapper>
+            }
+          />
+          <Route
+            path="/incidents/:id/edit"
+            element={
+              <PermissionWrapper requiredPermissions={['admin', 'editor', 'intake', 'review']}>
+                <EditIncidentPage />
               </PermissionWrapper>
             }
           />
