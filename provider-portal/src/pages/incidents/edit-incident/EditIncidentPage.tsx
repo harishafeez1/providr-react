@@ -1,22 +1,17 @@
 import { Fragment } from 'react';
 import { EditIncidentContent } from './EditIncidentContent';
 import { Container } from '@/components/container';
-import {
-  Toolbar,
-  ToolbarDescription,
-  ToolbarHeading,
-  ToolbarPageTitle
-} from '@/partials/toolbar';
+import { Toolbar, ToolbarHeading } from '@/layouts/demo1/toolbar';
 
 const EditIncidentPage = () => {
   return (
     <Fragment>
       <Container>
         <Toolbar>
-          <ToolbarHeading>
-            <ToolbarPageTitle text="Edit Incident Report" />
-            <ToolbarDescription>Update incident details and information</ToolbarDescription>
-          </ToolbarHeading>
+          <ToolbarHeading
+            title="Edit Incident Report"
+            description="Update incident details and information"
+          />
         </Toolbar>
       </Container>
 

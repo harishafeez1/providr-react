@@ -1,7 +1,13 @@
 export interface IIncidentsData {
   id: number;
   incident_number: string;
-  incident_type: string;
+  incident_type: string | {
+    id: number;
+    name: string;
+    active: boolean;
+    created_at: string;
+    updated_at: string;
+  };
   severity: string;
   incident_date_time: string;
   participant_name: string | null;

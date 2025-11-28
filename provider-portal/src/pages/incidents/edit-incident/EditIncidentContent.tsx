@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { fetchSingleIncident, updateIncident } from '@/services/api';
 import { KeenIcon } from '@/components';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
 
 interface FormData {
   customer_id: number | null;
@@ -180,14 +182,14 @@ const EditIncidentContent = () => {
         <div className="text-center">
           <div className="mb-8 relative">
             <div className="relative inline-flex items-center justify-center">
-              <div className="w-24 h-24 rounded-full border-4 border-primary-light border-t-primary animate-spin"></div>
+              <div className="w-24 h-24 rounded-full border-4 border-primary-light dark:border-primary-dark border-t-primary animate-spin"></div>
               <div className="absolute inset-0 flex items-center justify-center">
-                <i className="ki-outline ki-notepad-edit text-4xl text-primary"></i>
+                <KeenIcon icon="notepad-edit" className="ki-outline text-4xl text-primary" />
               </div>
             </div>
           </div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-3">Loading Incident</h3>
-          <p className="text-gray-600 mb-2 max-w-md mx-auto">
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">Loading Incident</h3>
+          <p className="text-gray-600 dark:text-gray-400 mb-2 max-w-md mx-auto">
             Fetching incident details...
           </p>
         </div>
@@ -199,82 +201,70 @@ const EditIncidentContent = () => {
     <div className="grid gap-5 lg:gap-7.5">
       {/* Error Alert */}
       {error && (
-        <div className="alert alert-danger">
+        <div className="alert alert-danger dark:bg-danger/10">
           <div className="flex items-start gap-3">
-            <i className="ki-outline ki-information text-lg text-danger"></i>
-            <span className="text-sm text-gray-900">{error}</span>
+            <KeenIcon icon="information" className="ki-outline text-lg text-danger dark:text-danger-light" />
+            <span className="text-sm text-gray-900 dark:text-gray-100">{error}</span>
           </div>
         </div>
       )}
 
-      {/* Tabbed Form */}
-      <div className="card">
-        {/* Tab Navigation */}
-        <div className="card-header border-b-0 pb-0">
-          <div className="flex overflow-x-auto">
-            <button
+      {/* Tabbed Form with Custom Button Tabs */}
+      <Card>
+        <CardHeader className="border-b-0 pb-0">
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant={activeTab === 'basic' ? 'default' : 'ghost'}
+              size="sm"
               onClick={() => setActiveTab('basic')}
-              className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                activeTab === 'basic'
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
-              }`}
+              className="gap-2"
             >
-              <i className="ki-outline ki-information text-base mr-2"></i>
+              <KeenIcon icon="information" className="ki-outline text-base" />
               Basic Information
-            </button>
-            <button
+            </Button>
+            <Button
+              variant={activeTab === 'ndis' ? 'default' : 'ghost'}
+              size="sm"
               onClick={() => setActiveTab('ndis')}
-              className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                activeTab === 'ndis'
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
-              }`}
+              className="gap-2"
             >
-              <i className="ki-outline ki-shield-tick text-base mr-2"></i>
+              <KeenIcon icon="shield-tick" className="ki-outline text-base" />
               NDIS Details
-            </button>
-            <button
+            </Button>
+            <Button
+              variant={activeTab === 'medical' ? 'default' : 'ghost'}
+              size="sm"
               onClick={() => setActiveTab('medical')}
-              className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                activeTab === 'medical'
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
-              }`}
+              className="gap-2"
             >
-              <i className="ki-outline ki-pulse text-base mr-2"></i>
+              <KeenIcon icon="pulse" className="ki-outline text-base" />
               Medical & Reporting
-            </button>
-            <button
+            </Button>
+            <Button
+              variant={activeTab === 'bsp' ? 'default' : 'ghost'}
+              size="sm"
               onClick={() => setActiveTab('bsp')}
-              className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                activeTab === 'bsp'
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
-              }`}
+              className="gap-2"
             >
-              <i className="ki-outline ki-note-2 text-base mr-2"></i>
+              <KeenIcon icon="note-2" className="ki-outline text-base" />
               BSP Analysis
-            </button>
-            <button
+            </Button>
+            <Button
+              variant={activeTab === 'followup' ? 'default' : 'ghost'}
+              size="sm"
               onClick={() => setActiveTab('followup')}
-              className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                activeTab === 'followup'
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
-              }`}
+              className="gap-2"
             >
-              <i className="ki-outline ki-time text-base mr-2"></i>
+              <KeenIcon icon="time" className="ki-outline text-base" />
               Follow-up & Additional
-            </button>
+            </Button>
           </div>
-        </div>
+        </CardHeader>
 
-        {/* Tab Content */}
-        <div className="card-body">
+        <CardContent>
           {/* Basic Information Tab */}
           {activeTab === 'basic' && (
-            <div className="grid gap-5">
+            <div className="space-y-5">
               <div className="flex items-start flex-wrap gap-2.5">
                 <label className="form-label max-w-70 gap-1 mt-2.5">
                   <KeenIcon icon="calendar" className="text-sm" />
@@ -388,7 +378,7 @@ const EditIncidentContent = () => {
 
           {/* NDIS Details Tab */}
           {activeTab === 'ndis' && (
-            <div className="grid gap-5">
+            <div className="space-y-5">
               <div className="flex items-start flex-wrap gap-2.5">
                 <label className="form-label max-w-70 gap-1 mt-2.5">
                   <KeenIcon icon="shield-tick" className="text-sm" />
@@ -458,10 +448,10 @@ const EditIncidentContent = () => {
 
           {/* Medical & Reporting Tab */}
           {activeTab === 'medical' && (
-            <div className="grid gap-5">
-              <div className="card bg-gray-50">
-                <div className="card-body">
-                  <h4 className="text-sm font-semibold text-gray-900 mb-4">Medical Information</h4>
+            <div className="space-y-5">
+              <Card className="bg-gray-50 dark:bg-gray-900">
+                <CardContent>
+                  <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Medical Information</h4>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="flex items-center gap-3">
                       <input
@@ -486,7 +476,7 @@ const EditIncidentContent = () => {
 
                   {formData.injury_occurred && (
                     <div className="flex flex-col gap-2 mt-4">
-                      <label className="form-label font-medium text-gray-900">Injury Details</label>
+                      <label className="form-label font-medium text-gray-900 dark:text-gray-100">Injury Details</label>
                       <textarea
                         className="input flex-1 min-w-0 min-h-[100px] resize-y p-3"
                         value={formData.injury_details}
@@ -495,12 +485,12 @@ const EditIncidentContent = () => {
                       />
                     </div>
                   )}
-                </div>
-              </div>
+                </CardContent>
+              </Card>
 
-              <div className="card bg-gray-50">
-                <div className="card-body">
-                  <h4 className="text-sm font-semibold text-gray-900 mb-4">Reporting & Notifications</h4>
+              <Card className="bg-gray-50 dark:bg-gray-900">
+                <CardContent>
+                  <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Reporting & Notifications</h4>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="flex items-center gap-3">
                       <input
@@ -522,14 +512,14 @@ const EditIncidentContent = () => {
                       <label className="form-label mb-0">Police Notified</label>
                     </div>
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </div>
           )}
 
           {/* BSP Analysis Tab */}
           {activeTab === 'bsp' && (
-            <div className="grid gap-5">
+            <div className="space-y-5">
               <div className="flex items-start flex-wrap gap-2.5">
                 <label className="form-label max-w-70 gap-1 mt-2.5">
                   <KeenIcon icon="note-2" className="text-sm" />
@@ -560,8 +550,8 @@ const EditIncidentContent = () => {
 
           {/* Follow-up & Additional Tab */}
           {activeTab === 'followup' && (
-            <div className="grid gap-5">
-              <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+            <div className="space-y-5">
+              <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
                 <input
                   type="checkbox"
                   className="checkbox"
@@ -600,23 +590,21 @@ const EditIncidentContent = () => {
               </div>
             </div>
           )}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Action Buttons */}
       <div className="flex justify-between gap-4">
-        <button
-          type="button"
-          className="btn btn-light"
+        <Button
+          variant="light"
           onClick={handleBack}
           disabled={isSubmitting}
         >
-          <i className="ki-outline ki-left text-base"></i>
+          <KeenIcon icon="left" className="ki-outline text-base" />
           Back to Incidents
-        </button>
-        <button
-          type="button"
-          className="btn btn-primary"
+        </Button>
+        <Button
+          variant="default"
           onClick={handleSubmit}
           disabled={isSubmitting}
         >
@@ -627,11 +615,11 @@ const EditIncidentContent = () => {
             </>
           ) : (
             <>
-              <i className="ki-outline ki-check text-base"></i>
+              <KeenIcon icon="check" className="ki-outline text-base" />
               Update Incident
             </>
           )}
-        </button>
+        </Button>
       </div>
     </div>
   );

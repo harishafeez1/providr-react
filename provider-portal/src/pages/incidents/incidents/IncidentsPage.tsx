@@ -1,14 +1,9 @@
 import { Fragment, useEffect, useState } from 'react';
 import { Container } from '@/components/container';
-import {
-  Toolbar,
-  ToolbarActions,
-  ToolbarDescription,
-  ToolbarHeading,
-  ToolbarPageTitle
-} from '@/partials/toolbar';
+import { Toolbar, ToolbarHeading, ToolbarActions } from '@/layouts/demo1/toolbar';
+import { Button } from '@/components/ui/button';
+import { KeenIcon } from '@/components/keenicons';
 import { Link, useLocation } from 'react-router-dom';
-
 import { IncidentsTableContent } from './';
 
 const IncidentsPage = () => {
@@ -30,17 +25,18 @@ const IncidentsPage = () => {
     <Fragment>
       <Container>
         <Toolbar>
-          <ToolbarHeading>
-            <ToolbarPageTitle />
-            <ToolbarDescription>
-              Manage incidents efficiently with real-time updates
-            </ToolbarDescription>
-          </ToolbarHeading>
-          <ToolbarActions>
+          <ToolbarHeading
+            title="Incidents"
+            description="Manage incidents efficiently with real-time updates"
+          />
+           <ToolbarActions>
+              <Button variant="default" size="sm" asChild>
+
             <Link to="/incidents/add-incident" className="btn btn-sm btn-primary">
               <i className="ki-outline ki-plus text-base"></i>
               Add Incident
             </Link>
+            </Button>
           </ToolbarActions>
         </Toolbar>
       </Container>
@@ -48,10 +44,10 @@ const IncidentsPage = () => {
       {/* Success Message */}
       {successMessage && (
         <Container>
-          <div className="alert alert-success mb-5">
+          <div className="alert alert-success mb-5 dark:bg-success/10">
             <div className="flex items-start gap-3">
-              <i className="ki-outline ki-check-circle text-lg text-success"></i>
-              <span className="text-sm text-gray-900">{successMessage}</span>
+              <KeenIcon icon="check-circle" className="ki-outline text-lg text-success dark:text-success-light" />
+              <span className="text-sm text-gray-900 dark:text-gray-100">{successMessage}</span>
             </div>
           </div>
         </Container>

@@ -395,20 +395,31 @@ const IncidentsTable = () => {
         }
       },
       {
-        accessorFn: (row) => row.incident_type,
+        accessorFn: (row) => {
+          const incidentType = row.incident_type;
+          return typeof incidentType === 'object' && incidentType?.name
+            ? incidentType.name
+            : incidentType || '';
+        },
         id: 'incident_type',
         header: ({ column }) => (
           <DataGridColumnHeader
             filterable={false}
             title="Type"
             column={column}
-            icon={<i className="ki-filled ki-category"></i>}
+            icon={<KeenIcon icon="category" className="ki-filled" />}
           />
         ),
         cell: (info) => {
+          const incidentType = info.row.original.incident_type;
+          const typeName = typeof incidentType === 'object' && incidentType?.name
+            ? incidentType.name
+            : typeof incidentType === 'string'
+              ? incidentType
+              : 'N/A';
           return (
-            <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original.incident_type || 'N/A'}
+            <div className="flex items-center text-gray-800 dark:text-gray-200 font-normal gap-1.5">
+              {typeName}
             </div>
           );
         },
@@ -516,7 +527,6 @@ const IncidentsTable = () => {
   const handleDeleteIncident = async () => {
     if (selectedId) {
       await deleteIncident(selectedId);
-      toast.success('Incident deleted successfully');
     }
   };
 
@@ -1227,8 +1237,12 @@ const IncidentsTable = () => {
                             <p className="text-base text-gray-900">{selectedIncidentDetails.location || 'N/A'}</p>
                           </div>
                           <div>
-                            <p className="text-sm font-semibold text-gray-600 mb-1">Incident Type</p>
-                            <p className="text-base text-gray-900">{selectedIncidentDetails.incident_type || 'N/A'}</p>
+                            <p className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Incident Type</p>
+                            <p className="text-base text-gray-900 dark:text-gray-100">
+                              {typeof selectedIncidentDetails.incident_type === 'object' && selectedIncidentDetails.incident_type?.name
+                                ? selectedIncidentDetails.incident_type.name
+                                : selectedIncidentDetails.incident_type || 'N/A'}
+                            </p>
                           </div>
                           <div>
                             <p className="text-sm font-semibold text-gray-600 mb-1">Injury Occurred</p>

@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchIncidentCustomers, createIncidentPreview, storeIncident } from '@/services/api';
 import { KeenIcon } from '@/components';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 interface Customer {
   id: number;
@@ -26,6 +29,12 @@ interface AISuggestions {
   draft_summary?: string;
 }
 
+interface IncidentType {
+  id: number;
+  name: string;
+  selected?: boolean;
+}
+
 interface FormData {
   basic_info: {
     customer_id: number;
@@ -34,6 +43,7 @@ interface FormData {
     incident_date_time: string;
     location: string;
     incident_type: string;
+    incident_type_id: number | null;
     severity: string;
   };
   ndis_details: {
@@ -67,6 +77,7 @@ interface FormData {
 
 interface IncidentPreview {
   message: string;
+  incident_types: IncidentType[];
   ai_suggestions: AISuggestions;
   form_data: FormData;
   generated_report: string;
@@ -147,7 +158,7 @@ const AddIncidentContent = () => {
         customer_id: form_data.basic_info.customer_id,
         participant_name: form_data.basic_info.participant_name,
         description: form_data.basic_info.description,
-        incident_type: form_data.basic_info.incident_type,
+        incident_type: form_data.basic_info.incident_type_id,
         severity: form_data.basic_info.severity,
         incident_date_time: form_data.basic_info.incident_date_time,
         location: form_data.basic_info.location,
@@ -232,23 +243,20 @@ const AddIncidentContent = () => {
       <div className="flex flex-col items-center justify-center min-h-[500px]">
         <div className="text-center">
           <div className="mb-8 relative">
-            {/* Circular Loader */}
             <div className="relative inline-flex items-center justify-center">
-              {/* Outer spinning circle */}
-              <div className="w-24 h-24 rounded-full border-4 border-primary-light border-t-primary animate-spin"></div>
-              {/* Inner AI icon */}
+              <div className="w-24 h-24 rounded-full border-4 border-gray-200 dark:border-gray-700 border-t-primary animate-spin"></div>
               <div className="absolute inset-0 flex items-center justify-center">
-                <i className="ki-outline ki-ai text-4xl text-primary"></i>
+                <KeenIcon icon="ai" className="ki-outline text-4xl text-primary" />
               </div>
             </div>
           </div>
-          <h3 className="text-2xl font-bold text-gray-900 mb-3">
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
             Preparing NDIS AI Report
           </h3>
-          <p className="text-gray-600 mb-2 max-w-md mx-auto">
+          <p className="text-gray-600 dark:text-gray-400 mb-2 max-w-md mx-auto">
             Our AI is analyzing the incident and generating a comprehensive NDIS-compliant report...
           </p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-500">
             This may take a few moments
           </p>
         </div>
@@ -263,12 +271,12 @@ const AddIncidentContent = () => {
     return (
       <div className="grid gap-5 lg:gap-7.5">
         {/* Success Message */}
-        <div className="alert alert-success">
+        <div className="alert alert-success dark:bg-success/10">
           <div className="flex items-start gap-3">
-            <i className="ki-outline ki-shield-tick text-2xl text-success"></i>
+            <KeenIcon icon="shield-tick" className="ki-outline text-2xl text-success dark:text-success-light" />
             <div className="flex flex-col gap-1">
-              <span className="text-base font-semibold text-gray-900">{previewData.message}</span>
-              <span className="text-sm text-gray-700">
+              <span className="text-base font-semibold text-gray-900 dark:text-gray-100">{previewData.message}</span>
+              <span className="text-sm text-gray-700 dark:text-gray-300">
                 Review and edit the fields below as needed. All sections are editable.
               </span>
             </div>
@@ -277,170 +285,156 @@ const AddIncidentContent = () => {
 
         {/* AI Draft Summary */}
         {ai_suggestions?.draft_summary && (
-          <div className="card bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200">
-            <div className="card-body p-6">
+          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 border-2 border-blue-200 dark:border-blue-800">
+            <CardContent className="p-6">
               <div className="flex items-start gap-3 mb-4">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-500">
-                  <i className="ki-outline ki-abstract-26 text-xl text-white"></i>
+                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-500 dark:bg-blue-600">
+                  <KeenIcon icon="abstract-26" className="ki-outline text-xl text-white" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <h4 className="text-lg font-bold text-blue-900">AI-Generated Draft Summary</h4>
-                    <span className="badge badge-sm badge-info">Auto-Generated</span>
+                    <h4 className="text-lg font-bold text-blue-900 dark:text-blue-100">AI-Generated Draft Summary</h4>
+                    <Badge variant="default" className="badge-sm">Auto-Generated</Badge>
                   </div>
-                  <p className="text-xs text-blue-700">
+                  <p className="text-xs text-blue-700 dark:text-blue-300">
                     This summary was automatically generated based on the incident details you provided
                   </p>
                 </div>
               </div>
-              <div className="bg-white p-4 rounded-lg border border-blue-200">
-                <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
+                <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap">
                   {ai_suggestions.draft_summary}
                 </p>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         )}
 
         {/* AI Suggestions Highlight Cards */}
         <div className="grid md:grid-cols-3 gap-5">
           {/* Category Card */}
-          <div className="card border-2 border-primary bg-primary-light/10">
-            <div className="card-body p-5">
+          <Card className="border-2 border-primary bg-primary-light/10 dark:bg-primary-dark/10">
+            <CardContent className="p-5">
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-1">Suggested Category</p>
-                  <h3 className="text-xl font-bold text-gray-900">{ai_suggestions.category.value}</h3>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">{ai_suggestions.category.value}</h3>
                 </div>
-                <div className="badge badge-sm badge-success">{ai_suggestions.category.confidence} confidence</div>
+                <Badge variant="default" className="badge-sm bg-success text-success-inverse">{ai_suggestions.category.confidence} confidence</Badge>
               </div>
-              <div className="flex items-center gap-2 text-xs text-gray-600">
-                <i className="ki-outline ki-information-2"></i>
+              <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+                <KeenIcon icon="information-2" className="ki-outline" />
                 <span>AI-generated suggestion</span>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Severity Card */}
-          <div className={`card border-2 ${
-            ai_suggestions.severity.value.toLowerCase() === 'low' ? 'border-success bg-success-light/10' :
-            ai_suggestions.severity.value.toLowerCase() === 'medium' ? 'border-warning bg-warning-light/10' :
-            'border-danger bg-danger-light/10'
+          <Card className={`border-2 ${
+            ai_suggestions.severity.value.toLowerCase() === 'low' ? 'border-success bg-success-light/10 dark:bg-success-dark/10' :
+            ai_suggestions.severity.value.toLowerCase() === 'medium' ? 'border-warning bg-warning-light/10 dark:bg-warning-dark/10' :
+            'border-danger bg-danger-light/10 dark:bg-danger-dark/10'
           }`}>
-            <div className="card-body p-5">
+            <CardContent className="p-5">
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <p className={`text-xs font-semibold uppercase tracking-wide mb-1 ${
                     ai_suggestions.severity.value.toLowerCase() === 'low' ? 'text-success' :
                     ai_suggestions.severity.value.toLowerCase() === 'medium' ? 'text-warning' : 'text-danger'
                   }`}>Suggested Severity</p>
-                  <h3 className="text-xl font-bold text-gray-900">{ai_suggestions.severity.value}</h3>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">{ai_suggestions.severity.value}</h3>
                 </div>
               </div>
-              <p className="text-xs text-gray-600">{ai_suggestions.severity.reason}</p>
-            </div>
-          </div>
+              <p className="text-xs text-gray-600 dark:text-gray-400">{ai_suggestions.severity.reason}</p>
+            </CardContent>
+          </Card>
 
           {/* Contributing Factors Card */}
-          <div className="card border-2 border-info bg-info-light/10">
-            <div className="card-body p-5">
+          <Card className="border-2 border-info bg-info-light/10 dark:bg-info-dark/10">
+            <CardContent className="p-5">
               <p className="text-xs font-semibold text-info uppercase tracking-wide mb-2">Key Contributing Factors</p>
               <ul className="space-y-1">
                 {ai_suggestions.contributing_factors.map((factor, idx) => (
-                  <li key={idx} className="flex items-start gap-2 text-sm text-gray-700">
-                    <i className="ki-outline ki-check text-info mt-0.5"></i>
+                  <li key={idx} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
+                    <KeenIcon icon="check" className="ki-outline text-info mt-0.5" />
                     <span>{factor}</span>
                   </li>
                 ))}
               </ul>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* AI Disclaimer */}
-        <div className="alert alert-warning">
+        <div className="alert alert-warning dark:bg-warning/10">
           <div className="flex items-start gap-3">
-            <i className="ki-outline ki-information-3 text-lg text-warning"></i>
-            <span className="text-sm text-gray-700">{ai_suggestions.disclaimer}</span>
+            <KeenIcon icon="information-3" className="ki-outline text-lg text-warning dark:text-warning-light" />
+            <span className="text-sm text-gray-700 dark:text-gray-300">{ai_suggestions.disclaimer}</span>
           </div>
         </div>
 
-        {/* Tabbed Form */}
-        <div className="card">
-          {/* Tab Navigation */}
-          <div className="card-header border-b-0 pb-0">
-            <div className="flex overflow-x-auto">
-              <button
+        {/* Tabbed Form - Theme Compliant Custom Tabs */}
+        <Card>
+          <CardHeader className="border-b-0 pb-0 mb-3.5">
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant={activeTab === 'basic' ? 'default' : 'ghost'}
+                size="sm"
                 onClick={() => setActiveTab('basic')}
-                className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'basic'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-gray-600 hover:text-gray-900'
-                }`}
+                className="gap-2"
               >
-                <i className="ki-outline ki-information text-base mr-2"></i>
+                <KeenIcon icon="information" className="ki-outline text-base" />
                 Basic Information
-              </button>
-              <button
+              </Button>
+              <Button
+                variant={activeTab === 'ndis' ? 'default' : 'ghost'}
+                size="sm"
                 onClick={() => setActiveTab('ndis')}
-                className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'ndis'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-gray-600 hover:text-gray-900'
-                }`}
+                className="gap-2"
               >
-                <i className="ki-outline ki-shield-tick text-base mr-2"></i>
+                <KeenIcon icon="shield-tick" className="ki-outline text-base" />
                 NDIS Details
-              </button>
-              <button
+              </Button>
+              <Button
+                variant={activeTab === 'medical' ? 'default' : 'ghost'}
+                size="sm"
                 onClick={() => setActiveTab('medical')}
-                className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'medical'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-gray-600 hover:text-gray-900'
-                }`}
+                className="gap-2"
               >
-                <i className="ki-outline ki-pulse text-base mr-2"></i>
+                <KeenIcon icon="pulse" className="ki-outline text-base" />
                 Medical & Reporting
-              </button>
-              <button
+              </Button>
+              <Button
+                variant={activeTab === 'bsp' ? 'default' : 'ghost'}
+                size="sm"
                 onClick={() => setActiveTab('bsp')}
-                className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'bsp'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-gray-600 hover:text-gray-900'
-                }`}
+                className="gap-2"
               >
-                <i className="ki-outline ki-note-2 text-base mr-2"></i>
+                <KeenIcon icon="note-2" className="ki-outline text-base" />
                 BSP Analysis
-              </button>
-              <button
+              </Button>
+              <Button
+                variant={activeTab === 'followup' ? 'default' : 'ghost'}
+                size="sm"
                 onClick={() => setActiveTab('followup')}
-                className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'followup'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-gray-600 hover:text-gray-900'
-                }`}
+                className="gap-2"
               >
-                <i className="ki-outline ki-time text-base mr-2"></i>
+                <KeenIcon icon="time" className="ki-outline text-base" />
                 Follow-up
-              </button>
-              <button
+              </Button>
+              <Button
+                variant={activeTab === 'summary' ? 'default' : 'ghost'}
+                size="sm"
                 onClick={() => setActiveTab('summary')}
-                className={`px-5 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'summary'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-gray-600 hover:text-gray-900'
-                }`}
+                className="gap-2"
               >
-                <i className="ki-outline ki-document text-base mr-2"></i>
+                <KeenIcon icon="document" className="ki-outline text-base" />
                 Summary
-              </button>
+              </Button>
             </div>
-          </div>
+          </CardHeader>
 
-          {/* Tab Content */}
-          <div className="card-body">
+          <CardContent>
             {/* Basic Information Tab */}
             {activeTab === 'basic' && (
               <div className="grid gap-5">
@@ -491,17 +485,31 @@ const AddIncidentContent = () => {
                   </label>
                   <select
                     className="input flex-1 min-w-0"
-                    value={form_data.basic_info.incident_type}
-                    onChange={(e) => updateFormData('basic_info', 'incident_type', e.target.value)}
+                    value={form_data.basic_info.incident_type_id || ''}
+                    onChange={(e) => {
+                      const selectedId = parseInt(e.target.value);
+                      const selectedType = previewData?.incident_types?.find(type => type.id === selectedId);
+                      if (selectedType) {
+                        setPreviewData({
+                          ...previewData!,
+                          form_data: {
+                            ...previewData!.form_data,
+                            basic_info: {
+                              ...previewData!.form_data.basic_info,
+                              incident_type: selectedType.name,
+                              incident_type_id: selectedType.id
+                            }
+                          }
+                        });
+                      }
+                    }}
                   >
-                    <option>Behavioural</option>
-                    <option>Environmental Hazard</option>
-                    <option>Elopement/ Absconding Vehicle/Transport Incident</option>
-                    <option>Fall</option>
-                    <option>Injury</option>
-                    <option>Medication Error</option>
-                    <option>Property-Damage Safeguarding Abuse Concern</option>
-                    <option>Other</option>
+                    <option value="">Select Incident Type</option>
+                    {previewData?.incident_types?.map((type) => (
+                      <option key={type.id} value={type.id}>
+                        {type.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -610,9 +618,9 @@ const AddIncidentContent = () => {
             {/* Medical & Reporting Tab */}
             {activeTab === 'medical' && (
               <div className="grid gap-5">
-                <div className="card bg-gray-50">
-                  <div className="card-body">
-                    <h4 className="text-sm font-semibold text-gray-900 mb-4">Medical Information</h4>
+                <Card className="bg-gray-50 dark:bg-gray-900">
+                  <CardContent>
+                    <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Medical Information</h4>
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="flex items-center gap-3">
                         <input
@@ -646,12 +654,12 @@ const AddIncidentContent = () => {
                         />
                       </div>
                     )}
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
 
-                <div className="card bg-gray-50">
-                  <div className="card-body">
-                    <h4 className="text-sm font-semibold text-gray-900 mb-4">Reporting & Notifications</h4>
+                <Card className="bg-gray-50 dark:bg-gray-900">
+                  <CardContent>
+                    <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Reporting & Notifications</h4>
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="flex items-center gap-3">
                         <input
@@ -673,8 +681,8 @@ const AddIncidentContent = () => {
                         <label className="form-label mb-0">Police Notified</label>
                       </div>
                     </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               </div>
             )}
 
@@ -712,7 +720,7 @@ const AddIncidentContent = () => {
             {/* Follow-up Tab */}
             {activeTab === 'followup' && (
               <div className="grid gap-5">
-                <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
                   <input
                     type="checkbox"
                     className="checkbox"
@@ -755,52 +763,49 @@ const AddIncidentContent = () => {
             {/* Summary Tab */}
             {activeTab === 'summary' && (
               <div className="grid gap-5">
-                <div className="alert alert-info">
+                <div className="alert alert-info dark:bg-info/10">
                   <div className="flex items-start gap-3">
-                    <i className="ki-outline ki-information-2 text-lg text-info"></i>
-                    <span className="text-sm text-gray-700">
+                    <KeenIcon icon="information-2" className="ki-outline text-lg text-info dark:text-info-light" />
+                    <span className="text-sm text-gray-700 dark:text-gray-300">
                       This is the AI-generated comprehensive report summary. You can review all sections using the tabs above before submitting.
                     </span>
                   </div>
                 </div>
 
-                <div className="bg-gray-50 p-6 rounded-lg">
-                  <h4 className="text-lg font-semibold text-gray-900 mb-4">AI-Generated Report</h4>
+                <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">AI-Generated Report</h4>
                   <div className="prose max-w-none">
-                    <pre className="whitespace-pre-wrap font-sans text-sm text-gray-700 leading-relaxed">
+                    <pre className="whitespace-pre-wrap font-sans text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
                       {previewData.generated_report}
                     </pre>
                   </div>
                 </div>
               </div>
             )}
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Action Buttons */}
         <div className="flex justify-between gap-4">
-          <button
-            type="button"
-            className="btn btn-light"
+          <Button
+            variant="light"
             onClick={() => setShowPreview(false)}
             disabled={isSubmitting}
           >
-            <i className="ki-outline ki-left text-base"></i>
+            <KeenIcon icon="left" className="ki-outline text-base" />
             Edit Narrative
-          </button>
+          </Button>
           <div className="flex gap-3">
-            <button
-              type="button"
-              className="btn btn-light"
+            <Button
+              variant="light"
               onClick={handleBack}
               disabled={isSubmitting}
             >
-              <i className="ki-outline ki-cross text-base"></i>
+              <KeenIcon icon="cross" className="ki-outline text-base" />
               Cancel
-            </button>
-            <button
-              type="button"
-              className="btn btn-primary"
+            </Button>
+            <Button
+              variant="default"
               onClick={handleSubmitReport}
               disabled={isSubmitting}
             >
@@ -811,11 +816,11 @@ const AddIncidentContent = () => {
                 </>
               ) : (
                 <>
-                  <i className="ki-outline ki-check text-base"></i>
+                  <KeenIcon icon="check" className="ki-outline text-base" />
                   Submit Report
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -826,12 +831,12 @@ const AddIncidentContent = () => {
   return (
     <div className="grid gap-5 lg:gap-7.5">
       {/* Info Notice */}
-      <div className="alert alert-info">
+      <div className="alert alert-info dark:bg-info/10">
         <div className="flex items-start gap-3">
-          <i className="ki-outline ki-information-2 text-lg text-info"></i>
+          <KeenIcon icon="information-2" className="ki-outline text-lg text-info dark:text-info-light" />
           <div className="flex flex-col gap-1">
-            <span className="text-sm font-medium text-gray-900">Enhanced NDIS Extraction</span>
-            <span className="text-sm text-gray-700">
+            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Enhanced NDIS Extraction</span>
+            <span className="text-sm text-gray-700 dark:text-gray-300">
               Integrates participant profile and Behaviour Support Plan (BSP) for compliant, structured incident reports with factual, observable language.
             </span>
           </div>
@@ -840,26 +845,26 @@ const AddIncidentContent = () => {
 
       {/* Error Alert */}
       {error && (
-        <div className="alert alert-danger">
+        <div className="alert alert-danger dark:bg-danger/10">
           <div className="flex items-start gap-3">
-            <i className="ki-outline ki-information text-lg text-danger"></i>
-            <span className="text-sm text-gray-900">{error}</span>
+            <KeenIcon icon="information" className="ki-outline text-lg text-danger dark:text-danger-light" />
+            <span className="text-sm text-gray-900 dark:text-gray-100">{error}</span>
           </div>
         </div>
       )}
 
-      <div className="card">
-        <div className="card-header">
+      <Card>
+        <CardHeader>
           <h3 className="card-title">Incident Details</h3>
-        </div>
-        <div className="card-body">
+        </CardHeader>
+        <CardContent>
           <div className="grid gap-5">
             {/* Participant Dropdown */}
             <div className="flex items-baseline flex-wrap gap-2.5">
               <label className="form-label max-w-70 gap-1">
                 <KeenIcon icon="user" className="text-sm" />
                 Participant
-                <span className="text-gray-500 font-normal ml-1">(Optional)</span>
+                <span className="text-gray-500 dark:text-gray-400 font-normal ml-1">(Optional)</span>
               </label>
               <select
                 className="input flex-1 min-w-0"
@@ -897,31 +902,29 @@ const AddIncidentContent = () => {
 
             {/* AI Extract Button */}
             <div className="flex justify-end">
-              <button
-                type="button"
-                className="btn btn-primary"
+              <Button
+                variant="default"
                 onClick={handleExtractFields}
                 disabled={!incidentNarrative.trim() || isLoading}
               >
-                <i className="ki-outline ki-ai text-base"></i>
+                <KeenIcon icon="ai" className="ki-outline text-base" />
                 Extract NDIS-Compliant Fields with AI
-              </button>
+              </Button>
             </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Action Buttons */}
       <div className="flex justify-between gap-4">
-        <button
-          type="button"
-          className="btn btn-light"
+        <Button
+          variant="light"
           onClick={handleBack}
           disabled={isLoading}
         >
-          <i className="ki-outline ki-left text-base"></i>
+          <KeenIcon icon="left" className="ki-outline text-base" />
           Back to Incidents
-        </button>
+        </Button>
       </div>
     </div>
   );
