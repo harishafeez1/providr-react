@@ -83,7 +83,7 @@ const EditIncidentContent = () => {
         customer_id: incident.customer_id || null,
         participant_name: incident.participant_name || '',
         description: incident.description || '',
-        incident_type: incident.incident_type || 'Other',
+        incident_type: typeof incident.incident_type === 'object' ? incident.incident_type?.name || '' : (incident.incident_type || ''),
         severity: incident.severity || 'Low',
         incident_date_time: incident.incident_date_time ? incident.incident_date_time.replace('Z', '').replace('.000000', '') : '',
         location: incident.location || '',
@@ -311,20 +311,13 @@ const EditIncidentContent = () => {
                   <KeenIcon icon="category" className="text-sm" />
                   Incident Type
                 </label>
-                <select
+                <input
+                  type="text"
                   className="input flex-1 min-w-0"
                   value={formData.incident_type}
                   onChange={(e) => updateField('incident_type', e.target.value)}
-                >
-                  <option>Behavioural</option>
-                  <option>Environmental Hazard</option>
-                  <option>Elopement/ Absconding Vehicle/Transport Incident</option>
-                  <option>Fall</option>
-                  <option>Injury</option>
-                  <option>Medication Error</option>
-                  <option>Property-Damage Safeguarding Abuse Concern</option>
-                  <option>Other</option>
-                </select>
+                  placeholder="Enter incident type"
+                />
               </div>
 
               <div className="flex items-start flex-wrap gap-2.5">
