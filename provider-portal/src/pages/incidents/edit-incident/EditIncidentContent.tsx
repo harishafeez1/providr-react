@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 
 interface FormData {
-  customer_id: number | null;
+  participant_id: number | null;
   participant_name: string;
   description: string;
   incident_type: string;
@@ -39,7 +39,7 @@ const EditIncidentContent = () => {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('basic');
   const [formData, setFormData] = useState<FormData>({
-    customer_id: null,
+    participant_id: null,
     participant_name: '',
     description: '',
     incident_type: 'Other',
@@ -80,7 +80,7 @@ const EditIncidentContent = () => {
 
       // Populate form with incident data
       setFormData({
-        customer_id: incident.customer_id || null,
+        participant_id: incident.participant_id || null,
         participant_name: incident.participant_name || '',
         description: incident.description || '',
         incident_type: typeof incident.incident_type === 'object' ? incident.incident_type?.name || '' : (incident.incident_type || ''),
@@ -121,7 +121,7 @@ const EditIncidentContent = () => {
     try {
       // Prepare data for update
       const submitData = {
-        customer_id: formData.customer_id,
+        participant_id: formData.participant_id,
         participant_name: formData.participant_name,
         description: formData.description,
         incident_type: formData.incident_type,

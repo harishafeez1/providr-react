@@ -74,6 +74,7 @@ export const POST_STRIPE_REACTIVATE_SUBSCRIPTION_URL = `${API_URL}/stripe/reacti
 // Incidents Routes
 export const GET_INCIDENTS_CUSTOMERS_URL = `${API_URL}/incidents/customers`;
 export const GET_INCIDENTS_STAFF_URL = `${API_URL}/incidents/staff`;
+export const GET_INCIDENTS_STATISTICS_URL = `${API_URL}/incidents/statistics`;
 export const GET_ALL_INCIDENTS_URL = `${API_URL}/incidents`;
 export const GET_SINGLE_INCIDENT_URL = `${API_URL}/incidents`;
 export const CREATE_INCIDENT_PREVIEW_URL = `${API_URL}/incidents/preview`;
@@ -81,3 +82,19 @@ export const STORE_INCIDENT_URL = `${API_URL}/incidents`;
 export const UPDATE_INCIDENT_URL = `${API_URL}/incidents`;
 export const DELETE_INCIDENT_URL = `${API_URL}/incidents`;
 export const GET_BSP_ANALYSIS_URL = `${API_URL}/incidents/getbspAnalysis`;
+export const EXPORT_INCIDENT_PDF_URL = `${API_URL}/incidents/export-pdf`;
+export const EXPORT_INCIDENTS_CSV_URL = `${API_URL}/incidents/export-csv`;
+
+// Dashboard Routes
+export const GET_DASHBOARD_OVERVIEW_URL = `${API_URL}/dashboard/overview`;
+export const GET_DASHBOARD_INCIDENT_TRENDS_URL = `${API_URL}/dashboard/incident-trends`;
+export const GET_DASHBOARD_INCIDENT_DISTRIBUTION_URL = `${API_URL}/dashboard/breakdown`;
+export const GET_DASHBOARD_RECENT_INCIDENTS_URL = `${API_URL}/dashboard/recent-incidents`;
+export const GET_DASHBOARD_PARTICIPANTS_URL = `${API_URL}/dashboard/participants`;
+
+// Participants Routes
+export const GET_PARTICIPANTS_URL = `${API_URL}/participants`;
+export const UPDATE_SINGLE_PARTICIPANT_URL = `${API_URL}/participants`;
+export const DELETE_PARTICIPANT_URL = `${API_URL}/participants`;
+export const GET_SINGLE_PARTICIPANT_URL = `${API_URL}/participants`;
+export const GET_ALL_PARTICIPANTS_URL = `${API_URL}/participants`;

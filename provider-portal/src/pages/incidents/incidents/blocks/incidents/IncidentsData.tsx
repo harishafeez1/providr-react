@@ -19,4 +19,8 @@ export interface IIncidentsData {
     first_name?: string;
     last_name?: string;
   };
+  behavioral_identified?: boolean;
+  trigger_extracted?: boolean;
+  bsp_aligned?: boolean;
+  restrictive_practice_used?: boolean;
 }

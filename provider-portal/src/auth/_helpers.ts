@@ -67,6 +67,18 @@ export function setupAxios(axios: any) {
       return response;
     },
     async (error: any) => {
+      // Log full error details to console for debugging
+      console.group('🔴 API Error Details');
+      console.error('Error:', error);
+      console.error('Response:', error.response);
+      console.error('Status:', error.response?.status);
+      console.error('Data:', error.response?.data);
+      console.error('Headers:', error.response?.headers);
+      console.error('Request URL:', error.config?.url);
+      console.error('Request Method:', error.config?.method);
+      console.error('Request Data:', error.config?.data);
+      console.groupEnd();
+
       const axiosError = error as AxiosError<ErrorMsg>;
       if (axiosError.response?.data.message) {
         toast.error(axiosError?.response?.data?.message, {
@@ -84,6 +96,15 @@ export function setupAxios(axios: any) {
               position: 'top-right'
             });
           });
+      }
+
+      // If no specific error message was found, show a generic error with status
+      if (!axiosError.response?.data.message && (!error.response?.data?.errors || Object.keys(error.response.data.errors).length === 0)) {
+        const statusText = error.response?.statusText || 'Unknown Error';
+        const status = error.response?.status || '';
+        toast.error(`API Error ${status}: ${statusText}`, {
+          position: 'top-right'
+        });
       }
 
       // Reject the error for further handling

@@ -17,6 +17,11 @@ import { AnalyticsPage } from '@/pages/analytics';
 import { SpecialisationsPage } from '@/pages/specialisations';
 import { AccountPlansPage } from '@/pages/billing';
 import { AddPremisesPage, EditPremisesPage, PremisesTablePage } from '@/pages/premises';
+import {
+  AddParticipantPage,
+  EditParticipantPage,
+  ParticipantsTablePage
+} from '@/pages/participants';
 import { ReviewsTablePage } from '@/pages/reviews';
 import { UsersTablePage } from '@/pages/users';
 import { InvoicesPage } from '@/pages/invoices';
@@ -26,12 +31,21 @@ import PermissionWrapper from '@/layouts/demo1/PermissionProvider';
 import { CustomerServiceRequestsTablePage } from '@/pages/service-requests/manage-customer-service-requests';
 import { RequestViewPage } from '@/pages/service-requests/request-view';
 import { IncidentsPage, AddIncidentPage, EditIncidentPage } from '@/pages/incidents';
+import { DashboardPage } from '@/pages/dashboard';
 
 const AppRoutingSetup = (): ReactElement => {
   return (
     <Routes>
       <Route element={<RequireAuth />}>
         <Route element={<Demo1Layout />}>
+          <Route
+            path="/dashboard"
+            element={
+              <PermissionWrapper requiredPermissions={['admin', 'editor', 'intake', 'review']}>
+                <DashboardPage />
+              </PermissionWrapper>
+            }
+          />
           <Route
             path="/"
             element={
@@ -164,6 +178,31 @@ const AppRoutingSetup = (): ReactElement => {
             element={
               <PermissionWrapper requiredPermissions={['admin', 'editor']}>
                 <EditPremisesPage />
+              </PermissionWrapper>
+            }
+          />
+
+          <Route
+            path="/participants"
+            element={
+              <PermissionWrapper requiredPermissions={['admin', 'editor']}>
+                <ParticipantsTablePage />
+              </PermissionWrapper>
+            }
+          />
+          <Route
+            path="/participants/add-participant"
+            element={
+              <PermissionWrapper requiredPermissions={['admin', 'editor']}>
+                <AddParticipantPage />
+              </PermissionWrapper>
+            }
+          />
+          <Route
+            path="/participants/edit-participant/:id"
+            element={
+              <PermissionWrapper requiredPermissions={['admin', 'editor']}>
+                <EditParticipantPage />
               </PermissionWrapper>
             }
           />

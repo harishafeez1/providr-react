@@ -1,20 +1,13 @@
-import { useMemo, useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import {
-  DataGrid,
-  DataGridColumnHeader,
-  KeenIcon,
-  Menu,
-  MenuItem,
-  MenuToggle,
-  TDataGridRequestParams
-} from '@/components';
-import { ColumnDef, Column, RowSelectionState } from '@tanstack/react-table';
-import { MenuIcon, MenuLink, MenuSub, MenuTitle } from '@/components';
-
+import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { IIncidentsData } from './IncidentsData';
+import { IncidentTimelineCard } from './IncidentTimelineCard';
+import { fetchAllIncidents, deleteIncident, fetchSingleIncident, fetchIncidentCustomers, fetchIncidentStatistics, fetchBspAnalysis, exportIncidentPdf } from '@/services/api';
+import { KeenIcon } from '@/components';
+import { ModalDeleteConfirmation } from '@/partials/modals/delete-confirmation';
+import { ViewToggle } from './ViewToggle';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -22,32 +15,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
 
-import { IIncidentsData } from './';
-import { useLanguage } from '@/i18n';
-import { fetchAllIncidents, deleteIncident, fetchSingleIncident, fetchBspAnalysis, fetchIncidentCustomers, exportIncidentPdf, fetchIncidentStatistics } from '@/services/api';
-import { ModalDeleteConfirmation } from '@/partials/modals/delete-confirmation';
-import { ViewToggle } from './ViewToggle';
-
-interface IColumnFilterProps<TData, TValue> {
-  column: Column<TData, TValue>;
+interface GroupedIncidents {
+  [date: string]: IIncidentsData[];
 }
 
-interface IncidentsTableProps {
+interface IncidentsTimelineProps {
   activeView: 'table' | 'timeline';
   onViewChange: (view: 'table' | 'timeline') => void;
 }
 
-const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
-  const { isRTL } = useLanguage();
+const IncidentsTimeline = ({ activeView, onViewChange }: IncidentsTimelineProps) => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [incidents, setIncidents] = useState<IIncidentsData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
@@ -55,6 +38,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
   const [loadingReport, setLoadingReport] = useState(false);
   const [bspAnalysisData, setBspAnalysisData] = useState<any>(null);
   const [loadingBspAnalysis, setLoadingBspAnalysis] = useState(false);
+  const ITEMS_PER_PAGE = 20;
 
   // Filter states
   const [participants, setParticipants] = useState<any[]>([]);
@@ -98,51 +82,74 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
     loadStatistics();
   }, []);
 
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-  };
+  useEffect(() => {
+    loadIncidents();
+  }, [currentPage]);
 
-  const handleModalOpen = (id: number) => {
-    setSelectedId(id);
-    setIsModalOpen(true);
-  };
-
-  const handleViewDetails = async (incidentId: number) => {
-    setShowReportModal(true);
-    setLoadingReport(true);
-
+  const loadIncidents = async () => {
     try {
-      // Fetch incident details
-      const response = await fetchSingleIncident(incidentId);
-      setSelectedIncidentDetails(response);
-      setLoadingReport(false);
-    } catch (err: any) {
-      console.error('Error fetching incident details:', err);
-      toast.error(err?.response?.data?.message || 'Failed to load incident details');
-      setShowReportModal(false);
-      setLoadingReport(false);
-    }
-  };
+      setLoading(true);
 
-  const handleRunBspAnalysis = async (incidentId: number) => {
-    setLoadingBspAnalysis(true);
-    setBspAnalysisData(null);
+      // Build filter object for backend
+      const apiFilters: any = {
+        per_page: ITEMS_PER_PAGE,
+        page: currentPage
+      };
 
-    try {
-      const bspResponse = await fetchBspAnalysis(incidentId);
-      setBspAnalysisData(bspResponse);
-    } catch (bspErr: any) {
-      console.error('Error fetching BSP analysis:', bspErr);
-      toast.error('BSP Analysis could not be loaded');
+      // Add custom filters
+      if (selectedParticipant !== 'all') {
+        apiFilters.participant_name = selectedParticipant;
+      }
+      if (selectedSeverity !== 'all') {
+        apiFilters.severity = selectedSeverity;
+      }
+      if (selectedStatus !== 'all') {
+        apiFilters.status = selectedStatus;
+      }
+      if (selectedRestrictive !== 'all') {
+        apiFilters.restrictive_practice = selectedRestrictive === 'yes';
+      }
+      if (dateFrom) {
+        apiFilters.date_from = dateFrom;
+      }
+      if (dateTo) {
+        apiFilters.date_to = dateTo;
+      }
+
+      // Fetch data from backend with filters
+      const data = await fetchAllIncidents(apiFilters);
+      console.log('Incidents API response:', data);
+
+      // Handle different possible response formats
+      let incidentsData = [];
+
+      if (Array.isArray(data)) {
+        incidentsData = data;
+      } else if (data?.data && Array.isArray(data.data)) {
+        incidentsData = data.data;
+      } else if (data?.incidents) {
+        incidentsData = data.incidents;
+      }
+
+      console.log('Processed incidents data:', incidentsData);
+
+      // Store all incidents for export
+      setAllIncidentsData(incidentsData);
+
+      if (currentPage === 1) {
+        setIncidents(incidentsData);
+      } else {
+        setIncidents(prev => [...prev, ...incidentsData]);
+      }
+
+      // Check if there are more items
+      setHasMore(incidentsData && incidentsData.length === ITEMS_PER_PAGE);
+    } catch (error) {
+      console.error('Error loading incidents:', error);
+      setIncidents([]);
     } finally {
-      setLoadingBspAnalysis(false);
+      setLoading(false);
     }
-  };
-
-  const closeReportModal = () => {
-    setShowReportModal(false);
-    setSelectedIncidentDetails(null);
-    setBspAnalysisData(null);
   };
 
   const getSeverityBadgeClass = (severity: string) => {
@@ -175,21 +182,6 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
     }
   };
 
-  const getStatusDisplayName = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case 'draft':
-        return 'Draft';
-      case 'submitted':
-        return 'Submitted';
-      case 'under_review':
-        return 'Under Review';
-      case 'completed':
-        return 'Completed';
-      default:
-        return status || 'Draft';
-    }
-  };
-
   const formatDateTime = (dateTime: string) => {
     if (!dateTime) return { date: 'N/A', time: '' };
     const date = new Date(dateTime);
@@ -209,478 +201,77 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
     return { date: formattedDate, time: formattedTime };
   };
 
-  const ColumnInputFilter = <TData, TValue>({ column }: IColumnFilterProps<TData, TValue>) => {
-    return (
-      <Input
-        placeholder="Filter..."
-        value={(column.getFilterValue() as string) ?? ''}
-        onChange={(event) => column.setFilterValue(event.target.value)}
-        className="h-9 w-full max-w-40"
-      />
-    );
-  };
+  const handleViewDetails = async (incidentId: number) => {
+    setShowReportModal(true);
+    setLoadingReport(true);
 
-  const DropdownCard = (incidentId: number, handleModalOpen: any, handleViewDetails: any) => {
-    return (
-      <MenuSub className="menu-default" rootClassName="w-full max-w-[200px]">
-        <MenuItem
-          onClick={() => handleViewDetails(incidentId)}
-          toggle="dropdown"
-          trigger="hover"
-          dropdownProps={{
-            placement: isRTL() ? 'left-start' : 'right-start',
-            modifiers: [
-              {
-                name: 'offset',
-                options: {
-                  offset: isRTL() ? [15, 0] : [-15, 0]
-                }
-              }
-            ]
-          }}
-        >
-          <MenuLink>
-            <a className="flex">
-              <MenuIcon>
-                <KeenIcon icon="eye" />
-              </MenuIcon>
-              <MenuTitle>View Details</MenuTitle>
-            </a>
-          </MenuLink>
-        </MenuItem>
-
-        <MenuItem
-          toggle="dropdown"
-          trigger="hover"
-          dropdownProps={{
-            placement: isRTL() ? 'left-start' : 'right-start',
-            modifiers: [
-              {
-                name: 'offset',
-                options: {
-                  offset: isRTL() ? [15, 0] : [-15, 0]
-                }
-              }
-            ]
-          }}
-        >
-          <MenuLink path={`/incidents/${incidentId}/edit`}>
-            <MenuIcon>
-              <KeenIcon icon="notepad-edit" />
-            </MenuIcon>
-            <MenuTitle>Edit</MenuTitle>
-          </MenuLink>
-        </MenuItem>
-
-        <MenuItem
-          onClick={() => handleModalOpen(incidentId)}
-          toggle="dropdown"
-          dropdownProps={{
-            placement: isRTL() ? 'left-start' : 'right-start',
-            modifiers: [
-              {
-                name: 'offset',
-                options: {
-                  offset: isRTL() ? [15, 0] : [-15, 0]
-                }
-              }
-            ]
-          }}
-        >
-          <MenuLink>
-            <a className="flex">
-              <MenuIcon>
-                <KeenIcon icon="trash" />
-              </MenuIcon>
-              <MenuTitle>Delete</MenuTitle>
-            </a>
-          </MenuLink>
-        </MenuItem>
-      </MenuSub>
-    );
-  };
-
-  const fetchIncidentsData = async (params: TDataGridRequestParams) => {
     try {
-      console.log('Fetching incidents data...', params);
-
-      // Build filter object for backend
-      const filters: any = {
-        per_page: params.pageSize
-      };
-
-      // Add custom filters
-      if (selectedParticipant !== 'all') {
-        filters.participant_name = selectedParticipant;
-      }
-      if (selectedSeverity !== 'all') {
-        filters.severity = selectedSeverity;
-      }
-      if (selectedStatus !== 'all') {
-        filters.status = selectedStatus;
-      }
-      if (selectedRestrictive !== 'all') {
-        filters.restrictive_practice = selectedRestrictive === 'yes';
-      }
-      if (dateFrom) {
-        filters.date_from = dateFrom;
-      }
-      if (dateTo) {
-        filters.date_to = dateTo;
-      }
-
-      // Fetch data from backend with filters
-      const data = await fetchAllIncidents(filters);
-      console.log('Incidents API response:', data);
-
-      // Handle different possible response formats
-      let incidentsData = [];
-      let totalCount = 0;
-
-      if (Array.isArray(data)) {
-        incidentsData = data;
-        totalCount = data.length;
-      } else if (data?.data && Array.isArray(data.data)) {
-        incidentsData = data.data;
-        totalCount = data.total || data.data.length;
-      } else if (data?.incidents) {
-        incidentsData = data.incidents;
-        totalCount = data.total || incidentsData.length;
-      }
-
-      console.log('Processed incidents data:', incidentsData);
-
-      // Store all incidents for export
-      setAllIncidentsData(incidentsData);
-
-      return {
-        data: incidentsData,
-        totalCount: totalCount
-      };
-    } catch (error) {
-      console.error('Error fetching incidents:', error);
-      toast.error('Failed to load incidents. Please try again.');
-      return {
-        data: [],
-        totalCount: 0
-      };
+      const response = await fetchSingleIncident(incidentId);
+      setSelectedIncidentDetails(response);
+      setLoadingReport(false);
+    } catch (err: any) {
+      console.error('Error fetching incident details:', err);
+      toast.error(err?.response?.data?.message || 'Failed to load incident details');
+      setShowReportModal(false);
+      setLoadingReport(false);
     }
   };
 
-  const columns = useMemo<ColumnDef<IIncidentsData>[]>(
-    () => [
-      // 1. Date
-      {
-        accessorFn: (row) => row.incident_date_time,
-        id: 'incident_date_time',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            filterable={false}
-            title="Date"
-            column={column}
-            icon={<i className="ki-filled ki-calendar"></i>}
-          />
-        ),
-        cell: (info) => {
-          const { date, time } = formatDateTime(info.row.original.incident_date_time);
-          return (
-            <div className="flex flex-col gap-0.5">
-              <div className="text-sm text-gray-800 font-medium">{date}</div>
-              {time && <div className="text-xs text-gray-600">{time}</div>}
-            </div>
-          );
-        },
-        meta: {
-          headerClassName: 'min-w-[130px]'
-        }
-      },
-      // 2. Incident Number
-      {
-        accessorFn: (row: IIncidentsData) => row.incident_number,
-        id: 'incident_number',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            filterable={false}
-            title="Incident"
-            filter={<ColumnInputFilter column={column} />}
-            column={column}
-            icon={<i className="ki-filled ki-barcode"></i>}
-          />
-        ),
-        cell: ({ row }) => {
-          return (
-            <div className="flex items-center gap-2">
-              <div className="flex flex-col gap-0.5">
-                <div className="text-sm text-primary font-medium">#{row.original.incident_number}</div>
-              </div>
-            </div>
-          );
-        },
-        meta: {
-          className: 'min-w-[180px]',
-          cellClassName: 'text-gray-800 font-normal'
-        }
-      },
-      // 3. Participant
-      {
-        accessorFn: (row) => row.participant_name,
-        id: 'participant_name',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            filterable={false}
-            title="Participant"
-            column={column}
-            icon={<i className="ki-filled ki-user"></i>}
-          />
-        ),
-        cell: (info) => {
-          const participant = info.row.original.participant_name ||
-            (info.row.original.customer
-              ? `${info.row.original.customer.first_name || ''} ${info.row.original.customer.last_name || ''}`.trim()
-              : 'N/A');
-          return (
-            <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {participant}
-            </div>
-          );
-        },
-        meta: {
-          headerClassName: 'min-w-[150px]'
-        }
-      },
-      // 4. Type
-      {
-        accessorFn: (row) => {
-          const incidentType = row.incident_type;
-          return typeof incidentType === 'object' && incidentType?.name
-            ? incidentType.name
-            : incidentType || '';
-        },
-        id: 'incident_type',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            filterable={false}
-            title="Type"
-            column={column}
-            icon={<KeenIcon icon="category" className="ki-filled" />}
-          />
-        ),
-        cell: (info) => {
-          const incidentType = info.row.original.incident_type;
-          const typeName = typeof incidentType === 'object' && incidentType?.name
-            ? incidentType.name
-            : typeof incidentType === 'string'
-              ? incidentType
-              : 'N/A';
-          return (
-            <div className="flex items-center text-gray-800 dark:text-gray-200 font-normal gap-1.5">
-              {typeName}
-            </div>
-          );
-        },
-        meta: {
-          headerClassName: 'min-w-[130px]'
-        }
-      },
-      // 5. Severity
-      {
-        accessorFn: (row) => row.severity,
-        id: 'severity',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            filterable={false}
-            title="Severity"
-            column={column}
-            icon={<i className="ki-filled ki-chart"></i>}
-          />
-        ),
-        cell: (info) => {
-          return (
-            <span className={`badge ${getSeverityBadgeClass(info.row.original.severity)} badge-outline rounded-full`}>
-              {info.row.original.severity || 'N/A'}
-            </span>
-          );
-        },
-        meta: {
-          headerClassName: 'min-w-[110px]'
-        }
-      },
-      // 6. Insights
-      {
-        id: 'insights',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            filterable={false}
-            title="Insights"
-            column={column}
-            icon={<i className="ki-filled ki-chart-line-star"></i>}
-          />
-        ),
-        cell: (info) => {
-          const row = info.row.original;
-          // Use database flags instead of checking field values
-          const hasBehavioralData = row.behavioral_identified;
-          const hasTriggerData = row.trigger_extracted;
-          const hasBspAlignment = row.bsp_aligned;
+  const handleModalOpen = (id: number) => {
+    setSelectedId(id);
+    setIsModalOpen(true);
+  };
 
-          return (
-            <div className="flex items-center gap-2 justify-center">
-              {hasBehavioralData && (
-                <div
-                  className="relative group cursor-pointer"
-                  title="Behavioral Identified"
-                >
-                  <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center hover:bg-purple-200 dark:hover:bg-purple-800/50 transition-colors">
-                    <i className="ki-solid ki-abstract-26 text-purple-600 dark:text-purple-400 text-base"></i>
-                  </div>
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                    Behavioral Identified
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
-                  </div>
-                </div>
-              )}
-              {hasTriggerData && (
-                <div
-                  className="relative group cursor-pointer"
-                  title="Trigger Extracted"
-                >
-                  <div className="w-8 h-8 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center hover:bg-yellow-200 dark:hover:bg-yellow-800/50 transition-colors">
-                    <KeenIcon icon="electricity" className="text-yellow-600 dark:text-yellow-400 text-lg" />
-                  </div>
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                    Trigger Extracted
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
-                  </div>
-                </div>
-              )}
-              {hasBspAlignment && (
-                <div
-                  className="relative group cursor-pointer"
-                  title="BSP Aligned"
-                >
-                  <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors">
-                    <KeenIcon icon="check-circle" className="text-green-600 dark:text-green-400 text-lg" />
-                  </div>
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                    BSP Aligned
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
-                  </div>
-                </div>
-              )}
-              {!hasBehavioralData && !hasTriggerData && !hasBspAlignment && (
-                <span className="text-gray-400 dark:text-gray-600 text-xs">N/A</span>
-              )}
-            </div>
-          );
-        },
-        meta: {
-          headerClassName: 'min-w-[140px]',
-          cellClassName: 'text-center'
-        }
-      },
-      // 7. Restrictive
-      {
-        accessorFn: (row) => row.restrictive_practice_used,
-        id: 'restrictive',
-        header: ({ column}) => (
-          <DataGridColumnHeader
-            filterable={false}
-            title="Restrictive"
-            column={column}
-            icon={<i className="ki-filled ki-shield-cross"></i>}
-          />
-        ),
-        cell: (info) => {
-          return (
-            <div className="flex justify-center">
-              {info.row.original.restrictive_practice_used ? (
-                <span className="badge badge-warning badge-outline rounded-full badge-sm">Yes</span>
-              ) : (
-                <span className="badge badge-light badge-outline rounded-full badge-sm">No</span>
-              )}
-            </div>
-          );
-        },
-        meta: {
-          headerClassName: 'min-w-[100px]'
-        }
-      },
-      // 8. Status
-      {
-        accessorFn: (row) => row.status,
-        id: 'status',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            filterable={false}
-            title="Status"
-            column={column}
-            icon={<i className="ki-filled ki-flag"></i>}
-          />
-        ),
-        cell: (info) => {
-          return (
-            <span className={`badge ${getStatusBadgeClass(info.row.original.status)} badge-outline rounded-full`}>
-              {getStatusDisplayName(info.row.original.status)}
-            </span>
-          );
-        },
-        meta: {
-          headerClassName: 'min-w-[120px]'
-        }
-      },
-      // 9. Actions
-      {
-        id: 'actions',
-        header: () => '',
-        enableSorting: false,
-        cell: (row) => (
-          <Menu className="items-stretch">
-            <MenuItem
-              toggle="dropdown"
-              trigger="click"
-              dropdownProps={{
-                placement: isRTL() ? 'bottom-start' : 'bottom-end',
-                modifiers: [
-                  {
-                    name: 'offset',
-                    options: {
-                      offset: isRTL() ? [0, -10] : [0, 10]
-                    }
-                  }
-                ]
-              }}
-            >
-              <MenuToggle className="btn btn-sm btn-icon btn-light btn-clear">
-                <KeenIcon icon="dots-vertical" />
-              </MenuToggle>
-              {DropdownCard(row.row.original.id, handleModalOpen, handleViewDetails)}
-            </MenuItem>
-          </Menu>
-        ),
-        meta: {
-          headerClassName: 'w-[60px]'
-        }
-      }
-    ],
-    [isRTL]
-  );
-
-  const handleRowSelection = (state: RowSelectionState) => {
-    const selectedRowIds = Object.keys(state);
-    if (selectedRowIds.length > 0) {
-      toast(`Total ${selectedRowIds.length} are selected.`, {
-        description: `Selected row IDs: ${selectedRowIds}`,
-        action: {
-          label: 'Undo',
-          onClick: () => console.log('Undo')
-        }
-      });
-    }
+  const handleModalClose = () => {
+    setIsModalOpen(false);
   };
 
   const handleDeleteIncident = async () => {
     if (selectedId) {
-      await deleteIncident(selectedId);
+      try {
+        await deleteIncident(selectedId);
+        toast.success('Incident deleted successfully');
+        // Refresh the list
+        setCurrentPage(1);
+        loadIncidents();
+      } catch (error: any) {
+        toast.error(error?.response?.data?.message || 'Failed to delete incident');
+      }
+    }
+  };
+
+  const closeReportModal = () => {
+    setShowReportModal(false);
+    setSelectedIncidentDetails(null);
+  };
+
+  const handleRunBspAnalysis = async (incidentId: number) => {
+    setLoadingBspAnalysis(true);
+    setBspAnalysisData(null);
+
+    try {
+      const bspResponse = await fetchBspAnalysis(incidentId);
+      setBspAnalysisData(bspResponse);
+    } catch (bspErr: any) {
+      console.error('Error fetching BSP analysis:', bspErr);
+      toast.error('BSP Analysis could not be loaded');
+    } finally {
+      setLoadingBspAnalysis(false);
+    }
+  };
+
+  const getStatusDisplayName = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case 'draft':
+        return 'Draft';
+      case 'submitted':
+        return 'Submitted';
+      case 'under_review':
+        return 'Under Review';
+      case 'completed':
+        return 'Completed';
+      default:
+        return status || 'Draft';
     }
   };
 
@@ -718,7 +309,8 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
   };
 
   const handleApplyFilters = () => {
-    setRefreshKey((prev) => prev + 1);
+    setCurrentPage(1);
+    loadIncidents();
     loadStatisticsWithFilters();
   };
 
@@ -730,23 +322,45 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
     setDateFrom('');
     setDateTo('');
 
+    // Reload data without filters
+    setCurrentPage(1);
+
     // Load statistics without filters
     setLoadingStats(true);
     try {
       const data = await fetchIncidentStatistics({});
       setStatistics(data);
+
+      // Reload incidents without filters
+      const apiFilters: any = {
+        per_page: ITEMS_PER_PAGE,
+        page: 1
+      };
+      const response = await fetchAllIncidents(apiFilters);
+
+      // Handle different possible response formats
+      let incidentsData = [];
+
+      if (Array.isArray(response)) {
+        incidentsData = response;
+      } else if (response?.data && Array.isArray(response.data)) {
+        incidentsData = response.data;
+      } else if (response?.incidents) {
+        incidentsData = response.incidents;
+      }
+
+      setAllIncidentsData(incidentsData);
+      setIncidents(incidentsData);
+      setHasMore(incidentsData && incidentsData.length === ITEMS_PER_PAGE);
     } catch (error) {
       console.error('Error loading statistics:', error);
     } finally {
       setLoadingStats(false);
     }
-
-    setRefreshKey((prev) => prev + 1);
   };
 
   const exportToCSV = () => {
     try {
-      // Get filtered data (use allIncidentsData with current filters applied)
       let dataToExport = allIncidentsData;
 
       // Apply the same filters
@@ -846,279 +460,400 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
     }
   };
 
-  const Toolbar = () => {
-    const hasActiveFilters = selectedParticipant !== 'all' || selectedSeverity !== 'all' ||
-      selectedStatus !== 'all' || selectedRestrictive !== 'all' || dateFrom || dateTo;
+  // Group incidents by date
+  const groupedIncidents = useMemo(() => {
+    const groups: GroupedIncidents = {};
 
-    return (
-      <>
-        <div className="card-header flex-wrap px-5 py-5 border-b-0">
-          <h3 className="card-title">Incidents</h3>
-          <div className="flex flex-wrap gap-2 items-center">
-            {/* View Toggle */}
-            <ViewToggle activeView={activeView} onViewChange={onViewChange} />
+    incidents.forEach(incident => {
+      const date = new Date(incident.incident_date_time);
+      const dateKey = date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
 
-            {/* Export Button */}
-            <button
-              type="button"
-              onClick={exportToCSV}
-              className="btn btn-sm btn-light flex items-center gap-1.5"
-            >
-              <KeenIcon icon="file-down" className="text-base" />
-              <span className="hidden sm:inline">CSV</span>
-            </button>
+      if (!groups[dateKey]) {
+        groups[dateKey] = [];
+      }
+      groups[dateKey].push(incident);
+    });
 
-            {/* Filters Toggle Button */}
-            <button
-              type="button"
-              onClick={() => setShowFilters(!showFilters)}
-              className={`btn btn-sm ${hasActiveFilters ? 'btn-primary' : 'btn-light'} flex items-center gap-1.5`}
-              style={{
-                color: hasActiveFilters ? 'white' : undefined
-              }}
-            >
-              <KeenIcon icon="filter" className={`text-base ${hasActiveFilters ? 'text-white' : ''}`} />
-              <span style={{ color: hasActiveFilters ? 'white' : undefined }}>Filters</span>
-              {hasActiveFilters && (
-                <span className="badge badge-sm badge-circle bg-white text-primary">!</span>
-              )}
-            </button>
-          </div>
-        </div>
+    // Sort incidents within each group by time (descending)
+    Object.keys(groups).forEach(dateKey => {
+      groups[dateKey].sort((a, b) =>
+        new Date(b.incident_date_time).getTime() - new Date(a.incident_date_time).getTime()
+      );
+    });
 
-        {/* Statistics Cards */}
-        <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Total Incidents Card */}
-            <div className="card border border-gray-200 dark:border-gray-700">
-              <div className="card-body p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-2xs text-gray-600 dark:text-gray-400 font-medium mb-1">Total Incidents</div>
-                    <div className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-                      {loadingStats ? '...' : statistics?.total_incidents || 0}
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary-light">
-                    <KeenIcon icon="chart-line-up" className="text-2xl text-primary" />
-                  </div>
-                </div>
-              </div>
-            </div>
+    return groups;
+  }, [incidents]);
 
-            {/* High Severity Card */}
-            <div className="card border border-gray-200 dark:border-gray-700">
-              <div className="card-body p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-2xs text-gray-600 dark:text-gray-400 font-medium mb-1">High Severity</div>
-                    <div className="text-2xl font-semibold text-danger">
-                      {loadingStats ? '...' : statistics?.high_severity || 0}
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-danger-light">
-                    <KeenIcon icon="information-2" className="text-2xl text-danger" />
-                  </div>
-                </div>
-              </div>
-            </div>
+  const sortedDates = useMemo(() => {
+    return Object.keys(groupedIncidents).sort((a, b) => {
+      return new Date(b).getTime() - new Date(a).getTime();
+    });
+  }, [groupedIncidents]);
 
-            {/* Training Gaps Card */}
-            <div className="card border border-gray-200 dark:border-gray-700">
-              <div className="card-body p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-2xs text-gray-600 dark:text-gray-400 font-medium mb-1">Training Gaps</div>
-                    <div className="text-2xl font-semibold text-warning">
-                      {loadingStats ? '...' : statistics?.training_gaps || 0}
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-warning-light">
-                    <KeenIcon icon="book" className="text-2xl text-warning" />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Time Saved Card */}
-            <div className="card border border-gray-200 dark:border-gray-700">
-              <div className="card-body p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-2xs text-gray-600 dark:text-gray-400 font-medium mb-1">Time Saved</div>
-                    <div className="text-2xl font-semibold text-success">
-                      {loadingStats ? '...' : `${statistics?.time_saved || 0}%`}
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-success-light">
-                    <KeenIcon icon="time" className="text-2xl text-success" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Filters Section - Collapsible */}
-        {showFilters && (
-          <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-4">
-              {/* Participant Filter */}
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                  Participant
-                </label>
-                <Select value={selectedParticipant} onValueChange={setSelectedParticipant}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="All Participants" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Participants</SelectItem>
-                    {participants.map((participant: any) => (
-                      <SelectItem
-                        key={participant.id}
-                        value={`${participant.first_name} ${participant.last_name}`}
-                      >
-                        {participant.first_name} {participant.last_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Severity Filter */}
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                  Severity
-                </label>
-                <Select value={selectedSeverity} onValueChange={setSelectedSeverity}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="All Severity" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Severity</SelectItem>
-                    <SelectItem value="minor">Minor</SelectItem>
-                    <SelectItem value="moderate">Moderate</SelectItem>
-                    <SelectItem value="serious">Serious</SelectItem>
-                    <SelectItem value="critical">Critical</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Status Filter */}
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                  Status
-                </label>
-                <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="All Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="draft">Draft</SelectItem>
-                    <SelectItem value="submitted">Submitted</SelectItem>
-                    <SelectItem value="under_review">Under Review</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Restrictive Practice Filter */}
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                  Restrictive
-                </label>
-                <Select value={selectedRestrictive} onValueChange={setSelectedRestrictive}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="All" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="restrictive">Restrictive</SelectItem>
-                    <SelectItem value="non-restrictive">Non-Restrictive</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Date From Filter */}
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                  Date From
-                </label>
-                <Input
-                  type="date"
-                  value={dateFrom}
-                  onChange={(e) => setDateFrom(e.target.value)}
-                  className="w-full"
-                />
-              </div>
-
-              {/* Date To Filter */}
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                  Date To
-                </label>
-                <Input
-                  type="date"
-                  value={dateTo}
-                  onChange={(e) => setDateTo(e.target.value)}
-                  className="w-full"
-                />
-              </div>
-            </div>
-
-            {/* Filter Actions */}
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={handleClearFilters}
-                className="btn btn-sm btn-light"
-              >
-                Clear All
-              </button>
-              <button
-                type="button"
-                onClick={handleApplyFilters}
-                className="btn btn-sm btn-primary"
-                style={{ color: 'white' }}
-              >
-                Apply Filters
-              </button>
-            </div>
-          </div>
-        )}
-      </>
-    );
+  const handleEdit = (id: number) => {
+    navigate(`/incidents/${id}/edit`);
   };
 
+  const handleLoadMore = () => {
+    setCurrentPage(prev => prev + 1);
+  };
+
+  if (loading && currentPage === 1) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="flex flex-col items-center gap-3">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <span className="text-sm text-gray-600 dark:text-gray-400">Loading incidents...</span>
+        </div>
+      </div>
+    );
+  }
+
+  const hasActiveFilters = selectedParticipant !== 'all' || selectedSeverity !== 'all' ||
+    selectedStatus !== 'all' || selectedRestrictive !== 'all' || dateFrom || dateTo;
+
   return (
-    <>
-      <DataGrid
-        key={refreshKey}
-        columns={columns}
-        rowSelection={true}
-        serverSide={true}
-        onFetchData={fetchIncidentsData}
-        onRowSelectionChange={handleRowSelection}
-        pagination={{ size: 10 }}
-        layout={{ card: true }}
-        toolbar={<Toolbar />}
-      />
+    <div className="card">
+      {/* Toolbar Header */}
+      <div className="card-header flex-wrap px-5 py-5 border-b-0">
+        <h3 className="card-title">Incidents</h3>
+        <div className="flex flex-wrap gap-2 items-center">
+          {/* View Toggle */}
+          <ViewToggle activeView={activeView} onViewChange={onViewChange} />
+
+          {/* Export Button */}
+          <button
+            type="button"
+            onClick={exportToCSV}
+            className="btn btn-sm btn-light flex items-center gap-1.5"
+          >
+            <KeenIcon icon="file-down" className="text-base" />
+            <span className="hidden sm:inline">CSV</span>
+          </button>
+
+          {/* Filters Toggle Button */}
+          <button
+            type="button"
+            onClick={() => setShowFilters(!showFilters)}
+            className={`btn btn-sm ${hasActiveFilters ? 'btn-primary' : 'btn-light'} flex items-center gap-1.5`}
+            style={{
+              color: hasActiveFilters ? 'white' : undefined
+            }}
+          >
+            <KeenIcon icon="filter" className={`text-base ${hasActiveFilters ? 'text-white' : ''}`} />
+            <span style={{ color: hasActiveFilters ? 'white' : undefined }}>Filters</span>
+            {hasActiveFilters && (
+              <span className="badge badge-sm badge-circle bg-white text-primary">!</span>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Statistics Cards */}
+      <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Total Incidents Card */}
+          <div className="card border border-gray-200 dark:border-gray-700">
+            <div className="card-body p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-2xs text-gray-600 dark:text-gray-400 font-medium mb-1">Total Incidents</div>
+                  <div className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                    {loadingStats ? '...' : statistics?.total_incidents || 0}
+                  </div>
+                </div>
+                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary-light">
+                  <KeenIcon icon="chart-line-up" className="text-2xl text-primary" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* High Severity Card */}
+          <div className="card border border-gray-200 dark:border-gray-700">
+            <div className="card-body p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-2xs text-gray-600 dark:text-gray-400 font-medium mb-1">High Severity</div>
+                  <div className="text-2xl font-semibold text-danger">
+                    {loadingStats ? '...' : statistics?.high_severity || 0}
+                  </div>
+                </div>
+                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-danger-light">
+                  <KeenIcon icon="information-2" className="text-2xl text-danger" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Training Gaps Card */}
+          <div className="card border border-gray-200 dark:border-gray-700">
+            <div className="card-body p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-2xs text-gray-600 dark:text-gray-400 font-medium mb-1">Training Gaps</div>
+                  <div className="text-2xl font-semibold text-warning">
+                    {loadingStats ? '...' : statistics?.training_gaps || 0}
+                  </div>
+                </div>
+                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-warning-light">
+                  <KeenIcon icon="book" className="text-2xl text-warning" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Time Saved Card */}
+          <div className="card border border-gray-200 dark:border-gray-700">
+            <div className="card-body p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-2xs text-gray-600 dark:text-gray-400 font-medium mb-1">Time Saved</div>
+                  <div className="text-2xl font-semibold text-success">
+                    {loadingStats ? '...' : `${statistics?.time_saved || 0}%`}
+                  </div>
+                </div>
+                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-success-light">
+                  <KeenIcon icon="time" className="text-2xl text-success" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters Section - Collapsible */}
+      {showFilters && (
+        <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-4">
+            {/* Participant Filter */}
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                Participant
+              </label>
+              <Select value={selectedParticipant} onValueChange={setSelectedParticipant}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="All Participants" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Participants</SelectItem>
+                  {participants.map((participant: any) => (
+                    <SelectItem
+                      key={participant.id}
+                      value={`${participant.first_name} ${participant.last_name}`}
+                    >
+                      {participant.first_name} {participant.last_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Severity Filter */}
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                Severity
+              </label>
+              <Select value={selectedSeverity} onValueChange={setSelectedSeverity}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="All Severity" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Severity</SelectItem>
+                  <SelectItem value="minor">Minor</SelectItem>
+                  <SelectItem value="moderate">Moderate</SelectItem>
+                  <SelectItem value="serious">Serious</SelectItem>
+                  <SelectItem value="critical">Critical</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Status Filter */}
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                Status
+              </label>
+              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="All Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="submitted">Submitted</SelectItem>
+                  <SelectItem value="under_review">Under Review</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Restrictive Practice Filter */}
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                Restrictive
+              </label>
+              <Select value={selectedRestrictive} onValueChange={setSelectedRestrictive}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="All" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="yes">Yes</SelectItem>
+                  <SelectItem value="no">No</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Date From Filter */}
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                Date From
+              </label>
+              <Input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                className="w-full"
+              />
+            </div>
+
+            {/* Date To Filter */}
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                Date To
+              </label>
+              <Input
+                type="date"
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                className="w-full"
+              />
+            </div>
+          </div>
+
+          {/* Filter Actions */}
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handleClearFilters}
+              className="btn btn-sm btn-light"
+            >
+              Clear All
+            </button>
+            <button
+              type="button"
+              onClick={handleApplyFilters}
+              className="btn btn-sm btn-primary"
+              style={{ color: 'white' }}
+            >
+              Apply Filters
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="card-body px-5 py-7.5">
+        {!loading && incidents.length === 0 ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                <KeenIcon icon="file-deleted" className="text-3xl text-gray-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                No incidents found
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Try adjusting your filters or create a new incident
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {sortedDates.map((dateKey) => {
+            const dateObj = new Date(dateKey);
+            const dayOfWeek = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+            const year = dateObj.getFullYear();
+            const day = dateObj.getDate();
+            const month = dateObj.toLocaleDateString('en-US', { month: 'short' });
+
+            return (
+              <div key={dateKey} className="relative">
+                {/* Date Header */}
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="flex items-center justify-center w-16 h-16 rounded-lg bg-primary text-white shadow-md flex-shrink-0">
+                    <div className="text-center">
+                      <div className="text-xs font-medium opacity-90">{month}</div>
+                      <div className="text-2xl font-bold leading-none">{day}</div>
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-base font-medium text-gray-700 dark:text-gray-300">
+                      {dayOfWeek}, {year}
+                    </h3>
+                    <div className="h-px bg-gray-200 dark:bg-gray-700 mt-2"></div>
+                  </div>
+                </div>
+
+                {/* Timeline Line */}
+                <div className="absolute left-8 top-20 bottom-0 w-px bg-gray-200 dark:bg-gray-700"></div>
+
+                {/* Incidents for this date */}
+                <div className="space-y-0 ml-16">
+                  {groupedIncidents[dateKey].map((incident) => (
+                    <IncidentTimelineCard
+                      key={incident.id}
+                      incident={incident}
+                      onViewDetails={handleViewDetails}
+                      onEdit={handleEdit}
+                      onDelete={handleModalOpen}
+                    />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Load More Button */}
+          {hasMore && (
+            <div className="flex justify-center pt-6">
+              <button
+                onClick={handleLoadMore}
+                disabled={loading}
+                className="btn btn-primary btn-sm"
+              >
+                {loading ? (
+                  <>
+                    <span className="animate-spin mr-2">
+                      <KeenIcon icon="arrows-circle" />
+                    </span>
+                    Loading...
+                  </>
+                ) : (
+                  <>
+                    <KeenIcon icon="down" />
+                    Load More
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+        </div>
+        )}
+      </div>
+
+      {/* Delete Confirmation Modal */}
       <ModalDeleteConfirmation
         open={isModalOpen}
         onOpenChange={() => {
           handleModalClose();
-          // Reopen the report modal if user cancels deletion
-          if (selectedIncidentDetails) {
-            setShowReportModal(true);
-          }
         }}
         onDeleteConfirm={async () => {
           await handleDeleteIncident();
-          setRefreshKey((prev) => prev + 1);
           handleModalClose();
-          // Don't reopen report modal after successful deletion
         }}
       />
 
@@ -2282,8 +2017,8 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 
-export { IncidentsTable };
+export { IncidentsTimeline };

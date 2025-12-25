@@ -5,3 +5,5 @@ export * from './service-offerings';
 export * from './service-request';
 export * from './stripe';
 export * from './incidents';
+export * from './dashboard';
+export * from './participants';

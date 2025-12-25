@@ -5,6 +5,7 @@ import { KeenIcon } from '@/components';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { AddParticipantModal } from './AddParticipantModal';
 
 interface Customer {
   id: number;
@@ -27,6 +28,10 @@ interface AISuggestions {
   contributing_factors: string[];
   disclaimer: string;
   draft_summary?: string;
+  behavioral_identified?: boolean;
+  trigger_extracted?: boolean;
+  bsp_aligned?: boolean;
+  restrictive_practice_used?: boolean;
 }
 
 interface IncidentType {
@@ -37,7 +42,7 @@ interface IncidentType {
 
 interface FormData {
   basic_info: {
-    customer_id: number;
+    participant_id: number;
     participant_name: string | null;
     description: string;
     incident_date_time: string;
@@ -95,6 +100,7 @@ const AddIncidentContent = () => {
   const [showPreview, setShowPreview] = useState(false);
   const [previewData, setPreviewData] = useState<IncidentPreview | null>(null);
   const [activeTab, setActiveTab] = useState('basic');
+  const [isParticipantModalOpen, setIsParticipantModalOpen] = useState(false);
 
   // Fetch customers on component mount
   useEffect(() => {
@@ -125,7 +131,7 @@ const AddIncidentContent = () => {
     try {
       const incidentData = {
         description: incidentNarrative,
-        ...(selectedParticipant && { customer_id: parseInt(selectedParticipant) })
+        ...(selectedParticipant && { participant_id: parseInt(selectedParticipant) })
       };
 
       const response = await createIncidentPreview(incidentData);
@@ -155,7 +161,7 @@ const AddIncidentContent = () => {
 
       // Prepare data matching Laravel validation requirements
       const submitData = {
-        customer_id: form_data.basic_info.customer_id,
+        participant_id: form_data.basic_info.participant_id,
         participant_name: form_data.basic_info.participant_name,
         description: form_data.basic_info.description,
         incident_type: form_data.basic_info.incident_type_id,
@@ -175,6 +181,12 @@ const AddIncidentContent = () => {
         // Follow-up fields
         follow_up_required: form_data.follow_up.follow_up_required,
         follow_up_actions: form_data.follow_up.follow_up_actions,
+
+        // AI-generated insight flags
+        behavioral_identified: ai_suggestions.behavioral_identified || false,
+        trigger_extracted: ai_suggestions.trigger_extracted || false,
+        bsp_aligned: ai_suggestions.bsp_aligned || false,
+        restrictive_practice_used: ai_suggestions.restrictive_practice_used || false,
 
         // NDIS detailed fields
         key_contributing_factors: ai_suggestions.contributing_factors,
@@ -235,6 +247,13 @@ const AddIncidentContent = () => {
 
   const handleBack = () => {
     navigate('/incidents');
+  };
+
+  const handleParticipantAdded = (newParticipant: Customer) => {
+    // Add the new participant to the customers list
+    setCustomers((prev) => [...prev, newParticipant]);
+    // Automatically select the newly created participant
+    setSelectedParticipant(String(newParticipant.id));
   };
 
   // Loading View
@@ -866,21 +885,41 @@ const AddIncidentContent = () => {
                 Participant
                 <span className="text-gray-500 dark:text-gray-400 font-normal ml-1">(Optional)</span>
               </label>
-              <select
-                className="input flex-1 min-w-0"
-                value={selectedParticipant}
-                onChange={(e) => setSelectedParticipant(e.target.value)}
-                disabled={isLoadingCustomers || isLoading}
-              >
-                <option value="">
-                  {isLoadingCustomers ? 'Loading participants...' : 'Select a participant'}
-                </option>
-                {customers.map((customer) => (
-                  <option key={customer.id} value={customer.id}>
-                    {customer.first_name} {customer.last_name}
+              <div className="flex flex-1 min-w-0 gap-2">
+                <select
+                  className="input flex-1"
+                  value={selectedParticipant}
+                  onChange={(e) => {
+                    if (e.target.value === 'add_new') {
+                      setIsParticipantModalOpen(true);
+                    } else {
+                      setSelectedParticipant(e.target.value);
+                    }
+                  }}
+                  disabled={isLoadingCustomers || isLoading}
+                >
+                  <option value="">
+                    {isLoadingCustomers ? 'Loading participants...' : 'Select a participant'}
                   </option>
-                ))}
-              </select>
+                  {customers.map((customer) => (
+                    <option key={customer.id} value={customer.id}>
+                      {customer.first_name} {customer.last_name}
+                    </option>
+                  ))}
+                  <option value="add_new" className="font-semibold text-primary">
+                    + Add New Participant
+                  </option>
+                </select>
+                <Button
+                  variant="light"
+                  size="sm"
+                  onClick={() => setIsParticipantModalOpen(true)}
+                  disabled={isLoadingCustomers || isLoading}
+                  className="shrink-0"
+                >
+                  <KeenIcon icon="plus" className="ki-outline text-base" />
+                </Button>
+              </div>
             </div>
 
             {/* Incident Narrative Field */}
@@ -926,6 +965,13 @@ const AddIncidentContent = () => {
           Back to Incidents
         </Button>
       </div>
+
+      {/* Add Participant Modal */}
+      <AddParticipantModal
+        open={isParticipantModalOpen}
+        onOpenChange={setIsParticipantModalOpen}
+        onParticipantAdded={handleParticipantAdded}
+      />
     </div>
   );
 };

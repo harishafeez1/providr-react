@@ -3,7 +3,8 @@
     "allow": [
       "Bash(npm install:*)",
       "Bash(rm:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(npm run build:*)"
     ],
     "additionalDirectories": [
       "E:\\e\\providr-react-both"

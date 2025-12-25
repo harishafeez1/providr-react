@@ -5,6 +5,12 @@ export const MENU_SIDEBAR: TMenuConfig = [
     heading: 'Dashboard'
   },
   {
+    title: 'Dashboard',
+    icon: 'element-11',
+    path: '/dashboard',
+    permission: ['admin', 'editor', 'intake', 'review']
+  },
+  {
     title: 'Company Profile',
     icon: 'user-square',
     path: '/',
@@ -20,6 +26,12 @@ export const MENU_SIDEBAR: TMenuConfig = [
     title: 'Premises',
     icon: 'geolocation',
     path: '/premises',
+    permission: ['admin', 'editor']
+  },
+  {
+    title: 'Participants',
+    icon: 'people',
+    path: '/participants',
     permission: ['admin', 'editor']
   },
   {
