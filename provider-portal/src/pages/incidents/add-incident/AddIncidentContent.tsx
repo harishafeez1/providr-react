@@ -1,19 +1,25 @@
-import { useState, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchIncidentCustomers, createIncidentPreview, storeIncident } from '@/services/api';
+import { createIncidentPreview, storeIncident } from '@/services/api';
 import { KeenIcon } from '@/components';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AddParticipantModal } from './AddParticipantModal';
+import { SignatureField, SignatureFieldRef } from '@/components/signature';
+import { ParticipantSearch } from './ParticipantSearch';
 
 interface Customer {
   id: number;
   first_name: string;
   last_name: string;
-  email: string;
-  phone: string;
-  ndis: number;
+  name?: string;
+  email?: string;
+  phone?: string;
+  contact_email?: string;
+  contact_phone?: string;
+  ndis?: number;
+  dob?: string;
 }
 
 interface AISuggestions {
@@ -90,35 +96,16 @@ interface IncidentPreview {
 
 const AddIncidentContent = () => {
   const navigate = useNavigate();
+  const signatureRef = useRef<SignatureFieldRef>(null);
   const [incidentNarrative, setIncidentNarrative] = useState('');
-  const [selectedParticipant, setSelectedParticipant] = useState('');
-  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [selectedParticipant, setSelectedParticipant] = useState<Customer | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingCustomers, setIsLoadingCustomers] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [previewData, setPreviewData] = useState<IncidentPreview | null>(null);
   const [activeTab, setActiveTab] = useState('basic');
   const [isParticipantModalOpen, setIsParticipantModalOpen] = useState(false);
-
-  // Fetch customers on component mount
-  useEffect(() => {
-    const loadCustomers = async () => {
-      setIsLoadingCustomers(true);
-      try {
-        const data = await fetchIncidentCustomers();
-        setCustomers(data?.customers || data || []);
-      } catch (err) {
-        console.error('Failed to load customers:', err);
-        setError('Failed to load participants. Please try again.');
-      } finally {
-        setIsLoadingCustomers(false);
-      }
-    };
-
-    loadCustomers();
-  }, []);
 
   const handleExtractFields = async () => {
     if (!incidentNarrative.trim()) {
@@ -131,7 +118,7 @@ const AddIncidentContent = () => {
     try {
       const incidentData = {
         description: incidentNarrative,
-        ...(selectedParticipant && { participant_id: parseInt(selectedParticipant) })
+        ...(selectedParticipant && { participant_id: selectedParticipant.id })
       };
 
       const response = await createIncidentPreview(incidentData);
@@ -158,6 +145,11 @@ const AddIncidentContent = () => {
 
     try {
       const { form_data, ai_suggestions } = previewData;
+
+      // Get signature (optional)
+      const reporterSignature = signatureRef.current && !signatureRef.current.isEmpty()
+        ? signatureRef.current.getSignature()
+        : null;
 
       // Prepare data matching Laravel validation requirements
       const submitData = {
@@ -205,6 +197,9 @@ const AddIncidentContent = () => {
 
         // Generated report
         generated_report: previewData.generated_report,
+
+        // Reporter signature
+        reporter_signature: reporterSignature,
       };
 
       const response = await storeIncident(submitData);
@@ -250,10 +245,12 @@ const AddIncidentContent = () => {
   };
 
   const handleParticipantAdded = (newParticipant: Customer) => {
-    // Add the new participant to the customers list
-    setCustomers((prev) => [...prev, newParticipant]);
     // Automatically select the newly created participant
-    setSelectedParticipant(String(newParticipant.id));
+    setSelectedParticipant(newParticipant);
+  };
+
+  const handleParticipantSelect = (participant: Customer) => {
+    setSelectedParticipant(participant);
   };
 
   // Loading View
@@ -450,6 +447,15 @@ const AddIncidentContent = () => {
                 <KeenIcon icon="document" className="ki-outline text-base" />
                 Summary
               </Button>
+              <Button
+                variant={activeTab === 'signature' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setActiveTab('signature')}
+                className="gap-2"
+              >
+                <KeenIcon icon="pencil" className="ki-outline text-base" />
+                Signature
+              </Button>
             </div>
           </CardHeader>
 
@@ -487,14 +493,36 @@ const AddIncidentContent = () => {
                 <div className="flex items-baseline flex-wrap gap-2.5">
                   <label className="form-label max-w-70 gap-1">
                     <KeenIcon icon="user" className="text-sm" />
-                    Participant Name
+                    Participant
                   </label>
-                  <input
-                    type="text"
-                    className="input flex-1 min-w-0"
-                    value={form_data.basic_info.participant_name || 'Not specified'}
-                    disabled
-                  />
+                  <div className="flex flex-1 min-w-0 gap-2">
+                    <ParticipantSearch
+                      onSelect={(participant) => {
+                        setPreviewData({
+                          ...previewData,
+                          form_data: {
+                            ...previewData.form_data,
+                            basic_info: {
+                              ...previewData.form_data.basic_info,
+                              participant_id: participant.id,
+                              participant_name: participant.name || `${participant.first_name} ${participant.last_name}`
+                            }
+                          }
+                        });
+                        setSelectedParticipant(participant);
+                      }}
+                      placeholder={form_data.basic_info.participant_name || 'Search to change participant...'}
+                      disabled={false}
+                    />
+                    <Button
+                      variant="light"
+                      size="sm"
+                      onClick={() => setIsParticipantModalOpen(true)}
+                      className="shrink-0"
+                    >
+                      <KeenIcon icon="plus" className="ki-outline text-base" />
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="flex items-baseline flex-wrap gap-2.5">
@@ -801,6 +829,44 @@ const AddIncidentContent = () => {
                 </div>
               </div>
             )}
+
+            {/* Signature Tab */}
+            {activeTab === 'signature' && (
+              <div className="grid gap-5">
+                <div className="flex items-start flex-wrap gap-2.5">
+                  <label className="form-label max-w-70 gap-1 mt-2.5">
+                    <KeenIcon icon="shield-tick" className="text-sm" />
+                    Confirmation Statement
+                  </label>
+                  <div className="flex-1 min-w-0">
+                    <div className="bg-info-light/10 border-l-4 border-info p-4 rounded">
+                      <p className="text-sm text-gray-900 dark:text-gray-100">
+                        I confirm that the information in this report is true and accurate to the best of my knowledge.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-start flex-wrap gap-2.5">
+                  <label className="form-label max-w-70 gap-1 mt-2.5">
+                    <KeenIcon icon="pencil" className="text-sm" />
+                    Reporter Signature
+                  </label>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                      Draw your signature using your mouse or touchscreen in the box below.
+                    </p>
+                    <SignatureField
+                      ref={signatureRef}
+                      label=""
+                      required={false}
+                      width={700}
+                      height={200}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -878,7 +944,7 @@ const AddIncidentContent = () => {
         </CardHeader>
         <CardContent>
           <div className="grid gap-5">
-            {/* Participant Dropdown */}
+            {/* Participant Search */}
             <div className="flex items-baseline flex-wrap gap-2.5">
               <label className="form-label max-w-70 gap-1">
                 <KeenIcon icon="user" className="text-sm" />
@@ -886,35 +952,16 @@ const AddIncidentContent = () => {
                 <span className="text-gray-500 dark:text-gray-400 font-normal ml-1">(Optional)</span>
               </label>
               <div className="flex flex-1 min-w-0 gap-2">
-                <select
-                  className="input flex-1"
-                  value={selectedParticipant}
-                  onChange={(e) => {
-                    if (e.target.value === 'add_new') {
-                      setIsParticipantModalOpen(true);
-                    } else {
-                      setSelectedParticipant(e.target.value);
-                    }
-                  }}
-                  disabled={isLoadingCustomers || isLoading}
-                >
-                  <option value="">
-                    {isLoadingCustomers ? 'Loading participants...' : 'Select a participant'}
-                  </option>
-                  {customers.map((customer) => (
-                    <option key={customer.id} value={customer.id}>
-                      {customer.first_name} {customer.last_name}
-                    </option>
-                  ))}
-                  <option value="add_new" className="font-semibold text-primary">
-                    + Add New Participant
-                  </option>
-                </select>
+                <ParticipantSearch
+                  onSelect={handleParticipantSelect}
+                  placeholder="Type to search participants..."
+                  disabled={isLoading}
+                />
                 <Button
                   variant="light"
                   size="sm"
                   onClick={() => setIsParticipantModalOpen(true)}
-                  disabled={isLoadingCustomers || isLoading}
+                  disabled={isLoading}
                   className="shrink-0"
                 >
                   <KeenIcon icon="plus" className="ki-outline text-base" />

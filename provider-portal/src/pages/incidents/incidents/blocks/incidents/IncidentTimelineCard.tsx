@@ -8,6 +8,8 @@ interface IncidentTimelineCardProps {
   onViewDetails: (id: number) => void;
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
+  isSelected?: boolean;
+  onToggleSelection?: (id: number) => void;
 }
 
 const IncidentTimelineCard = ({
@@ -15,6 +17,8 @@ const IncidentTimelineCard = ({
   onViewDetails,
   onEdit,
   onDelete,
+  isSelected = false,
+  onToggleSelection,
 }: IncidentTimelineCardProps) => {
   const { isRTL } = useLanguage();
 
@@ -66,55 +70,75 @@ const IncidentTimelineCard = ({
   });
 
   return (
-    <div className="relative pb-8">
+    <div className="relative pb-6">
       {/* Timeline dot */}
-      <div className="absolute -left-16 top-5 w-3 h-3 bg-primary rounded-full ring-4 ring-white dark:ring-gray-900 z-10"></div>
+      <div className="absolute -left-16 top-3 w-2.5 h-2.5 bg-primary rounded-full ring-4 ring-white dark:ring-gray-900 z-10"></div>
 
       {/* Timeline card */}
-      <div className="card bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-all duration-200 rounded-lg overflow-hidden">
-        <div className="card-body p-5">
+      <div
+        className={`card bg-white dark:bg-gray-800 border ${isSelected ? 'border-primary border-2' : 'border-gray-200 dark:border-gray-700'} hover:shadow-md transition-all duration-200 rounded-lg overflow-hidden cursor-pointer`}
+        onClick={() => onViewDetails(incident.id)}
+      >
+        <div className="card-body p-3">
           {/* Header */}
-          <div className="flex items-start justify-between gap-3 mb-3">
+          <div className="flex items-start justify-between gap-2 mb-2">
+            {/* Checkbox for selection */}
+            {onToggleSelection && (
+              <div
+                className="flex items-center justify-center"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleSelection(incident.id);
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={isSelected}
+                  onChange={() => {}}
+                  className="checkbox checkbox-sm"
+                />
+              </div>
+            )}
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+              <div className="flex items-center gap-1.5 mb-1">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                   #{incident.incident_number}
                 </h3>
-                <span className={`badge ${getSeverityBadgeClass(incident.severity)} badge-outline rounded-full badge-sm`}>
+                <span className={`badge ${getSeverityBadgeClass(incident.severity)} badge-outline rounded-full text-[10px] px-2 py-0.5`}>
                   {incident.severity}
                 </span>
-                <span className="text-xs text-gray-500 dark:text-gray-400">
+                <span className="text-[11px] text-gray-500 dark:text-gray-400">
                   {formatTime(incident.incident_date_time)}
                 </span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                <KeenIcon icon="user" className="text-gray-500 text-sm" />
-                <span>{getParticipantName()}</span>
+              <div className="flex items-center gap-1.5 text-xs text-gray-700 dark:text-gray-300">
+                <span className="font-medium">{getParticipantName()}</span>
                 <span className="text-gray-400">•</span>
                 <span className="text-gray-600 dark:text-gray-400">{getIncidentTypeName()}</span>
               </div>
             </div>
 
             {/* Actions Menu */}
-            <Menu className="items-stretch">
-              <MenuItem
-                toggle="dropdown"
-                trigger="click"
-                dropdownProps={{
-                  placement: isRTL() ? 'bottom-start' : 'bottom-end',
-                  modifiers: [
-                    {
-                      name: 'offset',
-                      options: {
-                        offset: isRTL() ? [0, -10] : [0, 10]
+            <div onClick={(e) => e.stopPropagation()}>
+              <Menu className="items-stretch">
+                <MenuItem
+                  toggle="dropdown"
+                  trigger="click"
+                  dropdownProps={{
+                    placement: isRTL() ? 'bottom-start' : 'bottom-end',
+                    modifiers: [
+                      {
+                        name: 'offset',
+                        options: {
+                          offset: isRTL() ? [0, -10] : [0, 10]
+                        }
                       }
-                    }
-                  ]
-                }}
-              >
-                <MenuToggle className="btn btn-sm btn-icon btn-light btn-clear">
-                  <KeenIcon icon="dots-vertical" />
-                </MenuToggle>
+                    ]
+                  }}
+                >
+                  <MenuToggle className="btn btn-sm btn-icon btn-light btn-clear">
+                    <KeenIcon icon="dots-vertical" />
+                  </MenuToggle>
                 <MenuSub className="menu-default" rootClassName="w-full max-w-[200px]">
                   <MenuItem
                     onClick={() => onViewDetails(incident.id)}
@@ -195,28 +219,28 @@ const IncidentTimelineCard = ({
                 </MenuSub>
               </MenuItem>
             </Menu>
+            </div>
           </div>
 
           {/* Description */}
           {incident.description && (
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">
+            <p className="text-xs text-gray-600 dark:text-gray-400 mb-2 line-clamp-2 leading-relaxed">
               {incident.description}
             </p>
           )}
 
           {/* Footer Icons */}
-          <div className="flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-gray-700">
+          <div className="flex items-center gap-1.5 pt-2 border-t border-gray-100 dark:border-gray-700">
             {incident.behavioral_identified && (
               <div
                 className="relative group cursor-pointer"
                 title="Behavioral Identified"
               >
-                <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center hover:bg-purple-200 dark:hover:bg-purple-800/50 transition-colors">
-                  <i className="ki-solid ki-abstract-26 text-purple-600 dark:text-purple-400 text-base"></i>
+                <div className="w-6 h-6 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center hover:bg-purple-200 dark:hover:bg-purple-800/50 transition-colors">
+                  <i className="ki-solid ki-abstract-26 text-purple-600 dark:text-purple-400 text-xs"></i>
                 </div>
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                  Behavioral Identified
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 dark:bg-gray-700 text-white text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                  Behavioral
                 </div>
               </div>
             )}
@@ -225,12 +249,11 @@ const IncidentTimelineCard = ({
                 className="relative group cursor-pointer"
                 title="Trigger Extracted"
               >
-                <div className="w-8 h-8 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center hover:bg-yellow-200 dark:hover:bg-yellow-800/50 transition-colors">
-                  <KeenIcon icon="electricity" className="text-yellow-600 dark:text-yellow-400 text-lg" />
+                <div className="w-6 h-6 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center hover:bg-yellow-200 dark:hover:bg-yellow-800/50 transition-colors">
+                  <KeenIcon icon="electricity" className="text-yellow-600 dark:text-yellow-400 text-xs" />
                 </div>
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                  Trigger Extracted
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 dark:bg-gray-700 text-white text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                  Trigger
                 </div>
               </div>
             )}
@@ -239,21 +262,17 @@ const IncidentTimelineCard = ({
                 className="relative group cursor-pointer"
                 title="BSP Aligned"
               >
-                <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors">
-                  <KeenIcon icon="check-circle" className="text-green-600 dark:text-green-400 text-lg" />
+                <div className="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors">
+                  <KeenIcon icon="check-circle" className="text-green-600 dark:text-green-400 text-xs" />
                 </div>
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                  BSP Aligned
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 dark:bg-gray-700 text-white text-[10px] rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                  BSP
                 </div>
               </div>
             )}
-            {!incident.behavioral_identified && !incident.trigger_extracted && !incident.bsp_aligned && (
-              <span className="text-gray-400 dark:text-gray-600 text-xs">N/A</span>
-            )}
             {incident.restrictive_practice_used && (
               <div className="ml-auto">
-                <span className="badge badge-warning badge-outline rounded-full badge-sm">
+                <span className="badge badge-warning badge-outline rounded-full text-[10px] px-2 py-0.5">
                   Restrictive
                 </span>
               </div>

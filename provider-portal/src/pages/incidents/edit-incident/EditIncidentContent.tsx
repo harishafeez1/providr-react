@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { fetchSingleIncident, updateIncident } from '@/services/api';
 import { KeenIcon } from '@/components';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { SignatureField, SignatureFieldRef } from '@/components/signature';
+import { ParticipantSearch } from '../add-incident/ParticipantSearch';
+import { AddParticipantModal } from '../add-incident/AddParticipantModal';
 
 interface FormData {
   participant_id: number | null;
@@ -34,10 +37,13 @@ interface FormData {
 const EditIncidentContent = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const signatureRef = useRef<SignatureFieldRef>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('basic');
+  const [existingSignature, setExistingSignature] = useState<string | null>(null);
+  const [isParticipantModalOpen, setIsParticipantModalOpen] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     participant_id: null,
     participant_name: '',
@@ -104,6 +110,11 @@ const EditIncidentContent = () => {
         additional_information: incident.additional_information || '',
         status: incident.status || 'draft'
       });
+
+      // Set existing signature if available
+      if (incident.reporter_signature) {
+        setExistingSignature(incident.reporter_signature);
+      }
     } catch (err: any) {
       console.error('Error loading incident:', err);
       setError(err?.response?.data?.message || 'Failed to load incident. Please try again.');
@@ -114,6 +125,12 @@ const EditIncidentContent = () => {
 
   const handleSubmit = async () => {
     if (!id) return;
+
+    // Get current signature (either new or existing)
+    let reporterSignature = existingSignature;
+    if (signatureRef.current && !signatureRef.current.isEmpty()) {
+      reporterSignature = signatureRef.current.getSignature();
+    }
 
     setIsSubmitting(true);
     setError(null);
@@ -135,7 +152,8 @@ const EditIncidentContent = () => {
         police_notified: formData.police_notified,
         follow_up_required: formData.follow_up_required,
         follow_up_actions: formData.follow_up_actions,
-        status: formData.status
+        status: formData.status,
+        reporter_signature: reporterSignature
       };
 
       const response = await updateIncident(id, submitData);
@@ -173,6 +191,17 @@ const EditIncidentContent = () => {
 
   const handleBack = () => {
     navigate('/incidents');
+  };
+
+  const handleParticipantAdded = (newParticipant: any) => {
+    // Automatically select the newly created participant
+    updateField('participant_id', newParticipant.id);
+    updateField('participant_name', newParticipant.name || `${newParticipant.first_name} ${newParticipant.last_name}`);
+  };
+
+  const handleParticipantSelect = (participant: any) => {
+    updateField('participant_id', participant.id);
+    updateField('participant_name', participant.name || `${participant.first_name} ${participant.last_name}`);
   };
 
   // Loading View
@@ -258,6 +287,15 @@ const EditIncidentContent = () => {
               <KeenIcon icon="time" className="ki-outline text-base" />
               Follow-up & Additional
             </Button>
+            <Button
+              variant={activeTab === 'signature' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setActiveTab('signature')}
+              className="gap-2"
+            >
+              <KeenIcon icon="pencil" className="ki-outline text-base" />
+              Signature
+            </Button>
           </div>
         </CardHeader>
 
@@ -295,15 +333,23 @@ const EditIncidentContent = () => {
               <div className="flex items-start flex-wrap gap-2.5">
                 <label className="form-label max-w-70 gap-1 mt-2.5">
                   <KeenIcon icon="user" className="text-sm" />
-                  Participant Name
+                  Participant
                 </label>
-                <input
-                  type="text"
-                  className="input flex-1 min-w-0"
-                  value={formData.participant_name}
-                  onChange={(e) => updateField('participant_name', e.target.value)}
-                  placeholder="Enter participant name"
-                />
+                <div className="flex flex-1 min-w-0 gap-2">
+                  <ParticipantSearch
+                    onSelect={handleParticipantSelect}
+                    placeholder={formData.participant_name || 'Search participants...'}
+                    disabled={false}
+                  />
+                  <Button
+                    variant="light"
+                    size="sm"
+                    onClick={() => setIsParticipantModalOpen(true)}
+                    className="shrink-0"
+                  >
+                    <KeenIcon icon="plus" className="ki-outline text-base" />
+                  </Button>
+                </div>
               </div>
 
               <div className="flex items-start flex-wrap gap-2.5">
@@ -583,6 +629,69 @@ const EditIncidentContent = () => {
               </div>
             </div>
           )}
+
+          {/* Signature Tab */}
+          {activeTab === 'signature' && (
+            <div className="space-y-5">
+              {existingSignature && (
+                <div className="flex items-start flex-wrap gap-2.5">
+                  <label className="form-label max-w-70 gap-1 mt-2.5">
+                    <KeenIcon icon="check-circle" className="text-sm" />
+                    Current Signature
+                  </label>
+                  <div className="flex-1 min-w-0">
+                    <div className="bg-success-light/10 border-l-4 border-success p-4 rounded mb-3">
+                      <p className="text-sm text-gray-900 dark:text-gray-100 mb-3">
+                        A signature is already on file. You can keep it or draw a new one below to replace it.
+                      </p>
+                      <img
+                        src={existingSignature}
+                        alt="Existing Signature"
+                        className="border-2 border-gray-300 dark:border-gray-600 rounded max-w-md"
+                        style={{ maxHeight: '150px' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-start flex-wrap gap-2.5">
+                <label className="form-label max-w-70 gap-1 mt-2.5">
+                  <KeenIcon icon="shield-tick" className="text-sm" />
+                  Confirmation Statement
+                </label>
+                <div className="flex-1 min-w-0">
+                  <div className="bg-info-light/10 border-l-4 border-info p-4 rounded">
+                    <p className="text-sm text-gray-900 dark:text-gray-100">
+                      I confirm that the information in this report is true and accurate to the best of my knowledge.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-start flex-wrap gap-2.5">
+                <label className="form-label max-w-70 gap-1 mt-2.5">
+                  <KeenIcon icon="pencil" className="text-sm" />
+                  {existingSignature ? 'Update Signature' : 'Reporter Signature'} {!existingSignature && <span className="text-danger">*</span>}
+                </label>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    {existingSignature
+                      ? 'Draw a new signature below to replace the existing one, or leave blank to keep it.'
+                      : 'Draw your signature using your mouse or touchscreen in the box below.'}
+                  </p>
+                  <SignatureField
+                    ref={signatureRef}
+                    label=""
+                    required={!existingSignature}
+                    defaultValue={null}
+                    width={700}
+                    height={200}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -614,6 +723,13 @@ const EditIncidentContent = () => {
           )}
         </Button>
       </div>
+
+      {/* Add Participant Modal */}
+      <AddParticipantModal
+        open={isParticipantModalOpen}
+        onOpenChange={setIsParticipantModalOpen}
+        onParticipantAdded={handleParticipantAdded}
+      />
     </div>
   );
 };

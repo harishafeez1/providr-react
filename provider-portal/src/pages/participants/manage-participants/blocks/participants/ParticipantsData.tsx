@@ -15,7 +15,27 @@ interface IParticipantsData {
   };
   status: string | number | boolean;
   medical_conditions?: string;
+  medications?: string;
+  disabilities?: string;
   provider_company_id: string | number;
+  behaviours_of_concern?: string;
+  triggers_antecedents?: string;
+  early_warning_signs?: string;
+  escalation_patterns?: string;
+  behaviour_overview_summary?: string;
+  behavioural_tendencies?: string;
+  proactive_strategies?: string;
+  reactive_strategies?: string;
+  escalation_steps?: string;
+  restricted_practices?: string;
+  support_requirements?: string;
+  risk_indicators?: string;
+  risk_factors?: string;
+  sensory_profile?: string;
+  communication_style?: string;
+  environmental_needs?: string;
+  support_environment_family_context?: string;
+  functional_daily_living_profile?: string;
 }
 
 interface ParticipantsData {

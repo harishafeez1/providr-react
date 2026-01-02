@@ -1,1414 +1,31 @@
-import { useMemo, useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import {
-  DataGrid,
-  DataGridColumnHeader,
-  DataGridRowSelect,
-  DataGridRowSelectAll,
-  KeenIcon,
-  Menu,
-  MenuItem,
-  MenuToggle,
-  TDataGridRequestParams
-} from '@/components';
-import { ColumnDef, Column, RowSelectionState } from '@tanstack/react-table';
-import { MenuIcon, MenuLink, MenuSub, MenuTitle } from '@/components';
-
-import { toast } from 'sonner';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-
-import { IIncidentsData } from './';
-import { useLanguage } from '@/i18n';
-import { fetchAllIncidents, deleteIncident, fetchSingleIncident, fetchBspAnalysis, fetchIncidentCustomers, exportIncidentPdf, fetchIncidentStatistics, getSingleParticipant } from '@/services/api';
-import { ModalDeleteConfirmation } from '@/partials/modals/delete-confirmation';
-import { ViewToggle } from './ViewToggle';
-
-interface IColumnFilterProps<TData, TValue> {
-  column: Column<TData, TValue>;
-}
-
-interface IncidentsTableProps {
-  activeView: 'table' | 'timeline';
-  onViewChange: (view: 'table' | 'timeline') => void;
-}
-
-const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
-  const { isRTL } = useLanguage();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [refreshKey, setRefreshKey] = useState(0);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showReportModal, setShowReportModal] = useState(false);
-  const [selectedIncidentDetails, setSelectedIncidentDetails] = useState<any>(null);
-  const [loadingReport, setLoadingReport] = useState(false);
-  const [bspAnalysisData, setBspAnalysisData] = useState<any>(null);
-  const [loadingBspAnalysis, setLoadingBspAnalysis] = useState(false);
-  const [selectedRows, setSelectedRows] = useState<RowSelectionState>({});
-  const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
-  const [isDeletingBulk, setIsDeletingBulk] = useState(false);
-  const [activeModalTab, setActiveModalTab] = useState<'details' | 'bsp' | 'participant'>('details');
-  const [participantDetails, setParticipantDetails] = useState<any>(null);
-  const [loadingParticipant, setLoadingParticipant] = useState(false);
-
-  // Collapsible section states - all closed by default
-  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
-    basicInfo: false,
-    whatHappened: true,
-    leadUpTriggers: true,
-    duringIncident: true,
-    responseActions: true,
-    causesFactors: true
-  });
-
-  // Filter states
-  const [participants, setParticipants] = useState<any[]>([]);
-  const [selectedParticipant, setSelectedParticipant] = useState<string>('all');
-  const [selectedSeverity, setSelectedSeverity] = useState<string>('all');
-  const [selectedStatus, setSelectedStatus] = useState<string>('all');
-  const [selectedRestrictive, setSelectedRestrictive] = useState<string>('all');
-  const [dateFrom, setDateFrom] = useState<string>('');
-  const [dateTo, setDateTo] = useState<string>('');
-  const [showFilters, setShowFilters] = useState(false);
-  const [allIncidentsData, setAllIncidentsData] = useState<any[]>([]);
-  const [statistics, setStatistics] = useState<any>(null);
-  const [loadingStats, setLoadingStats] = useState(false);
-
-  // Load participants on mount
-  useEffect(() => {
-    const loadParticipants = async () => {
-      try {
-        const data = await fetchIncidentCustomers();
-        setParticipants(data || []);
-      } catch (error) {
-        console.error('Error loading participants:', error);
-      }
-    };
-    loadParticipants();
-  }, []);
-
-  // Read URL parameters and apply participant filter
-  useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
-    const participantName = searchParams.get('participant_name');
-
-    if (participantName) {
-      const decodedName = decodeURIComponent(participantName);
-      setSelectedParticipant(decodedName);
-      setShowFilters(true);
-    }
-  }, [location.search]);
-
-  // Reload statistics and data when URL participant filter is applied
-  useEffect(() => {
-    if (selectedParticipant !== 'all' && location.search.includes('participant_name')) {
-      // Trigger refresh to apply the filter
-      setRefreshKey((prev) => prev + 1);
-
-      // Reload statistics with participant filter
-      const loadStats = async () => {
-        setLoadingStats(true);
-        try {
-          const filters: any = {
-            participant_name: selectedParticipant
-          };
-          const data = await fetchIncidentStatistics(filters);
-          setStatistics(data);
-        } catch (error) {
-          console.error('Error loading statistics:', error);
-        } finally {
-          setLoadingStats(false);
-        }
-      };
-      loadStats();
-    }
-  }, [selectedParticipant, location.search]);
-
-  // Load initial statistics on mount
-  useEffect(() => {
-    const loadStatistics = async () => {
-      setLoadingStats(true);
-      try {
-        const data = await fetchIncidentStatistics({});
-        setStatistics(data);
-      } catch (error) {
-        console.error('Error loading statistics:', error);
-      } finally {
-        setLoadingStats(false);
-      }
-    };
-    loadStatistics();
-  }, []);
-
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleModalOpen = (id: number) => {
-    setSelectedId(id);
-    setIsModalOpen(true);
-  };
-
-  const handleViewDetails = async (incidentId: number) => {
-    setShowReportModal(true);
-    setLoadingReport(true);
-
-    try {
-      // Fetch incident details
-      const response = await fetchSingleIncident(incidentId);
-      setSelectedIncidentDetails(response);
-      setLoadingReport(false);
-
-      // Fetch participant details if participant_id exists
-      if (response.participant_id || response.customer?.id) {
-        const participantId = response.participant_id || response.customer?.id;
-        fetchParticipantDetails(participantId);
-      }
-    } catch (err: any) {
-      console.error('Error fetching incident details:', err);
-      toast.error(err?.response?.data?.message || 'Failed to load incident details');
-      setShowReportModal(false);
-      setLoadingReport(false);
-    }
-  };
-
-  const fetchParticipantDetails = async (participantId: string | number) => {
-    setLoadingParticipant(true);
-    try {
-      const response = await getSingleParticipant(String(participantId));
-      setParticipantDetails(response.participant || response);
-    } catch (error) {
-      console.error('Error fetching participant details:', error);
-      setParticipantDetails(null);
-    } finally {
-      setLoadingParticipant(false);
-    }
-  };
-
-  const handleRunBspAnalysis = async (incidentId: number) => {
-    setLoadingBspAnalysis(true);
-    setBspAnalysisData(null);
-
-    try {
-      const bspResponse = await fetchBspAnalysis(incidentId);
-      setBspAnalysisData(bspResponse);
-    } catch (bspErr: any) {
-      console.error('Error fetching BSP analysis:', bspErr);
-      toast.error('BSP Analysis could not be loaded');
-    } finally {
-      setLoadingBspAnalysis(false);
-    }
-  };
-
-  const toggleSection = (sectionKey: string) => {
-    setCollapsedSections(prev => ({
-      ...prev,
-      [sectionKey]: !prev[sectionKey]
-    }));
-  };
-
-  const closeReportModal = () => {
-    setShowReportModal(false);
-    setSelectedIncidentDetails(null);
-    setBspAnalysisData(null);
-    setParticipantDetails(null);
-    setActiveModalTab('details'); // Reset to details tab when closing
-    // Reset collapsed sections - all closed by default
-    setCollapsedSections({
-      basicInfo: false,
-      whatHappened: true,
-      leadUpTriggers: true,
-      duringIncident: true,
-      responseActions: true,
-      causesFactors: true
-    });
-  };
-
-  const getSeverityBadgeClass = (severity: string) => {
-    switch (severity?.toLowerCase()) {
-      case 'minor':
-        return 'badge-success';
-      case 'moderate':
-        return 'badge-warning';
-      case 'serious':
-        return 'badge-danger';
-      case 'critical':
-        return 'badge-danger';
-      default:
-        return 'badge-light';
-    }
-  };
-
-  const getStatusBadgeClass = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case 'draft':
-        return 'badge-light';
-      case 'submitted':
-        return 'badge-info';
-      case 'under_review':
-        return 'badge-warning';
-      case 'completed':
-        return 'badge-success';
-      default:
-        return 'badge-light';
-    }
-  };
-
-  const getStatusDisplayName = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case 'draft':
-        return 'Draft';
-      case 'submitted':
-        return 'Submitted';
-      case 'under_review':
-        return 'Under Review';
-      case 'completed':
-        return 'Completed';
-      default:
-        return status || 'Draft';
-    }
-  };
-
-  const formatDateTime = (dateTime: string) => {
-    if (!dateTime) return { date: 'N/A', time: '' };
-    const date = new Date(dateTime);
-
-    const formattedDate = date.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    });
-
-    const formattedTime = date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    });
-
-    return { date: formattedDate, time: formattedTime };
-  };
-
-  const ColumnInputFilter = <TData, TValue>({ column }: IColumnFilterProps<TData, TValue>) => {
-    return (
-      <Input
-        placeholder="Filter..."
-        value={(column.getFilterValue() as string) ?? ''}
-        onChange={(event) => column.setFilterValue(event.target.value)}
-        className="h-9 w-full max-w-40"
-      />
-    );
-  };
-
-  const DropdownCard = (incidentId: number, handleModalOpen: any, handleViewDetails: any) => {
-    return (
-      <MenuSub className="menu-default" rootClassName="w-full max-w-[200px]">
-        <MenuItem
-          onClick={() => handleViewDetails(incidentId)}
-          toggle="dropdown"
-          trigger="hover"
-          dropdownProps={{
-            placement: isRTL() ? 'left-start' : 'right-start',
-            modifiers: [
-              {
-                name: 'offset',
-                options: {
-                  offset: isRTL() ? [15, 0] : [-15, 0]
-                }
-              }
-            ]
-          }}
-        >
-          <MenuLink>
-            <a className="flex">
-              <MenuIcon>
-                <KeenIcon icon="eye" />
-              </MenuIcon>
-              <MenuTitle>View Details</MenuTitle>
-            </a>
-          </MenuLink>
-        </MenuItem>
-
-        <MenuItem
-          toggle="dropdown"
-          trigger="hover"
-          dropdownProps={{
-            placement: isRTL() ? 'left-start' : 'right-start',
-            modifiers: [
-              {
-                name: 'offset',
-                options: {
-                  offset: isRTL() ? [15, 0] : [-15, 0]
-                }
-              }
-            ]
-          }}
-        >
-          <MenuLink path={`/incidents/${incidentId}/edit`}>
-            <MenuIcon>
-              <KeenIcon icon="notepad-edit" />
-            </MenuIcon>
-            <MenuTitle>Edit</MenuTitle>
-          </MenuLink>
-        </MenuItem>
-
-        <MenuItem
-          onClick={() => handleModalOpen(incidentId)}
-          toggle="dropdown"
-          dropdownProps={{
-            placement: isRTL() ? 'left-start' : 'right-start',
-            modifiers: [
-              {
-                name: 'offset',
-                options: {
-                  offset: isRTL() ? [15, 0] : [-15, 0]
-                }
-              }
-            ]
-          }}
-        >
-          <MenuLink>
-            <a className="flex">
-              <MenuIcon>
-                <KeenIcon icon="trash" />
-              </MenuIcon>
-              <MenuTitle>Delete</MenuTitle>
-            </a>
-          </MenuLink>
-        </MenuItem>
-      </MenuSub>
-    );
-  };
-
-  const fetchIncidentsData = async (params: TDataGridRequestParams) => {
-    try {
-      console.log('Fetching incidents data...', params);
-
-      // Build filter object for backend
-      const filters: any = {
-        per_page: params.pageSize
-      };
-
-      // Add custom filters
-      if (selectedParticipant !== 'all') {
-        filters.participant_name = selectedParticipant;
-      }
-      if (selectedSeverity !== 'all') {
-        filters.severity = selectedSeverity;
-      }
-      if (selectedStatus !== 'all') {
-        filters.status = selectedStatus;
-      }
-      if (selectedRestrictive !== 'all') {
-        filters.restrictive_practice = selectedRestrictive === 'yes';
-      }
-      if (dateFrom) {
-        filters.date_from = dateFrom;
-      }
-      if (dateTo) {
-        filters.date_to = dateTo;
-      }
-
-      // Fetch data from backend with filters
-      const data = await fetchAllIncidents(filters);
-      console.log('Incidents API response:', data);
-
-      // Handle different possible response formats
-      let incidentsData = [];
-      let totalCount = 0;
-
-      if (Array.isArray(data)) {
-        incidentsData = data;
-        totalCount = data.length;
-      } else if (data?.data && Array.isArray(data.data)) {
-        incidentsData = data.data;
-        totalCount = data.total || data.data.length;
-      } else if (data?.incidents) {
-        incidentsData = data.incidents;
-        totalCount = data.total || incidentsData.length;
-      }
-
-      console.log('Processed incidents data:', incidentsData);
-      console.log('🔍 DEBUG - First incident sample:', incidentsData[0]);
-      console.log('🔍 DEBUG - Incident IDs:', incidentsData.map((inc: any) => inc.id));
-
-      // Store all incidents for export
-      setAllIncidentsData(incidentsData);
-
-      return {
-        data: incidentsData,
-        totalCount: totalCount
-      };
-    } catch (error) {
-      console.error('Error fetching incidents:', error);
-      toast.error('Failed to load incidents. Please try again.');
-      return {
-        data: [],
-        totalCount: 0
-      };
-    }
-  };
-
-  const columns = useMemo<ColumnDef<IIncidentsData>[]>(
-    () => [
-      // Selection column
-      {
-        accessorKey: 'id',
-        header: () => <DataGridRowSelectAll />,
-        cell: ({ row }) => <DataGridRowSelect row={row} />,
-        enableSorting: false,
-        enableHiding: false,
-        meta: {
-          headerClassName: 'w-0'
-        }
-      },
-      // 1. Date
-      {
-        accessorFn: (row) => row.incident_date_time,
-        id: 'incident_date_time',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            filterable={false}
-            title="Date"
-            column={column}
-            icon={<i className="ki-filled ki-calendar"></i>}
-          />
-        ),
-        cell: (info) => {
-          const { date, time } = formatDateTime(info.row.original.incident_date_time);
-          return (
-            <div
-              className="flex flex-col gap-0.5 cursor-pointer"
-              onClick={() => handleViewDetails(info.row.original.id)}
-            >
-              <div className="text-sm text-gray-800 font-medium">{date}</div>
-              {time && <div className="text-xs text-gray-600">{time}</div>}
-            </div>
-          );
-        },
-        meta: {
-          headerClassName: 'min-w-[130px]'
-        }
-      },
-      // 2. Incident Number
-      {
-        accessorFn: (row: IIncidentsData) => row.incident_number,
-        id: 'incident_number',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            filterable={false}
-            title="Incident"
-            filter={<ColumnInputFilter column={column} />}
-            column={column}
-            icon={<i className="ki-filled ki-barcode"></i>}
-          />
-        ),
-        cell: ({ row }) => {
-          return (
-            <div
-              className="flex items-center gap-2 cursor-pointer"
-              onClick={() => handleViewDetails(row.original.id)}
-            >
-              <div className="flex flex-col gap-0.5">
-                <div className="text-sm text-primary font-medium">#{row.original.incident_number}</div>
-              </div>
-            </div>
-          );
-        },
-        meta: {
-          className: 'min-w-[180px]',
-          cellClassName: 'text-gray-800 font-normal'
-        }
-      },
-      // 3. Participant
-      {
-        accessorFn: (row) => row.participant_name,
-        id: 'participant_name',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            filterable={false}
-            title="Participant"
-            column={column}
-            icon={<i className="ki-filled ki-user"></i>}
-          />
-        ),
-        cell: (info) => {
-          const participant = info.row.original.participant_name ||
-            (info.row.original.customer
-              ? `${info.row.original.customer.first_name || ''} ${info.row.original.customer.last_name || ''}`.trim()
-              : 'N/A');
-          return (
-            <div
-              className="flex items-center text-gray-800 font-normal gap-1.5 cursor-pointer"
-              onClick={() => handleViewDetails(info.row.original.id)}
-            >
-              {participant}
-            </div>
-          );
-        },
-        meta: {
-          headerClassName: 'min-w-[150px]'
-        }
-      },
-      // 4. Type
-      {
-        accessorFn: (row) => {
-          const incidentType = row.incident_type;
-          return typeof incidentType === 'object' && incidentType?.name
-            ? incidentType.name
-            : incidentType || '';
-        },
-        id: 'incident_type',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            filterable={false}
-            title="Type"
-            column={column}
-            icon={<KeenIcon icon="category" className="ki-filled" />}
-          />
-        ),
-        cell: (info) => {
-          const incidentType = info.row.original.incident_type;
-          const typeName = typeof incidentType === 'object' && incidentType?.name
-            ? incidentType.name
-            : typeof incidentType === 'string'
-              ? incidentType
-              : 'N/A';
-          return (
-            <div
-              className="flex items-center text-gray-800 dark:text-gray-200 font-normal gap-1.5 cursor-pointer"
-              onClick={() => handleViewDetails(info.row.original.id)}
-            >
-              {typeName}
-            </div>
-          );
-        },
-        meta: {
-          headerClassName: 'min-w-[130px]'
-        }
-      },
-      // 5. Severity
-      {
-        accessorFn: (row) => row.severity,
-        id: 'severity',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            filterable={false}
-            title="Severity"
-            column={column}
-            icon={<i className="ki-filled ki-chart"></i>}
-          />
-        ),
-        cell: (info) => {
-          return (
-            <span
-              className={`badge ${getSeverityBadgeClass(info.row.original.severity)} badge-outline rounded-full cursor-pointer`}
-              onClick={() => handleViewDetails(info.row.original.id)}
-            >
-              {info.row.original.severity || 'N/A'}
-            </span>
-          );
-        },
-        meta: {
-          headerClassName: 'min-w-[110px]'
-        }
-      },
-      // 6. Insights
-      {
-        id: 'insights',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            filterable={false}
-            title="Insights"
-            column={column}
-            icon={<i className="ki-filled ki-chart-line-star"></i>}
-          />
-        ),
-        cell: (info) => {
-          const row = info.row.original;
-          // Use database flags instead of checking field values
-          const hasBehavioralData = row.behavioral_identified;
-          const hasTriggerData = row.trigger_extracted;
-          const hasBspAlignment = row.bsp_aligned;
-
-          return (
-            <div className="flex items-center gap-2 justify-center">
-              {hasBehavioralData && (
-                <div
-                  className="relative group cursor-pointer"
-                  title="Behavioral Identified"
-                >
-                  <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center hover:bg-purple-200 dark:hover:bg-purple-800/50 transition-colors">
-                    <i className="ki-solid ki-abstract-26 text-purple-600 dark:text-purple-400 text-base"></i>
-                  </div>
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                    Behavioral Identified
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
-                  </div>
-                </div>
-              )}
-              {hasTriggerData && (
-                <div
-                  className="relative group cursor-pointer"
-                  title="Trigger Extracted"
-                >
-                  <div className="w-8 h-8 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center hover:bg-yellow-200 dark:hover:bg-yellow-800/50 transition-colors">
-                    <KeenIcon icon="electricity" className="text-yellow-600 dark:text-yellow-400 text-lg" />
-                  </div>
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                    Trigger Extracted
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
-                  </div>
-                </div>
-              )}
-              {hasBspAlignment && (
-                <div
-                  className="relative group cursor-pointer"
-                  title="BSP Aligned"
-                >
-                  <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors">
-                    <KeenIcon icon="check-circle" className="text-green-600 dark:text-green-400 text-lg" />
-                  </div>
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                    BSP Aligned
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
-                  </div>
-                </div>
-              )}
-              {!hasBehavioralData && !hasTriggerData && !hasBspAlignment && (
-                <span className="text-gray-400 dark:text-gray-600 text-xs">N/A</span>
-              )}
-            </div>
-          );
-        },
-        meta: {
-          headerClassName: 'min-w-[140px]',
-          cellClassName: 'text-center'
-        }
-      },
-      // 7. Restrictive
-      {
-        accessorFn: (row) => row.restrictive_practice_used,
-        id: 'restrictive',
-        header: ({ column}) => (
-          <DataGridColumnHeader
-            filterable={false}
-            title="Restrictive"
-            column={column}
-            icon={<i className="ki-filled ki-shield-cross"></i>}
-          />
-        ),
-        cell: (info) => {
-          return (
-            <div
-              className="flex justify-center cursor-pointer"
-              onClick={() => handleViewDetails(info.row.original.id)}
-            >
-              {info.row.original.restrictive_practice_used ? (
-                <span className="badge badge-warning badge-outline rounded-full badge-sm">Yes</span>
-              ) : (
-                <span className="badge badge-light badge-outline rounded-full badge-sm">No</span>
-              )}
-            </div>
-          );
-        },
-        meta: {
-          headerClassName: 'min-w-[100px]'
-        }
-      },
-      // 8. Status
-      {
-        accessorFn: (row) => row.status,
-        id: 'status',
-        header: ({ column }) => (
-          <DataGridColumnHeader
-            filterable={false}
-            title="Status"
-            column={column}
-            icon={<i className="ki-filled ki-flag"></i>}
-          />
-        ),
-        cell: (info) => {
-          return (
-            <span
-              className={`badge ${getStatusBadgeClass(info.row.original.status)} badge-outline rounded-full cursor-pointer`}
-              onClick={() => handleViewDetails(info.row.original.id)}
-            >
-              {getStatusDisplayName(info.row.original.status)}
-            </span>
-          );
-        },
-        meta: {
-          headerClassName: 'min-w-[120px]'
-        }
-      },
-      // 9. Actions
-      {
-        id: 'actions',
-        header: () => '',
-        enableSorting: false,
-        cell: (row) => (
-          <Menu className="items-stretch">
-            <MenuItem
-              toggle="dropdown"
-              trigger="click"
-              dropdownProps={{
-                placement: isRTL() ? 'bottom-start' : 'bottom-end',
-                modifiers: [
-                  {
-                    name: 'offset',
-                    options: {
-                      offset: isRTL() ? [0, -10] : [0, 10]
-                    }
-                  }
-                ]
-              }}
-            >
-              <MenuToggle className="btn btn-sm btn-icon btn-light btn-clear">
-                <KeenIcon icon="dots-vertical" />
-              </MenuToggle>
-              {DropdownCard(row.row.original.id, handleModalOpen, handleViewDetails)}
-            </MenuItem>
-          </Menu>
-        ),
-        meta: {
-          headerClassName: 'w-[60px]'
-        }
-      }
-    ],
-    [isRTL]
-  );
-
-  const handleRowSelection = (state: RowSelectionState) => {
-    console.log('🔍 DEBUG - Row selection changed:', state);
-    setSelectedRows(state);
-  };
-
-  const handleDeleteIncident = async () => {
-    if (selectedId) {
-      try {
-        await deleteIncident(selectedId);
-        toast.success('Incident deleted successfully');
-      } catch (error: any) {
-        toast.error(error?.response?.data?.message || 'Failed to delete incident');
-      }
-    }
-  };
-
-  const handleBulkDelete = async () => {
-    const selectedIds = Object.keys(selectedRows);
-    console.log('🔍 DEBUG - Selected rows state:', selectedRows);
-    console.log('🔍 DEBUG - Selected IDs from keys:', selectedIds);
-    console.log('🔍 DEBUG - Converting to numbers:', selectedIds.map(id => Number(id)));
-
-    if (selectedIds.length === 0) return;
-
-    setIsDeletingBulk(true);
-    try {
-      // Delete incidents one by one
-      const deletePromises = selectedIds.map(id => {
-        const numId = Number(id);
-        console.log('🔍 DEBUG - Deleting incident with ID:', numId);
-        return deleteIncident(numId);
-      });
-      await Promise.all(deletePromises);
-
-      toast.success(`Successfully deleted ${selectedIds.length} incident${selectedIds.length > 1 ? 's' : ''}`);
-
-      // Clear selection and close modal
-      setSelectedRows({});
-      setIsBulkDeleteModalOpen(false);
-
-      // Refresh the data grid
-      setRefreshKey(prev => prev + 1);
-    } catch (error) {
-      console.error('Error deleting incidents:', error);
-      toast.error('Failed to delete some incidents. Please try again.');
-    } finally {
-      setIsDeletingBulk(false);
-    }
-  };
-
-  const loadStatisticsWithFilters = async () => {
-    setLoadingStats(true);
-    try {
-      const filters: any = {};
-
-      if (selectedParticipant !== 'all') {
-        filters.participant_name = selectedParticipant;
-      }
-      if (selectedSeverity !== 'all') {
-        filters.severity = selectedSeverity;
-      }
-      if (selectedStatus !== 'all') {
-        filters.status = selectedStatus;
-      }
-      if (selectedRestrictive !== 'all') {
-        filters.restrictive_practice = selectedRestrictive === 'yes';
-      }
-      if (dateFrom) {
-        filters.date_from = dateFrom;
-      }
-      if (dateTo) {
-        filters.date_to = dateTo;
-      }
-
-      const data = await fetchIncidentStatistics(filters);
-      setStatistics(data);
-    } catch (error) {
-      console.error('Error loading statistics:', error);
-    } finally {
-      setLoadingStats(false);
-    }
-  };
-
-  const handleApplyFilters = () => {
-    setRefreshKey((prev) => prev + 1);
-    loadStatisticsWithFilters();
-  };
-
-  const handleClearFilters = async () => {
-    setSelectedParticipant('all');
-    setSelectedSeverity('all');
-    setSelectedStatus('all');
-    setSelectedRestrictive('all');
-    setDateFrom('');
-    setDateTo('');
-
-    // Load statistics without filters
-    setLoadingStats(true);
-    try {
-      const data = await fetchIncidentStatistics({});
-      setStatistics(data);
-    } catch (error) {
-      console.error('Error loading statistics:', error);
-    } finally {
-      setLoadingStats(false);
-    }
-
-    setRefreshKey((prev) => prev + 1);
-  };
-
-  const exportToCSV = () => {
-    try {
-      // Get filtered data (use allIncidentsData with current filters applied)
-      let dataToExport = allIncidentsData;
-
-      // Apply the same filters
-      if (selectedParticipant && selectedParticipant !== 'all') {
-        dataToExport = dataToExport.filter((item: any) => {
-          const participantName = item.participant_name ||
-            (item.customer ? `${item.customer.first_name || ''} ${item.customer.last_name || ''}`.trim() : '');
-          return participantName === selectedParticipant;
-        });
-      }
-
-      if (selectedSeverity && selectedSeverity !== 'all') {
-        dataToExport = dataToExport.filter((item: any) =>
-          item.severity?.toLowerCase() === selectedSeverity.toLowerCase()
-        );
-      }
-
-      if (selectedStatus && selectedStatus !== 'all') {
-        dataToExport = dataToExport.filter((item: any) =>
-          item.status?.toLowerCase() === selectedStatus.toLowerCase()
-        );
-      }
-
-      if (selectedRestrictive && selectedRestrictive !== 'all') {
-        const isRestrictive = selectedRestrictive === 'restrictive';
-        dataToExport = dataToExport.filter((item: any) =>
-          Boolean(item.restrictive_practice_used) === isRestrictive
-        );
-      }
-
-      if (dateFrom) {
-        dataToExport = dataToExport.filter((item: any) => {
-          const itemDate = new Date(item.incident_date_time);
-          const fromDate = new Date(dateFrom);
-          return itemDate >= fromDate;
-        });
-      }
-
-      if (dateTo) {
-        dataToExport = dataToExport.filter((item: any) => {
-          const itemDate = new Date(item.incident_date_time);
-          const toDate = new Date(dateTo);
-          toDate.setHours(23, 59, 59, 999);
-          return itemDate <= toDate;
-        });
-      }
-
-      // Prepare CSV content
-      const headers = [
-        'Incident Number',
-        'Date & Time',
-        'Participant',
-        'Type',
-        'Severity',
-        'Status',
-        'Injury',
-        'Location',
-        'Description'
-      ];
-
-      const csvRows = [headers.join(',')];
-
-      dataToExport.forEach((incident: any) => {
-        const { date, time } = formatDateTime(incident.incident_date_time);
-        const dateTimeFormatted = time ? `${date} ${time}` : date;
-
-        const row = [
-          `"${incident.incident_number || 'N/A'}"`,
-          `"${dateTimeFormatted}"`,
-          `"${incident.participant_name || (incident.customer ? `${incident.customer.first_name || ''} ${incident.customer.last_name || ''}`.trim() : 'N/A')}"`,
-          `"${typeof incident.incident_type === 'object' && incident.incident_type?.name ? incident.incident_type.name : incident.incident_type || 'N/A'}"`,
-          `"${incident.severity || 'N/A'}"`,
-          `"${getStatusDisplayName(incident.status)}"`,
-          `"${incident.injury_occurred ? 'Yes' : 'No'}"`,
-          `"${incident.location || 'N/A'}"`,
-          `"${(incident.description || 'N/A').replace(/"/g, '""')}"`
-        ];
-        csvRows.push(row.join(','));
-      });
-
-      // Create and download CSV file
-      const csvContent = csvRows.join('\n');
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', `incidents_export_${new Date().toISOString().split('T')[0]}.csv`);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      toast.success(`Exported ${dataToExport.length} incident(s) to CSV`);
-    } catch (error) {
-      console.error('Error exporting to CSV:', error);
-      toast.error('Failed to export data');
-    }
-  };
-
-  const Toolbar = () => {
-    const hasActiveFilters = selectedParticipant !== 'all' || selectedSeverity !== 'all' ||
-      selectedStatus !== 'all' || selectedRestrictive !== 'all' || dateFrom || dateTo;
-    const selectedCount = Object.keys(selectedRows).length;
-
-    return (
-      <>
-        <div className="card-header flex-wrap px-5 py-5 border-b-0">
-          <h3 className="card-title">
-            Incidents
-            {selectedCount > 0 && (
-              <span className="badge badge-sm badge-primary ms-2">{selectedCount} selected</span>
-            )}
-          </h3>
-          <div className="flex flex-wrap gap-2 items-center">
-            {/* Bulk Delete Button - shown when rows are selected */}
-            {selectedCount > 0 && (
-              <button
-                type="button"
-                onClick={() => setIsBulkDeleteModalOpen(true)}
-                className="btn btn-sm btn-danger flex items-center gap-1.5"
-              >
-                <KeenIcon icon="trash" className="text-base" />
-                <span>Delete ({selectedCount})</span>
-              </button>
-            )}
-
-            {/* View Toggle */}
-            <ViewToggle activeView={activeView} onViewChange={onViewChange} />
-
-            {/* Export Button */}
-            <button
-              type="button"
-              onClick={exportToCSV}
-              className="btn btn-sm btn-light flex items-center gap-1.5"
-            >
-              <KeenIcon icon="file-down" className="text-base" />
-              <span className="hidden sm:inline">CSV</span>
-            </button>
-
-            {/* Filters Toggle Button */}
-            <button
-              type="button"
-              onClick={() => setShowFilters(!showFilters)}
-              className={`btn btn-sm ${hasActiveFilters ? 'btn-primary' : 'btn-light'} flex items-center gap-1.5`}
-              style={{
-                color: hasActiveFilters ? 'white' : undefined
-              }}
-            >
-              <KeenIcon icon="filter" className={`text-base ${hasActiveFilters ? 'text-white' : ''}`} />
-              <span style={{ color: hasActiveFilters ? 'white' : undefined }}>Filters</span>
-              {hasActiveFilters && (
-                <span className="badge badge-sm badge-circle bg-white text-primary">!</span>
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* Statistics Cards */}
-        <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Total Incidents Card */}
-            <div className="card border border-gray-200 dark:border-gray-700">
-              <div className="card-body p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-2xs text-gray-600 dark:text-gray-400 font-medium mb-1">Total Incidents</div>
-                    <div className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-                      {loadingStats ? '...' : statistics?.total_incidents || 0}
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary-light">
-                    <KeenIcon icon="chart-line-up" className="text-2xl text-primary" />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* High Severity Card */}
-            <div className="card border border-gray-200 dark:border-gray-700">
-              <div className="card-body p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-2xs text-gray-600 dark:text-gray-400 font-medium mb-1">High Severity</div>
-                    <div className="text-2xl font-semibold text-danger">
-                      {loadingStats ? '...' : statistics?.high_severity || 0}
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-danger-light">
-                    <KeenIcon icon="information-2" className="text-2xl text-danger" />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Training Gaps Card */}
-            <div className="card border border-gray-200 dark:border-gray-700">
-              <div className="card-body p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-2xs text-gray-600 dark:text-gray-400 font-medium mb-1">Training Gaps</div>
-                    <div className="text-2xl font-semibold text-warning">
-                      {loadingStats ? '...' : statistics?.training_gaps || 0}
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-warning-light">
-                    <KeenIcon icon="book" className="text-2xl text-warning" />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Time Saved Card */}
-            <div className="card border border-gray-200 dark:border-gray-700">
-              <div className="card-body p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-2xs text-gray-600 dark:text-gray-400 font-medium mb-1">Time Saved</div>
-                    <div className="text-2xl font-semibold text-success">
-                      {loadingStats ? '...' : `${statistics?.time_saved || 0}%`}
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-center w-12 h-12 rounded-full bg-success-light">
-                    <KeenIcon icon="time" className="text-2xl text-success" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Filters Section - Collapsible */}
-        {showFilters && (
-          <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-4">
-              {/* Participant Filter */}
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                  Participant
-                </label>
-                <Select value={selectedParticipant} onValueChange={setSelectedParticipant}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="All Participants" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Participants</SelectItem>
-                    {participants.map((participant: any) => (
-                      <SelectItem
-                        key={participant.id}
-                        value={`${participant.first_name} ${participant.last_name}`}
-                      >
-                        {participant.first_name} {participant.last_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Severity Filter */}
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                  Severity
-                </label>
-                <Select value={selectedSeverity} onValueChange={setSelectedSeverity}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="All Severity" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Severity</SelectItem>
-                    <SelectItem value="minor">Minor</SelectItem>
-                    <SelectItem value="moderate">Moderate</SelectItem>
-                    <SelectItem value="serious">Serious</SelectItem>
-                    <SelectItem value="critical">Critical</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Status Filter */}
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                  Status
-                </label>
-                <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="All Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="draft">Draft</SelectItem>
-                    <SelectItem value="submitted">Submitted</SelectItem>
-                    <SelectItem value="under_review">Under Review</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Restrictive Practice Filter */}
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                  Restrictive
-                </label>
-                <Select value={selectedRestrictive} onValueChange={setSelectedRestrictive}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="All" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="restrictive">Restrictive</SelectItem>
-                    <SelectItem value="non-restrictive">Non-Restrictive</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Date From Filter */}
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                  Date From
-                </label>
-                <Input
-                  type="date"
-                  value={dateFrom}
-                  onChange={(e) => setDateFrom(e.target.value)}
-                  className="w-full"
-                />
-              </div>
-
-              {/* Date To Filter */}
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                  Date To
-                </label>
-                <Input
-                  type="date"
-                  value={dateTo}
-                  onChange={(e) => setDateTo(e.target.value)}
-                  className="w-full"
-                />
-              </div>
-            </div>
-
-            {/* Filter Actions */}
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={handleClearFilters}
-                className="btn btn-sm btn-light"
-              >
-                Clear All
-              </button>
-              <button
-                type="button"
-                onClick={handleApplyFilters}
-                className="btn btn-sm btn-primary"
-                style={{ color: 'white' }}
-              >
-                Apply Filters
-              </button>
-            </div>
-          </div>
-        )}
-      </>
-    );
-  };
-
-  return (
-    <>
-      <DataGrid
-        key={refreshKey}
-        columns={columns}
-        rowSelection={true}
-        getRowId={(row: any) => {
-          console.log('🔍 DEBUG - getRowId called with row:', row);
-          console.log('🔍 DEBUG - Returning ID:', String(row.id));
-          return String(row.id);
-        }}
-        onRowSelectionChange={handleRowSelection}
-        serverSide={true}
-        onFetchData={fetchIncidentsData}
-        pagination={{ size: 10 }}
-        layout={{ card: true }}
-        toolbar={<Toolbar />}
-      />
-      {/* Single Delete Confirmation Modal */}
-      <ModalDeleteConfirmation
-        open={isModalOpen}
-        onOpenChange={() => {
-          handleModalClose();
-          // Reopen the report modal if user cancels deletion
-          if (selectedIncidentDetails) {
-            setShowReportModal(true);
-          }
-        }}
-        onDeleteConfirm={async () => {
-          await handleDeleteIncident();
-          setRefreshKey((prev) => prev + 1);
-          handleModalClose();
-          // Don't reopen report modal after successful deletion
-        }}
-      />
-
-      {/* Bulk Delete Confirmation Modal */}
-      <ModalDeleteConfirmation
-        open={isBulkDeleteModalOpen}
-        onOpenChange={() => setIsBulkDeleteModalOpen(false)}
-        onDeleteConfirm={handleBulkDelete}
-      />
-
       {/* Report Modal */}
-      {showReportModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 1000,
-            backgroundColor: 'rgba(0, 0, 0, 0.6)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '20px',
-            overflowY: 'auto'
-          }}
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              closeReportModal();
-            }
-          }}
-        >
-          <style>
-            {`
-              /* Animation Keyframes */
-              @keyframes spin {
-                from { transform: rotate(0deg); }
-                to { transform: rotate(360deg); }
-              }
-              @keyframes pulse {
-                0%, 100% { opacity: 1; }
-                50% { opacity: 0.5; }
-              }
-              @keyframes bounce {
-                0%, 100% { transform: translateY(0); }
-                50% { transform: translateY(-10px); }
-              }
-              @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(10px); }
-                to { opacity: 1; transform: translateY(0); }
-              }
-
-              /* ============================================
-                 CENTRALIZED MODAL WIDTH MANAGEMENT
-                 ============================================
-                 This section handles all width-related styling
-                 for the incident details modal to prevent
-                 content shrinking issues across all tabs.
-
-                 ROOT CAUSE: Flex containers cause children to shrink
-                 SOLUTION: Explicitly set min-width: 0 and width: 100%
-                 ============================================ */
-
-              /* Fix flex shrinking in modal */
-              .modal-content {
-                min-width: 0 !important;
-              }
-
-              .modal-body {
-                min-width: 0 !important;
-                flex-shrink: 0 !important;
-              }
-
-              /* Tab Content Wrapper - Applied to all tab containers */
-              .incident-modal-tab-content {
-                animation: fadeIn 0.3s ease-in-out;
-                padding: 0;
-                width: 100% !important;
-                max-width: 100% !important;
-                min-width: 0 !important;
-                box-sizing: border-box;
-                flex-shrink: 0 !important;
-              }
-
-              /* All direct children of tab content inherit full width */
-              .incident-modal-tab-content > * {
-                width: 100% !important;
-                max-width: 100% !important;
-                min-width: 0 !important;
-                box-sizing: border-box;
-              }
-
-              /* Ensure all modal body content takes full width */
-              .modal-body > * {
-                width: 100%;
-                max-width: 100%;
-                min-width: 0;
-                box-sizing: border-box;
-                flex-shrink: 0;
-              }
-            `}
-          </style>
+      <IncidentDetailsModal
+        showModal={showReportModal}
+        onClose={closeReportModal}
+        selectedIncidentDetails={selectedIncidentDetails}
+        loadingReport={loadingReport}
+        bspAnalysisData={bspAnalysisData}
+        loadingBspAnalysis={loadingBspAnalysis}
+        activeModalTab={activeModalTab}
+        setActiveModalTab={setActiveModalTab}
+        collapsedSections={collapsedSections}
+        toggleSection={toggleSection}
+        handleRunBspAnalysis={handleRunBspAnalysis}
+        exportIncidentPdf={exportIncidentPdf}
+        onDelete={(id) => {
+          setSelectedId(id);
+          setIsModalOpen(true);
+        }}
+        formatDateTime={formatDateTime}
+        getStatusBadgeClass={getStatusBadgeClass}
+        getSeverityBadgeClass={getSeverityBadgeClass}
+      />
           <div
             style={{
               backgroundColor: 'white',
               borderRadius: '8px',
-              maxWidth: '1400px',
-              width: '95%',
+              maxWidth: '1200px',
+              width: '100%',
               maxHeight: '90vh',
               display: 'flex',
               flexDirection: 'column',
@@ -1416,7 +33,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="modal-content" style={{ display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0, width: '100%' }}>
+            <div className="modal-content" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
               {/* Modal Header */}
               <div className="modal-header" style={{ padding: '20px 24px', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -1479,7 +96,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
               </div>
 
               {/* Tab Navigation - Only show when not loading */}
-              {!loadingReport && !loadingBspAnalysis && !loadingParticipant && selectedIncidentDetails && (
+              {!loadingReport && selectedIncidentDetails && (
                 <div style={{ borderBottom: '1px solid #e5e7eb', padding: '0 24px', backgroundColor: '#f9fafb' }}>
                   <div style={{ display: 'flex', gap: '32px' }}>
                     <button
@@ -1518,51 +135,20 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                     >
                       BSP Analysis
                     </button>
-                    {/* Participant Info Tab */}
-                    <button
-                      onClick={() => setActiveModalTab('participant')}
-                      style={{
-                        padding: '16px 4px',
-                        border: 'none',
-                        background: 'transparent',
-                        fontSize: '0.875rem',
-                        fontWeight: activeModalTab === 'participant' ? '600' : '500',
-                        color: activeModalTab === 'participant' ? '#6b46c1' : '#6b7280',
-                        borderBottom: activeModalTab === 'participant' ? '2px solid #6b46c1' : '2px solid transparent',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        position: 'relative',
-                        top: '1px'
-                      }}
-                    >
-                      Participant Info
-                    </button>
                   </div>
                 </div>
               )}
 
               {/* Modal Body */}
-              <div className="modal-body" style={{
-                flex: '1 1 auto',
-                flexShrink: 0,
-                overflowY: 'auto',
-                padding: '24px',
-                width: '100%',
-                maxWidth: '100%',
-                minWidth: 0,
-                boxSizing: 'border-box'
-              }}>
-                {(loadingReport || loadingBspAnalysis || loadingParticipant) ? (
+              <div className="modal-body" style={{ flex: 1, overflowY: 'auto', padding: '0' }}>
+                {loadingReport ? (
                   <div style={{
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
                     minHeight: '400px',
-                    padding: '40px 20px',
-                    width: '100%',
-                    maxWidth: '100%',
-                    boxSizing: 'border-box'
+                    padding: '40px 20px'
                   }}>
                     <div style={{
                       position: 'relative',
@@ -1656,30 +242,104 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                     </div>
                   </div>
                 ) : selectedIncidentDetails ? (
-                  <div style={{
-                    width: '100%',
-                    maxWidth: '100%',
-                    boxSizing: 'border-box'
-                  }}>
+                  <div>
                     {/* BSP ANALYSIS TAB */}
                     {activeModalTab === 'bsp' && (
-                      <div className="incident-modal-tab-content">
-                        {/* BSP ANALYSIS SECTION */}
-                        {bspAnalysisData?.bsp_analysis ? (
                       <div style={{
-                        backgroundColor: 'white',
+                        animation: 'fadeIn 0.3s ease-in-out',
+                        padding: '24px',
+                        minHeight: '400px'
+                      }}>
+                        {/* BSP ANALYSIS SECTION */}
+                        {loadingBspAnalysis ? (
+                      <div style={{
+                        backgroundColor: '#f5f3ff',
                         borderLeft: '4px solid #6b46c1',
                         borderRadius: '8px',
                         padding: '24px',
                         marginBottom: '24px'
                       }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                        <div style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'flex-start',
+                          marginBottom: '24px'
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <i className="ki-outline ki-abstract-26" style={{ fontSize: '24px', color: '#6b46c1' }}></i>
+                            <h4 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1f2937', margin: 0 }}>
+                              AI-Powered BSP Analysis
+                            </h4>
+                          </div>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-primary"
+                            disabled
+                            style={{ cursor: 'not-allowed' }}
+                          >
+                            <i className="ki-outline ki-abstract-26 text-sm mr-1"></i>
+                            Analyzing...
+                          </button>
+                        </div>
+                        <div style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: '40px 20px'
+                        }}>
+                          <div style={{
+                            position: 'relative',
+                            width: '80px',
+                            height: '80px',
+                            marginBottom: '24px'
+                          }}>
+                            <div style={{
+                              position: 'absolute',
+                              width: '100%',
+                              height: '100%',
+                              border: '4px solid #e9d5ff',
+                              borderTop: '4px solid #6b46c1',
+                              borderRadius: '50%',
+                              animation: 'spin 1s linear infinite'
+                            }}></div>
+                            <div style={{
+                              position: 'absolute',
+                              width: '100%',
+                              height: '100%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}>
+                              <i className="ki-outline ki-abstract-26" style={{ fontSize: '32px', color: '#6b46c1' }}></i>
+                            </div>
+                          </div>
+                          <p style={{ fontSize: '1rem', color: '#6b46c1', marginBottom: '8px', textAlign: 'center' }}>
+                            Analyzing incident against Behavior Support Plan...
+                          </p>
+                          <p style={{ fontSize: '0.875rem', color: '#9333ea', textAlign: 'center' }}>
+                            Maps triggers, strategies, and risk factors against the participant's BSP
+                          </p>
+                        </div>
+                      </div>
+                    ) : bspAnalysisData?.bsp_analysis ? (
+                      <div style={{
+                        backgroundColor: 'white',
+                        borderLeft: '4px solid #6b46c1',
+                        borderRadius: '8px',
+                        padding: '20px',
+                        minHeight: '300px'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px', justifyContent: 'space-between' }}>
                           <h4 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#6b46c1', margin: 0 }}>
                             BSP Analysis & Recommendations
                           </h4>
+                          <p style={{ fontSize: '0.75rem', color: '#9333ea', margin: 0 }}>
+                            Click on any section below to expand
+                          </p>
                         </div>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', minHeight: '100px' }}>
                         {/* BSP Gaps Detected */}
                         {bspAnalysisData.bsp_analysis?.gaps_detected?.count > 0 && (
                           <div style={{
@@ -1698,9 +358,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                                 padding: '14px 16px',
                                 cursor: 'pointer',
                                 backgroundColor: '#f5f3ff',
-                                transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                                transition: 'background-color 0.2s'
                               }}
                             >
                               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -1751,9 +409,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                                 padding: '14px 16px',
                                 cursor: 'pointer',
                                 backgroundColor: '#f5f3ff',
-                                transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                                transition: 'background-color 0.2s'
                               }}
                             >
                               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -1820,9 +476,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                                 padding: '14px 16px',
                                 cursor: 'pointer',
                                 backgroundColor: '#f5f3ff',
-                                transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                                transition: 'background-color 0.2s'
                               }}
                             >
                               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -1882,9 +536,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                                 padding: '14px 16px',
                                 cursor: 'pointer',
                                 backgroundColor: '#f5f3ff',
-                                transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                                transition: 'background-color 0.2s'
                               }}
                             >
                               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -1953,9 +605,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                                 padding: '14px 16px',
                                 cursor: 'pointer',
                                 backgroundColor: '#f5f3ff',
-                                transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                                transition: 'background-color 0.2s'
                               }}
                             >
                               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -2003,9 +653,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                                 padding: '14px 16px',
                                 cursor: 'pointer',
                                 backgroundColor: '#f5f3ff',
-                                transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                                transition: 'background-color 0.2s'
                               }}
                             >
                               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -2053,9 +701,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                                 padding: '14px 16px',
                                 cursor: 'pointer',
                                 backgroundColor: '#f5f3ff',
-                                transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                                transition: 'background-color 0.2s'
                               }}
                             >
                               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -2109,9 +755,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                                 padding: '14px 16px',
                                 cursor: 'pointer',
                                 backgroundColor: '#f5f3ff',
-                                transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                                transition: 'background-color 0.2s'
                               }}
                             >
                               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -2172,9 +816,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                                 padding: '14px 16px',
                                 cursor: 'pointer',
                                 backgroundColor: '#f5f3ff',
-                                transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                                transition: 'background-color 0.2s'
                               }}
                             >
                               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -2246,9 +888,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                                 padding: '14px 16px',
                                 cursor: 'pointer',
                                 backgroundColor: '#f5f3ff',
-                                transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                                transition: 'background-color 0.2s'
                               }}
                             >
                               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -2408,7 +1048,10 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
 
                     {/* INCIDENT DETAILS TAB */}
                     {activeModalTab === 'details' && (
-                      <div className="incident-modal-tab-content">
+                      <div style={{
+                        animation: 'fadeIn 0.3s ease-in-out',
+                        padding: '24px'
+                      }}>
                     {/* Core Incident Information */}
                     <div style={{
                       backgroundColor: 'white',
@@ -2553,12 +1196,12 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                       {selectedIncidentDetails.description && (
                         <div style={{
                           backgroundColor: 'white',
-                          border: '1px solid #fde68a',
+                          border: '1px solid #e9d5ff',
                           borderRadius: '8px',
                           padding: '14px',
                           marginTop: '14px'
                         }}>
-                          <h5 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#f59e0b', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+                          <h5 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#6b46c1', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
                             Draft Summary
                           </h5>
                           <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
@@ -2611,9 +1254,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                               padding: '12px 16px',
                               cursor: 'pointer',
                               backgroundColor: '#f5f3ff',
-                              transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                              transition: 'background-color 0.2s'
                             }}
                             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#ede9fe'}
                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f5f3ff'}
@@ -2654,9 +1295,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                               padding: '12px 16px',
                               cursor: 'pointer',
                               backgroundColor: '#f5f3ff',
-                              transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                              transition: 'background-color 0.2s'
                             }}
                             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#ede9fe'}
                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f5f3ff'}
@@ -2697,9 +1336,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                               padding: '12px 16px',
                               cursor: 'pointer',
                               backgroundColor: '#f5f3ff',
-                              transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                              transition: 'background-color 0.2s'
                             }}
                             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#ede9fe'}
                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f5f3ff'}
@@ -2740,9 +1377,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                               padding: '12px 16px',
                               cursor: 'pointer',
                               backgroundColor: '#f5f3ff',
-                              transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                              transition: 'background-color 0.2s'
                             }}
                             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#ede9fe'}
                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f5f3ff'}
@@ -2783,9 +1418,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                               padding: '12px 16px',
                               cursor: 'pointer',
                               backgroundColor: '#f5f3ff',
-                              transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                              transition: 'background-color 0.2s'
                             }}
                             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#ede9fe'}
                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f5f3ff'}
@@ -2988,30 +1621,30 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                         borderRadius: '12px',
                         padding: '20px',
                         marginBottom: '16px',
-                        border: '1px solid #fed7aa'
+                        border: '1px solid #e9d5ff'
                       }}>
                         <div style={{
                           display: 'flex',
                           alignItems: 'center',
                           gap: '8px',
                           marginBottom: '16px',
-                          backgroundColor: '#fef9f3',
+                          backgroundColor: '#f5f3ff',
                           padding: '8px 12px',
                           borderRadius: '6px',
-                          borderLeft: '3px solid #f59e0b'
+                          borderLeft: '3px solid #6b46c1'
                         }}>
-                          <i className="ki-outline ki-calendar-tick" style={{ fontSize: '16px', color: '#f59e0b' }}></i>
-                          <h4 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#f59e0b', margin: 0, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+                          <i className="ki-outline ki-calendar-tick" style={{ fontSize: '16px', color: '#6b46c1' }}></i>
+                          <h4 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#6b46c1', margin: 0, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
                             Follow-Up
                           </h4>
                         </div>
 
                         <div style={{
-                          backgroundColor: '#fef9f3',
-                          border: '1px solid #fed7aa',
+                          backgroundColor: '#f5f3ff',
+                          border: '1px solid #e9d5ff',
                           borderRadius: '8px',
                           padding: '14px',
-                          borderLeft: '3px solid #f59e0b'
+                          borderLeft: '3px solid #6b46c1'
                         }}>
                           <div className="grid md:grid-cols-2 gap-3">
                             {selectedIncidentDetails.recurrence_likelihood && (
@@ -3032,7 +1665,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                             )}
                           </div>
                           {selectedIncidentDetails.follow_up_notes && (
-                            <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #fed7aa' }}>
+                            <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #e9d5ff' }}>
                               <p style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '4px', fontWeight: '600' }}>Notes:</p>
                               <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.5', whiteSpace: 'pre-wrap', margin: 0 }}>
                                 {selectedIncidentDetails.follow_up_notes}
@@ -3170,399 +1803,6 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                     )}
 
                       </div>
-                    )}
-
-                    {/* PARTICIPANT INFO TAB */}
-                    {activeModalTab === 'participant' && (
-                      <div className="incident-modal-tab-content">
-                    {participantDetails ? (
-                      <>
-                    {/* Core Participant Information */}
-                    <div style={{
-                      backgroundColor: 'white',
-                      borderRadius: '12px',
-                      padding: '20px',
-                      marginBottom: '16px',
-                      border: '1px solid #e9d5ff'
-                    }}>
-                      <div style={{ marginBottom: '16px' }}>
-                        <div style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          gap: '8px',
-                          marginBottom: '4px',
-                          backgroundColor: '#f5f3ff',
-                          padding: '8px 12px',
-                          borderRadius: '6px',
-                          borderLeft: '3px solid #6b46c1'
-                        }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <i className="ki-outline ki-profile-circle" style={{ fontSize: '16px', color: '#6b46c1' }}></i>
-                            <h4 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#6b46c1', margin: 0, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
-                              Participant Information
-                            </h4>
-                          </div>
-                          {participantDetails && (
-                            <span className={`badge ${participantDetails.status === 'active' || participantDetails.status === true ? 'badge-success' : 'badge-danger'}`} style={{ fontSize: '0.6875rem', padding: '4px 10px' }}>
-                              {participantDetails.status === 'active' || participantDetails.status === true ? 'Active' : 'Inactive'}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Two Column Layout */}
-                      {participantDetails && (
-                      <div className="grid md:grid-cols-2 gap-3" style={{ marginBottom: '14px' }}>
-                              {/* Personal Profile */}
-                              <div style={{
-                                backgroundColor: '#f5f3ff',
-                                borderRadius: '8px',
-                                padding: '14px',
-                                border: '1px solid #e9d5ff'
-                              }}>
-                                <h5 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#6b46c1', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
-                                  Personal Profile
-                                </h5>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                                    <i className="ki-outline ki-user" style={{ fontSize: '14px', color: '#6b46c1', marginTop: '2px' }}></i>
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Full Name</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#111827', fontWeight: '500', margin: 0 }}>
-                                        {participantDetails.first_name} {participantDetails.last_name}
-                                      </p>
-                                    </div>
-                                  </div>
-                                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                                    <i className="ki-outline ki-calendar" style={{ fontSize: '14px', color: '#6b46c1', marginTop: '2px' }}></i>
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Date of Birth</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#111827', fontWeight: '500', margin: 0 }}>
-                                        {participantDetails.dob ? new Date(participantDetails.dob).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'}
-                                      </p>
-                                    </div>
-                                  </div>
-                                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                                    <i className="ki-outline ki-profile-circle" style={{ fontSize: '14px', color: '#6b46c1', marginTop: '2px' }}></i>
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Gender</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#111827', fontWeight: '500', margin: 0 }}>
-                                        {participantDetails.gender === 'male' ? 'Male' : participantDetails.gender === 'female' ? 'Female' : participantDetails.gender === 'other' ? 'Other' : participantDetails.gender === 'prefer_not_to_say' ? 'Prefer Not To Say' : 'N/A'}
-                                      </p>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Contact & Provider */}
-                              <div style={{
-                                backgroundColor: '#f5f3ff',
-                                border: '1px solid #e9d5ff',
-                                borderRadius: '8px',
-                                padding: '14px'
-                              }}>
-                                <h5 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#6b46c1', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
-                                  Contact & Provider
-                                </h5>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', overflow: 'hidden' }}>
-                                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                                    <i className="ki-outline ki-sms" style={{ fontSize: '14px', color: '#6b46c1', marginTop: '2px' }}></i>
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Email</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#111827', fontWeight: '500', margin: 0 }}>
-                                        {participantDetails.contact_email || 'N/A'}
-                                      </p>
-                                    </div>
-                                  </div>
-                                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                                    <i className="ki-outline ki-phone" style={{ fontSize: '14px', color: '#6b46c1', marginTop: '2px' }}></i>
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Phone</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#111827', fontWeight: '500', margin: 0 }}>
-                                        {participantDetails.contact_phone || 'N/A'}
-                                      </p>
-                                    </div>
-                                  </div>
-                                  {participantDetails.assigned_practitioner && (
-                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                                      <i className="ki-outline ki-user-tick" style={{ fontSize: '14px', color: '#6b46c1', marginTop: '2px' }}></i>
-                                      <div>
-                                        <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Assigned Provider</p>
-                                        <p style={{ fontSize: '0.8125rem', color: '#111827', fontWeight: '500', margin: 0 }}>
-                                          {participantDetails.assigned_practitioner.first_name} {participantDetails.assigned_practitioner.last_name}
-                                        </p>
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                      )}
-
-                      {/* Medical Information */}
-                      {participantDetails && (participantDetails.medical_conditions || participantDetails.medications || participantDetails.disabilities) && (
-                              <div style={{
-                                border: '1px solid #e9d5ff',
-                                borderRadius: '8px',
-                                padding: '14px',
-                                marginTop: '14px',
-                                backgroundColor: '#f5f3ff'
-                              }}>
-                                <h5 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#6b46c1', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
-                                  Medical Information
-                                </h5>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-                                  {participantDetails.medical_conditions && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Medical Conditions</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.medical_conditions}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.medications && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Medications</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.medications}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.disabilities && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Disabilities</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.disabilities}
-                                      </p>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Behaviour Profile Section */}
-                            {participantDetails && (participantDetails.behaviours_of_concern || participantDetails.triggers_antecedents ||
-                              participantDetails.early_warning_signs || participantDetails.escalation_patterns ||
-                              participantDetails.behaviour_overview_summary || participantDetails.behavioural_tendencies) && (
-                              <>
-                                <div style={{ marginTop: '20px', marginBottom: '12px', paddingLeft: '4px' }}>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <i className="ki-outline ki-chart-line-star" style={{ fontSize: '16px', color: '#6b46c1' }}></i>
-                                    <h3 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#6b46c1', margin: 0, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
-                                      Behaviour Profile
-                                    </h3>
-                                  </div>
-                                </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                                  {participantDetails.behaviours_of_concern && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Behaviours of Concern</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.behaviours_of_concern}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.triggers_antecedents && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Triggers & Antecedents</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.triggers_antecedents}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.early_warning_signs && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Early Warning Signs</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.early_warning_signs}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.escalation_patterns && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Escalation Patterns</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.escalation_patterns}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.behaviour_overview_summary && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Behaviour Overview</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.behaviour_overview_summary}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.behavioural_tendencies && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Behavioural Tendencies</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.behavioural_tendencies}
-                                      </p>
-                                    </div>
-                                  )}
-                                </div>
-                              </>
-                            )}
-
-                            {/* BSP Strategies Section */}
-                            {participantDetails && (participantDetails.proactive_strategies || participantDetails.reactive_strategies ||
-                              participantDetails.escalation_steps || participantDetails.restricted_practices ||
-                              participantDetails.support_requirements || participantDetails.risk_indicators ||
-                              participantDetails.risk_factors) && (
-                              <>
-                                <div style={{ marginTop: '20px', marginBottom: '12px', paddingLeft: '4px' }}>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <i className="ki-outline ki-shield-tick" style={{ fontSize: '16px', color: '#6b46c1' }}></i>
-                                    <h3 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#6b46c1', margin: 0, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
-                                      BSP Strategies
-                                    </h3>
-                                  </div>
-                                </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                                  {participantDetails.proactive_strategies && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Proactive Strategies</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.proactive_strategies}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.reactive_strategies && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Reactive Strategies</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.reactive_strategies}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.escalation_steps && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Escalation Steps</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.escalation_steps}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.restricted_practices && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Restricted Practices</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.restricted_practices}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.support_requirements && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Support Requirements</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.support_requirements}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.risk_indicators && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Risk Indicators</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.risk_indicators}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.risk_factors && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Risk Factors</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.risk_factors}
-                                      </p>
-                                    </div>
-                                  )}
-                                </div>
-                              </>
-                            )}
-
-                            {/* Support Context Section */}
-                            {participantDetails && (participantDetails.sensory_profile || participantDetails.communication_style ||
-                              participantDetails.environmental_needs || participantDetails.support_environment_family_context ||
-                              participantDetails.functional_daily_living_profile) && (
-                              <>
-                                <div style={{ marginTop: '20px', marginBottom: '12px', paddingLeft: '4px' }}>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <i className="ki-outline ki-home-2" style={{ fontSize: '16px', color: '#6b46c1' }}></i>
-                                    <h3 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#6b46c1', margin: 0, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
-                                      Support Context
-                                    </h3>
-                                  </div>
-                                </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                                  {participantDetails.sensory_profile && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Sensory Profile</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.sensory_profile}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.communication_style && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Communication Style</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.communication_style}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.environmental_needs && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Environmental Needs</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.environmental_needs}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.support_environment_family_context && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Support Environment / Family Context</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.support_environment_family_context}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.functional_daily_living_profile && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Functional & Daily Living</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.functional_daily_living_profile}
-                                      </p>
-                                    </div>
-                                  )}
-                                </div>
-                              </>
-                            )}
-                    </div>
-                    </>
-                    ) : (
-                      <div style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        minHeight: '400px',
-                        padding: '40px 20px'
-                      }}>
-                        <i
-                          className="ki-outline ki-profile-circle"
-                          style={{ fontSize: '64px', color: '#d1d5db', marginBottom: '16px' }}
-                        ></i>
-                        <p style={{ fontSize: '1rem', color: '#6b7280', textAlign: 'center', marginBottom: '8px' }}>
-                          No participant information available
-                        </p>
-                        <p style={{ fontSize: '0.875rem', color: '#9ca3af', textAlign: 'center' }}>
-                          This incident may not have an associated participant
-                        </p>
-                      </div>
-                    )}
-                  </div>
                     )}
                   </div>
                 ) : (

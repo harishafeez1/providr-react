@@ -1335,7 +1335,6 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
         >
           <style>
             {`
-              /* Animation Keyframes */
               @keyframes spin {
                 from { transform: rotate(0deg); }
                 to { transform: rotate(360deg); }
@@ -1352,55 +1351,6 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                 from { opacity: 0; transform: translateY(10px); }
                 to { opacity: 1; transform: translateY(0); }
               }
-
-              /* ============================================
-                 CENTRALIZED MODAL WIDTH MANAGEMENT
-                 ============================================
-                 This section handles all width-related styling
-                 for the incident details modal to prevent
-                 content shrinking issues across all tabs.
-
-                 ROOT CAUSE: Flex containers cause children to shrink
-                 SOLUTION: Explicitly set min-width: 0 and width: 100%
-                 ============================================ */
-
-              /* Fix flex shrinking in modal */
-              .modal-content {
-                min-width: 0 !important;
-              }
-
-              .modal-body {
-                min-width: 0 !important;
-                flex-shrink: 0 !important;
-              }
-
-              /* Tab Content Wrapper - Applied to all tab containers */
-              .incident-modal-tab-content {
-                animation: fadeIn 0.3s ease-in-out;
-                padding: 0;
-                width: 100% !important;
-                max-width: 100% !important;
-                min-width: 0 !important;
-                box-sizing: border-box;
-                flex-shrink: 0 !important;
-              }
-
-              /* All direct children of tab content inherit full width */
-              .incident-modal-tab-content > * {
-                width: 100% !important;
-                max-width: 100% !important;
-                min-width: 0 !important;
-                box-sizing: border-box;
-              }
-
-              /* Ensure all modal body content takes full width */
-              .modal-body > * {
-                width: 100%;
-                max-width: 100%;
-                min-width: 0;
-                box-sizing: border-box;
-                flex-shrink: 0;
-              }
             `}
           </style>
           <div
@@ -1416,7 +1366,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="modal-content" style={{ display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0, width: '100%' }}>
+            <div className="modal-content" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
               {/* Modal Header */}
               <div className="modal-header" style={{ padding: '20px 24px', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -1518,8 +1468,8 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                     >
                       BSP Analysis
                     </button>
-                    {/* Participant Info Tab */}
-                    <button
+                    {/* Participant Info Tab - Temporarily Hidden */}
+                    {/* <button
                       onClick={() => setActiveModalTab('participant')}
                       style={{
                         padding: '16px 4px',
@@ -1536,22 +1486,13 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                       }}
                     >
                       Participant Info
-                    </button>
+                    </button> */}
                   </div>
                 </div>
               )}
 
               {/* Modal Body */}
-              <div className="modal-body" style={{
-                flex: '1 1 auto',
-                flexShrink: 0,
-                overflowY: 'auto',
-                padding: '24px',
-                width: '100%',
-                maxWidth: '100%',
-                minWidth: 0,
-                boxSizing: 'border-box'
-              }}>
+              <div className="modal-body" style={{ flex: 1, overflowY: 'auto', padding: '24px' }}>
                 {(loadingReport || loadingBspAnalysis || loadingParticipant) ? (
                   <div style={{
                     display: 'flex',
@@ -1559,10 +1500,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     minHeight: '400px',
-                    padding: '40px 20px',
-                    width: '100%',
-                    maxWidth: '100%',
-                    boxSizing: 'border-box'
+                    padding: '40px 20px'
                   }}>
                     <div style={{
                       position: 'relative',
@@ -1656,14 +1594,13 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                     </div>
                   </div>
                 ) : selectedIncidentDetails ? (
-                  <div style={{
-                    width: '100%',
-                    maxWidth: '100%',
-                    boxSizing: 'border-box'
-                  }}>
+                  <div>
                     {/* BSP ANALYSIS TAB */}
                     {activeModalTab === 'bsp' && (
-                      <div className="incident-modal-tab-content">
+                      <div style={{
+                        animation: 'fadeIn 0.3s ease-in-out',
+                        padding: '0'
+                      }}>
                         {/* BSP ANALYSIS SECTION */}
                         {bspAnalysisData?.bsp_analysis ? (
                       <div style={{
@@ -2408,7 +2345,10 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
 
                     {/* INCIDENT DETAILS TAB */}
                     {activeModalTab === 'details' && (
-                      <div className="incident-modal-tab-content">
+                      <div style={{
+                        animation: 'fadeIn 0.3s ease-in-out',
+                        padding: '0'
+                      }}>
                     {/* Core Incident Information */}
                     <div style={{
                       backgroundColor: 'white',
@@ -3174,16 +3114,21 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
 
                     {/* PARTICIPANT INFO TAB */}
                     {activeModalTab === 'participant' && (
-                      <div className="incident-modal-tab-content">
-                    {participantDetails ? (
-                      <>
+                      <div style={{
+                        animation: 'fadeIn 0.3s ease-in-out',
+                        padding: '0',
+                        width: '100%'
+                      }}>
                     {/* Core Participant Information */}
                     <div style={{
                       backgroundColor: 'white',
                       borderRadius: '12px',
                       padding: '20px',
                       marginBottom: '16px',
-                      border: '1px solid #e9d5ff'
+                      border: '1px solid #e9d5ff',
+                      width: '100%',
+                      maxWidth: 'none',
+                      boxSizing: 'border-box'
                     }}>
                       <div style={{ marginBottom: '16px' }}>
                         <div style={{
@@ -3303,13 +3248,12 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                       {/* Medical Information */}
                       {participantDetails && (participantDetails.medical_conditions || participantDetails.medications || participantDetails.disabilities) && (
                               <div style={{
-                                border: '1px solid #e9d5ff',
+                                border: '1px solid #fde68a',
                                 borderRadius: '8px',
                                 padding: '14px',
-                                marginTop: '14px',
-                                backgroundColor: '#f5f3ff'
+                                marginTop: '14px'
                               }}>
-                                <h5 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#6b46c1', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+                                <h5 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#f59e0b', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
                                   Medical Information
                                 </h5>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
@@ -3342,14 +3286,14 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                             )}
 
                             {/* Behaviour Profile Section */}
-                            {participantDetails && (participantDetails.behaviours_of_concern || participantDetails.triggers_antecedents ||
+                            {(participantDetails.behaviours_of_concern || participantDetails.triggers_antecedents ||
                               participantDetails.early_warning_signs || participantDetails.escalation_patterns ||
                               participantDetails.behaviour_overview_summary || participantDetails.behavioural_tendencies) && (
                               <>
                                 <div style={{ marginTop: '20px', marginBottom: '12px', paddingLeft: '4px' }}>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <i className="ki-outline ki-chart-line-star" style={{ fontSize: '16px', color: '#6b46c1' }}></i>
-                                    <h3 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#6b46c1', margin: 0, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+                                    <i className="ki-outline ki-chart-line-star" style={{ fontSize: '16px', color: '#f97316' }}></i>
+                                    <h3 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#f97316', margin: 0, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
                                       Behaviour Profile
                                     </h3>
                                   </div>
@@ -3408,15 +3352,15 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                             )}
 
                             {/* BSP Strategies Section */}
-                            {participantDetails && (participantDetails.proactive_strategies || participantDetails.reactive_strategies ||
+                            {(participantDetails.proactive_strategies || participantDetails.reactive_strategies ||
                               participantDetails.escalation_steps || participantDetails.restricted_practices ||
                               participantDetails.support_requirements || participantDetails.risk_indicators ||
                               participantDetails.risk_factors) && (
                               <>
                                 <div style={{ marginTop: '20px', marginBottom: '12px', paddingLeft: '4px' }}>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <i className="ki-outline ki-shield-tick" style={{ fontSize: '16px', color: '#6b46c1' }}></i>
-                                    <h3 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#6b46c1', margin: 0, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+                                    <i className="ki-outline ki-shield-tick" style={{ fontSize: '16px', color: '#22c55e' }}></i>
+                                    <h3 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#22c55e', margin: 0, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
                                       BSP Strategies
                                     </h3>
                                   </div>
@@ -3483,14 +3427,14 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                             )}
 
                             {/* Support Context Section */}
-                            {participantDetails && (participantDetails.sensory_profile || participantDetails.communication_style ||
+                            {(participantDetails.sensory_profile || participantDetails.communication_style ||
                               participantDetails.environmental_needs || participantDetails.support_environment_family_context ||
                               participantDetails.functional_daily_living_profile) && (
                               <>
                                 <div style={{ marginTop: '20px', marginBottom: '12px', paddingLeft: '4px' }}>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <i className="ki-outline ki-home-2" style={{ fontSize: '16px', color: '#6b46c1' }}></i>
-                                    <h3 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#6b46c1', margin: 0, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+                                    <i className="ki-outline ki-home-2" style={{ fontSize: '16px', color: '#3b82f6' }}></i>
+                                    <h3 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#3b82f6', margin: 0, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
                                       Support Context
                                     </h3>
                                   </div>
@@ -3540,29 +3484,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                               </>
                             )}
                     </div>
-                    </>
-                    ) : (
-                      <div style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        minHeight: '400px',
-                        padding: '40px 20px'
-                      }}>
-                        <i
-                          className="ki-outline ki-profile-circle"
-                          style={{ fontSize: '64px', color: '#d1d5db', marginBottom: '16px' }}
-                        ></i>
-                        <p style={{ fontSize: '1rem', color: '#6b7280', textAlign: 'center', marginBottom: '8px' }}>
-                          No participant information available
-                        </p>
-                        <p style={{ fontSize: '0.875rem', color: '#9ca3af', textAlign: 'center' }}>
-                          This incident may not have an associated participant
-                        </p>
                       </div>
-                    )}
-                  </div>
                     )}
                   </div>
                 ) : (

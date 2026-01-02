@@ -76,6 +76,7 @@
     "react-router": "^6.28.0",
     "react-router-dom": "^6.28.0",
     "react-select": "^5.9.0",
+    "react-signature-canvas": "^1.1.0-alpha.2",
     "recharts": "^3.6.0",
     "sonner": "^1.7.0",
     "styled-components": "^6.1.13",

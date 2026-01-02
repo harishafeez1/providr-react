@@ -98,3 +98,4 @@ export const UPDATE_SINGLE_PARTICIPANT_URL = `${API_URL}/participants`;
 export const DELETE_PARTICIPANT_URL = `${API_URL}/participants`;
 export const GET_SINGLE_PARTICIPANT_URL = `${API_URL}/participants`;
 export const GET_ALL_PARTICIPANTS_URL = `${API_URL}/participants`;
+export const SEARCH_PARTICIPANTS_URL = `${API_URL}/participants/search`;

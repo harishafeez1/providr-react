@@ -4,7 +4,8 @@
       "Bash(npm install:*)",
       "Bash(rm:*)",
       "Bash(find:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(cat:*)"
     ],
     "additionalDirectories": [
       "E:\\e\\providr-react-both"

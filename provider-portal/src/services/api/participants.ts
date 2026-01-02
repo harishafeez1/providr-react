@@ -4,7 +4,8 @@ import {
   UPDATE_SINGLE_PARTICIPANT_URL,
   DELETE_PARTICIPANT_URL,
   GET_SINGLE_PARTICIPANT_URL,
-  GET_ALL_PARTICIPANTS_URL
+  GET_ALL_PARTICIPANTS_URL,
+  SEARCH_PARTICIPANTS_URL
 } from '../endpoints';
 
 const createParticipant = async (data: any) => {
@@ -32,4 +33,11 @@ const getAllParticipants = async (queryString: string) => {
   return response.data;
 };
 
-export { createParticipant, updateParticipant, deleteParticipant, getSingleParticipant, getAllParticipants };
+const searchParticipants = async (query: string) => {
+  const response = await axios.get(SEARCH_PARTICIPANTS_URL, {
+    params: { q: query }
+  });
+  return response.data;
+};
+
+export { createParticipant, updateParticipant, deleteParticipant, getSingleParticipant, getAllParticipants, searchParticipants };

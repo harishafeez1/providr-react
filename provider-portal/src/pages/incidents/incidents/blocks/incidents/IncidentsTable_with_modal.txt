@@ -32,9 +32,10 @@ import {
 
 import { IIncidentsData } from './';
 import { useLanguage } from '@/i18n';
-import { fetchAllIncidents, deleteIncident, fetchSingleIncident, fetchBspAnalysis, fetchIncidentCustomers, exportIncidentPdf, fetchIncidentStatistics, getSingleParticipant } from '@/services/api';
+import { fetchAllIncidents, deleteIncident, fetchSingleIncident, fetchBspAnalysis, fetchIncidentCustomers, exportIncidentPdf, fetchIncidentStatistics } from '@/services/api';
 import { ModalDeleteConfirmation } from '@/partials/modals/delete-confirmation';
 import { ViewToggle } from './ViewToggle';
+import { IncidentDetailsModal } from './IncidentDetailsModal';
 
 interface IColumnFilterProps<TData, TValue> {
   column: Column<TData, TValue>;
@@ -60,9 +61,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
   const [selectedRows, setSelectedRows] = useState<RowSelectionState>({});
   const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
   const [isDeletingBulk, setIsDeletingBulk] = useState(false);
-  const [activeModalTab, setActiveModalTab] = useState<'details' | 'bsp' | 'participant'>('details');
-  const [participantDetails, setParticipantDetails] = useState<any>(null);
-  const [loadingParticipant, setLoadingParticipant] = useState(false);
+  const [activeModalTab, setActiveModalTab] = useState<'details' | 'bsp'>('details');
 
   // Collapsible section states - all closed by default
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
@@ -100,43 +99,6 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
     loadParticipants();
   }, []);
 
-  // Read URL parameters and apply participant filter
-  useEffect(() => {
-    const searchParams = new URLSearchParams(location.search);
-    const participantName = searchParams.get('participant_name');
-
-    if (participantName) {
-      const decodedName = decodeURIComponent(participantName);
-      setSelectedParticipant(decodedName);
-      setShowFilters(true);
-    }
-  }, [location.search]);
-
-  // Reload statistics and data when URL participant filter is applied
-  useEffect(() => {
-    if (selectedParticipant !== 'all' && location.search.includes('participant_name')) {
-      // Trigger refresh to apply the filter
-      setRefreshKey((prev) => prev + 1);
-
-      // Reload statistics with participant filter
-      const loadStats = async () => {
-        setLoadingStats(true);
-        try {
-          const filters: any = {
-            participant_name: selectedParticipant
-          };
-          const data = await fetchIncidentStatistics(filters);
-          setStatistics(data);
-        } catch (error) {
-          console.error('Error loading statistics:', error);
-        } finally {
-          setLoadingStats(false);
-        }
-      };
-      loadStats();
-    }
-  }, [selectedParticipant, location.search]);
-
   // Load initial statistics on mount
   useEffect(() => {
     const loadStatistics = async () => {
@@ -171,30 +133,11 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
       const response = await fetchSingleIncident(incidentId);
       setSelectedIncidentDetails(response);
       setLoadingReport(false);
-
-      // Fetch participant details if participant_id exists
-      if (response.participant_id || response.customer?.id) {
-        const participantId = response.participant_id || response.customer?.id;
-        fetchParticipantDetails(participantId);
-      }
     } catch (err: any) {
       console.error('Error fetching incident details:', err);
       toast.error(err?.response?.data?.message || 'Failed to load incident details');
       setShowReportModal(false);
       setLoadingReport(false);
-    }
-  };
-
-  const fetchParticipantDetails = async (participantId: string | number) => {
-    setLoadingParticipant(true);
-    try {
-      const response = await getSingleParticipant(String(participantId));
-      setParticipantDetails(response.participant || response);
-    } catch (error) {
-      console.error('Error fetching participant details:', error);
-      setParticipantDetails(null);
-    } finally {
-      setLoadingParticipant(false);
     }
   };
 
@@ -224,7 +167,6 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
     setShowReportModal(false);
     setSelectedIncidentDetails(null);
     setBspAnalysisData(null);
-    setParticipantDetails(null);
     setActiveModalTab('details'); // Reset to details tab when closing
     // Reset collapsed sections - all closed by default
     setCollapsedSections({
@@ -1311,104 +1253,33 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
       />
 
       {/* Report Modal */}
-      {showReportModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 1000,
-            backgroundColor: 'rgba(0, 0, 0, 0.6)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '20px',
-            overflowY: 'auto'
-          }}
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              closeReportModal();
-            }
-          }}
-        >
-          <style>
-            {`
-              /* Animation Keyframes */
-              @keyframes spin {
-                from { transform: rotate(0deg); }
-                to { transform: rotate(360deg); }
-              }
-              @keyframes pulse {
-                0%, 100% { opacity: 1; }
-                50% { opacity: 0.5; }
-              }
-              @keyframes bounce {
-                0%, 100% { transform: translateY(0); }
-                50% { transform: translateY(-10px); }
-              }
-              @keyframes fadeIn {
-                from { opacity: 0; transform: translateY(10px); }
-                to { opacity: 1; transform: translateY(0); }
-              }
-
-              /* ============================================
-                 CENTRALIZED MODAL WIDTH MANAGEMENT
-                 ============================================
-                 This section handles all width-related styling
-                 for the incident details modal to prevent
-                 content shrinking issues across all tabs.
-
-                 ROOT CAUSE: Flex containers cause children to shrink
-                 SOLUTION: Explicitly set min-width: 0 and width: 100%
-                 ============================================ */
-
-              /* Fix flex shrinking in modal */
-              .modal-content {
-                min-width: 0 !important;
-              }
-
-              .modal-body {
-                min-width: 0 !important;
-                flex-shrink: 0 !important;
-              }
-
-              /* Tab Content Wrapper - Applied to all tab containers */
-              .incident-modal-tab-content {
-                animation: fadeIn 0.3s ease-in-out;
-                padding: 0;
-                width: 100% !important;
-                max-width: 100% !important;
-                min-width: 0 !important;
-                box-sizing: border-box;
-                flex-shrink: 0 !important;
-              }
-
-              /* All direct children of tab content inherit full width */
-              .incident-modal-tab-content > * {
-                width: 100% !important;
-                max-width: 100% !important;
-                min-width: 0 !important;
-                box-sizing: border-box;
-              }
-
-              /* Ensure all modal body content takes full width */
-              .modal-body > * {
-                width: 100%;
-                max-width: 100%;
-                min-width: 0;
-                box-sizing: border-box;
-                flex-shrink: 0;
-              }
-            `}
-          </style>
+      <IncidentDetailsModal
+        showModal={showReportModal}
+        onClose={closeReportModal}
+        selectedIncidentDetails={selectedIncidentDetails}
+        loadingReport={loadingReport}
+        bspAnalysisData={bspAnalysisData}
+        loadingBspAnalysis={loadingBspAnalysis}
+        activeModalTab={activeModalTab}
+        setActiveModalTab={setActiveModalTab}
+        collapsedSections={collapsedSections}
+        toggleSection={toggleSection}
+        handleRunBspAnalysis={handleRunBspAnalysis}
+        exportIncidentPdf={exportIncidentPdf}
+        onDelete={(id) => {
+          setSelectedId(id);
+          setIsModalOpen(true);
+        }}
+        formatDateTime={formatDateTime}
+        getStatusBadgeClass={getStatusBadgeClass}
+        getSeverityBadgeClass={getSeverityBadgeClass}
+      />
           <div
             style={{
               backgroundColor: 'white',
               borderRadius: '8px',
-              maxWidth: '1400px',
-              width: '95%',
+              maxWidth: '1200px',
+              width: '100%',
               maxHeight: '90vh',
               display: 'flex',
               flexDirection: 'column',
@@ -1416,7 +1287,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="modal-content" style={{ display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0, width: '100%' }}>
+            <div className="modal-content" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
               {/* Modal Header */}
               <div className="modal-header" style={{ padding: '20px 24px', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -1479,7 +1350,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
               </div>
 
               {/* Tab Navigation - Only show when not loading */}
-              {!loadingReport && !loadingBspAnalysis && !loadingParticipant && selectedIncidentDetails && (
+              {!loadingReport && selectedIncidentDetails && (
                 <div style={{ borderBottom: '1px solid #e5e7eb', padding: '0 24px', backgroundColor: '#f9fafb' }}>
                   <div style={{ display: 'flex', gap: '32px' }}>
                     <button
@@ -1518,51 +1389,20 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                     >
                       BSP Analysis
                     </button>
-                    {/* Participant Info Tab */}
-                    <button
-                      onClick={() => setActiveModalTab('participant')}
-                      style={{
-                        padding: '16px 4px',
-                        border: 'none',
-                        background: 'transparent',
-                        fontSize: '0.875rem',
-                        fontWeight: activeModalTab === 'participant' ? '600' : '500',
-                        color: activeModalTab === 'participant' ? '#6b46c1' : '#6b7280',
-                        borderBottom: activeModalTab === 'participant' ? '2px solid #6b46c1' : '2px solid transparent',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        position: 'relative',
-                        top: '1px'
-                      }}
-                    >
-                      Participant Info
-                    </button>
                   </div>
                 </div>
               )}
 
               {/* Modal Body */}
-              <div className="modal-body" style={{
-                flex: '1 1 auto',
-                flexShrink: 0,
-                overflowY: 'auto',
-                padding: '24px',
-                width: '100%',
-                maxWidth: '100%',
-                minWidth: 0,
-                boxSizing: 'border-box'
-              }}>
-                {(loadingReport || loadingBspAnalysis || loadingParticipant) ? (
+              <div className="modal-body" style={{ flex: 1, overflowY: 'auto', padding: '0' }}>
+                {loadingReport ? (
                   <div style={{
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
                     minHeight: '400px',
-                    padding: '40px 20px',
-                    width: '100%',
-                    maxWidth: '100%',
-                    boxSizing: 'border-box'
+                    padding: '40px 20px'
                   }}>
                     <div style={{
                       position: 'relative',
@@ -1656,30 +1496,104 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                     </div>
                   </div>
                 ) : selectedIncidentDetails ? (
-                  <div style={{
-                    width: '100%',
-                    maxWidth: '100%',
-                    boxSizing: 'border-box'
-                  }}>
+                  <div>
                     {/* BSP ANALYSIS TAB */}
                     {activeModalTab === 'bsp' && (
-                      <div className="incident-modal-tab-content">
-                        {/* BSP ANALYSIS SECTION */}
-                        {bspAnalysisData?.bsp_analysis ? (
                       <div style={{
-                        backgroundColor: 'white',
+                        animation: 'fadeIn 0.3s ease-in-out',
+                        padding: '24px',
+                        minHeight: '400px'
+                      }}>
+                        {/* BSP ANALYSIS SECTION */}
+                        {loadingBspAnalysis ? (
+                      <div style={{
+                        backgroundColor: '#f5f3ff',
                         borderLeft: '4px solid #6b46c1',
                         borderRadius: '8px',
                         padding: '24px',
                         marginBottom: '24px'
                       }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                        <div style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'flex-start',
+                          marginBottom: '24px'
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <i className="ki-outline ki-abstract-26" style={{ fontSize: '24px', color: '#6b46c1' }}></i>
+                            <h4 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1f2937', margin: 0 }}>
+                              AI-Powered BSP Analysis
+                            </h4>
+                          </div>
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-primary"
+                            disabled
+                            style={{ cursor: 'not-allowed' }}
+                          >
+                            <i className="ki-outline ki-abstract-26 text-sm mr-1"></i>
+                            Analyzing...
+                          </button>
+                        </div>
+                        <div style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: '40px 20px'
+                        }}>
+                          <div style={{
+                            position: 'relative',
+                            width: '80px',
+                            height: '80px',
+                            marginBottom: '24px'
+                          }}>
+                            <div style={{
+                              position: 'absolute',
+                              width: '100%',
+                              height: '100%',
+                              border: '4px solid #e9d5ff',
+                              borderTop: '4px solid #6b46c1',
+                              borderRadius: '50%',
+                              animation: 'spin 1s linear infinite'
+                            }}></div>
+                            <div style={{
+                              position: 'absolute',
+                              width: '100%',
+                              height: '100%',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}>
+                              <i className="ki-outline ki-abstract-26" style={{ fontSize: '32px', color: '#6b46c1' }}></i>
+                            </div>
+                          </div>
+                          <p style={{ fontSize: '1rem', color: '#6b46c1', marginBottom: '8px', textAlign: 'center' }}>
+                            Analyzing incident against Behavior Support Plan...
+                          </p>
+                          <p style={{ fontSize: '0.875rem', color: '#9333ea', textAlign: 'center' }}>
+                            Maps triggers, strategies, and risk factors against the participant's BSP
+                          </p>
+                        </div>
+                      </div>
+                    ) : bspAnalysisData?.bsp_analysis ? (
+                      <div style={{
+                        backgroundColor: 'white',
+                        borderLeft: '4px solid #6b46c1',
+                        borderRadius: '8px',
+                        padding: '20px',
+                        minHeight: '300px'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px', justifyContent: 'space-between' }}>
                           <h4 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#6b46c1', margin: 0 }}>
                             BSP Analysis & Recommendations
                           </h4>
+                          <p style={{ fontSize: '0.75rem', color: '#9333ea', margin: 0 }}>
+                            Click on any section below to expand
+                          </p>
                         </div>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', minHeight: '100px' }}>
                         {/* BSP Gaps Detected */}
                         {bspAnalysisData.bsp_analysis?.gaps_detected?.count > 0 && (
                           <div style={{
@@ -1698,9 +1612,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                                 padding: '14px 16px',
                                 cursor: 'pointer',
                                 backgroundColor: '#f5f3ff',
-                                transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                                transition: 'background-color 0.2s'
                               }}
                             >
                               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -1751,9 +1663,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                                 padding: '14px 16px',
                                 cursor: 'pointer',
                                 backgroundColor: '#f5f3ff',
-                                transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                                transition: 'background-color 0.2s'
                               }}
                             >
                               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -1820,9 +1730,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                                 padding: '14px 16px',
                                 cursor: 'pointer',
                                 backgroundColor: '#f5f3ff',
-                                transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                                transition: 'background-color 0.2s'
                               }}
                             >
                               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -1882,9 +1790,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                                 padding: '14px 16px',
                                 cursor: 'pointer',
                                 backgroundColor: '#f5f3ff',
-                                transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                                transition: 'background-color 0.2s'
                               }}
                             >
                               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -1953,9 +1859,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                                 padding: '14px 16px',
                                 cursor: 'pointer',
                                 backgroundColor: '#f5f3ff',
-                                transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                                transition: 'background-color 0.2s'
                               }}
                             >
                               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -2003,9 +1907,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                                 padding: '14px 16px',
                                 cursor: 'pointer',
                                 backgroundColor: '#f5f3ff',
-                                transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                                transition: 'background-color 0.2s'
                               }}
                             >
                               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -2053,9 +1955,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                                 padding: '14px 16px',
                                 cursor: 'pointer',
                                 backgroundColor: '#f5f3ff',
-                                transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                                transition: 'background-color 0.2s'
                               }}
                             >
                               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -2109,9 +2009,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                                 padding: '14px 16px',
                                 cursor: 'pointer',
                                 backgroundColor: '#f5f3ff',
-                                transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                                transition: 'background-color 0.2s'
                               }}
                             >
                               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -2172,9 +2070,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                                 padding: '14px 16px',
                                 cursor: 'pointer',
                                 backgroundColor: '#f5f3ff',
-                                transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                                transition: 'background-color 0.2s'
                               }}
                             >
                               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -2246,9 +2142,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                                 padding: '14px 16px',
                                 cursor: 'pointer',
                                 backgroundColor: '#f5f3ff',
-                                transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                                transition: 'background-color 0.2s'
                               }}
                             >
                               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -2408,7 +2302,10 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
 
                     {/* INCIDENT DETAILS TAB */}
                     {activeModalTab === 'details' && (
-                      <div className="incident-modal-tab-content">
+                      <div style={{
+                        animation: 'fadeIn 0.3s ease-in-out',
+                        padding: '24px'
+                      }}>
                     {/* Core Incident Information */}
                     <div style={{
                       backgroundColor: 'white',
@@ -2553,12 +2450,12 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                       {selectedIncidentDetails.description && (
                         <div style={{
                           backgroundColor: 'white',
-                          border: '1px solid #fde68a',
+                          border: '1px solid #e9d5ff',
                           borderRadius: '8px',
                           padding: '14px',
                           marginTop: '14px'
                         }}>
-                          <h5 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#f59e0b', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+                          <h5 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#6b46c1', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
                             Draft Summary
                           </h5>
                           <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
@@ -2611,9 +2508,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                               padding: '12px 16px',
                               cursor: 'pointer',
                               backgroundColor: '#f5f3ff',
-                              transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                              transition: 'background-color 0.2s'
                             }}
                             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#ede9fe'}
                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f5f3ff'}
@@ -2654,9 +2549,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                               padding: '12px 16px',
                               cursor: 'pointer',
                               backgroundColor: '#f5f3ff',
-                              transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                              transition: 'background-color 0.2s'
                             }}
                             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#ede9fe'}
                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f5f3ff'}
@@ -2697,9 +2590,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                               padding: '12px 16px',
                               cursor: 'pointer',
                               backgroundColor: '#f5f3ff',
-                              transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                              transition: 'background-color 0.2s'
                             }}
                             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#ede9fe'}
                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f5f3ff'}
@@ -2740,9 +2631,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                               padding: '12px 16px',
                               cursor: 'pointer',
                               backgroundColor: '#f5f3ff',
-                              transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                              transition: 'background-color 0.2s'
                             }}
                             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#ede9fe'}
                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f5f3ff'}
@@ -2783,9 +2672,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                               padding: '12px 16px',
                               cursor: 'pointer',
                               backgroundColor: '#f5f3ff',
-                              transition: 'background-color 0.2s',
-                                width: '100%',
-                                boxSizing: 'border-box'
+                              transition: 'background-color 0.2s'
                             }}
                             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#ede9fe'}
                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#f5f3ff'}
@@ -2988,30 +2875,30 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                         borderRadius: '12px',
                         padding: '20px',
                         marginBottom: '16px',
-                        border: '1px solid #fed7aa'
+                        border: '1px solid #e9d5ff'
                       }}>
                         <div style={{
                           display: 'flex',
                           alignItems: 'center',
                           gap: '8px',
                           marginBottom: '16px',
-                          backgroundColor: '#fef9f3',
+                          backgroundColor: '#f5f3ff',
                           padding: '8px 12px',
                           borderRadius: '6px',
-                          borderLeft: '3px solid #f59e0b'
+                          borderLeft: '3px solid #6b46c1'
                         }}>
-                          <i className="ki-outline ki-calendar-tick" style={{ fontSize: '16px', color: '#f59e0b' }}></i>
-                          <h4 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#f59e0b', margin: 0, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+                          <i className="ki-outline ki-calendar-tick" style={{ fontSize: '16px', color: '#6b46c1' }}></i>
+                          <h4 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#6b46c1', margin: 0, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
                             Follow-Up
                           </h4>
                         </div>
 
                         <div style={{
-                          backgroundColor: '#fef9f3',
-                          border: '1px solid #fed7aa',
+                          backgroundColor: '#f5f3ff',
+                          border: '1px solid #e9d5ff',
                           borderRadius: '8px',
                           padding: '14px',
-                          borderLeft: '3px solid #f59e0b'
+                          borderLeft: '3px solid #6b46c1'
                         }}>
                           <div className="grid md:grid-cols-2 gap-3">
                             {selectedIncidentDetails.recurrence_likelihood && (
@@ -3032,7 +2919,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                             )}
                           </div>
                           {selectedIncidentDetails.follow_up_notes && (
-                            <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #fed7aa' }}>
+                            <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #e9d5ff' }}>
                               <p style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '4px', fontWeight: '600' }}>Notes:</p>
                               <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.5', whiteSpace: 'pre-wrap', margin: 0 }}>
                                 {selectedIncidentDetails.follow_up_notes}
@@ -3170,399 +3057,6 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                     )}
 
                       </div>
-                    )}
-
-                    {/* PARTICIPANT INFO TAB */}
-                    {activeModalTab === 'participant' && (
-                      <div className="incident-modal-tab-content">
-                    {participantDetails ? (
-                      <>
-                    {/* Core Participant Information */}
-                    <div style={{
-                      backgroundColor: 'white',
-                      borderRadius: '12px',
-                      padding: '20px',
-                      marginBottom: '16px',
-                      border: '1px solid #e9d5ff'
-                    }}>
-                      <div style={{ marginBottom: '16px' }}>
-                        <div style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          gap: '8px',
-                          marginBottom: '4px',
-                          backgroundColor: '#f5f3ff',
-                          padding: '8px 12px',
-                          borderRadius: '6px',
-                          borderLeft: '3px solid #6b46c1'
-                        }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <i className="ki-outline ki-profile-circle" style={{ fontSize: '16px', color: '#6b46c1' }}></i>
-                            <h4 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#6b46c1', margin: 0, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
-                              Participant Information
-                            </h4>
-                          </div>
-                          {participantDetails && (
-                            <span className={`badge ${participantDetails.status === 'active' || participantDetails.status === true ? 'badge-success' : 'badge-danger'}`} style={{ fontSize: '0.6875rem', padding: '4px 10px' }}>
-                              {participantDetails.status === 'active' || participantDetails.status === true ? 'Active' : 'Inactive'}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Two Column Layout */}
-                      {participantDetails && (
-                      <div className="grid md:grid-cols-2 gap-3" style={{ marginBottom: '14px' }}>
-                              {/* Personal Profile */}
-                              <div style={{
-                                backgroundColor: '#f5f3ff',
-                                borderRadius: '8px',
-                                padding: '14px',
-                                border: '1px solid #e9d5ff'
-                              }}>
-                                <h5 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#6b46c1', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
-                                  Personal Profile
-                                </h5>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                                    <i className="ki-outline ki-user" style={{ fontSize: '14px', color: '#6b46c1', marginTop: '2px' }}></i>
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Full Name</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#111827', fontWeight: '500', margin: 0 }}>
-                                        {participantDetails.first_name} {participantDetails.last_name}
-                                      </p>
-                                    </div>
-                                  </div>
-                                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                                    <i className="ki-outline ki-calendar" style={{ fontSize: '14px', color: '#6b46c1', marginTop: '2px' }}></i>
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Date of Birth</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#111827', fontWeight: '500', margin: 0 }}>
-                                        {participantDetails.dob ? new Date(participantDetails.dob).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'}
-                                      </p>
-                                    </div>
-                                  </div>
-                                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                                    <i className="ki-outline ki-profile-circle" style={{ fontSize: '14px', color: '#6b46c1', marginTop: '2px' }}></i>
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Gender</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#111827', fontWeight: '500', margin: 0 }}>
-                                        {participantDetails.gender === 'male' ? 'Male' : participantDetails.gender === 'female' ? 'Female' : participantDetails.gender === 'other' ? 'Other' : participantDetails.gender === 'prefer_not_to_say' ? 'Prefer Not To Say' : 'N/A'}
-                                      </p>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Contact & Provider */}
-                              <div style={{
-                                backgroundColor: '#f5f3ff',
-                                border: '1px solid #e9d5ff',
-                                borderRadius: '8px',
-                                padding: '14px'
-                              }}>
-                                <h5 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#6b46c1', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
-                                  Contact & Provider
-                                </h5>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', overflow: 'hidden' }}>
-                                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                                    <i className="ki-outline ki-sms" style={{ fontSize: '14px', color: '#6b46c1', marginTop: '2px' }}></i>
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Email</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#111827', fontWeight: '500', margin: 0 }}>
-                                        {participantDetails.contact_email || 'N/A'}
-                                      </p>
-                                    </div>
-                                  </div>
-                                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                                    <i className="ki-outline ki-phone" style={{ fontSize: '14px', color: '#6b46c1', marginTop: '2px' }}></i>
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Phone</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#111827', fontWeight: '500', margin: 0 }}>
-                                        {participantDetails.contact_phone || 'N/A'}
-                                      </p>
-                                    </div>
-                                  </div>
-                                  {participantDetails.assigned_practitioner && (
-                                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                                      <i className="ki-outline ki-user-tick" style={{ fontSize: '14px', color: '#6b46c1', marginTop: '2px' }}></i>
-                                      <div>
-                                        <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Assigned Provider</p>
-                                        <p style={{ fontSize: '0.8125rem', color: '#111827', fontWeight: '500', margin: 0 }}>
-                                          {participantDetails.assigned_practitioner.first_name} {participantDetails.assigned_practitioner.last_name}
-                                        </p>
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                      )}
-
-                      {/* Medical Information */}
-                      {participantDetails && (participantDetails.medical_conditions || participantDetails.medications || participantDetails.disabilities) && (
-                              <div style={{
-                                border: '1px solid #e9d5ff',
-                                borderRadius: '8px',
-                                padding: '14px',
-                                marginTop: '14px',
-                                backgroundColor: '#f5f3ff'
-                              }}>
-                                <h5 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#6b46c1', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
-                                  Medical Information
-                                </h5>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-                                  {participantDetails.medical_conditions && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Medical Conditions</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.medical_conditions}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.medications && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Medications</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.medications}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.disabilities && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Disabilities</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.disabilities}
-                                      </p>
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Behaviour Profile Section */}
-                            {participantDetails && (participantDetails.behaviours_of_concern || participantDetails.triggers_antecedents ||
-                              participantDetails.early_warning_signs || participantDetails.escalation_patterns ||
-                              participantDetails.behaviour_overview_summary || participantDetails.behavioural_tendencies) && (
-                              <>
-                                <div style={{ marginTop: '20px', marginBottom: '12px', paddingLeft: '4px' }}>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <i className="ki-outline ki-chart-line-star" style={{ fontSize: '16px', color: '#6b46c1' }}></i>
-                                    <h3 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#6b46c1', margin: 0, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
-                                      Behaviour Profile
-                                    </h3>
-                                  </div>
-                                </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                                  {participantDetails.behaviours_of_concern && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Behaviours of Concern</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.behaviours_of_concern}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.triggers_antecedents && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Triggers & Antecedents</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.triggers_antecedents}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.early_warning_signs && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Early Warning Signs</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.early_warning_signs}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.escalation_patterns && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Escalation Patterns</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.escalation_patterns}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.behaviour_overview_summary && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Behaviour Overview</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.behaviour_overview_summary}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.behavioural_tendencies && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Behavioural Tendencies</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.behavioural_tendencies}
-                                      </p>
-                                    </div>
-                                  )}
-                                </div>
-                              </>
-                            )}
-
-                            {/* BSP Strategies Section */}
-                            {participantDetails && (participantDetails.proactive_strategies || participantDetails.reactive_strategies ||
-                              participantDetails.escalation_steps || participantDetails.restricted_practices ||
-                              participantDetails.support_requirements || participantDetails.risk_indicators ||
-                              participantDetails.risk_factors) && (
-                              <>
-                                <div style={{ marginTop: '20px', marginBottom: '12px', paddingLeft: '4px' }}>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <i className="ki-outline ki-shield-tick" style={{ fontSize: '16px', color: '#6b46c1' }}></i>
-                                    <h3 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#6b46c1', margin: 0, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
-                                      BSP Strategies
-                                    </h3>
-                                  </div>
-                                </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                                  {participantDetails.proactive_strategies && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Proactive Strategies</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.proactive_strategies}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.reactive_strategies && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Reactive Strategies</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.reactive_strategies}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.escalation_steps && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Escalation Steps</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.escalation_steps}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.restricted_practices && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Restricted Practices</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.restricted_practices}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.support_requirements && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Support Requirements</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.support_requirements}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.risk_indicators && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Risk Indicators</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.risk_indicators}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.risk_factors && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Risk Factors</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.risk_factors}
-                                      </p>
-                                    </div>
-                                  )}
-                                </div>
-                              </>
-                            )}
-
-                            {/* Support Context Section */}
-                            {participantDetails && (participantDetails.sensory_profile || participantDetails.communication_style ||
-                              participantDetails.environmental_needs || participantDetails.support_environment_family_context ||
-                              participantDetails.functional_daily_living_profile) && (
-                              <>
-                                <div style={{ marginTop: '20px', marginBottom: '12px', paddingLeft: '4px' }}>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <i className="ki-outline ki-home-2" style={{ fontSize: '16px', color: '#6b46c1' }}></i>
-                                    <h3 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#6b46c1', margin: 0, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
-                                      Support Context
-                                    </h3>
-                                  </div>
-                                </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                                  {participantDetails.sensory_profile && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Sensory Profile</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.sensory_profile}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.communication_style && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Communication Style</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.communication_style}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.environmental_needs && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Environmental Needs</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.environmental_needs}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.support_environment_family_context && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Support Environment / Family Context</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.support_environment_family_context}
-                                      </p>
-                                    </div>
-                                  )}
-                                  {participantDetails.functional_daily_living_profile && (
-                                    <div>
-                                      <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '3px', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: '600' }}>Functional & Daily Living</p>
-                                      <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
-                                        {participantDetails.functional_daily_living_profile}
-                                      </p>
-                                    </div>
-                                  )}
-                                </div>
-                              </>
-                            )}
-                    </div>
-                    </>
-                    ) : (
-                      <div style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        minHeight: '400px',
-                        padding: '40px 20px'
-                      }}>
-                        <i
-                          className="ki-outline ki-profile-circle"
-                          style={{ fontSize: '64px', color: '#d1d5db', marginBottom: '16px' }}
-                        ></i>
-                        <p style={{ fontSize: '1rem', color: '#6b7280', textAlign: 'center', marginBottom: '8px' }}>
-                          No participant information available
-                        </p>
-                        <p style={{ fontSize: '0.875rem', color: '#9ca3af', textAlign: 'center' }}>
-                          This incident may not have an associated participant
-                        </p>
-                      </div>
-                    )}
-                  </div>
                     )}
                   </div>
                 ) : (

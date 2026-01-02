@@ -12,8 +12,10 @@ import { ColumnDef, Column } from '@tanstack/react-table';
 import { MenuIcon, MenuLink, MenuSub, MenuTitle } from '@/components';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
+import { useNavigate } from 'react-router-dom';
 
 import { IParticipantsData } from './';
+import { ParticipantDetailsModal } from './ParticipantDetailsModal';
 import { useLanguage } from '@/i18n';
 import { useAuthContext } from '@/auth';
 import { deleteParticipant, getAllParticipants } from '@/services/api';
@@ -71,15 +73,33 @@ const DropdownCard2 = (
 
 const ParticipantsTable = () => {
   const { currentUser } = useAuthContext();
+  const navigate = useNavigate();
   const [selectedId, setSelectedId] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedParticipant, setSelectedParticipant] = useState<IParticipantsData | null>(null);
 
   const handleModalClose = () => setIsModalOpen(false);
 
   const handleModalOpen = (id: string | number) => {
     setSelectedId(String(id));
     setIsModalOpen(true);
+  };
+
+  const handleRowClick = (participant: IParticipantsData) => {
+    setSelectedParticipant(participant);
+    setShowDetailsModal(true);
+  };
+
+  const handleDetailsModalClose = () => {
+    setShowDetailsModal(false);
+    setSelectedParticipant(null);
+  };
+
+  const handleViewIncidents = (participantId: string | number, participantName: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigate(`/incidents?participant_id=${participantId}&participant_name=${encodeURIComponent(participantName)}`);
   };
 
 
@@ -145,7 +165,14 @@ const ParticipantsTable = () => {
         header: 'Name',
         cell: ({ row }) => {
           const fullName = `${row.original.first_name || ''} ${row.original.last_name || ''}`.trim() || '';
-          return <div>{fullName}</div>;
+          return (
+            <div
+              onClick={() => handleRowClick(row.original)}
+              style={{ cursor: 'pointer' }}
+            >
+              {fullName}
+            </div>
+          );
         }
       },
       {
@@ -160,7 +187,14 @@ const ParticipantsTable = () => {
                 day: 'numeric'
               })
             : 'N/A';
-          return <div>{dob}</div>;
+          return (
+            <div
+              onClick={() => handleRowClick(row.original)}
+              style={{ cursor: 'pointer' }}
+            >
+              {dob}
+            </div>
+          );
         }
       },
       {
@@ -177,7 +211,14 @@ const ParticipantsTable = () => {
           else if (gender === 'prefer_not_to_say') displayGender = 'Prefer Not To Say';
           else displayGender = '';
 
-          return <div>{displayGender}</div>;
+          return (
+            <div
+              onClick={() => handleRowClick(row.original)}
+              style={{ cursor: 'pointer' }}
+            >
+              {displayGender}
+            </div>
+          );
         }
       },
       {
@@ -187,7 +228,10 @@ const ParticipantsTable = () => {
         cell: ({ row }) => {
           const practitioner = row.original.assigned_practitioner;
           return (
-            <div>
+            <div
+              onClick={() => handleRowClick(row.original)}
+              style={{ cursor: 'pointer' }}
+            >
               {practitioner
                 ? `${practitioner.first_name} ${practitioner.last_name}`
                 : 'N/A'}
@@ -200,7 +244,10 @@ const ParticipantsTable = () => {
         id: 'contact',
         header: 'Contact',
         cell: ({ row }) => (
-          <div>
+          <div
+            onClick={() => handleRowClick(row.original)}
+            style={{ cursor: 'pointer' }}
+          >
             <div>{row.original.contact_email || 'No email'}</div>
             <div className="text-sm text-gray-600">{row.original.contact_phone || 'No phone'}</div>
           </div>
@@ -214,13 +261,37 @@ const ParticipantsTable = () => {
           const isActive = row.original.status === 'active';
 
           return (
-            <span
-              className={`badge badge-sm ${
-                isActive ? 'badge-success' : 'badge-danger'
-              }`}
+            <div
+              onClick={() => handleRowClick(row.original)}
+              style={{ cursor: 'pointer' }}
             >
-              {isActive ? 'Active' : 'Inactive'}
-            </span>
+              <span
+                className={`badge badge-sm ${
+                  isActive ? 'badge-success' : 'badge-danger'
+                }`}
+              >
+                {isActive ? 'Active' : 'Inactive'}
+              </span>
+            </div>
+          );
+        }
+      },
+      {
+        id: 'incidents',
+        enableSorting: false,
+        header: 'Incidents',
+        cell: ({ row }) => {
+          const fullName = `${row.original.first_name || ''} ${row.original.last_name || ''}`.trim();
+          return (
+            <button
+              type="button"
+              className="btn btn-sm btn-primary"
+              onClick={(e) => handleViewIncidents(row.original.id, fullName, e)}
+              style={{ cursor: 'pointer' }}
+            >
+              <KeenIcon icon="eye" className="text-sm mr-1" />
+              View Incidents
+            </button>
           );
         }
       },
@@ -240,7 +311,7 @@ const ParticipantsTable = () => {
         )
       }
     ],
-    []
+    [handleViewIncidents, handleRowClick]
   );
 
   return (
@@ -259,6 +330,12 @@ const ParticipantsTable = () => {
         open={isModalOpen}
         onOpenChange={handleModalClose}
         onDeleteConfirm={handleDeleteParticipant}
+      />
+
+      <ParticipantDetailsModal
+        showModal={showDetailsModal}
+        onClose={handleDetailsModalClose}
+        participant={selectedParticipant}
       />
     </>
   );
