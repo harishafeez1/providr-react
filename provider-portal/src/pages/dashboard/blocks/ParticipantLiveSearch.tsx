@@ -14,20 +14,22 @@ interface Participant {
   dob?: string;
 }
 
-interface ParticipantSearchProps {
-  onSelect: (participant: Participant) => void;
+interface ParticipantLiveSearchProps {
+  onSelect: (participantId: string) => void;
   placeholder?: string;
-  disabled?: boolean;
-  initialValue?: string;
+  selectedValue?: string;
+  size?: 'sm' | 'default' | 'lg';
+  className?: string;
 }
 
-export const ParticipantSearch: React.FC<ParticipantSearchProps> = ({
+export const ParticipantLiveSearch: React.FC<ParticipantLiveSearchProps> = ({
   onSelect,
   placeholder = 'Search participants...',
-  disabled = false,
-  initialValue = ''
+  selectedValue = 'all',
+  size = 'sm',
+  className = ''
 }) => {
-  const [query, setQuery] = useState(initialValue);
+  const [query, setQuery] = useState('');
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [loading, setLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -35,13 +37,13 @@ export const ParticipantSearch: React.FC<ParticipantSearchProps> = ({
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Update query when initialValue changes
+  // Update display when selectedValue changes from parent
   useEffect(() => {
-    if (initialValue && initialValue !== query) {
-      setQuery(initialValue);
-      setSelectedParticipant({ name: initialValue } as Participant);
+    if (selectedValue === 'all') {
+      setQuery('');
+      setSelectedParticipant(null);
     }
-  }, [initialValue]);
+  }, [selectedValue]);
 
   // Debounced search function
   const handleSearch = async (searchQuery: string) => {
@@ -68,7 +70,12 @@ export const ParticipantSearch: React.FC<ParticipantSearchProps> = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setQuery(value);
-    setSelectedParticipant(null);
+
+    // If clearing input, reset to "all"
+    if (!value) {
+      setSelectedParticipant(null);
+      onSelect('all');
+    }
 
     // Clear previous timeout
     if (searchTimeoutRef.current) {
@@ -86,7 +93,7 @@ export const ParticipantSearch: React.FC<ParticipantSearchProps> = ({
     setQuery(participant.name || `${participant.first_name} ${participant.last_name}`);
     setSelectedParticipant(participant);
     setShowDropdown(false);
-    onSelect(participant);
+    onSelect(participant.id.toString());
   };
 
   // Close dropdown when clicking outside
@@ -112,10 +119,22 @@ export const ParticipantSearch: React.FC<ParticipantSearchProps> = ({
     setSelectedParticipant(null);
     setParticipants([]);
     setShowDropdown(false);
+    onSelect('all');
+  };
+
+  const getSizeClasses = () => {
+    switch (size) {
+      case 'sm':
+        return 'h-8 text-xs';
+      case 'lg':
+        return 'h-11 text-base';
+      default:
+        return 'h-10 text-sm';
+    }
   };
 
   return (
-    <div className="relative flex-1 min-w-0" ref={dropdownRef}>
+    <div className={`relative ${className}`} ref={dropdownRef}>
       <div className="relative">
         <input
           type="text"
@@ -128,8 +147,7 @@ export const ParticipantSearch: React.FC<ParticipantSearchProps> = ({
             }
           }}
           placeholder={placeholder}
-          className="input w-full pr-20"
-          disabled={disabled}
+          className={`input w-full pr-20 ${getSizeClasses()}`}
         />
 
         <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
@@ -142,7 +160,6 @@ export const ParticipantSearch: React.FC<ParticipantSearchProps> = ({
               type="button"
               onClick={handleClear}
               className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
-              disabled={disabled}
             >
               <KeenIcon icon="cross" className="text-gray-500 text-sm" />
             </button>

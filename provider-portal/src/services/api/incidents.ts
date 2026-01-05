@@ -5,11 +5,13 @@ import {
   GET_INCIDENTS_STATISTICS_URL,
   GET_ALL_INCIDENTS_URL,
   GET_SINGLE_INCIDENT_URL,
+  GET_INCIDENT_TYPES_URL,
   CREATE_INCIDENT_PREVIEW_URL,
   STORE_INCIDENT_URL,
   UPDATE_INCIDENT_URL,
   DELETE_INCIDENT_URL,
   GET_BSP_ANALYSIS_URL,
+  GET_BSP_ANALYSIS_REPORT_URL,
   EXPORT_INCIDENT_PDF_URL,
   EXPORT_INCIDENTS_CSV_URL
 } from '../endpoints';
@@ -102,7 +104,20 @@ const deleteIncident = async (incidentId: string | number) => {
   }
 };
 
-// Get BSP Analysis for an incident
+// Get saved BSP Analysis Report from database (silent - no success toast)
+const fetchBspAnalysisReport = async (incidentId: string | number) => {
+  try {
+    const response = await axios.get(`${GET_BSP_ANALYSIS_REPORT_URL}/${incidentId}/bsp-analysis-report`, {
+      skipSuccessToast: true
+    } as any);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching BSP analysis report:', error);
+    throw error;
+  }
+};
+
+// Generate/Regenerate BSP Analysis (AI generation)
 const fetchBspAnalysis = async (incidentId: string | number) => {
   try {
     const response = await axios.post(`${GET_BSP_ANALYSIS_URL}/${incidentId}`);
@@ -169,15 +184,28 @@ const fetchIncidentStatistics = async (filters?: any) => {
   }
 };
 
+// Get incident types
+const fetchIncidentTypes = async () => {
+  try {
+    const response = await axios.get(GET_INCIDENT_TYPES_URL);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching incident types:', error);
+    throw error;
+  }
+};
+
 export {
   fetchIncidentCustomers,
   fetchIncidentStaff,
   fetchAllIncidents,
   fetchSingleIncident,
+  fetchIncidentTypes,
   createIncidentPreview,
   storeIncident,
   updateIncident,
   deleteIncident,
+  fetchBspAnalysisReport,
   fetchBspAnalysis,
   exportIncidentPdf,
   exportIncidentsCsv,

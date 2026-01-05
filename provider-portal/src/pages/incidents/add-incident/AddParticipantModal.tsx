@@ -22,6 +22,7 @@ import {
 import { useAuthContext } from '@/auth';
 import { Button } from '@/components/ui/button';
 import { KeenIcon } from '@/components';
+import { DateTimePicker } from '@/components/ui/date-time-picker';
 
 const participantSchema = Yup.object().shape({
   first_name: Yup.string().required('First name is required'),
@@ -220,11 +221,12 @@ const AddParticipantModal = ({ open, onOpenChange, onParticipantAdded }: AddPart
                     <div className="grid grid-cols-2 gap-4">
                       <div className="flex flex-col gap-2">
                         <label className="form-label text-sm">Date of Birth <span className="text-danger">*</span></label>
-                        <Input
-                          type="date"
-                          name="dob"
+                        <DateTimePicker
+                          mode="date"
                           value={values.dob}
-                          onChange={(e) => setFieldValue('dob', e.target.value)}
+                          onChange={(value) => setFieldValue('dob', value)}
+                          placeholder="Select date of birth"
+                          required
                         />
                         {errors.dob && touched.dob && (
                           <span className="text-danger text-xs">{String(errors.dob)}</span>

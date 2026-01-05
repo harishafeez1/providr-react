@@ -5,9 +5,17 @@ import { KeenIcon } from '@/components';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 import { AddParticipantModal } from './AddParticipantModal';
 import { SignatureField, SignatureFieldRef } from '@/components/signature';
 import { ParticipantSearch } from './ParticipantSearch';
+import { DateTimePicker } from '@/components/ui/date-time-picker';
 
 interface Customer {
   id: number;
@@ -468,11 +476,13 @@ const AddIncidentContent = () => {
                     <KeenIcon icon="calendar" className="text-sm" />
                     Incident Date & Time <span className="text-danger">*</span>
                   </label>
-                  <input
-                    type="datetime-local"
-                    className="input flex-1 min-w-0"
+                  <DateTimePicker
+                    mode="datetime"
                     value={form_data.basic_info.incident_date_time?.replace(' ', 'T') || ''}
-                    onChange={(e) => updateFormData('basic_info', 'incident_date_time', e.target.value.replace('T', ' '))}
+                    onChange={(value) => updateFormData('basic_info', 'incident_date_time', value.replace('T', ' '))}
+                    placeholder="Select date and time"
+                    className="flex-1 min-w-0"
+                    required
                   />
                 </div>
 
@@ -511,7 +521,8 @@ const AddIncidentContent = () => {
                         });
                         setSelectedParticipant(participant);
                       }}
-                      placeholder={form_data.basic_info.participant_name || 'Search to change participant...'}
+                      initialValue={form_data.basic_info.participant_name || ''}
+                      placeholder="Search to change participant..."
                       disabled={false}
                     />
                     <Button
@@ -530,11 +541,10 @@ const AddIncidentContent = () => {
                     <KeenIcon icon="category" className="text-sm" />
                     Incident Type
                   </label>
-                  <select
-                    className="input flex-1 min-w-0"
-                    value={form_data.basic_info.incident_type_id || ''}
-                    onChange={(e) => {
-                      const selectedId = parseInt(e.target.value);
+                  <Select
+                    value={form_data.basic_info.incident_type_id?.toString() || ''}
+                    onValueChange={(value) => {
+                      const selectedId = parseInt(value);
                       const selectedType = previewData?.incident_types?.find(type => type.id === selectedId);
                       if (selectedType) {
                         setPreviewData({
@@ -551,13 +561,17 @@ const AddIncidentContent = () => {
                       }
                     }}
                   >
-                    <option value="">Select Incident Type</option>
-                    {previewData?.incident_types?.map((type) => (
-                      <option key={type.id} value={type.id}>
-                        {type.name}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="flex-1 min-w-0">
+                      <SelectValue placeholder="Select Incident Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {previewData?.incident_types?.map((type) => (
+                        <SelectItem key={type.id} value={type.id.toString()}>
+                          {type.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="flex items-baseline flex-wrap gap-2.5">
@@ -565,16 +579,20 @@ const AddIncidentContent = () => {
                     <KeenIcon icon="chart" className="text-sm" />
                     Severity Level
                   </label>
-                  <select
-                    className="input flex-1 min-w-0"
+                  <Select
                     value={form_data.basic_info.severity}
-                    onChange={(e) => updateFormData('basic_info', 'severity', e.target.value)}
+                    onValueChange={(value) => updateFormData('basic_info', 'severity', value)}
                   >
-                    <option>Minor</option>
-                    <option>Moderate</option>
-                    <option>Serious</option>
-                    <option>Critical</option>
-                  </select>
+                    <SelectTrigger className="flex-1 min-w-0">
+                      <SelectValue placeholder="Select severity level" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Minor">Minor</SelectItem>
+                      <SelectItem value="Moderate">Moderate</SelectItem>
+                      <SelectItem value="Serious">Serious</SelectItem>
+                      <SelectItem value="Critical">Critical</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="flex items-start flex-wrap gap-2.5">

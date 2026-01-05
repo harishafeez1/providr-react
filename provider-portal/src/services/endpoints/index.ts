@@ -77,11 +77,13 @@ export const GET_INCIDENTS_STAFF_URL = `${API_URL}/incidents/staff`;
 export const GET_INCIDENTS_STATISTICS_URL = `${API_URL}/incidents/statistics`;
 export const GET_ALL_INCIDENTS_URL = `${API_URL}/incidents`;
 export const GET_SINGLE_INCIDENT_URL = `${API_URL}/incidents`;
+export const GET_INCIDENT_TYPES_URL = `${API_URL}/incidents/types`;
 export const CREATE_INCIDENT_PREVIEW_URL = `${API_URL}/incidents/preview`;
 export const STORE_INCIDENT_URL = `${API_URL}/incidents`;
 export const UPDATE_INCIDENT_URL = `${API_URL}/incidents`;
 export const DELETE_INCIDENT_URL = `${API_URL}/incidents`;
 export const GET_BSP_ANALYSIS_URL = `${API_URL}/incidents/getbspAnalysis`;
+export const GET_BSP_ANALYSIS_REPORT_URL = `${API_URL}/incidents`;
 export const EXPORT_INCIDENT_PDF_URL = `${API_URL}/incidents/export-pdf`;
 export const EXPORT_INCIDENTS_CSV_URL = `${API_URL}/incidents/export-csv`;
 

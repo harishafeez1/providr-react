@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IIncidentsData } from './IncidentsData';
 import { IncidentTimelineCard } from './IncidentTimelineCard';
-import { fetchAllIncidents, deleteIncident, fetchSingleIncident, fetchIncidentCustomers, fetchIncidentStatistics, fetchBspAnalysis, exportIncidentPdf, getSingleParticipant } from '@/services/api';
+import { fetchAllIncidents, deleteIncident, fetchSingleIncident, fetchIncidentCustomers, fetchIncidentStatistics, fetchBspAnalysisReport, fetchBspAnalysis, exportIncidentPdf, getSingleParticipant } from '@/services/api';
 import { KeenIcon } from '@/components';
 import { ModalDeleteConfirmation } from '@/partials/modals/delete-confirmation';
 import { ViewToggle } from './ViewToggle';
@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { DateTimePicker } from '@/components/ui/date-time-picker';
 
 interface GroupedIncidents {
   [date: string]: IIncidentsData[];
@@ -260,6 +261,28 @@ const IncidentsTimeline = ({ activeView, onViewChange }: IncidentsTimelineProps)
     }
   };
 
+  // Fetch saved BSP analysis report from database on modal load (no toast notification)
+  const fetchBspAnalysisSilently = async (incidentId: number) => {
+    try {
+      const response = await fetchBspAnalysisReport(incidentId);
+
+      // Check if BSP report exists
+      if (response.exists && response.bsp_analysis) {
+        // The response already has the correct structure, use it directly
+        setBspAnalysisData({
+          bsp_analysis: response.bsp_analysis
+        });
+      } else {
+        // No BSP report exists yet
+        setBspAnalysisData(null);
+      }
+    } catch (error) {
+      console.error('Error fetching BSP analysis report silently:', error);
+      // Silently fail - user can still click "Run BSP Analysis" button
+      setBspAnalysisData(null);
+    }
+  };
+
   const handleViewDetails = async (incidentId: number) => {
     setShowReportModal(true);
     setLoadingReport(true);
@@ -269,6 +292,9 @@ const IncidentsTimeline = ({ activeView, onViewChange }: IncidentsTimelineProps)
       const response = await fetchSingleIncident(incidentId);
       setSelectedIncidentDetails(response);
       setLoadingReport(false);
+
+      // Always fetch saved BSP analysis report from database (silently, no toast)
+      fetchBspAnalysisSilently(incidentId);
 
       // Fetch participant details if participant_id exists
       if (response.participant_id || response.customer?.id) {
@@ -380,14 +406,16 @@ const IncidentsTimeline = ({ activeView, onViewChange }: IncidentsTimelineProps)
 
   const handleRunBspAnalysis = async (incidentId: number) => {
     setLoadingBspAnalysis(true);
-    setBspAnalysisData(null);
+    // Don't clear existing data immediately so user can still see it while loading
+    // setBspAnalysisData(null);
 
     try {
       const bspResponse = await fetchBspAnalysis(incidentId);
       setBspAnalysisData(bspResponse);
+      // Toast is handled by axios interceptor
     } catch (bspErr: any) {
       console.error('Error fetching BSP analysis:', bspErr);
-      toast.error('BSP Analysis could not be loaded');
+      // Error toast is handled by axios interceptor
     } finally {
       setLoadingBspAnalysis(false);
     }
@@ -859,10 +887,11 @@ const IncidentsTimeline = ({ activeView, onViewChange }: IncidentsTimelineProps)
               <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
                 Date From
               </label>
-              <Input
-                type="date"
+              <DateTimePicker
+                mode="date"
                 value={dateFrom}
-                onChange={(e) => setDateFrom(e.target.value)}
+                onChange={(value) => setDateFrom(value)}
+                placeholder="Select start date"
                 className="w-full"
               />
             </div>
@@ -872,10 +901,11 @@ const IncidentsTimeline = ({ activeView, onViewChange }: IncidentsTimelineProps)
               <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
                 Date To
               </label>
-              <Input
-                type="date"
+              <DateTimePicker
+                mode="date"
                 value={dateTo}
-                onChange={(e) => setDateTo(e.target.value)}
+                onChange={(value) => setDateTo(value)}
+                placeholder="Select end date"
                 className="w-full"
               />
             </div>
@@ -1484,10 +1514,29 @@ const IncidentsTimeline = ({ activeView, onViewChange }: IncidentsTimelineProps)
                         padding: '24px',
                         marginBottom: '24px'
                       }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
                           <h4 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#6b46c1', margin: 0 }}>
                             BSP Analysis & Recommendations
                           </h4>
+                          <button
+                            type="button"
+                            className="btn btn-primary btn-sm"
+                            onClick={() => selectedIncidentDetails && handleRunBspAnalysis(selectedIncidentDetails.id)}
+                            disabled={loadingBspAnalysis}
+                            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                          >
+                            {loadingBspAnalysis ? (
+                              <>
+                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                <span>Re-running...</span>
+                              </>
+                            ) : (
+                              <>
+                                <i className="ki-outline ki-arrows-circle text-sm"></i>
+                                <span>Re-run BSP Analysis</span>
+                              </>
+                            )}
+                          </button>
                         </div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -2177,9 +2226,20 @@ const IncidentsTimeline = ({ activeView, onViewChange }: IncidentsTimelineProps)
                             type="button"
                             className="btn btn-primary btn-sm"
                             onClick={() => selectedIncidentDetails && handleRunBspAnalysis(selectedIncidentDetails.id)}
+                            disabled={loadingBspAnalysis}
+                            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
                           >
-                            <i className="ki-outline ki-abstract-26 text-sm mr-1"></i>
-                            Run BSP Analysis
+                            {loadingBspAnalysis ? (
+                              <>
+                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                <span>Running...</span>
+                              </>
+                            ) : (
+                              <>
+                                <i className="ki-outline ki-abstract-26 text-sm"></i>
+                                <span>Run BSP Analysis</span>
+                              </>
+                            )}
                           </button>
                         </div>
                         <div style={{
@@ -2360,7 +2420,7 @@ const IncidentsTimeline = ({ activeView, onViewChange }: IncidentsTimelineProps)
                         </div>
                       </div>
 
-                      {/* Draft Summary */}
+                      {/* Original Description */}
                       {selectedIncidentDetails.description && (
                         <div style={{
                           backgroundColor: 'white',
@@ -2370,7 +2430,7 @@ const IncidentsTimeline = ({ activeView, onViewChange }: IncidentsTimelineProps)
                           marginTop: '14px'
                         }}>
                           <h5 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#f59e0b', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
-                            Draft Summary
+                            Original Description
                           </h5>
                           <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
                             {selectedIncidentDetails.description}
@@ -2660,7 +2720,7 @@ const IncidentsTimeline = ({ activeView, onViewChange }: IncidentsTimelineProps)
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <i className={`ki-outline ${selectedIncidentDetails.injury_occurred ? 'ki-cross' : 'ki-check'}`}
+                            <i className={`ki-outline ${selectedIncidentDetails.injury_occurred ? 'ki-check' : 'ki-cross'}`}
                                style={{ fontSize: '16px', color: selectedIncidentDetails.injury_occurred ? '#ef4444' : '#10b981' }}></i>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
                               <span style={{ fontSize: '0.8125rem', color: '#374151', fontWeight: '500' }}>Injury Occurred</span>

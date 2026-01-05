@@ -1,12 +1,25 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { fetchSingleIncident, updateIncident } from '@/services/api';
+import { fetchSingleIncident, updateIncident, fetchIncidentTypes } from '@/services/api';
 import { KeenIcon } from '@/components';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 import { SignatureField, SignatureFieldRef } from '@/components/signature';
 import { ParticipantSearch } from '../add-incident/ParticipantSearch';
 import { AddParticipantModal } from '../add-incident/AddParticipantModal';
+import { DateTimePicker } from '@/components/ui/date-time-picker';
+
+interface IncidentType {
+  id: number;
+  name: string;
+}
 
 interface FormData {
   participant_id: number | null;
@@ -44,12 +57,13 @@ const EditIncidentContent = () => {
   const [activeTab, setActiveTab] = useState('basic');
   const [existingSignature, setExistingSignature] = useState<string | null>(null);
   const [isParticipantModalOpen, setIsParticipantModalOpen] = useState(false);
+  const [incidentTypes, setIncidentTypes] = useState<IncidentType[]>([]);
   const [formData, setFormData] = useState<FormData>({
     participant_id: null,
     participant_name: '',
     description: '',
     incident_type: 'Other',
-    severity: 'Low',
+    severity: 'Minor',
     incident_date_time: '',
     location: '',
     injury_occurred: false,
@@ -72,7 +86,19 @@ const EditIncidentContent = () => {
 
   useEffect(() => {
     loadIncidentData();
+    loadIncidentTypes();
   }, [id]);
+
+  const loadIncidentTypes = async () => {
+    try {
+      const response = await fetchIncidentTypes();
+      setIncidentTypes(response.incident_types || []);
+    } catch (error) {
+      console.error('Error loading incident types:', error);
+      // Fallback to empty array if fetch fails - will use static options
+      setIncidentTypes([]);
+    }
+  };
 
   const loadIncidentData = async () => {
     if (!id) return;
@@ -89,8 +115,8 @@ const EditIncidentContent = () => {
         participant_id: incident.participant_id || null,
         participant_name: incident.participant_name || '',
         description: incident.description || '',
-        incident_type: typeof incident.incident_type === 'object' ? incident.incident_type?.name || '' : (incident.incident_type || ''),
-        severity: incident.severity || 'Low',
+        incident_type: typeof incident.incident_type === 'object' ? incident.incident_type?.name || 'Other' : (incident.incident_type || 'Other'),
+        severity: incident.severity || 'Minor',
         incident_date_time: incident.incident_date_time ? incident.incident_date_time.replace('Z', '').replace('.000000', '') : '',
         location: incident.location || '',
         injury_occurred: incident.injury_occurred || false,
@@ -308,11 +334,13 @@ const EditIncidentContent = () => {
                   <KeenIcon icon="calendar" className="text-sm" />
                   Incident Date & Time <span className="text-danger">*</span>
                 </label>
-                <input
-                  type="datetime-local"
-                  className="input flex-1 min-w-0"
+                <DateTimePicker
+                  mode="datetime"
                   value={formData.incident_date_time}
-                  onChange={(e) => updateField('incident_date_time', e.target.value)}
+                  onChange={(value) => updateField('incident_date_time', value)}
+                  placeholder="Select date and time"
+                  className="flex-1 min-w-0"
+                  required
                 />
               </div>
 
@@ -338,7 +366,8 @@ const EditIncidentContent = () => {
                 <div className="flex flex-1 min-w-0 gap-2">
                   <ParticipantSearch
                     onSelect={handleParticipantSelect}
-                    placeholder={formData.participant_name || 'Search participants...'}
+                    initialValue={formData.participant_name || ''}
+                    placeholder="Search participants..."
                     disabled={false}
                   />
                   <Button
@@ -357,30 +386,58 @@ const EditIncidentContent = () => {
                   <KeenIcon icon="category" className="text-sm" />
                   Incident Type
                 </label>
-                <input
-                  type="text"
-                  className="input flex-1 min-w-0"
+                <Select
                   value={formData.incident_type}
-                  onChange={(e) => updateField('incident_type', e.target.value)}
-                  placeholder="Enter incident type"
-                />
+                  onValueChange={(value) => updateField('incident_type', value)}
+                >
+                  <SelectTrigger className="flex-1 min-w-0">
+                    <SelectValue placeholder="Select incident type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {incidentTypes.length > 0 ? (
+                      incidentTypes.map((type) => (
+                        <SelectItem key={type.id} value={type.name}>
+                          {type.name}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <>
+                        <SelectItem value="Physical Aggression">Physical Aggression</SelectItem>
+                        <SelectItem value="Verbal Aggression">Verbal Aggression</SelectItem>
+                        <SelectItem value="Self-Harm">Self-Harm</SelectItem>
+                        <SelectItem value="Property Damage">Property Damage</SelectItem>
+                        <SelectItem value="Elopement">Elopement</SelectItem>
+                        <SelectItem value="Medical Emergency">Medical Emergency</SelectItem>
+                        <SelectItem value="Medication Error">Medication Error</SelectItem>
+                        <SelectItem value="Fall">Fall</SelectItem>
+                        <SelectItem value="Abuse/Neglect Allegation">Abuse/Neglect Allegation</SelectItem>
+                        <SelectItem value="Unauthorized Absence">Unauthorized Absence</SelectItem>
+                        <SelectItem value="Other">Other</SelectItem>
+                      </>
+                    )}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="flex items-start flex-wrap gap-2.5">
                 <label className="form-label max-w-70 gap-1 mt-2.5">
                   <KeenIcon icon="chart" className="text-sm" />
-                  Severity Level
+                  Severity Level <span className="text-danger">*</span>
                 </label>
-                <select
-                  className="input flex-1 min-w-0"
+                <Select
                   value={formData.severity}
-                  onChange={(e) => updateField('severity', e.target.value)}
+                  onValueChange={(value) => updateField('severity', value)}
                 >
-                  <option>Minor</option>
-                  <option>Moderate</option>
-                  <option>Serious</option>
-                  <option>Critical</option>
-                </select>
+                  <SelectTrigger className="flex-1 min-w-0">
+                    <SelectValue placeholder="Select severity level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Minor">Minor</SelectItem>
+                    <SelectItem value="Moderate">Moderate</SelectItem>
+                    <SelectItem value="Serious">Serious</SelectItem>
+                    <SelectItem value="Critical">Critical</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="flex items-start flex-wrap gap-2.5">
@@ -388,16 +445,20 @@ const EditIncidentContent = () => {
                   <KeenIcon icon="flag" className="text-sm" />
                   Status
                 </label>
-                <select
-                  className="input flex-1 min-w-0"
+                <Select
                   value={formData.status}
-                  onChange={(e) => updateField('status', e.target.value)}
+                  onValueChange={(value) => updateField('status', value)}
                 >
-                  <option value="draft">Draft</option>
-                  <option value="submitted">Submitted</option>
-                  <option value="under_review">Under Review</option>
-                  <option value="completed">Completed</option>
-                </select>
+                  <SelectTrigger className="flex-1 min-w-0">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="draft">Draft</SelectItem>
+                    <SelectItem value="submitted">Submitted</SelectItem>
+                    <SelectItem value="under_review">Under Review</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="flex items-start flex-wrap gap-2.5">

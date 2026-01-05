@@ -16,6 +16,7 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { DateTimePicker } from '@/components/ui/date-time-picker';
 
 const participantSchema = Yup.object().shape({
   first_name: Yup.string().required('First name is required'),
@@ -168,12 +169,11 @@ const EditParticipantForm = () => {
               <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
                 <label className="form-label max-w-56">Date of Birth</label>
                 <div className="flex flex-col w-full gap-2.5">
-                  <Input
-                    type="date"
-                    name="dob"
+                  <DateTimePicker
+                    mode="date"
                     value={values.dob}
-                    onChange={(e) => setFieldValue('dob', e.target.value)}
-                    className="input"
+                    onChange={(value) => setFieldValue('dob', value)}
+                    placeholder="Select date of birth"
                   />
                   {errors.dob && touched.dob && (
                     <span className="text-danger text-xs">{String(errors.dob)}</span>

@@ -17,6 +17,14 @@ import {
   IncidentDistributionCharts,
   RecentIncidentsList
 } from './blocks';
+import { ParticipantLiveSearch } from './blocks/ParticipantLiveSearch';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -31,21 +39,10 @@ const DashboardPage = () => {
   const [incidentTrends, setIncidentTrends] = useState<any>(null);
   const [distribution, setDistribution] = useState<any>(null);
   const [recentIncidents, setRecentIncidents] = useState<any[]>([]);
-  const [participants, setParticipants] = useState<any[]>([]);
 
   useEffect(() => {
     loadDashboardData();
-    loadParticipants();
   }, [selectedParticipant, selectedPeriod]);
-
-  const loadParticipants = async () => {
-    try {
-      const data = await fetchDashboardParticipants();
-      setParticipants(data.participants || []);
-    } catch (error) {
-      console.error('Error loading participants:', error);
-    }
-  };
 
   const loadDashboardData = async () => {
     setLoading(true);
@@ -126,30 +123,20 @@ const DashboardPage = () => {
         </div>
 
         <div className="flex items-center gap-2.5">
-          <select
-            className="select select-sm w-48"
-            value={selectedParticipant}
-            onChange={(e) => setSelectedParticipant(e.target.value)}
-          >
-            <option value="all">All Participants</option>
-            {participants.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </select>
+        
 
-          <select
-            className="select select-sm w-48"
-            value={selectedPeriod}
-            onChange={(e) => setSelectedPeriod(e.target.value)}
-          >
-            <option value="all_time">All time</option>
-            <option value="last_7_days">Last 7 days</option>
-            <option value="last_30_days">Last 30 days</option>
-            <option value="last_90_days">Last 90 days</option>
-            <option value="last_12_months">Last 12 months</option>
-          </select>
+          <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+            <SelectTrigger className="w-48" size="sm">
+              <SelectValue placeholder="Select time period" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all_time">All time</SelectItem>
+              <SelectItem value="last_7_days">Last 7 days</SelectItem>
+              <SelectItem value="last_30_days">Last 30 days</SelectItem>
+              <SelectItem value="last_90_days">Last 90 days</SelectItem>
+              <SelectItem value="last_12_months">Last 12 months</SelectItem>
+            </SelectContent>
+          </Select>
 
           <button
             className="btn btn-sm btn-primary"

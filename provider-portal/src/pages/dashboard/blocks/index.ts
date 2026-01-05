@@ -4,3 +4,4 @@ export * from './BreakdownByType';
 export * from './IncidentTrendsChart';
 export * from './IncidentDistributionCharts';
 export * from './RecentIncidentsList';
+export * from './ParticipantLiveSearch';

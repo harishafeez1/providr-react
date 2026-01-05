@@ -59,7 +59,8 @@ export function setupAxios(axios: any) {
 
   axios.interceptors.response.use(
     (response: any) => {
-      if (response?.data.message) {
+      // Check if the request config has skipSuccessToast flag
+      if (response?.data.message && !response?.config?.skipSuccessToast) {
         toast.success(response?.data?.message, {
           position: 'top-right'
         });

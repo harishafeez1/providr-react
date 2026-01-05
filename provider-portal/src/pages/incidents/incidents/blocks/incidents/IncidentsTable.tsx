@@ -29,10 +29,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { DateTimePicker } from '@/components/ui/date-time-picker';
 
 import { IIncidentsData } from './';
 import { useLanguage } from '@/i18n';
-import { fetchAllIncidents, deleteIncident, fetchSingleIncident, fetchBspAnalysis, fetchIncidentCustomers, exportIncidentPdf, fetchIncidentStatistics, getSingleParticipant } from '@/services/api';
+import { fetchAllIncidents, deleteIncident, fetchSingleIncident, fetchBspAnalysisReport, fetchBspAnalysis, fetchIncidentCustomers, exportIncidentPdf, fetchIncidentStatistics, getSingleParticipant } from '@/services/api';
 import { ModalDeleteConfirmation } from '@/partials/modals/delete-confirmation';
 import { ViewToggle } from './ViewToggle';
 
@@ -172,6 +173,9 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
       setSelectedIncidentDetails(response);
       setLoadingReport(false);
 
+      // Always fetch saved BSP analysis report from database (silently, no toast)
+      fetchBspAnalysisSilently(incidentId);
+
       // Fetch participant details if participant_id exists
       if (response.participant_id || response.customer?.id) {
         const participantId = response.participant_id || response.customer?.id;
@@ -179,7 +183,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
       }
     } catch (err: any) {
       console.error('Error fetching incident details:', err);
-      toast.error(err?.response?.data?.message || 'Failed to load incident details');
+      // toast.error(err?.response?.data?.message || 'Failed to load incident details');
       setShowReportModal(false);
       setLoadingReport(false);
     }
@@ -198,16 +202,40 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
     }
   };
 
+  // Fetch saved BSP analysis report from database on modal load (no toast notification)
+  const fetchBspAnalysisSilently = async (incidentId: number) => {
+    try {
+      const response = await fetchBspAnalysisReport(incidentId);
+
+      // Check if BSP report exists
+      if (response.exists && response.bsp_analysis) {
+        // The response already has the correct structure, use it directly
+        setBspAnalysisData({
+          bsp_analysis: response.bsp_analysis
+        });
+      } else {
+        // No BSP report exists yet
+        setBspAnalysisData(null);
+      }
+    } catch (error) {
+      console.error('Error fetching BSP analysis report silently:', error);
+      // Silently fail - user can still click "Run BSP Analysis" button
+      setBspAnalysisData(null);
+    }
+  };
+
   const handleRunBspAnalysis = async (incidentId: number) => {
     setLoadingBspAnalysis(true);
-    setBspAnalysisData(null);
+    // Don't clear existing data immediately so user can still see it while loading
+    // setBspAnalysisData(null);
 
     try {
       const bspResponse = await fetchBspAnalysis(incidentId);
       setBspAnalysisData(bspResponse);
+      // Toast is handled by axios interceptor
     } catch (bspErr: any) {
       console.error('Error fetching BSP analysis:', bspErr);
-      toast.error('BSP Analysis could not be loaded');
+      // Error toast is handled by axios interceptor
     } finally {
       setLoadingBspAnalysis(false);
     }
@@ -1221,10 +1249,11 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                 <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
                   Date From
                 </label>
-                <Input
-                  type="date"
+                <DateTimePicker
+                  mode="date"
                   value={dateFrom}
-                  onChange={(e) => setDateFrom(e.target.value)}
+                  onChange={(value) => setDateFrom(value)}
+                  placeholder="Select start date"
                   className="w-full"
                 />
               </div>
@@ -1234,10 +1263,11 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                 <label className="text-xs font-medium text-gray-700 dark:text-gray-300">
                   Date To
                 </label>
-                <Input
-                  type="date"
+                <DateTimePicker
+                  mode="date"
                   value={dateTo}
-                  onChange={(e) => setDateTo(e.target.value)}
+                  onChange={(value) => setDateTo(value)}
+                  placeholder="Select end date"
                   className="w-full"
                 />
               </div>
@@ -1673,10 +1703,29 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                         padding: '24px',
                         marginBottom: '24px'
                       }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
                           <h4 style={{ fontSize: '1.125rem', fontWeight: '600', color: '#6b46c1', margin: 0 }}>
                             BSP Analysis & Recommendations
                           </h4>
+                          <button
+                            type="button"
+                            className="btn btn-primary btn-sm"
+                            onClick={() => selectedIncidentDetails && handleRunBspAnalysis(selectedIncidentDetails.id)}
+                            disabled={loadingBspAnalysis}
+                            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+                          >
+                            {loadingBspAnalysis ? (
+                              <>
+                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                <span>Re-running...</span>
+                              </>
+                            ) : (
+                              <>
+                                <i className="ki-outline ki-arrows-circle text-sm"></i>
+                                <span>Re-run BSP Analysis</span>
+                              </>
+                            )}
+                          </button>
                         </div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -2366,9 +2415,20 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                             type="button"
                             className="btn btn-primary btn-sm"
                             onClick={() => selectedIncidentDetails && handleRunBspAnalysis(selectedIncidentDetails.id)}
+                            disabled={loadingBspAnalysis}
+                            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
                           >
-                            <i className="ki-outline ki-abstract-26 text-sm mr-1"></i>
-                            Run BSP Analysis
+                            {loadingBspAnalysis ? (
+                              <>
+                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                <span>Running...</span>
+                              </>
+                            ) : (
+                              <>
+                                <i className="ki-outline ki-abstract-26 text-sm"></i>
+                                <span>Run BSP Analysis</span>
+                              </>
+                            )}
                           </button>
                         </div>
                         <div style={{
@@ -2549,7 +2609,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                         </div>
                       </div>
 
-                      {/* Draft Summary */}
+                      {/* Original Description */}
                       {selectedIncidentDetails.description && (
                         <div style={{
                           backgroundColor: 'white',
@@ -2559,7 +2619,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                           marginTop: '14px'
                         }}>
                           <h5 style={{ fontSize: '0.75rem', fontWeight: '700', color: '#f59e0b', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
-                            Draft Summary
+                            Original Description
                           </h5>
                           <p style={{ fontSize: '0.8125rem', color: '#374151', lineHeight: '1.6', whiteSpace: 'pre-wrap', margin: 0 }}>
                             {selectedIncidentDetails.description}
@@ -2849,7 +2909,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <i className={`ki-outline ${selectedIncidentDetails.injury_occurred ? 'ki-cross' : 'ki-check'}`}
+                            <i className={`ki-outline ${selectedIncidentDetails.injury_occurred ? 'ki-check' : 'ki-cross'}`}
                                style={{ fontSize: '16px', color: selectedIncidentDetails.injury_occurred ? '#ef4444' : '#10b981' }}></i>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
                               <span style={{ fontSize: '0.8125rem', color: '#374151', fontWeight: '500' }}>Injury Occurred</span>
@@ -2859,7 +2919,7 @@ const IncidentsTable = ({ activeView, onViewChange }: IncidentsTableProps) => {
                             </div>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <i className={`ki-outline ${selectedIncidentDetails.medical_treatment_required ? 'ki-cross' : 'ki-check'}`}
+                            <i className={`ki-outline ${selectedIncidentDetails.medical_treatment_required ? 'ki-check' : 'ki-cross'}`}
                                style={{ fontSize: '16px', color: selectedIncidentDetails.medical_treatment_required ? '#ef4444' : '#10b981' }}></i>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
                               <span style={{ fontSize: '0.8125rem', color: '#374151', fontWeight: '500' }}>Medical Treatment Required</span>

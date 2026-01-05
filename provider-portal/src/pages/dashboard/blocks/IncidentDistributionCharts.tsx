@@ -24,6 +24,12 @@ const IncidentDistributionCharts = ({ distribution }: IncidentDistributionCharts
     return null;
   }
 
+  // Transform "unknown" to "Others" in incident types
+  const transformedByType = distribution.by_type?.map((item) => ({
+    ...item,
+    type: item.type?.toLowerCase() === 'unknown' || !item.type ? 'Others' : item.type
+  })) || [];
+
   // Bar Chart Options for Incidents by Type
   const baseOptions = getApexChartOptions();
   const barChartOptions: ApexOptions = {
@@ -45,7 +51,7 @@ const IncidentDistributionCharts = ({ distribution }: IncidentDistributionCharts
     colors: [chartColors.primary],
     xaxis: {
       ...baseOptions.xaxis,
-      categories: distribution.by_type?.map((d) => d.type) || []
+      categories: transformedByType.map((d) => d.type) || []
     },
     dataLabels: {
       enabled: true,
@@ -63,7 +69,7 @@ const IncidentDistributionCharts = ({ distribution }: IncidentDistributionCharts
   const barChartSeries = [
     {
       name: 'Incidents',
-      data: distribution.by_type?.map((d) => d.count) || []
+      data: transformedByType.map((d) => d.count) || []
     }
   ];
 
@@ -82,7 +88,7 @@ const IncidentDistributionCharts = ({ distribution }: IncidentDistributionCharts
       '#E8DFF0',                // Pale Purple
       '#F3E5F5'                 // Primary Light
     ],
-    labels: distribution.by_type?.map((d) => d.type) || [],
+    labels: transformedByType.map((d) => d.type) || [],
     plotOptions: {
       pie: {
         dataLabels: {
@@ -141,7 +147,7 @@ const IncidentDistributionCharts = ({ distribution }: IncidentDistributionCharts
     }
   };
 
-  const pieChartSeries = distribution.by_type?.map((d) => d.count) || [];
+  const pieChartSeries = transformedByType.map((d) => d.count) || [];
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
@@ -149,9 +155,9 @@ const IncidentDistributionCharts = ({ distribution }: IncidentDistributionCharts
       {hasByType ? (
         <div className="card">
           <div className="card-header">
-            <h3 className="card-title">
+            <h3 className="card-title flex items-center gap-2">
               <KeenIcon icon="category" className="text-primary" />
-              Incidents by Type
+              <span>Incidents by Type</span>
             </h3>
           </div>
           <div className="card-body">
@@ -161,9 +167,9 @@ const IncidentDistributionCharts = ({ distribution }: IncidentDistributionCharts
       ) : (
         <div className="card">
           <div className="card-header">
-            <h3 className="card-title">
+            <h3 className="card-title flex items-center gap-2">
               <KeenIcon icon="category" className="text-primary" />
-              Incidents by Type
+              <span>Incidents by Type</span>
             </h3>
           </div>
           <div className="card-body">
@@ -178,9 +184,9 @@ const IncidentDistributionCharts = ({ distribution }: IncidentDistributionCharts
       {hasByType ? (
         <div className="card">
           <div className="card-header">
-            <h3 className="card-title">
+            <h3 className="card-title flex items-center gap-2">
               <KeenIcon icon="chart-pie-simple" className="text-primary" />
-              Incident Type Distribution
+              <span>Incident Type Distribution</span>
             </h3>
           </div>
           <div className="card-body">
@@ -204,9 +210,9 @@ const IncidentDistributionCharts = ({ distribution }: IncidentDistributionCharts
       ) : (
         <div className="card">
           <div className="card-header">
-            <h3 className="card-title">
+            <h3 className="card-title flex items-center gap-2">
               <KeenIcon icon="chart-pie-simple" className="text-primary" />
-              Incident Type Distribution
+              <span>Incident Type Distribution</span>
             </h3>
           </div>
           <div className="card-body">

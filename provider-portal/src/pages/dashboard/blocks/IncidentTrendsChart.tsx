@@ -130,9 +130,9 @@ const IncidentTrendsChart = ({ incidentTrends }: IncidentTrendsChartProps) => {
   return (
     <div className="card mb-5">
       <div className="card-header">
-        <h3 className="card-title">
+        <h3 className="card-title flex items-center gap-2">
           <KeenIcon icon="chart-line" className="text-primary" />
-          Incident Trends Over Time
+          <span>Incident Trends Over Time</span>
         </h3>
         <div className="text-2sm text-gray-600">
           {incidentTrends.total_incidents_in_period || 0} incidents in selected period

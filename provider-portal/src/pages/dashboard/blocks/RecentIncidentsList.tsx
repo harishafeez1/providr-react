@@ -30,12 +30,20 @@ const getSeverityBadgeClass = (severity: string) => {
 const RecentIncidentsList = ({ recentIncidents }: RecentIncidentsListProps) => {
   const navigate = useNavigate();
 
+  // Helper function to display incident type
+  const displayIncidentType = (type: string) => {
+    if (!type || type.toLowerCase() === 'unknown') {
+      return 'Others';
+    }
+    return type;
+  };
+
   return (
     <div className="card">
       <div className="card-header">
-        <h3 className="card-title">
+        <h3 className="card-title flex items-center gap-2">
           <KeenIcon icon="document" className="text-primary" />
-          Recent Incidents
+          <span>Recent Incidents</span>
         </h3>
         <button className="btn btn-sm btn-light" onClick={() => navigate('/incidents')}>
           View All
@@ -57,7 +65,7 @@ const RecentIncidentsList = ({ recentIncidents }: RecentIncidentsListProps) => {
                   </div>
                   <div>
                     <div className="font-medium text-gray-900">{incident.incident_number}</div>
-                    <div className="text-2sm text-gray-600">{incident.type}</div>
+                    <div className="text-2sm text-gray-600">{displayIncidentType(incident.type)}</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
