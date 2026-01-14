@@ -110,7 +110,7 @@ export const IncidentDetailsModal: React.FC<IncidentDetailsModalProps> = ({
               <h3 className="modal-title" style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: 0 }}>
                 Incident Details
               </h3>
-              <span className="badge badge-success" style={{ fontSize: '0.75rem', padding: '4px 8px' }}>
+              <span className="badge badge-success badge-outline rounded-full" style={{ fontSize: '0.75rem', padding: '4px 8px' }}>
                 <i className="ki-outline ki-check-circle text-xs mr-1"></i>
                 NDIS
               </span>

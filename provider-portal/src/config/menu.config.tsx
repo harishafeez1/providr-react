@@ -2,19 +2,15 @@ import { type TMenuConfig } from '@/components/menu';
 
 export const MENU_SIDEBAR: TMenuConfig = [
   {
-    heading: 'Dashboard'
-  },
-  {
     title: 'Dashboard',
     icon: 'element-11',
     path: '/dashboard',
     permission: ['admin', 'editor', 'intake', 'review']
   },
+
+  // INCIDENT MANAGEMENT Section
   {
-    title: 'Company Profile',
-    icon: 'user-square',
-    path: '/',
-    permission: ['admin', 'editor', 'intake', 'review']
+    heading: 'INCIDENT MANAGEMENT'
   },
   {
     title: 'Incidents',
@@ -23,16 +19,15 @@ export const MENU_SIDEBAR: TMenuConfig = [
     permission: ['admin', 'editor', 'intake', 'review']
   },
   {
-    title: 'Premises',
-    icon: 'geolocation',
-    path: '/premises',
-    permission: ['admin', 'editor']
-  },
-  {
     title: 'Participants',
     icon: 'people',
     path: '/participants',
     permission: ['admin', 'editor']
+  },
+
+  // SERVICE HUB Section
+  {
+    heading: 'SERVICE HUB'
   },
   {
     title: 'Specialisations',
@@ -70,18 +65,40 @@ export const MENU_SIDEBAR: TMenuConfig = [
     path: '/analytics',
     permission: ['admin', 'editor']
   },
+
+  // RESOURCES Section
+  {
+    heading: 'RESOURCES'
+  },
+  {
+    title: 'Resources',
+    icon: 'book',
+    path: '/resources',
+    disabled: true
+  },
+
+  // ORGANISATION Section
+  {
+    heading: 'ORGANISATION'
+  },
+  {
+    title: 'Company Profile',
+    icon: 'user-square',
+    path: '/',
+    permission: ['admin', 'editor', 'intake', 'review']
+  },
+  {
+    title: 'Premises',
+    icon: 'geolocation',
+    path: '/premises',
+    permission: ['admin', 'editor']
+  },
   {
     title: 'Users',
     icon: 'people',
     path: '/users',
     permission: ['admin']
   },
-  // {
-  //   title: 'Billing',
-  //   icon: 'two-credit-cart',
-  //   path: '/billing',
-  //   permission: ['admin', 'billing']
-  // },
   {
     title: 'Invoices',
     icon: 'cheque',
@@ -93,13 +110,13 @@ export const MENU_SIDEBAR: TMenuConfig = [
     icon: 'notification',
     path: '/notifications',
     permission: ['admin', 'intake']
-  },
-  {
-    title: 'Resources',
-    icon: 'book',
-    path: '/resources',
-    disabled: true
   }
+  // {
+  //   title: 'Billing',
+  //   icon: 'two-credit-cart',
+  //   path: '/billing',
+  //   permission: ['admin', 'billing']
+  // },
   // {
   //   title: 'See Provider Profile',
   //   icon: 'book',

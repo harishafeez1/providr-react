@@ -240,7 +240,7 @@ const AddParticipantForm = () => {
                         onValueChange={(value) => setFieldValue('gender', value)}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Prefer not to say" />
+                          <SelectValue placeholder="Select gender" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="male">Male</SelectItem>
@@ -290,7 +290,7 @@ const AddParticipantForm = () => {
                   </div>
 
                   <div className="flex items-baseline flex-wrap lg:flex-nowrap gap-2.5">
-                    <label className="form-label max-w-56">Assigned Practitioner (V2)</label>
+                    <label className="form-label max-w-56">Assigned Practitioner</label>
                     <div className="flex flex-col w-full gap-2.5">
                       <Select
                         value={values.assigned_practitioner_id || undefined}
@@ -298,15 +298,21 @@ const AddParticipantForm = () => {
                         disabled={loadingPractitioners}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select practitioner (optional)" />
+                          <SelectValue placeholder={loadingPractitioners ? "Loading practitioners..." : "Select practitioner (optional)"} />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="none">None</SelectItem>
-                          {practitioners.map((practitioner) => (
-                            <SelectItem key={practitioner.id} value={String(practitioner.id)}>
-                              {practitioner.first_name} {practitioner.last_name}
-                            </SelectItem>
-                          ))}
+                          {practitioners.length === 0 && !loadingPractitioners ? (
+                            <SelectItem value="no_practitioners" disabled>No practitioners available</SelectItem>
+                          ) : (
+                            practitioners.map((practitioner) => (
+                              <SelectItem key={practitioner.id} value={String(practitioner.id)}>
+                                {practitioner.first_name && practitioner.last_name
+                                  ? `${practitioner.first_name} ${practitioner.last_name}`
+                                  : practitioner.email || 'Unknown Practitioner'}
+                              </SelectItem>
+                            ))
+                          )}
                         </SelectContent>
                       </Select>
                     </div>

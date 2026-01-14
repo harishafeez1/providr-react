@@ -8,10 +8,8 @@ import {
   MenuToggle,
   TDataGridRequestParams
 } from '@/components';
-import { ColumnDef, Column } from '@tanstack/react-table';
+import { ColumnDef } from '@tanstack/react-table';
 import { MenuIcon, MenuLink, MenuSub, MenuTitle } from '@/components';
-import { toast } from 'sonner';
-import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
 
 import { IParticipantsData } from './';
@@ -20,10 +18,6 @@ import { useLanguage } from '@/i18n';
 import { useAuthContext } from '@/auth';
 import { deleteParticipant, getAllParticipants } from '@/services/api';
 import { ModalDeleteConfirmation } from '@/partials/modals/delete-confirmation';
-
-interface IColumnFilterProps<TData, TValue> {
-  column: Column<TData, TValue>;
-}
 
 const DropdownCard2 = (
   participantId: string | number,
@@ -73,6 +67,7 @@ const DropdownCard2 = (
 
 const ParticipantsTable = () => {
   const { currentUser } = useAuthContext();
+  const { isRTL } = useLanguage();
   const navigate = useNavigate();
   const [selectedId, setSelectedId] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -101,18 +96,6 @@ const ParticipantsTable = () => {
     e.stopPropagation();
     navigate(`/incidents?participant_id=${participantId}&participant_name=${encodeURIComponent(participantName)}`);
   };
-
-
-  const ColumnInputFilter = <TData, TValue>({
-    column
-  }: IColumnFilterProps<TData, TValue>) => (
-    <Input
-      placeholder="Filter..."
-      value={(column.getFilterValue() as string) ?? ''}
-      onChange={(event) => column.setFilterValue(event.target.value)}
-      className="h-9 w-full max-w-40"
-    />
-  );
 
   const fetchAllParticipants = async (params: TDataGridRequestParams) => {
     if (!currentUser) {
@@ -151,9 +134,9 @@ const ParticipantsTable = () => {
       await deleteParticipant(selectedId);
       setIsModalOpen(false);
       setRefreshKey((prev) => prev + 1);
-      toast.success('Participant deleted successfully');
+      // Toast is shown automatically by axios interceptor
     } catch {
-      toast.error('Failed to delete participant');
+      // Error toast is shown automatically by axios interceptor
     }
   };
 
@@ -162,23 +145,40 @@ const ParticipantsTable = () => {
       {
         accessorFn: (row) => `${row.first_name} ${row.last_name}`,
         id: 'name',
-        header: 'Name',
+        header: ({ column }) => (
+          <DataGridColumnHeader
+            filterable={false}
+            title="Name"
+            column={column}
+            icon={<i className="ki-filled ki-user"></i>}
+          />
+        ),
         cell: ({ row }) => {
           const fullName = `${row.original.first_name || ''} ${row.original.last_name || ''}`.trim() || '';
           return (
             <div
               onClick={() => handleRowClick(row.original)}
-              style={{ cursor: 'pointer' }}
+              className="flex items-center text-gray-800 font-normal gap-1.5 cursor-pointer"
             >
               {fullName}
             </div>
           );
+        },
+        meta: {
+          headerClassName: 'min-w-[150px]'
         }
       },
       {
         accessorFn: (row) => row.dob,
         id: 'dob',
-        header: 'Date of Birth',
+        header: ({ column }) => (
+          <DataGridColumnHeader
+            filterable={false}
+            title="Date of Birth"
+            column={column}
+            icon={<i className="ki-filled ki-calendar"></i>}
+          />
+        ),
         cell: ({ row }) => {
           const dob = row.original.dob
             ? new Date(row.original.dob).toLocaleDateString('en-US', {
@@ -190,17 +190,27 @@ const ParticipantsTable = () => {
           return (
             <div
               onClick={() => handleRowClick(row.original)}
-              style={{ cursor: 'pointer' }}
+              className="text-sm text-gray-800 font-medium cursor-pointer"
             >
               {dob}
             </div>
           );
+        },
+        meta: {
+          headerClassName: 'min-w-[130px]'
         }
       },
       {
         accessorFn: (row) => row.gender,
         id: 'gender',
-        header: 'Gender',
+        header: ({ column }) => (
+          <DataGridColumnHeader
+            filterable={false}
+            title="Gender"
+            column={column}
+            icon={<i className="ki-filled ki-profile-circle"></i>}
+          />
+        ),
         cell: ({ row }) => {
           const gender = row.original.gender;
           let displayGender = '';
@@ -214,72 +224,106 @@ const ParticipantsTable = () => {
           return (
             <div
               onClick={() => handleRowClick(row.original)}
-              style={{ cursor: 'pointer' }}
+              className="flex items-center text-gray-800 font-normal gap-1.5 cursor-pointer"
             >
               {displayGender}
             </div>
           );
+        },
+        meta: {
+          headerClassName: 'min-w-[120px]'
         }
       },
       {
         accessorFn: (row) => row.assigned_practitioner,
         id: 'provider',
-        header: 'Provider',
+        header: ({ column }) => (
+          <DataGridColumnHeader
+            filterable={false}
+            title="Provider"
+            column={column}
+            icon={<i className="ki-filled ki-briefcase"></i>}
+          />
+        ),
         cell: ({ row }) => {
           const practitioner = row.original.assigned_practitioner;
           return (
             <div
               onClick={() => handleRowClick(row.original)}
-              style={{ cursor: 'pointer' }}
+              className="flex items-center text-gray-800 font-normal gap-1.5 cursor-pointer"
             >
               {practitioner
                 ? `${practitioner.first_name} ${practitioner.last_name}`
                 : 'N/A'}
             </div>
           );
+        },
+        meta: {
+          headerClassName: 'min-w-[140px]'
         }
       },
       {
         accessorFn: (row) => row.contact_email,
         id: 'contact',
-        header: 'Contact',
+        header: ({ column }) => (
+          <DataGridColumnHeader
+            filterable={false}
+            title="Contact"
+            column={column}
+            icon={<i className="ki-filled ki-phone"></i>}
+          />
+        ),
         cell: ({ row }) => (
           <div
             onClick={() => handleRowClick(row.original)}
-            style={{ cursor: 'pointer' }}
+            className="flex flex-col gap-0.5 cursor-pointer"
           >
-            <div>{row.original.contact_email || 'No email'}</div>
-            <div className="text-sm text-gray-600">{row.original.contact_phone || 'No phone'}</div>
+            <div className="text-sm text-gray-800 font-normal">{row.original.contact_email || 'No email'}</div>
+            <div className="text-xs text-gray-600">{row.original.contact_phone || 'No phone'}</div>
           </div>
-        )
+        ),
+        meta: {
+          headerClassName: 'min-w-[160px]'
+        }
       },
       {
         accessorFn: (row) => row.status,
         id: 'status',
-        header: 'Status',
+        header: ({ column }) => (
+          <DataGridColumnHeader
+            filterable={false}
+            title="Status"
+            column={column}
+            icon={<i className="ki-filled ki-flag"></i>}
+          />
+        ),
         cell: ({ row }) => {
           const isActive = row.original.status === 'active';
 
           return (
-            <div
+            <span
+              className={`badge ${isActive ? 'badge-success' : 'badge-danger'} badge-outline rounded-full cursor-pointer`}
               onClick={() => handleRowClick(row.original)}
-              style={{ cursor: 'pointer' }}
             >
-              <span
-                className={`badge badge-sm ${
-                  isActive ? 'badge-success' : 'badge-danger'
-                }`}
-              >
-                {isActive ? 'Active' : 'Inactive'}
-              </span>
-            </div>
+              {isActive ? 'Active' : 'Inactive'}
+            </span>
           );
+        },
+        meta: {
+          headerClassName: 'min-w-[110px]'
         }
       },
       {
         id: 'incidents',
         enableSorting: false,
-        header: 'Incidents',
+        header: ({ column }) => (
+          <DataGridColumnHeader
+            filterable={false}
+            title="Incidents"
+            column={column}
+            icon={<i className="ki-filled ki-message-text"></i>}
+          />
+        ),
         cell: ({ row }) => {
           const fullName = `${row.original.first_name || ''} ${row.original.last_name || ''}`.trim();
           return (
@@ -287,31 +331,50 @@ const ParticipantsTable = () => {
               type="button"
               className="btn btn-sm btn-primary"
               onClick={(e) => handleViewIncidents(row.original.id, fullName, e)}
-              style={{ cursor: 'pointer' }}
             >
               <KeenIcon icon="eye" className="text-sm mr-1" />
               View Incidents
             </button>
           );
+        },
+        meta: {
+          headerClassName: 'min-w-[140px]'
         }
       },
       {
         id: 'actions',
         enableSorting: false,
-        header: 'Actions',
+        header: () => '',
         cell: ({ row }) => (
-          <Menu>
-            <MenuItem toggle="dropdown">
-              <MenuToggle className="btn btn-sm btn-icon btn-light">
+          <Menu className="items-stretch">
+            <MenuItem
+              toggle="dropdown"
+              trigger="click"
+              dropdownProps={{
+                placement: isRTL() ? 'bottom-start' : 'bottom-end',
+                modifiers: [
+                  {
+                    name: 'offset',
+                    options: {
+                      offset: isRTL() ? [0, -10] : [0, 10]
+                    }
+                  }
+                ]
+              }}
+            >
+              <MenuToggle className="btn btn-sm btn-icon btn-light btn-clear">
                 <KeenIcon icon="dots-vertical" />
               </MenuToggle>
               {DropdownCard2(row.original.id, handleModalOpen)}
             </MenuItem>
           </Menu>
-        )
+        ),
+        meta: {
+          headerClassName: 'w-[60px]'
+        }
       }
     ],
-    [handleViewIncidents, handleRowClick]
+    [handleViewIncidents, handleRowClick, isRTL]
   );
 
   return (

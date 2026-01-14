@@ -10,7 +10,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { KeenIcon } from '@/components';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 
 interface ParticipantDetailsModalProps {
   showModal: boolean;
@@ -58,13 +57,20 @@ export const ParticipantDetailsModal: React.FC<ParticipantDetailsModalProps> = (
   };
 
   const InfoField = ({ label, value }: { label: string; value: string | undefined }) => {
-    if (!value) return null;
     return (
       <div className="flex flex-col gap-2">
         <label className="form-label text-sm font-semibold text-gray-700">{label}</label>
-        <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-          <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap">
-            {value}
+        <div className={`p-3 rounded-lg border ${
+          value
+            ? 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700'
+            : 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600'
+        }`}>
+          <p className={`text-sm leading-relaxed whitespace-pre-wrap ${
+            value
+              ? 'text-gray-800 dark:text-gray-200'
+              : 'text-gray-500 dark:text-gray-400 italic'
+          }`}>
+            {value || 'Not provided'}
           </p>
         </div>
       </div>
@@ -78,9 +84,13 @@ export const ParticipantDetailsModal: React.FC<ParticipantDetailsModalProps> = (
           <div className="flex items-center justify-between">
             <DialogTitle>Participant Details</DialogTitle>
             {participant && (
-              <Badge variant={participant.status === 'active' || participant.status === true ? 'default' : 'destructive'}>
+              <span className={`badge ${
+                participant.status === 'active' || participant.status === true
+                  ? 'badge-success'
+                  : 'badge-danger'
+              } badge-outline rounded-full`}>
                 {formatStatus(participant.status)}
-              </Badge>
+              </span>
             )}
           </div>
         </DialogHeader>
@@ -138,7 +148,7 @@ export const ParticipantDetailsModal: React.FC<ParticipantDetailsModalProps> = (
                     </div>
                   </div>
 
-                  {participant.assigned_practitioner && (
+                  {participant.assigned_practitioner ? (
                     <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
                       <div className="flex items-center gap-2 mb-3">
                         <KeenIcon icon="user" className="text-blue-600" />
@@ -148,16 +158,24 @@ export const ParticipantDetailsModal: React.FC<ParticipantDetailsModalProps> = (
                         <div>
                           <p className="text-xs text-gray-600 mb-1">Provider Name</p>
                           <p className="text-sm font-semibold text-gray-900">
-                            {participant.assigned_practitioner.first_name}{' '}
-                            {participant.assigned_practitioner.last_name}
+                            {participant.assigned_practitioner.first_name && participant.assigned_practitioner.last_name
+                              ? `${participant.assigned_practitioner.first_name} ${participant.assigned_practitioner.last_name}`
+                              : participant.assigned_practitioner.email || 'Unknown Practitioner'}
                           </p>
                         </div>
                         <div>
                           <p className="text-xs text-gray-600 mb-1">Provider Email</p>
                           <p className="text-sm text-gray-900">
-                            {participant.assigned_practitioner.email || 'N/A'}
+                            {participant.assigned_practitioner.email || 'Not provided'}
                           </p>
                         </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center gap-2">
+                        <KeenIcon icon="user" className="text-gray-400" />
+                        <p className="text-sm text-gray-600">No practitioner assigned</p>
                       </div>
                     </div>
                   )}

@@ -14,7 +14,8 @@ const AddParticipantPage = () => {
         <Toolbar>
           <ToolbarHeading title="Add Participant" description="Create a new participant record" />
           <ToolbarActions>
-            <Link to="/participants" className="btn btn-sm btn-light">
+            <Link to="/participants" className="btn btn-sm btn-primary">
+              <i className="ki-outline ki-left text-base"></i>
               Back to Participants
             </Link>
           </ToolbarActions>

@@ -14,7 +14,8 @@ const EditParticipantPage = () => {
         <Toolbar>
           <ToolbarHeading title="Edit Participant" description="Update participant information" />
           <ToolbarActions>
-            <Link to="/participants" className="btn btn-sm btn-light">
+            <Link to="/participants" className="btn btn-sm btn-primary">
+              <i className="ki-outline ki-left text-base"></i>
               Back to Participants
             </Link>
           </ToolbarActions>

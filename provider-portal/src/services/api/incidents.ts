@@ -96,7 +96,9 @@ const updateIncident = async (incidentId: string | number, data: any) => {
 // Delete incident
 const deleteIncident = async (incidentId: string | number) => {
   try {
-    const response = await axios.delete(`${DELETE_INCIDENT_URL}/${incidentId}`);
+    const response = await axios.delete(`${DELETE_INCIDENT_URL}/${incidentId}`, {
+      skipSuccessToast: true
+    } as any);
     return response.data;
   } catch (error) {
     console.error('Error deleting incident:', error);
