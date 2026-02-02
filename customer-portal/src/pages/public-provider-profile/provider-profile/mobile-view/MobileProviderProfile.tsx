@@ -14,7 +14,7 @@ import { BottomSheetDialog } from '@/components';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
+import SafeGooglePlacesAutocomplete from '@/components/SafeGooglePlacesAutocomplete';
 import { useParams } from 'react-router';
 import { useAppSelector } from '@/redux/hooks';
 import { useFormik } from 'formik';
@@ -199,7 +199,7 @@ const MobileProviderProfile = () => {
 
                   <div className="flex flex-col gap-1">
                     <label className="form-label text-gray-900">Address</label>
-                    <GooglePlacesAutocomplete
+                    <SafeGooglePlacesAutocomplete
                       apiKey={import.meta.env.VITE_APP_GOOGLE_API_KEY}
                       onLoadFailed={(err) => {
                         console.error('Could not load google places autocomplete', err);

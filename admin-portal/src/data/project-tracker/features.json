@@ -1,0 +1,74 @@
+{
+  "features": [
+    {
+      "id": "FEAT-001",
+      "dateAdded": "2026-01-28",
+      "taskNumber": "T-008",
+      "status": "completed",
+      "component": "Admin Portal",
+      "title": "Shadcn Admin Portal",
+      "description": "Replaced Laravel Nova with custom React admin portal using Shadcn UI",
+      "requestedBy": "client"
+    },
+    {
+      "id": "FEAT-002",
+      "dateAdded": "2026-01-31",
+      "taskNumber": "T-011",
+      "status": "completed",
+      "component": "Provider Portal",
+      "title": "Slide-in Login Panel",
+      "description": "Modern slide-in login panel using Shadcn Sheet with two-column layout (hero image + form)",
+      "requestedBy": "client"
+    },
+    {
+      "id": "FEAT-003",
+      "dateAdded": "2026-01-31",
+      "taskNumber": "T-013",
+      "status": "completed",
+      "component": "Admin Portal",
+      "title": "Branding Settings Live Preview",
+      "description": "Split-screen branding settings with live preview of the login panel that updates in real-time",
+      "requestedBy": "client"
+    },
+    {
+      "id": "FEAT-004",
+      "dateAdded": "2026-01-31",
+      "taskNumber": "T-015",
+      "status": "completed",
+      "component": "Admin Portal",
+      "title": "Project Tracker",
+      "description": "Development activity tracker with changelog, bugs, features, tasks, and previous dev issues",
+      "requestedBy": "client"
+    },
+    {
+      "id": "FEAT-005",
+      "dateAdded": "2026-01-31",
+      "taskNumber": "T-021",
+      "status": "completed",
+      "component": "Admin Portal",
+      "title": "Provider Company Dashboard",
+      "description": "Comprehensive provider company dashboard with header, stat cards, tabbed interface (Overview, Team, Services, Premises, Reviews), inline edit dialog",
+      "requestedBy": "client"
+    },
+    {
+      "id": "FEAT-006",
+      "dateAdded": "2026-01-31",
+      "taskNumber": "T-024",
+      "status": "completed",
+      "component": "Customer Portal",
+      "title": "Redesigned Services Wizard",
+      "description": "Modern 4-step service request wizard with step indicator icons, card-based selections, two-column participant form, animated progress bar, and improved navigation",
+      "requestedBy": "client"
+    },
+    {
+      "id": "FEAT-007",
+      "dateAdded": "2026-01-31",
+      "taskNumber": "T-026",
+      "status": "completed",
+      "component": "Customer Portal",
+      "title": "Find Services Slide-out Panel",
+      "description": "Shadcn Sheet slide-out panel replacing the multi-step wizard. Location search via Google Places, service type via Shadcn Select, live provider count badge, search navigates to directory with results.",
+      "requestedBy": "client"
+    }
+  ]
+}

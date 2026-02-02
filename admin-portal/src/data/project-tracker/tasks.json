@@ -1,0 +1,29 @@
+{
+  "tasks": [
+    { "id": "T-001", "title": "Clone repos locally", "status": "completed", "date": "2026-01-28" },
+    { "id": "T-002", "title": "Analyse project structure", "status": "completed", "date": "2026-01-28" },
+    { "id": "T-003", "title": "Create incident test suite", "status": "completed", "date": "2026-01-28" },
+    { "id": "T-004", "title": "Set up test environment", "status": "completed", "date": "2026-01-28" },
+    { "id": "T-005", "title": "Start Laravel backend", "status": "completed", "date": "2026-01-28" },
+    { "id": "T-006", "title": "Start React frontend portals", "status": "completed", "date": "2026-01-28" },
+    { "id": "T-007", "title": "Login and explore", "status": "completed", "date": "2026-01-28" },
+    { "id": "T-008", "title": "Create Shadcn Admin Portal", "status": "completed", "date": "2026-01-29" },
+    { "id": "T-009", "title": "Build SaaS dashboard", "status": "completed", "date": "2026-01-29" },
+    { "id": "T-010", "title": "Sidebar redesign", "status": "completed", "date": "2026-01-30" },
+    { "id": "T-011", "title": "Slide-in login panel", "status": "completed", "date": "2026-01-31" },
+    { "id": "T-012", "title": "Create RULES.md", "status": "pending", "date": null },
+    { "id": "T-013", "title": "Fix branding + live preview", "status": "completed", "date": "2026-01-31" },
+    { "id": "T-014", "title": "Fix Where search + directory bugs", "status": "completed", "date": "2026-01-31" },
+    { "id": "T-015", "title": "Create Project Tracker", "status": "completed", "date": "2026-01-31" },
+    { "id": "T-016", "title": "Add missing sidebar menu items", "status": "completed", "date": "2026-01-31" },
+    { "id": "T-017", "title": "Fix all sidebar and page links", "status": "completed", "date": "2026-01-31" },
+    { "id": "T-018", "title": "Check seed data and populate database", "status": "completed", "date": "2026-01-31" },
+    { "id": "T-019", "title": "Add edit routes for all resources", "status": "completed", "date": "2026-01-31" },
+    { "id": "T-020", "title": "Improve Services section UI", "status": "completed", "date": "2026-01-31" },
+    { "id": "T-021", "title": "Create Provider Company Dashboard page", "status": "completed", "date": "2026-01-31" },
+    { "id": "T-022", "title": "Fix Services link in customer portal navigation", "status": "completed", "date": "2026-01-31" },
+    { "id": "T-023", "title": "Fix Google Places Autocomplete deprecation warning", "status": "completed", "date": "2026-01-31" },
+    { "id": "T-024", "title": "Redesign Services wizard UI in customer portal", "status": "completed", "date": "2026-01-31" },
+    { "id": "T-026", "title": "Convert Find Services wizard to slide-out panel", "status": "completed", "date": "2026-01-31" }
+  ]
+}

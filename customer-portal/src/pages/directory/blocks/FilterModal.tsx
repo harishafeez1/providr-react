@@ -7,10 +7,10 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog';
-import GooglePlacesAutocomplete, {
-  geocodeByPlaceId,
-  getLatLng
-} from 'react-google-places-autocomplete';
+import SafeGooglePlacesAutocomplete, {
+  safeGeocodeByPlaceId as geocodeByPlaceId,
+  safeGetLatLng as getLatLng
+} from '@/components/SafeGooglePlacesAutocomplete';
 
 import ReactSelect from 'react-select';
 import { useAppSelector } from '@/redux/hooks';
@@ -149,7 +149,7 @@ const FilterModal = ({ open, onClose }: IModalDeleteConfirmationProps) => {
                 <h3 className="text-lg font-semibold ">Location</h3>
                 <div className="flex items-baseline flex-wrap  gap-2.5 mb-4">
                   <div className="w-full text-sm">
-                    <GooglePlacesAutocomplete
+                    <SafeGooglePlacesAutocomplete
                       key={autocompleteKey}
                       apiKey={import.meta.env.VITE_APP_GOOGLE_API_KEY}
                       onLoadFailed={(err) => {

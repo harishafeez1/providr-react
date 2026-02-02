@@ -21,8 +21,10 @@ import { Provider } from 'react-redux';
 setupAxios(axios);
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+const googleClientId = import.meta.env.VITE_APP_GOOGLE_CLIENT_ID || 'placeholder';
+
 root.render(
-  <GoogleOAuthProvider clientId={import.meta.env.VITE_APP_GOOGLE_CLIENT_ID}>
+  <GoogleOAuthProvider clientId={googleClientId}>
     <Provider store={store}>
       {/* <React.StrictMode> */}
       <ProvidersWrapper>

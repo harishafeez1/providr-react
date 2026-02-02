@@ -1,12 +1,18 @@
 import { getLocalitiesByPostcode } from '@/services/api/all-services';
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import Autocomplete from 'react-google-autocomplete';
 import { useDispatch } from 'react-redux';
 import { setServiceLocation } from '@/redux/slices/services-slice';
+
+const hasGoogleApiKey = !!import.meta.env.VITE_APP_GOOGLE_API_KEY;
 
 interface Suburb {
   name: string;
   state: string;
+}
+
+interface PlacePrediction {
+  place_id: string;
+  description: string;
 }
 
 async function fetchSuburbsByPostcode(postcode: string): Promise<Suburb[]> {
@@ -20,15 +26,112 @@ async function fetchSuburbsByPostcode(postcode: string): Promise<Suburb[]> {
   }));
 }
 
+function useGoogleAutocomplete() {
+  const serviceRef = useRef<google.maps.places.AutocompleteService | null>(null);
+  const [predictions, setPredictions] = useState<PlacePrediction[]>([]);
+
+  const getService = useCallback(() => {
+    if (!serviceRef.current && window.google?.maps?.places) {
+      serviceRef.current = new window.google.maps.places.AutocompleteService();
+    }
+    return serviceRef.current;
+  }, []);
+
+  const fetchPredictions = useCallback((input: string) => {
+    const service = getService();
+    if (!service || input.length < 2) {
+      setPredictions([]);
+      return;
+    }
+
+    service.getPlacePredictions(
+      {
+        input,
+        types: ['(regions)'],
+        componentRestrictions: { country: 'au' },
+        language: 'en',
+      },
+      (results, status) => {
+        if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
+          setPredictions(results.map((r) => ({ place_id: r.place_id, description: r.description })));
+        } else {
+          setPredictions([]);
+        }
+      }
+    );
+  }, [getService]);
+
+  const clearPredictions = useCallback(() => setPredictions([]), []);
+
+  return { predictions, fetchPredictions, clearPredictions };
+}
+
+async function geocodeAndExtract(placeId: string): Promise<{
+  suburb: string; state: string; lat: number; lng: number;
+} | null> {
+  if (!window.google?.maps) return null;
+  const geocoder = new window.google.maps.Geocoder();
+  return new Promise((resolve) => {
+    geocoder.geocode({ placeId }, (results, status) => {
+      if (status !== 'OK' || !results?.[0]) { resolve(null); return; }
+      const result = results[0];
+      const locality = result.address_components.find(
+        (c) => c.types.includes('locality') || c.types.includes('sublocality')
+      );
+      const stateComp = result.address_components.find(
+        (c) => c.types.includes('administrative_area_level_1')
+      );
+      const loc = result.geometry?.location;
+      resolve({
+        suburb: locality?.long_name || result.formatted_address,
+        state: stateComp?.short_name || '',
+        lat: loc ? loc.lat() : 0,
+        lng: loc ? loc.lng() : 0,
+      });
+    });
+  });
+}
+
+async function geocodeAddress(address: string): Promise<{ lat: number; lng: number } | null> {
+  if (!window.google?.maps) return null;
+  const geocoder = new window.google.maps.Geocoder();
+  return new Promise((resolve) => {
+    geocoder.geocode({ address: `${address}, Australia` }, (results, status) => {
+      if (status === 'OK' && results?.[0]?.geometry?.location) {
+        resolve({
+          lat: results[0].geometry.location.lat(),
+          lng: results[0].geometry.location.lng(),
+        });
+      } else {
+        resolve(null);
+      }
+    });
+  });
+}
+
 export default function AustralianSuburbSearch() {
   const [suburbList, setSuburbList] = useState<Suburb[]>([]);
   const [selected, setSelected] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string>('');
   const [isRadioSelection, setIsRadioSelection] = useState<boolean>(false);
+  const [showDropdown, setShowDropdown] = useState(false);
   const debounceRef = useRef<NodeJS.Timeout>();
-  const locationDebounceRef = useRef<NodeJS.Timeout>();
+  const predictionDebounceRef = useRef<NodeJS.Timeout>();
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
+  const { predictions, fetchPredictions, clearPredictions } = useGoogleAutocomplete();
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   const debouncedFetch = useCallback(async (postcode: string) => {
     setIsLoading(true);
@@ -45,7 +148,6 @@ export default function AustralianSuburbSearch() {
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Skip handling if this is from a radio selection
     if (isRadioSelection) {
       setIsRadioSelection(false);
       return;
@@ -54,78 +156,68 @@ export default function AustralianSuburbSearch() {
     const value = e.target.value.trim();
     setInputValue(value);
 
-    // Clear existing timeouts
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-    if (locationDebounceRef.current) {
-      clearTimeout(locationDebounceRef.current);
-    }
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (predictionDebounceRef.current) clearTimeout(predictionDebounceRef.current);
 
     if (/^\d{4}$/.test(value)) {
-      // Debounce the API call by 500ms for postcodes
+      clearPredictions();
+      setShowDropdown(false);
       debounceRef.current = setTimeout(() => {
         debouncedFetch(value);
       }, 500);
-    } else {
-      // For suburb names, just clear the suburb list but don't set location yet
+    } else if (hasGoogleApiKey && value.length >= 2) {
       setSuburbList([]);
       setSelected('');
       setIsLoading(false);
+      predictionDebounceRef.current = setTimeout(() => {
+        fetchPredictions(value);
+        setShowDropdown(true);
+      }, 300);
+    } else {
+      setSuburbList([]);
+      setSelected('');
+      setIsLoading(false);
+      clearPredictions();
+      setShowDropdown(false);
+    }
+  };
+
+  const handleSelectPrediction = async (prediction: PlacePrediction) => {
+    setShowDropdown(false);
+    clearPredictions();
+
+    const result = await geocodeAndExtract(prediction.place_id);
+    if (result) {
+      const displayValue = result.state ? `${result.suburb} ${result.state}` : result.suburb;
+      setInputValue(displayValue);
+      setIsRadioSelection(true);
+      dispatch(setServiceLocation({
+        address: result.suburb,
+        city: result.suburb,
+        state: result.state,
+        country: 'Australia',
+        latitude: result.lat.toString(),
+        longitude: result.lng.toString(),
+      }));
+    } else {
+      setInputValue(prediction.description);
     }
   };
 
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && inputValue.trim().length > 0) {
-      // User pressed Enter to select the typed suburb
+      setShowDropdown(false);
+      clearPredictions();
       const locationName = inputValue.trim();
-      
-      try {
-        const geocoder = new window.google.maps.Geocoder();
-        const result = await new Promise<google.maps.GeocoderResult[]>((resolve, reject) => {
-          geocoder.geocode(
-            { address: `${locationName}, Australia` },
-            (results, status) => {
-              if (status === 'OK' && results) {
-                resolve(results);
-              } else {
-                reject(new Error('Geocoding failed'));
-              }
-            }
-          );
-        });
-        
-        if (result?.[0]?.geometry?.location) {
-          const lat = result[0].geometry.location.lat();
-          const lng = result[0].geometry.location.lng();
-          
-          dispatch(setServiceLocation({
-            address: locationName,
-            city: locationName,
-            state: '',
-            country: 'Australia',
-            latitude: lat.toString(),
-            longitude: lng.toString()
-          }));
-        } else {
-          // Fallback without coordinates
-          dispatch(setServiceLocation({
-            address: locationName,
-            city: locationName,
-            state: '',
-            country: 'Australia'
-          }));
-        }
-      } catch (error) {
-        console.error('Geocoding error:', error);
-        // Fallback without coordinates
-        dispatch(setServiceLocation({
-          address: locationName,
-          city: locationName,
-          state: '',
-          country: 'Australia'
-        }));
-      }
+
+      const coords = await geocodeAddress(locationName);
+      dispatch(setServiceLocation({
+        address: locationName,
+        city: locationName,
+        state: '',
+        country: 'Australia',
+        ...(coords ? { latitude: coords.lat.toString(), longitude: coords.lng.toString() } : {}),
+      }));
     }
   };
 
@@ -139,60 +231,37 @@ export default function AustralianSuburbSearch() {
     {} as Record<string, Suburb[]>
   );
 
+  const inputClasses = 'w-full border-2 border-primary py-2 ps-2 pe-10 rounded-md outline-none focus:border-primary active:border-primary mb-6';
+
   return (
     <>
-      <div className="relative">
-        <Autocomplete
-          apiKey={import.meta.env.VITE_APP_GOOGLE_API_KEY}
-          onPlaceSelected={(place) => {
-            if (place?.address_components && place?.geometry?.location) {
-              // Find the suburb (locality) and state from address components
-              const suburb = place.address_components.find(
-                (component: any) =>
-                  component.types.includes('locality') || component.types.includes('sublocality')
-              );
-              
-              const state = place.address_components.find(
-                (component: any) =>
-                  component.types.includes('administrative_area_level_1')
-              );
-
-              if (suburb) {
-                const suburbName = suburb.long_name;
-                const stateName = state ? state.short_name : '';
-                const displayValue = stateName ? `${suburbName} ${stateName}` : suburbName;
-                
-                // Get coordinates from the place
-                const latitude = place.geometry.location.lat();
-                const longitude = place.geometry.location.lng();
-                
-                setInputValue(displayValue);
-                dispatch(setServiceLocation({
-                  address: suburbName,
-                  city: suburbName,
-                  state: stateName,
-                  country: 'Australia',
-                  latitude: latitude.toString(),
-                  longitude: longitude.toString()
-                }));
-              }
-            }
-          }}
+      <div className="relative" ref={wrapperRef}>
+        <input
+          type="text"
+          placeholder="Type suburb or postcode..."
+          className={inputClasses}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           value={inputValue}
-          options={{
-            types: ['(regions)'],
-            componentRestrictions: { country: 'au' }
-          }}
-          apiOptions={{
-            language: 'en',
-            region: 'AU'
-          }}
-          debounce={0}
-          placeholder="Type suburb or postcode..."
-          className="w-full border-2 border-primary py-2 ps-2 pe-10 rounded-md outline-none focus:border-primary active:border-primary mb-6"
+          onFocus={() => { if (predictions.length > 0) setShowDropdown(true); }}
         />
+
+        {/* Google Places predictions dropdown */}
+        {showDropdown && predictions.length > 0 && (
+          <div className="absolute z-50 left-0 right-0 top-[calc(100%-1.5rem)] bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
+            {predictions.map((p) => (
+              <button
+                key={p.place_id}
+                type="button"
+                className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 border-b border-gray-50 last:border-b-0"
+                onClick={() => handleSelectPrediction(p)}
+              >
+                {p.description}
+              </button>
+            ))}
+          </div>
+        )}
+
         {isLoading && (
           <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex space-x-1">
             <div className="w-1 h-1 bg-primary rounded-full animate-bounce"></div>
@@ -229,54 +298,15 @@ export default function AustralianSuburbSearch() {
                           setSelected(suburb.name);
                           setIsRadioSelection(true);
                           setInputValue(`${suburb.name} ${suburb.state}`);
-                          
-                          // Geocode the suburb to get coordinates
-                          try {
-                            const geocoder = new window.google.maps.Geocoder();
-                            const result = await new Promise<google.maps.GeocoderResult[]>((resolve, reject) => {
-                              geocoder.geocode(
-                                { address: `${suburb.name}, ${suburb.state}, Australia` },
-                                (results, status) => {
-                                  if (status === 'OK' && results) {
-                                    resolve(results);
-                                  } else {
-                                    reject(new Error('Geocoding failed'));
-                                  }
-                                }
-                              );
-                            });
-                            
-                            if (result?.[0]?.geometry?.location) {
-                              const lat = result[0].geometry.location.lat();
-                              const lng = result[0].geometry.location.lng();
-                              
-                              dispatch(setServiceLocation({
-                                address: suburb.name,
-                                city: suburb.name,
-                                state: suburb.state,
-                                country: 'Australia',
-                                latitude: lat.toString(),
-                                longitude: lng.toString()
-                              }));
-                            } else {
-                              // Fallback without coordinates
-                              dispatch(setServiceLocation({
-                                address: suburb.name,
-                                city: suburb.name,
-                                state: suburb.state,
-                                country: 'Australia'
-                              }));
-                            }
-                          } catch (error) {
-                            console.error('Geocoding error:', error);
-                            // Fallback without coordinates
-                            dispatch(setServiceLocation({
-                              address: suburb.name,
-                              city: suburb.name,
-                              state: suburb.state,
-                              country: 'Australia'
-                            }));
-                          }
+
+                          const coords = await geocodeAddress(`${suburb.name}, ${suburb.state}`);
+                          dispatch(setServiceLocation({
+                            address: suburb.name,
+                            city: suburb.name,
+                            state: suburb.state,
+                            country: 'Australia',
+                            ...(coords ? { latitude: coords.lat.toString(), longitude: coords.lng.toString() } : {}),
+                          }));
                         }}
                       />
                       {suburb.name}

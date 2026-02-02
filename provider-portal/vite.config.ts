@@ -11,6 +11,10 @@ export default defineConfig({
     }
   },
   base: '/provider-portal',
+  server: {
+    port: 5174,
+    strictPort: true
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))

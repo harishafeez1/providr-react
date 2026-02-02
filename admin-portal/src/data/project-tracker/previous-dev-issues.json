@@ -1,0 +1,94 @@
+{
+  "projectInfo": {
+    "originalBudget": 10000,
+    "currency": "AUD",
+    "developer": "Previous Dev Team",
+    "developmentPeriod": "Unknown"
+  },
+  "issues": [
+    {
+      "id": "PREV-001",
+      "category": "incomplete-feature",
+      "severity": "high",
+      "component": "Customer Portal - Directory",
+      "title": "Where Location Search Non-Functional",
+      "description": "The location-based search doesn't work - missing Google API key, no fallback, SafeGooglePlacesAutocomplete renders disabled input silently",
+      "impact": "Users cannot search for providers by location - core functionality broken",
+      "evidence": ["No VITE_APP_GOOGLE_API_KEY in .env", "SafeGooglePlacesAutocomplete.tsx renders disabled input"],
+      "estimatedHoursToFix": 2,
+      "status": "fixed"
+    },
+    {
+      "id": "PREV-002",
+      "category": "bug",
+      "severity": "medium",
+      "component": "Admin Settings / Provider Login",
+      "title": "Login Branding Not Connected",
+      "description": "Branding image upload exists in admin but login page hardcodes default image instead of fetching from API",
+      "impact": "Admin settings feature is non-functional",
+      "evidence": ["LoginSheet.tsx hardcoded toAbsoluteUrl('/media/images/Group.svg')"],
+      "estimatedHoursToFix": 2,
+      "status": "fixed"
+    },
+    {
+      "id": "PREV-003",
+      "category": "incomplete-feature",
+      "severity": "high",
+      "component": "Backend API",
+      "title": "No Admin API Layer",
+      "description": "Nova admin used session-based auth with no REST API for admin functions",
+      "impact": "Required complete API rebuild for new admin portal",
+      "evidence": [],
+      "estimatedHoursToFix": 40,
+      "status": "documented"
+    },
+    {
+      "id": "PREV-004",
+      "category": "code-quality",
+      "severity": "medium",
+      "component": "Database Migrations",
+      "title": "Migration Compatibility Issues",
+      "description": "3 migrations used incompatible Doctrine DBAL methods",
+      "impact": "Database setup fails without manual fixes",
+      "evidence": ["2025_08_27_100000_update_provider_email_notifications_active.php"],
+      "estimatedHoursToFix": 2,
+      "status": "fixed"
+    },
+    {
+      "id": "PREV-005",
+      "category": "missing-documentation",
+      "severity": "medium",
+      "component": "Project Setup",
+      "title": "Missing Environment Documentation",
+      "description": ".env.example incomplete, missing required variables like Google API keys",
+      "impact": "Difficult to set up project from scratch",
+      "evidence": [],
+      "estimatedHoursToFix": 4,
+      "status": "documented"
+    },
+    {
+      "id": "PREV-006",
+      "category": "incomplete-feature",
+      "severity": "high",
+      "component": "Billing",
+      "title": "Empty Stripe Integration",
+      "description": "Stripe tables exist but subscription flow untested/incomplete",
+      "impact": "Cannot charge customers - SaaS model non-functional",
+      "evidence": [],
+      "estimatedHoursToFix": null,
+      "status": "documented"
+    },
+    {
+      "id": "PREV-007",
+      "category": "bug",
+      "severity": "high",
+      "component": "Backend API - Customer Settings",
+      "title": "Settings API returns all settings including branding",
+      "description": "CustomerController::getSettings() uses Setting::all() which returns branding records mixed with directory settings, causing TypeError in frontend",
+      "impact": "Clicking any service in directory crashes the page",
+      "evidence": ["CustomerController.php line 39: Setting::all()"],
+      "estimatedHoursToFix": 1,
+      "status": "fixed"
+    }
+  ]
+}

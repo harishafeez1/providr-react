@@ -25,7 +25,7 @@ import { useAppSelector } from '@/redux/hooks';
 import { getDirectConnectProvider } from '@/services/api/provider-profile';
 import { useParams } from 'react-router-dom';
 import { Textarea } from '@/components/ui/textarea';
-import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
+import SafeGooglePlacesAutocomplete from '@/components/SafeGooglePlacesAutocomplete';
 
 interface ConnectProviderModalProps {
   open: boolean;
@@ -206,7 +206,7 @@ const ConnectProviderModal = forwardRef<HTMLDivElement, ConnectProviderModalProp
 
                   <div className="flex flex-col gap-1">
                     <label className="form-label text-gray-900">My Location</label>
-                    <GooglePlacesAutocomplete
+                    <SafeGooglePlacesAutocomplete
                       apiKey={import.meta.env.VITE_APP_GOOGLE_API_KEY}
                       onLoadFailed={(err) => {
                         console.error('Could not load google places autocomplete', err);

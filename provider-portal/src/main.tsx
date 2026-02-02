@@ -20,8 +20,10 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 setupAxios(axios);
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+const googleClientId = import.meta.env.VITE_APP_GOOGLE_CLIENT_ID || 'placeholder';
+
 root.render(
-  <GoogleOAuthProvider clientId={import.meta.env.VITE_APP_GOOGLE_CLIENT_ID}>
+  <GoogleOAuthProvider clientId={googleClientId}>
     {/* <React.StrictMode> */}
     <Provider store={store}>
       <ProvidersWrapper>
