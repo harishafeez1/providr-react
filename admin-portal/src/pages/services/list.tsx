@@ -2,6 +2,7 @@ import { useList, useDelete } from '@refinedev/core';
 import { useNavigate, Link } from 'react-router-dom';
 import { useState } from 'react';
 import { type ColumnDef } from '@tanstack/react-table';
+import { toast } from 'sonner';
 import { DataTable, type DataTableAction } from '@/components/data-table/data-table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -66,7 +67,18 @@ export function ServiceList() {
     { label: 'Edit', onClick: (r) => navigate(`/services/edit/${r.id}`) },
     {
       label: 'Delete', variant: 'destructive',
-      onClick: (r) => { if (confirm('Delete this service?')) deleteOne({ resource: 'services', id: r.id }); },
+      onClick: (r) => {
+        if (confirm('Delete this service?')) {
+          const toastId = toast.loading('Deleting...');
+          deleteOne(
+            { resource: 'services', id: r.id },
+            {
+              onSuccess: () => toast.success('Deleted successfully', { id: toastId }),
+              onError: (error) => toast.error(error?.message || 'Failed to delete', { id: toastId }),
+            }
+          );
+        }
+      },
     },
   ];
 

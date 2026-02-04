@@ -225,7 +225,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             </DropdownMenuTrigger>
             <DropdownMenuContent
               side={collapsed ? 'right' : 'top'}
-              align={collapsed ? 'start' : 'end'}
+              align="start"
+              sideOffset={8}
               className="w-56"
             >
               <DropdownMenuLabel className="font-normal">
@@ -236,17 +237,17 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
-                <User className="mr-2 h-4 w-4" />
-                Profile
+                <User />
+                <span>Profile</span>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
-                Settings
+                <Settings />
+                <span>Settings</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem variant="destructive" onClick={() => logout()}>
-                <LogOut className="mr-2 h-4 w-4" />
-                Log out
+                <LogOut />
+                <span>Log out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

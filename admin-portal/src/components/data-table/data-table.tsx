@@ -153,14 +153,13 @@ export function DataTable<TData extends { id: number | string }>({
                   <span className="sr-only">Open menu</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-32">
+              <DropdownMenuContent align="end" className="w-40">
                 {actions.map((action, i) => (
                   <React.Fragment key={action.label}>
                     {action.variant === 'destructive' && i > 0 && <DropdownMenuSeparator />}
                     <DropdownMenuItem
                       variant={action.variant}
                       onClick={() => action.onClick(row.original)}
-                      className={action.variant === 'destructive' ? 'text-red-600 focus:text-red-600' : ''}
                     >
                       {action.label}
                     </DropdownMenuItem>

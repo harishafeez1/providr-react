@@ -40,6 +40,7 @@ import { RoleList } from './pages/roles/list';
 import { RoleCreate } from './pages/roles/create';
 import { ResourceShow } from './pages/resource-show';
 import { ResourceEdit } from './pages/resource-edit';
+import { ResourceCreate } from './pages/resource-create';
 import { Authenticated } from './components/Authenticated';
 
 export default function App() {
@@ -53,12 +54,12 @@ export default function App() {
           { name: 'provider-companies', list: '/provider-companies', show: '/provider-companies/show/:id', create: '/provider-companies/create', edit: '/provider-companies/edit/:id' },
           { name: 'users', list: '/users', show: '/users/show/:id', edit: '/users/edit/:id' },
           { name: 'customers', list: '/customers', show: '/customers/show/:id', edit: '/customers/edit/:id' },
-          { name: 'services', list: '/services', show: '/services/show/:id', edit: '/services/edit/:id' },
+          { name: 'services', list: '/services', show: '/services/show/:id', create: '/services/create', edit: '/services/edit/:id' },
           { name: 'service-offerings', list: '/service-offerings', show: '/service-offerings/show/:id', edit: '/service-offerings/edit/:id' },
           { name: 'service-requests', list: '/service-requests', show: '/service-requests/show/:id', edit: '/service-requests/edit/:id' },
           { name: 'reviews', list: '/reviews', show: '/reviews/show/:id' },
-          { name: 'incident-types', list: '/incident-types', show: '/incident-types/show/:id', edit: '/incident-types/edit/:id' },
-          { name: 'admins', list: '/admins', show: '/admins/show/:id', edit: '/admins/edit/:id' },
+          { name: 'incident-types', list: '/incident-types', show: '/incident-types/show/:id', create: '/incident-types/create', edit: '/incident-types/edit/:id' },
+          { name: 'admins', list: '/admins', show: '/admins/show/:id', create: '/admins/create', edit: '/admins/edit/:id' },
           { name: 'settings', list: '/settings' },
           { name: 'permissions', list: '/permissions', show: '/permissions/show/:id', create: '/permissions/create' },
           { name: 'roles', list: '/roles', show: '/roles/show/:id', create: '/roles/create', edit: '/roles/edit/:id' },
@@ -91,6 +92,11 @@ export default function App() {
             <Route path="customers/edit/:id" element={<ResourceEdit resource="customers" title="Customers" basePath="/customers" />} />
             {/* Services */}
             <Route path="services" element={<ServiceList />} />
+            <Route path="services/create" element={<ResourceCreate resource="services" title="Services" basePath="/services" fields={[
+              { key: 'name', label: 'Name', required: true },
+              { key: 'description', label: 'Description', type: 'textarea' },
+              { key: 'active', label: 'Active', type: 'checkbox' },
+            ]} />} />
             <Route path="services/show/:id" element={<ResourceShow resource="services" title="Services" basePath="/services" />} />
             <Route path="services/edit/:id" element={<ServiceEdit />} />
             {/* Service Offerings */}
@@ -106,10 +112,19 @@ export default function App() {
             <Route path="reviews/show/:id" element={<ResourceShow resource="reviews" title="Reviews" basePath="/reviews" canEdit={false} />} />
             {/* Incident Types */}
             <Route path="incident-types" element={<IncidentTypeList />} />
+            <Route path="incident-types/create" element={<ResourceCreate resource="incident-types" title="Incident Types" basePath="/incident-types" fields={[
+              { key: 'name', label: 'Name', required: true },
+              { key: 'description', label: 'Description', type: 'textarea' },
+            ]} />} />
             <Route path="incident-types/show/:id" element={<ResourceShow resource="incident-types" title="Incident Types" basePath="/incident-types" />} />
             <Route path="incident-types/edit/:id" element={<ResourceEdit resource="incident-types" title="Incident Types" basePath="/incident-types" />} />
             {/* Admin Users */}
             <Route path="admins" element={<AdminList />} />
+            <Route path="admins/create" element={<ResourceCreate resource="admins" title="Admin Users" basePath="/admins" fields={[
+              { key: 'name', label: 'Name', required: true },
+              { key: 'email', label: 'Email', type: 'email', required: true },
+              { key: 'password', label: 'Password', required: true },
+            ]} />} />
             <Route path="admins/show/:id" element={<ResourceShow resource="admins" title="Admin Users" basePath="/admins" />} />
             <Route path="admins/edit/:id" element={<ResourceEdit resource="admins" title="Admin Users" basePath="/admins" />} />
             {/* Permissions */}

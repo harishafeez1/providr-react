@@ -1,10 +1,11 @@
 import { useOne, useUpdate } from '@refinedev/core';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 
 interface ResourceEditProps {
   resource: string;
@@ -38,7 +39,13 @@ export function ResourceEdit({ resource, title, basePath }: ResourceEditProps) {
     }
   }, [data]);
 
-  if (isLoading) return <p className="p-4">Loading...</p>;
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
   if (isError) {
     return (
       <div className="p-4 space-y-4">
@@ -56,9 +63,18 @@ export function ResourceEdit({ resource, title, basePath }: ResourceEditProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const toastId = toast.loading('Saving...');
     update(
       { resource, id: id!, values: form },
-      { onSuccess: () => navigate(`${basePath}/show/${id}`) }
+      {
+        onSuccess: () => {
+          toast.success('Saved successfully', { id: toastId });
+          navigate(`${basePath}/show/${id}`);
+        },
+        onError: (error) => {
+          toast.error(error?.message || 'Failed to save', { id: toastId });
+        },
+      }
     );
   };
 
@@ -104,8 +120,13 @@ export function ResourceEdit({ resource, title, basePath }: ResourceEditProps) {
               </div>
             ))}
             <div className="flex gap-3 pt-4">
-              <Button type="submit" disabled={saving}>{saving ? 'Saving...' : 'Save'}</Button>
-              <Button type="button" variant="outline" onClick={() => navigate(`${basePath}/show/${id}`)}>Cancel</Button>
+              <Button type="submit" disabled={saving}>
+                {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                {saving ? 'Saving...' : 'Save'}
+              </Button>
+              <Button type="button" variant="outline" onClick={() => navigate(`${basePath}/show/${id}`)} disabled={saving}>
+                Cancel
+              </Button>
             </div>
           </form>
         </CardContent>

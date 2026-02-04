@@ -16,6 +16,35 @@ const HIDDEN_KEY = 'providr_dashboard_hidden';
 
 type DateRange = '7d' | '30d' | '90d' | '12m';
 
+// Skeleton component for loading tiles
+function TileSkeleton() {
+  return (
+    <div className="h-full w-full animate-pulse">
+      <div className="flex items-center justify-between h-full">
+        <div className="space-y-2 flex-1">
+          <div className="h-6 w-20 bg-muted rounded" />
+          <div className="h-3 w-16 bg-muted rounded" />
+        </div>
+        <div className="h-10 w-10 bg-muted rounded-lg" />
+      </div>
+    </div>
+  );
+}
+
+// Chart skeleton for larger tiles
+function ChartSkeleton() {
+  return (
+    <div className="h-full w-full animate-pulse flex flex-col">
+      <div className="flex-1 flex items-end gap-1 pb-4">
+        {[40, 65, 45, 80, 55, 70, 50, 85, 60, 75].map((h, i) => (
+          <div key={i} className="flex-1 bg-muted rounded-t" style={{ height: `${h}%` }} />
+        ))}
+      </div>
+      <div className="h-4 w-full bg-muted/50 rounded" />
+    </div>
+  );
+}
+
 function loadSavedLayouts(): Layouts | null {
   try {
     localStorage.removeItem('providr_dashboard_layout');
@@ -39,6 +68,8 @@ function loadHiddenTiles(): string[] {
 
 export function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
+  const [loadedTiles, setLoadedTiles] = useState<Set<string>>(new Set());
+  const [isLoading, setIsLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [layouts, setLayouts] = useState<Layouts>(() => loadSavedLayouts() || getDefaultLayouts());
@@ -48,8 +79,8 @@ export function DashboardPage() {
   const { width, containerRef } = useContainerWidth();
   const breakpointRef = useRef<string>('lg');
 
+  // Load preferences once on mount
   useEffect(() => {
-    api.get('/admin/dashboard').then((res) => setData(res.data));
     api.get('/admin/dashboard/preferences').then((res) => {
       if (res.data.layout && typeof res.data.layout === 'object' && !Array.isArray(res.data.layout)) {
         const l = res.data.layout as Layouts;
@@ -66,6 +97,27 @@ export function DashboardPage() {
       }
     }).catch(() => {});
   }, []);
+
+  // Fetch dashboard data when dateRange changes and load tiles progressively
+  useEffect(() => {
+    setIsLoading(true);
+    setLoadedTiles(new Set()); // Reset loaded tiles
+
+    api.get('/admin/dashboard', { params: { range: dateRange } }).then((res) => {
+      setData(res.data);
+      setIsLoading(false);
+
+      // Load tiles progressively one by one with small delays
+      const tileIds = TILE_REGISTRY.map(t => t.id);
+      tileIds.forEach((id, index) => {
+        setTimeout(() => {
+          setLoadedTiles(prev => new Set([...prev, id]));
+        }, index * 80); // 80ms delay between each tile
+      });
+    }).catch(() => {
+      setIsLoading(false);
+    });
+  }, [dateRange]);
 
   const savePrefs = useCallback((newLayouts: Layouts, hidden: string[]) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(newLayouts));
@@ -117,7 +169,7 @@ export function DashboardPage() {
   }, [layouts, hiddenTiles]);
 
   // Expanded tile overlay
-  if (expandedTile && data) {
+  if (expandedTile && data && loadedTiles.has(expandedTile)) {
     const tile = TILE_REGISTRY.find((t) => t.id === expandedTile);
     if (tile) {
       return (
@@ -145,13 +197,18 @@ export function DashboardPage() {
     { key: 'compliance', label: 'Compliance & Activity' },
   ];
 
-  if (!data) {
-    return (
-      <div ref={containerRef as React.RefObject<HTMLDivElement>}>
-        <p className="text-muted-foreground mt-8 text-center">Loading dashboard...</p>
-      </div>
-    );
-  }
+  // Helper to determine if a tile should show skeleton
+  const shouldShowSkeleton = (tileId: string) => {
+    return isLoading || !data || !loadedTiles.has(tileId);
+  };
+
+  // Helper to get the right skeleton type based on tile size
+  const getSkeletonForTile = (tileId: string) => {
+    const tile = TILE_REGISTRY.find(t => t.id === tileId);
+    if (!tile) return <TileSkeleton />;
+    // Large tiles (charts) get chart skeleton, small tiles get simple skeleton
+    return tile.defaultH >= 2 ? <ChartSkeleton /> : <TileSkeleton />;
+  };
 
   return (
     <div className="space-y-4" ref={containerRef as React.RefObject<HTMLDivElement>}>
@@ -204,12 +261,18 @@ export function DashboardPage() {
                   )}
                   <span className="text-xs font-medium text-muted-foreground">{tile.title}</span>
                 </div>
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setExpandedTile(tile.id)}>
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setExpandedTile(tile.id)} disabled={shouldShowSkeleton(tile.id)}>
                   <Maximize2 className="h-3 w-3 text-muted-foreground" />
                 </Button>
               </div>
               <div className="flex-1 px-3 pb-3 min-h-0">
-                {tile.render(data)}
+                {shouldShowSkeleton(tile.id) ? (
+                  getSkeletonForTile(tile.id)
+                ) : (
+                  <div className="animate-in fade-in duration-300">
+                    {tile.render(data!)}
+                  </div>
+                )}
               </div>
             </Card>
           </div>
@@ -233,11 +296,11 @@ export function DashboardPage() {
               return (
                 <div key={cat.key}>
                   <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">{cat.label}</h4>
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {tiles.map((tile) => (
-                      <div key={tile.id} className="flex items-center justify-between">
-                        <span className="text-sm">{tile.title}</span>
-                        <Switch checked={!hiddenTiles.includes(tile.id)} onCheckedChange={() => toggleTile(tile.id)} />
+                      <div key={tile.id} className="flex items-center justify-between gap-3 py-1">
+                        <span className="text-sm min-w-0 truncate">{tile.title}</span>
+                        <Switch className="shrink-0" checked={!hiddenTiles.includes(tile.id)} onCheckedChange={() => toggleTile(tile.id)} />
                       </div>
                     ))}
                   </div>

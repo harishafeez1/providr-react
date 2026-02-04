@@ -25,9 +25,13 @@ export const dataProvider: DataProvider = {
 
     const { data } = await api.get(`/admin/${resource}`, { params });
 
+    // Handle different API response formats
+    const items = data.data ?? data;
+    const total = data.total ?? data.meta?.total ?? (Array.isArray(items) ? items.length : 0);
+
     return {
-      data: data.data,
-      total: data.total,
+      data: Array.isArray(items) ? items : [],
+      total: total,
     };
   },
 

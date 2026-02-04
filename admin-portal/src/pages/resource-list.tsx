@@ -2,6 +2,7 @@ import { useList, useDelete } from '@refinedev/core';
 import { useNavigate, Link } from 'react-router-dom';
 import { useState } from 'react';
 import { type ColumnDef } from '@tanstack/react-table';
+import { toast } from 'sonner';
 import { DataTable, type DataTableAction } from '@/components/data-table/data-table';
 
 interface Column {
@@ -63,7 +64,18 @@ export function ResourceList({ resource, title, columns, canCreate = true, canEd
     if (canEdit) actions.push({ label: 'Edit', onClick: (r) => navigate(`${basePath}/edit/${r.id}`) });
     if (canDelete) actions.push({
       label: 'Delete', variant: 'destructive',
-      onClick: (r) => { if (confirm('Delete this record?')) deleteOne({ resource, id: r.id }); },
+      onClick: (r) => {
+        if (confirm('Delete this record?')) {
+          const toastId = toast.loading('Deleting...');
+          deleteOne(
+            { resource, id: r.id },
+            {
+              onSuccess: () => toast.success('Deleted successfully', { id: toastId }),
+              onError: (error) => toast.error(error?.message || 'Failed to delete', { id: toastId }),
+            }
+          );
+        }
+      },
     });
     return actions;
   };

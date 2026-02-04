@@ -2,9 +2,9 @@ import { useList, useDelete } from '@refinedev/core';
 import { useNavigate, Link } from 'react-router-dom';
 import { useState } from 'react';
 import { type ColumnDef } from '@tanstack/react-table';
+import { toast } from 'sonner';
 import { DataTable, type DataTableAction } from '@/components/data-table/data-table';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 
 type Company = {
   id: number;
@@ -55,7 +55,18 @@ export function ProviderCompanyList() {
     { label: 'Edit', onClick: (r) => navigate(`/provider-companies/edit/${r.id}`) },
     {
       label: 'Delete', variant: 'destructive',
-      onClick: (r) => { if (confirm('Delete this company?')) deleteOne({ resource: 'provider-companies', id: r.id }); },
+      onClick: (r) => {
+        if (confirm('Delete this company?')) {
+          const toastId = toast.loading('Deleting...');
+          deleteOne(
+            { resource: 'provider-companies', id: r.id },
+            {
+              onSuccess: () => toast.success('Deleted successfully', { id: toastId }),
+              onError: (error) => toast.error(error?.message || 'Failed to delete', { id: toastId }),
+            }
+          );
+        }
+      },
     },
   ];
 
