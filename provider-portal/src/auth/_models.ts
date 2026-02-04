@@ -86,12 +86,12 @@ export interface UserModel {
   job_role?: string;
   ndis?: number;
   provider_company_id?: number | string;
-  active?: number;
-  admin?: number;
-  permission_editor?: number;
-  permission_review?: number;
-  permission_billing?: number;
-  permission_intake?: number;
+  active?: number | boolean;
+  admin?: number | boolean;
+  permission_editor?: number | boolean;
+  permission_review?: number | boolean;
+  permission_billing?: number | boolean;
+  permission_intake?: number | boolean;
   provider_company?: ProviderCompany;
   subscription_details?: SubscriptionDetails;
   subscription_plan?: SubscriptionPlan;

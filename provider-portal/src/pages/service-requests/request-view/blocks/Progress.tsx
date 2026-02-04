@@ -7,20 +7,20 @@ const ProgressbarPoints = ({ data }: any) => {
     const [activeStepTab, setActiveStepTab] = useState(0);
 
     useEffect(() => {
-      if (data?.service_request_provider?.length > 0 && data?.direct_connect === 0) {
+      if (data?.service_request_provider?.length > 0 && !Boolean(data?.direct_connect)) {
         const provider = data.service_request_provider[0];
 
-        if (provider.status === 'In Progress' && provider.customer_contacted === 0) {
+        if (provider.status === 'In Progress' && !Boolean(provider.customer_contacted)) {
           setActiveStepTab(1);
-        } else if (provider.customer_contacted === 1) {
+        } else if (Boolean(provider.customer_contacted)) {
           setActiveStepTab(2);
         } else {
           setActiveStepTab(0);
         }
       } else {
-        if (data?.direct_connect === 1 && data.status === 'Pending') {
+        if (Boolean(data?.direct_connect) && data.status === 'Pending') {
           setActiveStepTab(1);
-        } else if (data?.direct_connect === 1 && data.status === 'Completed') {
+        } else if (Boolean(data?.direct_connect) && data.status === 'Completed') {
           setActiveStepTab(2);
         }
       }

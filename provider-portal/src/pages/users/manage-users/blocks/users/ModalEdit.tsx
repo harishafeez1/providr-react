@@ -22,7 +22,7 @@ const ModalEdit = forwardRef<HTMLDivElement, IModalDeleteProps>(
 
     useEffect(() => {
       if (defaultCheckBoxes) {
-        const initialSelected = value.filter((role) => defaultCheckBoxes[role] === 1);
+        const initialSelected = value.filter((role) => Boolean(defaultCheckBoxes[role]));
         setSelected(initialSelected);
       }
     }, [defaultCheckBoxes]);

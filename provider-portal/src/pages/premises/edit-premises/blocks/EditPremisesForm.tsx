@@ -121,7 +121,7 @@ const EditPremisesForm = ({ title }: IEditPremisesForm) => {
   const initialValues = {
     name: premisesData ? premisesData?.name : selectedName,
     active: premisesData
-      ? premisesData?.active === '1' || premisesData?.active === 1
+      ? Boolean(premisesData?.active === '1' || premisesData?.active === 1 || premisesData?.active === true)
       : selectedActive,
     // @ts-ignore
     address_line_1: premisesData ? premisesData.address_line_1 : selectedPlace?.value?.description,

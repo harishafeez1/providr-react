@@ -43,6 +43,7 @@ const PermissionWrapper: React.FC<PermissionWrapperProps> = ({
     return <SubscriptionRestrictedView />;
   }
 
+  // Handle both MySQL (0/1) and PostgreSQL (true/false) boolean formats
   const hasPermission = (requiredPermissions: string[]): boolean => {
     if (!currentUser) {
       return false;
@@ -51,15 +52,15 @@ const PermissionWrapper: React.FC<PermissionWrapperProps> = ({
     return requiredPermissions.some((permission) => {
       switch (permission) {
         case 'billing':
-          return currentUser.permission_billing === 1;
+          return Boolean(currentUser.permission_billing);
         case 'editor':
-          return currentUser.permission_editor === 1;
+          return Boolean(currentUser.permission_editor);
         case 'intake':
-          return currentUser.permission_intake === 1;
+          return Boolean(currentUser.permission_intake);
         case 'review':
-          return currentUser.permission_review === 1;
+          return Boolean(currentUser.permission_review);
         case 'admin':
-          return currentUser.admin === 1;
+          return Boolean(currentUser.admin);
         default:
           return false;
       }
@@ -67,16 +68,16 @@ const PermissionWrapper: React.FC<PermissionWrapperProps> = ({
   };
 
   if (!hasPermission(requiredPermissions)) {
-    if (currentUser?.permission_editor === 1 || currentUser?.admin === 1) {
+    if (Boolean(currentUser?.permission_editor) || Boolean(currentUser?.admin)) {
       return <Navigate to="/" replace />;
     }
-    if (currentUser?.permission_intake === 1) {
+    if (Boolean(currentUser?.permission_intake)) {
       return <Navigate to="/service-request" replace />;
     }
-    if (currentUser?.permission_review === 1) {
+    if (Boolean(currentUser?.permission_review)) {
       return <Navigate to="/reviews" replace />;
     }
-    if (currentUser?.permission_billing === 1) {
+    if (Boolean(currentUser?.permission_billing)) {
       return <Navigate to="/billing" replace />;
     }
 

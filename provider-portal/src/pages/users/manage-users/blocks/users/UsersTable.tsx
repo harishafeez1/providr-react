@@ -264,17 +264,17 @@ const UsersTable = () => {
         cell: (row) => {
           return (
             <div className="flex flex-wrap gap-1">
-              {row.row.original.admin == 1 && <label className="badge badge-sm">Admin</label>}
-              {row.row.original.permission_billing == 1 && (
+              {Boolean(row.row.original.admin) && <label className="badge badge-sm">Admin</label>}
+              {Boolean(row.row.original.permission_billing) && (
                 <label className="badge badge-sm">Billing</label>
               )}
-              {row.row.original.permission_editor == 1 && (
+              {Boolean(row.row.original.permission_editor) && (
                 <label className="badge badge-sm">Editor</label>
               )}
-              {row.row.original.permission_intake == 1 && (
+              {Boolean(row.row.original.permission_intake) && (
                 <label className="badge badge-sm">Intake</label>
               )}
-              {row.row.original.permission_review == 1 && (
+              {Boolean(row.row.original.permission_review) && (
                 <label className="badge badge-sm">Review</label>
               )}
             </div>

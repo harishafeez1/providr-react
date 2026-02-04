@@ -56,6 +56,7 @@ const SidebarMenu = () => {
   const { currentUser } = useAuthContext(); // Get the current user from the auth context
 
   // Function to check if the user has the required permissions
+  // Handle both MySQL (0/1) and PostgreSQL (true/false) boolean formats
   const hasPermission = (requiredPermissions: string[]): boolean => {
     if (!currentUser) {
       return false;
@@ -64,15 +65,15 @@ const SidebarMenu = () => {
     return requiredPermissions.some((permission) => {
       switch (permission) {
         case 'billing':
-          return currentUser.permission_billing === 1;
+          return Boolean(currentUser.permission_billing);
         case 'editor':
-          return currentUser.permission_editor === 1;
+          return Boolean(currentUser.permission_editor);
         case 'intake':
-          return currentUser.permission_intake === 1;
+          return Boolean(currentUser.permission_intake);
         case 'review':
-          return currentUser.permission_review === 1;
+          return Boolean(currentUser.permission_review);
         case 'admin':
-          return currentUser.admin === 1;
+          return Boolean(currentUser.admin);
         default:
           return false;
       }

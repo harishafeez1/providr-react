@@ -279,7 +279,7 @@ const ServiceRequestsTable = () => {
         cell: (info) => {
           return (
             <div className="flex items-center text-gray-800 font-normal gap-1.5">
-              {info.row.original?.service_request_provider?.[0]?.customer_contacted === 1 ? (
+              {Boolean(info.row.original?.service_request_provider?.[0]?.customer_contacted) ? (
                 <div className="badge badge-pill badge-success">Yes</div>
               ) : (
                 <div className="badge badge-pill badge-danger">No</div>

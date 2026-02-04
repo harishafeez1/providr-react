@@ -100,7 +100,7 @@ const DropdownCard2 = (id: any, handleModalOpen: any, row: any, setRefreshKey: a
             <MenuIcon>
               <KeenIcon icon="toggle-off-circle" />
             </MenuIcon>
-            <MenuTitle>{row?.active === 1 ? 'Deactivate' : 'Activate'}</MenuTitle>
+            <MenuTitle>{Boolean(row?.active) ? 'Deactivate' : 'Activate'}</MenuTitle>
           </a>
         </MenuLink>
       </MenuItem>

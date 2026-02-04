@@ -54,14 +54,14 @@ const WorkExperience = ({ data, onUpdate }: any) => {
               Email:
               {showNumber
                 ? data?.email
-                : data?.service_request_provider?.[0].customer_contacted !== 1
+                : !Boolean(data?.service_request_provider?.[0].customer_contacted)
                   ? '**************'
                   : data?.email}
             </div>
           )}
-          {(data?.service_request_provider?.[0].customer_contacted === 1 &&
-            data?.direct_connect === 0) ||
-          (data?.direct_connect === 1 && data?.status?.toLowerCase().trim() === 'completed') ? (
+          {(Boolean(data?.service_request_provider?.[0].customer_contacted) &&
+            !Boolean(data?.direct_connect)) ||
+          (Boolean(data?.direct_connect) && data?.status?.toLowerCase().trim() === 'completed') ? (
             <div className="badge badge-pill badge-success">Already Contacted</div>
           ) : (
             <>
