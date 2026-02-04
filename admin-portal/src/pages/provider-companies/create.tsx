@@ -23,7 +23,7 @@ export function ProviderCompanyCreate() {
     );
   };
 
-  const set = (field: string, value: any) => setForm({ ...form, [field]: value });
+  const set = (field: string, value: string | boolean) => setForm({ ...form, [field]: value });
 
   return (
     <div>
@@ -65,7 +65,15 @@ export function ProviderCompanyCreate() {
   );
 }
 
-function Field({ label, value, onChange, type = 'text', required = false }: any) {
+interface FieldProps {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  type?: string;
+  required?: boolean;
+}
+
+function Field({ label, value, onChange, type = 'text', required = false }: FieldProps) {
   return (
     <div>
       <label className="text-sm font-medium">{label}</label>

@@ -6,10 +6,10 @@ export function PermissionList() {
       resource="permissions"
       title="Permissions"
       basePath="/permissions"
-      canCreate={false}
+      canCreate={true}
       canEdit={false}
       columns={[
-        { key: 'name', label: 'Name' },
+        { key: 'name', label: 'Permission Name' },
         { key: 'guard_name', label: 'Guard' },
         { key: 'created_at', label: 'Created', render: (v: string) => v ? new Date(v).toLocaleDateString() : '—' },
       ]}

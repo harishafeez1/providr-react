@@ -3,7 +3,7 @@ import { useGetIdentity, useLogout } from '@refinedev/core';
 import {
   LayoutDashboard, Building2, Users, UserCircle, Layers, Package, ClipboardList,
   Star, AlertTriangle, Shield, ChevronsLeft, ChevronsRight, Settings, LogOut, User, ClipboardCheck,
-  Lock, Upload, FileCheck, FileText, CreditCard, ShoppingBag, Brain, MessageSquare,
+  Lock, Upload, FileCheck, FileText, CreditCard, ShoppingBag, Brain, MessageSquare, KeyRound,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -59,12 +59,14 @@ export const menuSections = [
     title: 'System Management',
     items: [
       { label: 'AI Models', path: '/ai-models', icon: Brain },
-      { label: 'Prompt Management', path: '/prompt-management', icon: MessageSquare },
+      { label: 'BSP Analysis Prompts', path: '/prompt-management', icon: MessageSquare },
+      { label: 'NDIS Prompts', path: '/ndis-prompts', icon: FileText },
     ],
   },
   {
     title: 'System',
     items: [
+      { label: 'Roles', path: '/roles', icon: KeyRound },
       { label: 'Permissions', path: '/permissions', icon: Lock },
       { label: 'Incident Types', path: '/incident-types', icon: AlertTriangle },
       { label: 'Admin Users', path: '/admins', icon: Shield },

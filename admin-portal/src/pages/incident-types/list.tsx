@@ -7,8 +7,9 @@ export function IncidentTypeList() {
       title="Incident Types"
       basePath="/incident-types"
       columns={[
+        { key: 'id', label: 'ID' },
         { key: 'name', label: 'Name' },
-        { key: 'incidents_count', label: 'Incidents', render: (v) => v ?? '—' },
+        { key: 'active', label: 'Active', render: (v) => v ? 'Yes' : 'No' },
       ]}
     />
   );

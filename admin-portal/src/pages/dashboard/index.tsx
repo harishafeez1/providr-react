@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
-import { ResponsiveGridLayout, useContainerWidth, type Layout } from 'react-grid-layout';
+import { ResponsiveGridLayout, useContainerWidth, type LayoutItem, type Layout, type ResponsiveLayouts } from 'react-grid-layout';
+import { getCompactor } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -73,9 +74,10 @@ export function DashboardPage() {
   }, []);
 
   // Only save on explicit user actions (drag/resize), NOT on mount/compaction/breakpoint changes
-  const handleDragResize = useCallback((layout: Layout[]) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleDragResize = useCallback((layout: any) => {
     const bp = breakpointRef.current as keyof Layouts;
-    const updated = { ...layouts, [bp]: layout };
+    const updated = { ...layouts, [bp]: [...layout] };
     setLayouts(updated);
     savePrefs(updated, hiddenTiles);
   }, [savePrefs, hiddenTiles, layouts]);
@@ -105,12 +107,12 @@ export function DashboardPage() {
   );
 
   const visibleLayouts = useMemo(() => {
-    const filter = (arr: Layout[]) => arr.filter((l) => !hiddenTiles.includes(l.i));
+    const filter = (arr: LayoutItem[] | undefined) => (arr || []).filter((l) => !hiddenTiles.includes(l.i));
     return {
-      lg: filter(layouts.lg || []),
-      md: filter(layouts.md || []),
-      sm: filter(layouts.sm || []),
-      xs: filter(layouts.xs || []),
+      lg: filter(layouts.lg),
+      md: filter(layouts.md),
+      sm: filter(layouts.sm),
+      xs: filter(layouts.xs),
     };
   }, [layouts, hiddenTiles]);
 
@@ -145,14 +147,14 @@ export function DashboardPage() {
 
   if (!data) {
     return (
-      <div ref={containerRef}>
+      <div ref={containerRef as React.RefObject<HTMLDivElement>}>
         <p className="text-muted-foreground mt-8 text-center">Loading dashboard...</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4" ref={containerRef}>
+    <div className="space-y-4" ref={containerRef as React.RefObject<HTMLDivElement>}>
       {/* Toolbar */}
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2">
@@ -178,17 +180,16 @@ export function DashboardPage() {
       {width > 0 && <ResponsiveGridLayout
         className="layout"
         width={width}
-        layouts={visibleLayouts}
+        layouts={visibleLayouts as ResponsiveLayouts}
         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480 }}
         cols={{ lg: 12, md: 10, sm: 6, xs: 4 }}
         rowHeight={120}
-        isDraggable={editing}
-        isResizable={editing}
+        dragConfig={{ enabled: editing, handle: '.drag-handle' }}
+        resizeConfig={{ enabled: editing }}
         onDragStop={handleDragResize}
         onResizeStop={handleDragResize}
         onBreakpointChange={onBreakpointChange}
-        draggableHandle=".drag-handle"
-        compactType="vertical"
+        compactor={getCompactor('vertical')}
         margin={[12, 12]}
       >
         {visibleTiles.map((tile) => (

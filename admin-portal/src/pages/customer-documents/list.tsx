@@ -7,11 +7,15 @@ export function CustomerDocumentList() {
       title="Customer Documents"
       basePath="/customer-documents"
       canCreate={false}
-      canEdit={false}
+      canEdit={true}
       columns={[
-        { key: 'id', label: 'ID' },
-        { key: 'name', label: 'Name' },
-        { key: 'created_at', label: 'Created', render: (v: string) => v ? new Date(v).toLocaleDateString() : '—' },
+        { key: 'document_name', label: 'Document Name' },
+        {
+          key: 'customer',
+          label: 'Customer',
+          render: (_: any, record: any) => record.customer?.name || record.customer?.email || '—'
+        },
+        { key: 'created_at', label: 'Uploaded', render: (v: string) => v ? new Date(v).toLocaleDateString() : '—' },
       ]}
     />
   );

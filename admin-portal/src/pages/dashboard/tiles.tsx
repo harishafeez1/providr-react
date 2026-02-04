@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { Layout } from 'react-grid-layout';
+import type { LayoutItem } from 'react-grid-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -232,7 +232,7 @@ export const TILE_REGISTRY: TileConfig[] = [
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
             <XAxis dataKey="month" tick={{ fontSize: 11 }} />
             <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
-            <Tooltip formatter={(v: number) => [`$${v.toLocaleString()}`, 'MRR']} />
+            <Tooltip formatter={(v) => [`$${Number(v).toLocaleString()}`, 'MRR']} />
             <Area type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} fill="url(#colorRevenue)" />
           </AreaChart>
         </RC>
@@ -311,7 +311,7 @@ export const TILE_REGISTRY: TileConfig[] = [
     render: (data: DashboardData) => (
       <RC width="100%" height="100%">
         <PieChart>
-          <Pie data={data.incidents_by_type} dataKey="count" nameKey="type" cx="50%" cy="50%" outerRadius={80} label={({ type, count }) => `${type}: ${count}`} labelLine={false}>
+          <Pie data={data.incidents_by_type} dataKey="count" nameKey="type" cx="50%" cy="50%" outerRadius={80} label={({ name, value }) => `${name}: ${value}`} labelLine={false}>
             {data.incidents_by_type.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
           </Pie>
           <Tooltip />
@@ -418,16 +418,16 @@ export const TILE_REGISTRY: TileConfig[] = [
 ];
 
 // ─── Default layouts per breakpoint ─────────────────────────────────
-export type Layouts = { lg: Layout[]; md: Layout[]; sm: Layout[]; xs: Layout[] };
+export type Layouts = { lg: LayoutItem[]; md: LayoutItem[]; sm: LayoutItem[]; xs: LayoutItem[] };
 
-function stackAll(cols: number): Layout[] {
+function stackAll(cols: number): LayoutItem[] {
   // Stack all tiles in a single column layout
   const items = TILE_REGISTRY.map((t) => t.id);
   let y = 0;
   return items.map((id) => {
     const tile = TILE_REGISTRY.find((t) => t.id === id)!;
     const h = tile.defaultH;
-    const item: Layout = { i: id, x: 0, y, w: cols, h, minH: 1 };
+    const item: LayoutItem = { i: id, x: 0, y, w: cols, h, minH: 1 };
     y += h;
     return item;
   });
@@ -438,7 +438,7 @@ export function getDefaultLayouts(): Layouts {
   const finIds = ['mrr', 'active_subscriptions', 'trial_accounts', 'churn_rate'];
 
   // ── lg: 12 cols ──
-  const lg: Layout[] = [];
+  const lg: LayoutItem[] = [];
   let x = 0;
   summaryIds.forEach((id) => { lg.push({ i: id, x, y: 0, w: 2, h: 1 }); x += 2; });
   x = 0;
@@ -454,7 +454,7 @@ export function getDefaultLayouts(): Layouts {
   lg.push({ i: 'recent_activity', x: 8, y: 8, w: 4, h: 2 });
 
   // ── md: 10 cols ──
-  const md: Layout[] = [];
+  const md: LayoutItem[] = [];
   x = 0;
   summaryIds.forEach((id, i) => {
     const col = (i % 5) * 2;
@@ -476,7 +476,7 @@ export function getDefaultLayouts(): Layouts {
   md.push({ i: 'recent_activity', x: 0, y: 16, w: 10, h: 2 });
 
   // ── sm: 6 cols ──
-  const sm: Layout[] = [];
+  const sm: LayoutItem[] = [];
   summaryIds.forEach((id, i) => {
     sm.push({ i: id, x: (i % 3) * 2, y: Math.floor(i / 3), w: 2, h: 1 });
   });
@@ -497,6 +497,6 @@ export function getDefaultLayouts(): Layouts {
 }
 
 // Backward compat: single-breakpoint layout (for saved prefs)
-export function getDefaultLayout(): Layout[] {
+export function getDefaultLayout(): LayoutItem[] {
   return getDefaultLayouts().lg;
 }

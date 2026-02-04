@@ -4,14 +4,20 @@ export function PromptManagementList() {
   return (
     <ResourceList
       resource="prompt-management"
-      title="Prompt Management"
+      title="BSP Analysis Prompts"
       basePath="/prompt-management"
       canCreate={false}
-      canEdit={false}
+      canEdit={true}
+      canDelete={false}
       columns={[
-        { key: 'id', label: 'ID' },
-        { key: 'name', label: 'Name' },
-        { key: 'created_at', label: 'Created', render: (v: string) => v ? new Date(v).toLocaleDateString() : '—' },
+        { key: 'section_number', label: 'Section #' },
+        { key: 'section_name', label: 'Section Name' },
+        {
+          key: 'main_prompt',
+          label: 'Main Prompt',
+          render: (v: string) => v ? (v.length > 80 ? v.substring(0, 80) + '...' : v) : '—'
+        },
+        { key: 'updated_at', label: 'Last Updated', render: (v: string) => v ? new Date(v).toLocaleDateString() : '—' },
       ]}
     />
   );
