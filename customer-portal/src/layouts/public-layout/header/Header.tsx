@@ -5,11 +5,11 @@ import clsx from 'clsx';
 import React, { useEffect, useState } from 'react';
 import { HeaderLogo } from './HeaderLogo';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import GooglePlacesAutocomplete, {
-  geocodeByLatLng,
-  geocodeByPlaceId,
-  getLatLng
-} from 'react-google-places-autocomplete';
+import SafeGooglePlacesAutocomplete, {
+  safeGeocodeByLatLng as geocodeByLatLng,
+  safeGeocodeByPlaceId as geocodeByPlaceId,
+  safeGetLatLng as getLatLng
+} from '@/components/SafeGooglePlacesAutocomplete';
 import { store } from '@/redux/store';
 import {
   setLocation,
@@ -31,6 +31,7 @@ import { getAllServicesToTransform } from '@/services/api/all-services';
 
 import { HeaderTopbar } from './HeaderTopbar';
 import { searchNearByProviders } from '@/services/api/search-providers';
+import { FindServicesSheet } from '@/components/FindServicesSheet';
 
 interface HeaderSearchI {
   latitude?: number;
@@ -238,6 +239,7 @@ const Header = () => {
     null
   );
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [isServicesSheetOpen, setIsServicesSheetOpen] = useState(false);
 
   // Check if search should be enabled based on actual input values
   const isSearchEnabled = React.useMemo(() => {
@@ -334,18 +336,13 @@ const Header = () => {
           <div className="" />
 
           <div className="lg:flex hidden items-center gap-4">
-            <Link to="/services">
+            <button onClick={() => setIsServicesSheetOpen(true)}>
               <span
-                className={clsx({
-                  'py-2 font-semibold tracking-wider text-black/80':
-                    checkLoaction.pathname.includes('services'),
-                  'text-gray-500 font-semibold hover:bg-gray-200 p-4 rounded-full hover:text-gray-700 tracking-wider':
-                    !checkLoaction.pathname.includes('services')
-                })}
+                className="text-gray-500 font-semibold hover:bg-gray-200 p-4 rounded-full hover:text-gray-700 tracking-wider cursor-pointer"
               >
                 Services
               </span>
-            </Link>
+            </button>
             <Link to="/directory">
               <span
                 className={clsx({
@@ -401,7 +398,7 @@ const Header = () => {
                       <div className="">
                         <label className="text-sm font-semibold text-gray-900">Where</label>
                         <div className="">
-                          <GooglePlacesAutocomplete
+                          <SafeGooglePlacesAutocomplete
                             key={defaultAddress?.label || 'no-address-mobile'}
                             apiKey={import.meta.env.VITE_APP_GOOGLE_API_KEY}
                             autocompletionRequest={{
@@ -558,7 +555,7 @@ const Header = () => {
             <label className="input bg-transparent leading-none p-0 m-0 border-none w-full h-4">
               <div className="w-full text-sm ">
                 <div className="cursor-pointer">
-                  <GooglePlacesAutocomplete
+                  <SafeGooglePlacesAutocomplete
                     key={defaultAddress?.label || 'no-address'}
                     apiKey={import.meta.env.VITE_APP_GOOGLE_API_KEY}
                     autocompletionRequest={{
@@ -733,6 +730,7 @@ const Header = () => {
           </button>
         </div>
       </div>
+      <FindServicesSheet open={isServicesSheetOpen} onOpenChange={setIsServicesSheetOpen} />
     </header>
   );
 };

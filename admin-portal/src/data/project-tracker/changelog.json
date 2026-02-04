@@ -1,0 +1,139 @@
+{
+  "entries": [
+    {
+      "id": "CHG-001",
+      "date": "2026-01-28",
+      "taskNumber": "T-001 to T-011",
+      "type": "added",
+      "title": "Initial Setup & Admin Portal",
+      "description": "Cloned repos, created test suite, built Shadcn admin portal, created slide-in login panel",
+      "filesModified": ["admin-portal/*", "provider-portal/src/components/auth/LoginSheet.tsx"]
+    },
+    {
+      "id": "CHG-002",
+      "date": "2026-01-31",
+      "taskNumber": "T-013",
+      "type": "fixed",
+      "title": "Login branding image connection",
+      "description": "Fixed LoginSheet to fetch branding image from API. Added live preview to admin branding settings.",
+      "filesModified": ["provider-portal/src/components/auth/LoginSheet.tsx", "admin-portal/src/pages/settings/tabs/BrandingSettings.tsx"]
+    },
+    {
+      "id": "CHG-003",
+      "date": "2026-01-31",
+      "taskNumber": "T-014",
+      "type": "fixed",
+      "title": "Where search field in customer directory",
+      "description": "Added Google Places API key, fixed SafeGooglePlacesAutocomplete, fixed getSettings to exclude branding data",
+      "filesModified": ["customer-portal/.env.local", "providr/app/Http/Controllers/CustomerController.php"]
+    },
+    {
+      "id": "CHG-004",
+      "date": "2026-01-31",
+      "taskNumber": "T-014",
+      "type": "fixed",
+      "title": "Provider portal link from customer portal",
+      "description": "Fixed 'I am a Provider' dropdown link to use correct provider portal URL via env var",
+      "filesModified": ["customer-portal/src/partials/dropdowns/user/DropdownUser.tsx", "customer-portal/.env.local"]
+    },
+    {
+      "id": "CHG-005",
+      "date": "2026-01-31",
+      "taskNumber": "T-016",
+      "type": "added",
+      "title": "Missing sidebar menu items from Nova",
+      "description": "Added Permissions, Company Imports, Claim Requests, Customer Documents, Stripe Management, System Management with placeholder pages",
+      "filesModified": ["admin-portal/src/components/layout/Sidebar.tsx", "admin-portal/src/App.tsx"]
+    },
+    {
+      "id": "CHG-006",
+      "date": "2026-01-31",
+      "taskNumber": "T-017",
+      "type": "fixed",
+      "title": "All list item detail links now work",
+      "description": "Created generic ResourceShow component and added show/:id routes for all 16 resources that were missing them. Previously clicking any item redirected to dashboard.",
+      "filesModified": ["admin-portal/src/pages/resource-show.tsx", "admin-portal/src/App.tsx"]
+    },
+    {
+      "id": "CHG-007",
+      "date": "2026-01-31",
+      "taskNumber": "T-018",
+      "type": "added",
+      "title": "Populated database with seed data",
+      "description": "Ran RolePermissionSeeder (3 roles, 36 permissions), DemoDataSeeder (18 services), NdisPromptSeeder (8 sections), BspPromptSeeder (10 sections), and manually seeded 3 AI models",
+      "filesModified": ["database (seeded)"]
+    },
+    {
+      "id": "CHG-008",
+      "date": "2026-01-31",
+      "taskNumber": "T-019",
+      "type": "added",
+      "title": "Generic edit routes for all resources",
+      "description": "Created ResourceEdit component with auto-generated form fields and added edit/:id routes for 15 resources",
+      "filesModified": ["admin-portal/src/pages/resource-edit.tsx", "admin-portal/src/App.tsx"]
+    },
+    {
+      "id": "CHG-009",
+      "date": "2026-01-31",
+      "taskNumber": "T-020",
+      "type": "changed",
+      "title": "Improved Services list and edit UI",
+      "description": "Services list now shows avatar thumbnails with initials/icons, active status badges, and provider count. Custom edit page with Switch toggle for active status and service name in title.",
+      "filesModified": ["admin-portal/src/pages/services/list.tsx", "admin-portal/src/pages/services/edit.tsx"]
+    },
+    {
+      "id": "CHG-010",
+      "date": "2026-01-31",
+      "taskNumber": "T-020",
+      "type": "added",
+      "title": "Service image upload in edit page",
+      "description": "Added image upload/preview/remove to Services edit page with FormData submission. Updated backend ServiceController to handle image uploads to S3 and append service_image accessor. List page now shows real service images via Avatar.",
+      "filesModified": ["admin-portal/src/pages/services/edit.tsx", "admin-portal/src/pages/services/list.tsx", "providr/app/Http/Controllers/Api/Admin/ServiceController.php"]
+    },
+    {
+      "id": "CHG-011",
+      "date": "2026-01-31",
+      "taskNumber": "T-021",
+      "type": "changed",
+      "title": "Provider Company Dashboard page",
+      "description": "Replaced basic show page with comprehensive dashboard: header with logo/badges/ABN, 4 stat cards, 5 tabs (Overview, Team & Logins, Services, Premises, Reviews with rating breakdown), and inline edit dialog with Shadcn Switch toggles. Created custom Dialog UI component.",
+      "filesModified": ["admin-portal/src/pages/provider-companies/show.tsx", "admin-portal/src/components/ui/dialog.tsx"]
+    },
+    {
+      "id": "CHG-012",
+      "date": "2026-01-31",
+      "taskNumber": "T-022",
+      "type": "fixed",
+      "title": "Services link in customer portal navigation",
+      "description": "Public routes (/services, /directory, /provider-profile) were unreachable because catch-all wildcard routes were defined before them in AppRoutingSetup. Moved PublicLayout routes above the catch-all.",
+      "filesModified": ["customer-portal/src/routing/AppRoutingSetup.tsx"]
+    },
+    {
+      "id": "CHG-013",
+      "date": "2026-01-31",
+      "taskNumber": "T-023",
+      "type": "fixed",
+      "title": "Google Places Autocomplete deprecation warning",
+      "description": "Replaced react-google-autocomplete (which uses deprecated google.maps.places.Autocomplete widget) in AUSuburbs component with custom implementation using AutocompleteService (not deprecated). Custom dropdown for place predictions, geocoding for coordinates. Package react-google-autocomplete is now unused.",
+      "filesModified": ["customer-portal/src/components/AUSuburubs/index.tsx"]
+    },
+    {
+      "id": "CHG-014",
+      "date": "2026-01-31",
+      "taskNumber": "T-024",
+      "type": "changed",
+      "title": "Redesigned Services wizard UI",
+      "description": "Complete redesign of the 4-step service request wizard: new StepIndicator with circular icons and animated connecting lines, centered max-w-2xl layout, card-based selection buttons for age/access method, two-column participant form, ProviderBadge pill component, improved navigation with ghost Back and primary Continue buttons with chevrons, Loader2 spinner for submit state.",
+      "filesModified": ["customer-portal/src/pages/Services/blocks/WizardStep.tsx"]
+    },
+    {
+      "id": "CHG-015",
+      "date": "2026-01-31",
+      "taskNumber": "T-026",
+      "type": "changed",
+      "title": "Converted Find Services to slide-out panel",
+      "description": "Replaced multi-step wizard with Shadcn Sheet slide-out panel. Services nav link now opens a right-side panel with Google Places location search, Shadcn Select for service type, live provider count badge, and Search button that navigates to /directory with results. Removed /services route and wizard pages.",
+      "filesModified": ["customer-portal/src/components/FindServicesSheet.tsx", "customer-portal/src/layouts/public-layout/header/Header.tsx", "customer-portal/src/routing/AppRoutingSetup.tsx"]
+    }
+  ]
+}
