@@ -197,6 +197,33 @@
       "title": "Merged HUE team changes into Drew branch",
       "description": "Pulled origin/main into local Drew branch for both Laravel (11 commits, 64 files) and React (4 commits, 134 files) repos. Fast-forward merge with zero conflicts. Fixed admin portal .env.local to point to localhost:8002 for local dev.",
       "filesModified": ["providr-react/admin-portal/.env.local"]
+    },
+    {
+      "id": "CHG-023",
+      "date": "2026-02-10",
+      "taskNumber": "",
+      "type": "added",
+      "title": "Infrastructure Map page with live health checks",
+      "description": "New admin portal page with 6 tabs: Architecture (visual layered map of Client → API → Data → External services), Tech Stack (all frameworks/tools with versions), Environments (dev vs prod comparison), Database (key models & relationships), API Endpoints (all admin routes), and Repos & Team. Includes live health checks that ping local services every 30 seconds with green/amber/red status dots and response times. Supabase shown as external/configured.",
+      "filesModified": ["admin-portal/src/pages/infrastructure/index.tsx", "admin-portal/src/App.tsx", "admin-portal/src/components/layout/Sidebar.tsx"]
+    },
+    {
+      "id": "CHG-024",
+      "date": "2026-02-10",
+      "taskNumber": "",
+      "type": "added",
+      "title": "SVG brand icons for infrastructure page",
+      "description": "Created 16 SVG brand icon components: Supabase, Laravel, React, PHP, TypeScript, Vite, Tailwind CSS, PostgreSQL, MySQL, AWS, Google, Stripe, Mapbox, Git, GitHub, Shadcn, and Refine. Used throughout the infrastructure page to replace generic Lucide icons with real service logos.",
+      "filesModified": ["admin-portal/src/components/icons/brands.tsx"]
+    },
+    {
+      "id": "CHG-025",
+      "date": "2026-02-10",
+      "taskNumber": "",
+      "type": "fixed",
+      "title": "Admin portal console errors and missing gitignore",
+      "description": "Fixed React Router v7 future flag warnings (v7_startTransition, v7_relativeSplatPath). Added favicon.svg using Providr logo to fix 404. Created admin-portal .gitignore (was missing entirely — 18,540 node_modules files and .env.local with API keys were being tracked in git). Removed both from git tracking.",
+      "filesModified": ["admin-portal/src/App.tsx", "admin-portal/index.html", "admin-portal/public/favicon.svg", "admin-portal/.gitignore"]
     }
   ]
 }
