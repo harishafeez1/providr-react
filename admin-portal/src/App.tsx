@@ -21,6 +21,7 @@ import { IncidentTypeList } from './pages/incident-types/list';
 import { AdminList } from './pages/admins/list';
 import { SettingsPage } from './pages/settings';
 import { ProjectTrackerPage } from './pages/project-tracker';
+import { InfrastructurePage } from './pages/infrastructure';
 import { PermissionList } from './pages/permissions/list';
 import { ProviderCompanyImportList } from './pages/provider-company-imports/list';
 import { ClaimRequestList } from './pages/claim-requests/list';
@@ -45,7 +46,7 @@ import { Authenticated } from './components/Authenticated';
 
 export default function App() {
   return (
-    <BrowserRouter basename="/admin-portal">
+    <BrowserRouter basename="/admin-portal" future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Refine
         routerProvider={routerProvider}
         authProvider={authProvider}
@@ -170,6 +171,7 @@ export default function App() {
             {/* Settings & Tools */}
             <Route path="settings" element={<SettingsPage />} />
             <Route path="project-tracker" element={<ProjectTrackerPage />} />
+            <Route path="infrastructure" element={<InfrastructurePage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>

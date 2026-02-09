@@ -134,6 +134,69 @@
       "title": "Converted Find Services to slide-out panel",
       "description": "Replaced multi-step wizard with Shadcn Sheet slide-out panel. Services nav link now opens a right-side panel with Google Places location search, Shadcn Select for service type, live provider count badge, and Search button that navigates to /directory with results. Removed /services route and wizard pages.",
       "filesModified": ["customer-portal/src/components/FindServicesSheet.tsx", "customer-portal/src/layouts/public-layout/header/Header.tsx", "customer-portal/src/routing/AppRoutingSetup.tsx"]
+    },
+    {
+      "id": "CHG-016",
+      "date": "2026-02-03",
+      "taskNumber": "",
+      "type": "changed",
+      "title": "Database migration: AWS RDS to Supabase PostgreSQL",
+      "description": "HUE team migrated the production database from AWS RDS (MySQL) to Supabase (PostgreSQL). Added PostgresSearchable trait for ILIKE search compatibility. Updated migrations for PostgreSQL syntax (CHANGE to ALTER COLUMN). Updated config/database.php for pgsql support.",
+      "filesModified": ["providr/config/database.php", "providr/app/Traits/PostgresSearchable.php", "providr/database/migrations/*"]
+    },
+    {
+      "id": "CHG-017",
+      "date": "2026-02-04",
+      "taskNumber": "",
+      "type": "added",
+      "title": "Admin API: AI Models, Prompts, Roles, Permissions, Stripe",
+      "description": "HUE team added full CRUD API controllers for AI Models (with API key masking), BSP Prompt Sections, NDIS Prompt Definitions, Permissions, Roles, Claim Requests, Provider Company Imports, Customer Documents, Stripe Configurations, and Stripe Products.",
+      "filesModified": ["providr/app/Http/Controllers/Api/Admin/AIModelController.php", "providr/app/Http/Controllers/Api/Admin/BspPromptSectionController.php", "providr/app/Http/Controllers/Api/Admin/NdisPromptDefinitionController.php", "providr/routes/api.php"]
+    },
+    {
+      "id": "CHG-018",
+      "date": "2026-02-04",
+      "taskNumber": "",
+      "type": "added",
+      "title": "Admin Portal: AI Models, NDIS Prompts, Roles pages",
+      "description": "HUE team added React pages for AI Model create, NDIS Prompts list/show/edit with temperature control and JSON field editing, Roles create with permission checkboxes, Permissions create, Stripe Configuration and Product create pages. Added generic ResourceCreate component and textarea UI component.",
+      "filesModified": ["admin-portal/src/pages/ai-models/create.tsx", "admin-portal/src/pages/ndis-prompts/*", "admin-portal/src/pages/roles/*", "admin-portal/src/pages/resource-create.tsx"]
+    },
+    {
+      "id": "CHG-019",
+      "date": "2026-02-09",
+      "taskNumber": "",
+      "type": "changed",
+      "title": "Supabase: Switched to new Sydney project",
+      "description": "HUE team updated production to use the new Sydney Supabase project (mgihlxyfbvzqyqodvgsc) for lower latency from Australia. Previous Tokyo project (zuavjjknecbnsiviyand) deprecated.",
+      "filesModified": ["providr/.env"]
+    },
+    {
+      "id": "CHG-020",
+      "date": "2026-02-10",
+      "taskNumber": "",
+      "type": "changed",
+      "title": "Supabase Tokyo to Sydney data migration",
+      "description": "Migrated all 49 tables (1,272 rows) from Tokyo (ap-northeast-1) to Sydney (ap-southeast-2) Supabase project using PHP direct copy with proper boolean type handling. All data verified matching. Updated Supabase skill documentation with new connection details.",
+      "filesModified": [".claude/skills/supabase/SKILL.md", ".claude/skills/supabase/connection-guide.md", ".claude/skills/supabase/laravel-integration.md"]
+    },
+    {
+      "id": "CHG-021",
+      "date": "2026-02-10",
+      "taskNumber": "",
+      "type": "changed",
+      "title": "Synced production data to local MySQL",
+      "description": "Pulled all production data from Supabase into local MySQL for development parity. Synced 28 tables including users, provider_companies, incidents, reviews, and notification_settings with proper PostgreSQL-to-MySQL type conversion.",
+      "filesModified": ["local database"]
+    },
+    {
+      "id": "CHG-022",
+      "date": "2026-02-10",
+      "taskNumber": "",
+      "type": "changed",
+      "title": "Merged HUE team changes into Drew branch",
+      "description": "Pulled origin/main into local Drew branch for both Laravel (11 commits, 64 files) and React (4 commits, 134 files) repos. Fast-forward merge with zero conflicts. Fixed admin portal .env.local to point to localhost:8002 for local dev.",
+      "filesModified": ["providr-react/admin-portal/.env.local"]
     }
   ]
 }

@@ -3,7 +3,7 @@ import { useGetIdentity, useLogout } from '@refinedev/core';
 import {
   LayoutDashboard, Building2, Users, UserCircle, Layers, Package, ClipboardList,
   Star, AlertTriangle, Shield, ChevronsLeft, ChevronsRight, Settings, LogOut, User, ClipboardCheck,
-  Lock, Upload, FileCheck, FileText, CreditCard, ShoppingBag, Brain, MessageSquare, KeyRound,
+  Lock, Upload, FileCheck, FileText, CreditCard, ShoppingBag, Brain, MessageSquare, KeyRound, Network,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -72,6 +72,7 @@ export const menuSections = [
       { label: 'Admin Users', path: '/admins', icon: Shield },
       { label: 'Settings', path: '/settings', icon: Settings },
       { label: 'Project Tracker', path: '/project-tracker', icon: ClipboardCheck },
+      { label: 'Infrastructure', path: '/infrastructure', icon: Network },
     ],
   },
 ];
