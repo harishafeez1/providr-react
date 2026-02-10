@@ -22,6 +22,7 @@ import { AdminList } from './pages/admins/list';
 import { SettingsPage } from './pages/settings';
 import { ProjectTrackerPage } from './pages/project-tracker';
 import { InfrastructurePage } from './pages/infrastructure';
+import { PulsePage } from './pages/pulse';
 import { PermissionList } from './pages/permissions/list';
 import { ProviderCompanyImportList } from './pages/provider-company-imports/list';
 import { ClaimRequestList } from './pages/claim-requests/list';
@@ -172,6 +173,7 @@ export default function App() {
             <Route path="settings" element={<SettingsPage />} />
             <Route path="project-tracker" element={<ProjectTrackerPage />} />
             <Route path="infrastructure" element={<InfrastructurePage />} />
+            <Route path="pulse" element={<PulsePage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
