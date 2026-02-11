@@ -46,7 +46,7 @@ const API_ORIGIN = new URL(API_BASE).origin;
 // Provider Portal and Customer Portal run on separate Vite ports that are usually off.
 const ALL_SERVICES = [
   { key: 'admin-portal', label: 'Admin Portal', url: `${API_ORIGIN}/admin-portal/`, prodOnly: false },
-  { key: 'provider-portal', label: 'Provider Portal', url: import.meta.env.DEV ? 'http://localhost:5174/' : 'https://provider.providr.au/', prodOnly: true },
+  { key: 'provider-portal', label: 'Provider Portal', url: import.meta.env.DEV ? 'http://localhost:5174/' : `${API_ORIGIN}/provider-portal/`, prodOnly: true },
   { key: 'customer-portal', label: 'Customer Portal', url: import.meta.env.DEV ? 'http://localhost:5176/' : `${API_ORIGIN}/customer-portal/`, prodOnly: true },
   { key: 'laravel-api', label: 'Laravel API', url: `${API_BASE}/public/settings/branding`, prodOnly: false },
 ];
