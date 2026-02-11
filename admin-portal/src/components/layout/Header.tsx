@@ -6,6 +6,8 @@ import {
   Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { menuSections } from './Sidebar';
+import { Notifications } from './header/Notifications';
+import { UserMenu } from './header/UserMenu';
 
 interface HeaderProps {
   onToggleSidebar: () => void;
@@ -62,6 +64,12 @@ export function Header({ onToggleSidebar }: HeaderProps) {
             )}
           </BreadcrumbList>
         </Breadcrumb>
+      </div>
+
+      <div className="ml-auto flex items-center gap-1">
+        <Notifications />
+        <Separator orientation="vertical" className="mx-2 h-4" />
+        <UserMenu />
       </div>
     </header>
   );
