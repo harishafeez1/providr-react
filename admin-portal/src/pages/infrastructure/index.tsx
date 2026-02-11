@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { reportServiceAlert } from '@/services/notification-service';
+import api from '@/services/api';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -16,6 +17,45 @@ import {
   GoogleIcon, StripeIcon, MapboxIcon, GitIcon, GitHubIcon,
   ShadcnIcon, RefineIcon,
 } from '@/components/icons/brands';
+
+/* ─── System Info Hook ───────────────────────────────── */
+
+interface SystemInfo {
+  php_version: string;
+  laravel_version: string;
+  environment: string;
+  debug: boolean;
+  timezone: string;
+  locale: string;
+  database: {
+    driver: string;
+    host: string;
+    port: string | number;
+    name: string;
+    version: string;
+    table_count: number;
+  };
+  cache_driver: string;
+  queue_driver: string;
+  session_driver: string;
+  server: string;
+  route_count: number;
+  disk: { total_gb: number; free_gb: number; used_pct: number } | null;
+}
+
+function useSystemInfo() {
+  const [info, setInfo] = useState<SystemInfo | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.get('/admin/system-info')
+      .then((res) => setInfo(res.data))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  return { info, loading };
+}
 
 /* ─── Health Check Hook ───────────────────────────────── */
 
@@ -247,7 +287,7 @@ function SectionTitle({ icon: Icon, title, description }: { icon: React.Componen
 
 /* ─── Architecture Map ────────────────────────────────── */
 
-function ArchitectureMap({ health }: { health: HealthMap }) {
+function ArchitectureMap({ health, sysInfo }: { health: HealthMap; sysInfo: SystemInfo | null }) {
   return (
     <div className="space-y-8">
       {/* Portals row */}
@@ -323,8 +363,8 @@ function ArchitectureMap({ health }: { health: HealthMap }) {
                 <p className="text-sm text-muted-foreground">RESTful API serving all three portals</p>
               </div>
               <div className="text-right">
-                <Badge variant="secondary" className="mb-1">PHP 8.3</Badge>
-                <p className="text-xs text-muted-foreground font-mono">Laravel 11</p>
+                <Badge variant="secondary" className="mb-1">PHP {sysInfo?.php_version?.split('.').slice(0, 2).join('.') ?? '...'}</Badge>
+                <p className="text-xs text-muted-foreground font-mono">Laravel {sysInfo?.laravel_version?.split('.')[0] ?? '...'}</p>
               </div>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -392,7 +432,7 @@ function ArchitectureMap({ health }: { health: HealthMap }) {
                 <InfoRow label="Pooler Port" value="5432 (session) / 6543 (transaction)" mono />
                 <InfoRow label="Database" value="postgres" mono />
                 <InfoRow label="Engine" value="PostgreSQL 15" />
-                <InfoRow label="Tables" value="49" />
+                <InfoRow label="Tables" value={sysInfo?.database?.table_count?.toString() ?? '...'} />
                 <InfoRow label="IPv4" value="Enabled (dedicated add-on)" />
               </div>
             </CardContent>
@@ -524,14 +564,14 @@ function ExternalServiceCard({ name, description, region, brandIcon }: {
 
 /* ─── Tech Stack ──────────────────────────────────────── */
 
-function TechStackTab() {
+function TechStackTab({ sysInfo }: { sysInfo: SystemInfo | null }) {
   const stacks: { category: string; icon: React.ReactNode; items: { name: string; version: string; description: string; brandIcon?: React.ReactNode }[] }[] = [
     {
       category: 'Backend',
       icon: <LaravelIcon className="h-4 w-4" />,
       items: [
-        { name: 'PHP', version: '8.3.28', description: 'Server-side language', brandIcon: <PHPIcon className="h-4 w-4" /> },
-        { name: 'Laravel', version: '8.x', description: 'MVC framework', brandIcon: <LaravelIcon className="h-4 w-4" /> },
+        { name: 'PHP', version: sysInfo?.php_version ?? '...', description: 'Server-side language', brandIcon: <PHPIcon className="h-4 w-4" /> },
+        { name: 'Laravel', version: sysInfo?.laravel_version ?? '...', description: 'MVC framework', brandIcon: <LaravelIcon className="h-4 w-4" /> },
         { name: 'Sanctum', version: '', description: 'Token-based API authentication' },
         { name: 'Eloquent ORM', version: '', description: 'Database abstraction layer' },
         { name: 'PostgresSearchable', version: '', description: 'Custom ILIKE search trait' },
@@ -626,18 +666,22 @@ function TechStackTab() {
 
 /* ─── Environments ────────────────────────────────────── */
 
-function EnvironmentsTab() {
+function EnvironmentsTab({ sysInfo }: { sysInfo: SystemInfo | null }) {
+  const db = sysInfo?.database;
   const envRows = [
-    { label: 'Database', dev: 'MySQL 8.4 (local)', prod: 'Supabase PostgreSQL 15' },
-    { label: 'DB Host', dev: '127.0.0.1:3306', prod: 'Supabase Pooler (Sydney) :5432' },
-    { label: 'DB Name', dev: 'providr', prod: 'postgres' },
+    { label: 'Database', dev: 'MySQL 8.4 (local)', prod: db?.version ?? 'Supabase PostgreSQL' },
+    { label: 'DB Host', dev: '127.0.0.1:3306', prod: db ? `${db.host}:${db.port}` : '...' },
+    { label: 'DB Name', dev: 'providr', prod: db?.name ?? '...' },
     { label: 'API Server', dev: 'localhost:8002', prod: 'app.providr.au' },
     { label: 'Admin Portal', dev: 'localhost:5178', prod: 'app.providr.au/admin-portal' },
     { label: 'Provider Portal', dev: 'localhost:5174', prod: 'app.providr.au/provider-portal' },
     { label: 'Customer Portal', dev: 'localhost:5176', prod: 'app.providr.au/customer-portal' },
     { label: 'S3 Bucket', dev: 'providrbucket (ap-southeast-2)', prod: 'providrbucket (ap-southeast-2)' },
-    { label: 'PHP Version', dev: '8.3.28', prod: '8.3.x' },
-    { label: 'CORS Origins', dev: 'localhost:5177, 5174, 5176', prod: 'admin.providr.au, etc.' },
+    { label: 'PHP Version', dev: '8.3.28', prod: sysInfo?.php_version ?? '...' },
+    { label: 'Environment', dev: 'local', prod: sysInfo?.environment ?? '...' },
+    { label: 'Cache Driver', dev: 'file', prod: sysInfo?.cache_driver ?? '...' },
+    { label: 'Queue Driver', dev: 'sync', prod: sysInfo?.queue_driver ?? '...' },
+    { label: 'Routes', dev: '—', prod: sysInfo?.route_count?.toString() ?? '...' },
   ];
 
   return (
@@ -738,7 +782,7 @@ function EnvironmentsTab() {
 
 /* ─── Database ────────────────────────────────────────── */
 
-function DatabaseTab() {
+function DatabaseTab({ sysInfo }: { sysInfo: SystemInfo | null }) {
   const keyModels = [
     { table: 'users', description: 'Provider company users / staff', relationships: 'belongs to provider_companies' },
     { table: 'provider_companies', description: 'Registered provider organisations', relationships: 'has many users, services, reviews' },
@@ -764,26 +808,26 @@ function DatabaseTab() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="pt-5">
-            <div className="text-2xl font-bold">49</div>
+            <div className="text-2xl font-bold">{sysInfo?.database?.table_count ?? '...'}</div>
             <p className="text-xs text-muted-foreground">Total Tables</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-5">
-            <div className="text-2xl font-bold">1,272</div>
-            <p className="text-xs text-muted-foreground">Total Rows (Prod)</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-5">
-            <div className="text-2xl font-bold">PostgreSQL 15</div>
+            <div className="text-2xl font-bold">{sysInfo?.database?.version ?? '...'}</div>
             <p className="text-xs text-muted-foreground">Production Engine</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-5">
-            <div className="text-2xl font-bold">MySQL 8.4</div>
-            <p className="text-xs text-muted-foreground">Development Engine</p>
+            <div className="text-2xl font-bold">{sysInfo?.database?.driver ?? '...'}</div>
+            <p className="text-xs text-muted-foreground">DB Driver</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-5">
+            <div className="text-2xl font-bold">{sysInfo?.route_count ?? '...'}</div>
+            <p className="text-xs text-muted-foreground">API Routes</p>
           </CardContent>
         </Card>
       </div>
@@ -929,7 +973,7 @@ function ReposTab() {
 
 /* ─── API Endpoints ───────────────────────────────────── */
 
-function ApiEndpointsTab() {
+function ApiEndpointsTab({ sysInfo }: { sysInfo: SystemInfo | null }) {
   const endpoints = [
     { group: 'Auth', routes: [{ method: 'POST', path: '/api/admin/login', description: 'Admin login' }] },
     {
@@ -1023,6 +1067,7 @@ function ApiEndpointsTab() {
 
 export function InfrastructurePage() {
   const { health, isRefreshing, refresh } = useHealthChecks();
+  const { info: sysInfo } = useSystemInfo();
 
   return (
     <div className="space-y-6">
@@ -1041,11 +1086,11 @@ export function InfrastructurePage() {
           <TabsTrigger value="api">API Endpoints</TabsTrigger>
           <TabsTrigger value="repos">Repos & Team</TabsTrigger>
         </TabsList>
-        <TabsContent value="architecture"><ArchitectureMap health={health} /></TabsContent>
-        <TabsContent value="tech-stack"><TechStackTab /></TabsContent>
-        <TabsContent value="environments"><EnvironmentsTab /></TabsContent>
-        <TabsContent value="database"><DatabaseTab /></TabsContent>
-        <TabsContent value="api"><ApiEndpointsTab /></TabsContent>
+        <TabsContent value="architecture"><ArchitectureMap health={health} sysInfo={sysInfo} /></TabsContent>
+        <TabsContent value="tech-stack"><TechStackTab sysInfo={sysInfo} /></TabsContent>
+        <TabsContent value="environments"><EnvironmentsTab sysInfo={sysInfo} /></TabsContent>
+        <TabsContent value="database"><DatabaseTab sysInfo={sysInfo} /></TabsContent>
+        <TabsContent value="api"><ApiEndpointsTab sysInfo={sysInfo} /></TabsContent>
         <TabsContent value="repos"><ReposTab /></TabsContent>
       </Tabs>
     </div>
