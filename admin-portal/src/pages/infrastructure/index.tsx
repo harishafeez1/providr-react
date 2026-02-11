@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { reportServiceAlert } from '@/services/notification-service';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -41,12 +42,18 @@ function getHealth(health: HealthMap | undefined, key: string): HealthResult {
 const API_BASE = import.meta.env.VITE_APP_API_URL || 'http://localhost:8002/api';
 const API_ORIGIN = new URL(API_BASE).origin;
 
-const SERVICES = [
-  { key: 'admin-portal', label: 'Admin Portal', url: `${API_ORIGIN}/admin-portal/` },
-  { key: 'provider-portal', label: 'Provider Portal', url: import.meta.env.DEV ? 'http://localhost:5174/' : 'https://provider.providr.au/' },
-  { key: 'customer-portal', label: 'Customer Portal', url: import.meta.env.DEV ? 'http://localhost:5176/' : `${API_ORIGIN}/customer-portal/` },
-  { key: 'laravel-api', label: 'Laravel API', url: `${API_BASE}/public/settings/branding` },
+// In dev, only check services that are expected to be running (admin-portal + laravel-api).
+// Provider Portal and Customer Portal run on separate Vite ports that are usually off.
+const ALL_SERVICES = [
+  { key: 'admin-portal', label: 'Admin Portal', url: `${API_ORIGIN}/admin-portal/`, prodOnly: false },
+  { key: 'provider-portal', label: 'Provider Portal', url: import.meta.env.DEV ? 'http://localhost:5174/' : 'https://provider.providr.au/', prodOnly: true },
+  { key: 'customer-portal', label: 'Customer Portal', url: import.meta.env.DEV ? 'http://localhost:5176/' : `${API_ORIGIN}/customer-portal/`, prodOnly: true },
+  { key: 'laravel-api', label: 'Laravel API', url: `${API_BASE}/public/settings/branding`, prodOnly: false },
 ];
+
+const SERVICES = import.meta.env.DEV
+  ? ALL_SERVICES.filter((s) => !s.prodOnly)
+  : ALL_SERVICES;
 
 // Supabase is external/managed — can't be health-checked from browser without API key
 const EXTERNAL_SERVICES = [
@@ -78,6 +85,7 @@ function useHealthChecks() {
   });
   const [isRefreshing, setIsRefreshing] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const prevHealthRef = useRef<HealthMap>({});
 
   const runChecks = useCallback(async () => {
     setIsRefreshing(true);
@@ -87,12 +95,26 @@ function useHealthChecks() {
         let status: ServiceStatus = 'inactive';
         if (ok && ms < SLOW_THRESHOLD) status = 'active';
         else if (ok) status = 'warning';
-        return { key: s.key, status, responseTime: ms, lastChecked: new Date() } as { key: string } & HealthResult;
+        return { key: s.key, label: s.label, status, responseTime: ms, lastChecked: new Date() };
       })
     );
+
+    // Fire alerts only in production when a service transitions to inactive or warning
+    if (!import.meta.env.DEV) {
+      for (const r of results) {
+        const prev = prevHealthRef.current[r.key]?.status;
+        if (prev && prev !== 'checking' && prev !== r.status) {
+          if (r.status === 'inactive' || r.status === 'warning') {
+            reportServiceAlert(r.label, r.status).catch(() => {});
+          }
+        }
+      }
+    }
+
     setHealth((prev) => {
       const next = { ...prev };
       for (const r of results) next[r.key] = { status: r.status, responseTime: r.responseTime, lastChecked: r.lastChecked };
+      prevHealthRef.current = next;
       return next;
     });
     setIsRefreshing(false);
@@ -112,9 +134,12 @@ function useHealthChecks() {
 function HealthBanner({ health, isRefreshing, onRefresh }: {
   health: HealthMap; isRefreshing: boolean; onRefresh: () => void;
 }) {
-  const services = SERVICES.map((s) => ({ ...s, ...getHealth(health, s.key) }));
-  const allUp = services.every((s) => s.status === 'active');
-  const anyDown = services.some((s) => s.status === 'inactive');
+  const checkedServices = SERVICES.map((s) => ({ ...s, ...getHealth(health, s.key), skipped: false }));
+  const skippedServices = ALL_SERVICES.filter((s) => !SERVICES.some((cs) => cs.key === s.key))
+    .map((s) => ({ ...s, status: 'inactive' as ServiceStatus, responseTime: null, lastChecked: null, skipped: true }));
+  const services = [...checkedServices, ...skippedServices];
+  const allUp = checkedServices.every((s) => s.status === 'active');
+  const anyDown = checkedServices.some((s) => s.status === 'inactive');
   const lastChecked = services[0]?.lastChecked;
 
   return (
@@ -147,11 +172,17 @@ function HealthBanner({ health, isRefreshing, onRefresh }: {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
           {services.map((s) => (
             <div key={s.key} className="flex items-center gap-2 bg-muted/40 rounded-md px-3 py-2">
-              <StatusDot status={s.status} />
+              {s.skipped ? (
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-gray-300" />
+                </span>
+              ) : (
+                <StatusDot status={s.status} />
+              )}
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-medium truncate">{s.label}</p>
                 <p className="text-[10px] text-muted-foreground">
-                  {s.status === 'checking' ? 'Checking...' : s.responseTime !== null ? `${s.responseTime}ms` : '—'}
+                  {s.skipped ? 'Dev — not checked' : s.status === 'checking' ? 'Checking...' : s.responseTime !== null ? `${s.responseTime}ms` : '—'}
                 </p>
               </div>
             </div>

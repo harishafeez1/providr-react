@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { BellIcon, ClockIcon, Check } from 'lucide-react';
+import { BellIcon, ClockIcon, Check, Loader2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,73 +10,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-
-interface Notification {
-  id: number;
-  title: string;
-  description: string;
-  time: string;
-  read: boolean;
-  type: 'info' | 'warning' | 'success';
-  initials: string;
-}
-
-const INITIAL_NOTIFICATIONS: Notification[] = [
-  {
-    id: 1,
-    title: 'New provider registered',
-    description: 'Outback Mobility Solutions submitted a registration.',
-    time: '2 hours ago',
-    read: false,
-    type: 'info',
-    initials: 'OM',
-  },
-  {
-    id: 2,
-    title: 'New review submitted',
-    description: 'A 5-star review was left for CareConnect Services.',
-    time: '4 hours ago',
-    read: false,
-    type: 'success',
-    initials: 'CC',
-  },
-  {
-    id: 3,
-    title: 'Claim request pending',
-    description: 'Provider claim request #47 awaiting approval.',
-    time: '6 hours ago',
-    read: false,
-    type: 'warning',
-    initials: 'CR',
-  },
-  {
-    id: 4,
-    title: 'Service request completed',
-    description: 'Service request #312 marked as completed.',
-    time: '1 day ago',
-    read: true,
-    type: 'success',
-    initials: 'SR',
-  },
-  {
-    id: 5,
-    title: 'New incident reported',
-    description: 'Incident type: Minor - reported by provider #23.',
-    time: '1 day ago',
-    read: true,
-    type: 'warning',
-    initials: 'IR',
-  },
-  {
-    id: 6,
-    title: 'Deployment complete',
-    description: 'Laravel 11 + Pulse deployed to production successfully.',
-    time: '2 days ago',
-    read: true,
-    type: 'info',
-    initials: 'DC',
-  },
-];
+import { useNotifications } from '@/hooks/useNotifications';
+import type { AdminNotification } from '@/services/notification-service';
 
 const TYPE_COLORS: Record<string, string> = {
   info: 'bg-blue-100 text-blue-700',
@@ -85,12 +19,39 @@ const TYPE_COLORS: Record<string, string> = {
   success: 'bg-green-100 text-green-700',
 };
 
-export function Notifications() {
-  const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
-  const unreadCount = notifications.filter((n) => !n.read).length;
+const TYPE_INITIALS: Record<string, string> = {
+  provider_registered: 'PR',
+  review_submitted: 'RV',
+  claim_request: 'CR',
+  incident_reported: 'IR',
+  service_request: 'SR',
+  service_down: 'SD',
+};
 
-  const markAllRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+function timeAgo(dateString: string): string {
+  const now = Date.now();
+  const then = new Date(dateString).getTime();
+  const seconds = Math.floor((now - then) / 1000);
+
+  if (seconds < 60) return 'just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d ago`;
+  return `${Math.floor(days / 30)}mo ago`;
+}
+
+export function Notifications() {
+  const { notifications, unreadCount, isLoading, markAsRead, markAllRead } =
+    useNotifications();
+
+  const handleClick = (item: AdminNotification) => {
+    markAsRead(item.id);
+    if (item.link) {
+      window.location.href = item.link;
+    }
   };
 
   return (
@@ -132,31 +93,51 @@ export function Notifications() {
         </DropdownMenuLabel>
 
         <ScrollArea className="h-[350px]">
-          {notifications.map((item) => (
-            <DropdownMenuItem
-              key={item.id}
-              className="flex cursor-pointer items-start gap-3 rounded-none border-b px-4 py-3 focus:bg-accent"
-            >
-              <Avatar className="mt-0.5 h-8 w-8 shrink-0">
-                <AvatarFallback className={`text-[10px] font-semibold ${TYPE_COLORS[item.type]}`}>
-                  {item.initials}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex flex-1 flex-col gap-1 min-w-0">
-                <span className="truncate text-sm font-medium">{item.title}</span>
-                <span className="line-clamp-2 text-xs text-muted-foreground">
-                  {item.description}
-                </span>
-                <span className="flex items-center gap-1 text-xs text-muted-foreground/70">
-                  <ClockIcon className="h-3 w-3" />
-                  {item.time}
-                </span>
-              </div>
-              {!item.read && (
-                <span className="mt-2 block h-2 w-2 shrink-0 rounded-full bg-primary" />
-              )}
-            </DropdownMenuItem>
-          ))}
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : notifications.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+              <BellIcon className="mb-2 h-8 w-8 opacity-30" />
+              <span className="text-sm">No notifications yet</span>
+            </div>
+          ) : (
+            notifications.map((item) => {
+              const initials = TYPE_INITIALS[item.type] ?? 'NT';
+
+              return (
+                <DropdownMenuItem
+                  key={item.id}
+                  className="flex cursor-pointer items-start gap-3 rounded-none border-b px-4 py-3 focus:bg-accent"
+                  onClick={() => handleClick(item)}
+                >
+                  <Avatar className="mt-0.5 h-8 w-8 shrink-0">
+                    <AvatarFallback
+                      className={`text-[10px] font-semibold ${TYPE_COLORS[item.severity] ?? TYPE_COLORS.info}`}
+                    >
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-1 flex-col gap-1 min-w-0">
+                    <span className="truncate text-sm font-medium">
+                      {item.title}
+                    </span>
+                    <span className="line-clamp-2 text-xs text-muted-foreground">
+                      {item.description}
+                    </span>
+                    <span className="flex items-center gap-1 text-xs text-muted-foreground/70">
+                      <ClockIcon className="h-3 w-3" />
+                      {timeAgo(item.created_at)}
+                    </span>
+                  </div>
+                  {!item.is_read && (
+                    <span className="mt-2 block h-2 w-2 shrink-0 rounded-full bg-primary" />
+                  )}
+                </DropdownMenuItem>
+              );
+            })
+          )}
         </ScrollArea>
       </DropdownMenuContent>
     </DropdownMenu>
