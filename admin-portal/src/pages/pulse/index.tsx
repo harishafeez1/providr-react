@@ -72,11 +72,14 @@ const SLOW_THRESHOLD = 2000;
 const TIMEOUT = 8000;
 const MAX_HISTORY = 20;
 
+const API_BASE = import.meta.env.VITE_APP_API_URL || 'http://localhost:8002/api';
+const API_ORIGIN = new URL(API_BASE).origin;
+
 const SERVICES = [
-  { key: 'admin-portal', label: 'Admin Portal', url: 'http://localhost:5177/admin-portal/' },
-  { key: 'provider-portal', label: 'Provider Portal', url: 'http://localhost:5174/' },
-  { key: 'customer-portal', label: 'Customer Portal', url: 'http://localhost:5176/' },
-  { key: 'laravel-api', label: 'Laravel API', url: 'http://localhost:8002/api/public/settings/branding' },
+  { key: 'admin-portal', label: 'Admin Portal', url: `${API_ORIGIN}/admin-portal/` },
+  { key: 'provider-portal', label: 'Provider Portal', url: import.meta.env.DEV ? 'http://localhost:5174/' : 'https://provider.providr.au/' },
+  { key: 'customer-portal', label: 'Customer Portal', url: import.meta.env.DEV ? 'http://localhost:5176/' : `${API_ORIGIN}/customer-portal/` },
+  { key: 'laravel-api', label: 'Laravel API', url: `${API_BASE}/public/settings/branding` },
 ];
 
 const SERVICE_COLORS: Record<string, string> = {

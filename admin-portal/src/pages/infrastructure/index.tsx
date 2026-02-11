@@ -38,11 +38,14 @@ function getHealth(health: HealthMap | undefined, key: string): HealthResult {
   return health?.[key] ?? DEFAULT_HEALTH;
 }
 
+const API_BASE = import.meta.env.VITE_APP_API_URL || 'http://localhost:8002/api';
+const API_ORIGIN = new URL(API_BASE).origin;
+
 const SERVICES = [
-  { key: 'admin-portal', label: 'Admin Portal', url: 'http://localhost:5177/admin-portal/' },
-  { key: 'provider-portal', label: 'Provider Portal', url: 'http://localhost:5174/' },
-  { key: 'customer-portal', label: 'Customer Portal', url: 'http://localhost:5176/' },
-  { key: 'laravel-api', label: 'Laravel API', url: 'http://localhost:8002/api/public/settings/branding' },
+  { key: 'admin-portal', label: 'Admin Portal', url: `${API_ORIGIN}/admin-portal/` },
+  { key: 'provider-portal', label: 'Provider Portal', url: import.meta.env.DEV ? 'http://localhost:5174/' : 'https://provider.providr.au/' },
+  { key: 'customer-portal', label: 'Customer Portal', url: import.meta.env.DEV ? 'http://localhost:5176/' : `${API_ORIGIN}/customer-portal/` },
+  { key: 'laravel-api', label: 'Laravel API', url: `${API_BASE}/public/settings/branding` },
 ];
 
 // Supabase is external/managed — can't be health-checked from browser without API key
@@ -300,7 +303,7 @@ function ArchitectureMap({ health }: { health: HealthMap }) {
               </div>
               <div className="bg-muted/50 rounded-lg p-3 text-center">
                 <p className="text-xs text-muted-foreground">Prod URL</p>
-                <p className="text-sm font-mono font-medium">admin.providr.au</p>
+                <p className="text-sm font-mono font-medium">app.providr.au</p>
               </div>
               <div className="bg-muted/50 rounded-lg p-3 text-center">
                 <p className="text-xs text-muted-foreground">Auth</p>
@@ -597,10 +600,10 @@ function EnvironmentsTab() {
     { label: 'Database', dev: 'MySQL 8.4 (local)', prod: 'Supabase PostgreSQL 15' },
     { label: 'DB Host', dev: '127.0.0.1:3306', prod: 'Supabase Pooler (Sydney) :5432' },
     { label: 'DB Name', dev: 'providr', prod: 'postgres' },
-    { label: 'API Server', dev: 'localhost:8002', prod: 'admin.providr.au' },
-    { label: 'Admin Portal', dev: 'localhost:5177', prod: 'admin.providr.au/admin-portal' },
+    { label: 'API Server', dev: 'localhost:8002', prod: 'app.providr.au' },
+    { label: 'Admin Portal', dev: 'localhost:5178', prod: 'app.providr.au/admin-portal' },
     { label: 'Provider Portal', dev: 'localhost:5174', prod: 'provider.providr.au' },
-    { label: 'Customer Portal', dev: 'localhost:5176', prod: 'app.providr.au' },
+    { label: 'Customer Portal', dev: 'localhost:5176', prod: 'app.providr.au/customer-portal' },
     { label: 'S3 Bucket', dev: 'providrbucket (ap-southeast-2)', prod: 'providrbucket (ap-southeast-2)' },
     { label: 'PHP Version', dev: '8.3.28', prod: '8.3.x' },
     { label: 'CORS Origins', dev: 'localhost:5177, 5174, 5176', prod: 'admin.providr.au, etc.' },
