@@ -16,6 +16,8 @@ import { Separator } from '@/components/ui/separator';
 import logoFull from '@/assets/logo.png';
 import logoIcon from '@/assets/logo-icon.png';
 
+export const APP_VERSION = '1.0.0';
+
 export const menuSections = [
   {
     title: 'Overview',
@@ -254,6 +256,13 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+
+        {/* Version */}
+        {!collapsed && (
+          <div className="px-4 pb-2 text-[10px] text-muted-foreground/50 text-center">
+            v{APP_VERSION}
+          </div>
+        )}
       </aside>
     </TooltipProvider>
   );
