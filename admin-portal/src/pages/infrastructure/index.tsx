@@ -272,7 +272,7 @@ function ArchitectureMap({ health }: { health: HealthMap }) {
             brandIcon={<ReactIcon className="h-5 w-5" />}
             color="violet"
             devUrl="localhost:5174"
-            prodUrl="provider.providr.au"
+            prodUrl="app.providr.au/provider-portal"
             tech="React 18 + Vite"
             description="Provider company management"
             basePath="/"
@@ -633,7 +633,7 @@ function EnvironmentsTab() {
     { label: 'DB Name', dev: 'providr', prod: 'postgres' },
     { label: 'API Server', dev: 'localhost:8002', prod: 'app.providr.au' },
     { label: 'Admin Portal', dev: 'localhost:5178', prod: 'app.providr.au/admin-portal' },
-    { label: 'Provider Portal', dev: 'localhost:5174', prod: 'provider.providr.au' },
+    { label: 'Provider Portal', dev: 'localhost:5174', prod: 'app.providr.au/provider-portal' },
     { label: 'Customer Portal', dev: 'localhost:5176', prod: 'app.providr.au/customer-portal' },
     { label: 'S3 Bucket', dev: 'providrbucket (ap-southeast-2)', prod: 'providrbucket (ap-southeast-2)' },
     { label: 'PHP Version', dev: '8.3.28', prod: '8.3.x' },
