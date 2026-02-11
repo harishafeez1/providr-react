@@ -77,7 +77,7 @@ const API_ORIGIN = new URL(API_BASE).origin;
 
 const SERVICES = [
   { key: 'admin-portal', label: 'Admin Portal', url: `${API_ORIGIN}/admin-portal/` },
-  { key: 'provider-portal', label: 'Provider Portal', url: import.meta.env.DEV ? 'http://localhost:5174/' : 'https://provider.providr.au/' },
+  { key: 'provider-portal', label: 'Provider Portal', url: import.meta.env.DEV ? 'http://localhost:5174/' : `${API_ORIGIN}/provider-portal/` },
   { key: 'customer-portal', label: 'Customer Portal', url: import.meta.env.DEV ? 'http://localhost:5176/' : `${API_ORIGIN}/customer-portal/` },
   { key: 'laravel-api', label: 'Laravel API', url: `${API_BASE}/public/settings/branding` },
 ];
