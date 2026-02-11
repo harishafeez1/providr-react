@@ -290,7 +290,7 @@ function ArchitectureMap({ health }: { health: HealthMap }) {
               </div>
               <div className="text-right">
                 <Badge variant="secondary" className="mb-1">PHP 8.3</Badge>
-                <p className="text-xs text-muted-foreground font-mono">Laravel 8</p>
+                <p className="text-xs text-muted-foreground font-mono">Laravel 11</p>
               </div>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -797,7 +797,7 @@ function ReposTab() {
           <CardContent>
             <div className="space-y-1 text-sm">
               <InfoRow label="Language" value="PHP 8.3" />
-              <InfoRow label="Framework" value="Laravel 8" />
+              <InfoRow label="Framework" value="Laravel 11" />
               <InfoRow label="Local Branch" value="Drew" />
               <InfoRow label="Main Branch" value="main" />
               <InfoRow label="Local Path" value="c:\DATA\Providr\providr" mono />
